@@ -1,0 +1,37 @@
+# Comments and
+# multiline comments support.
+the-show-off-list:
+  - completly written from scratch without any extra dependency
+  - fastest yaml reader and writer currently available (see benchmarks below)
+  - not a single static method and very memory efficient
+supports-hyphen-separation: awesome!
+or speration by spaces: great!
+and.dots.like.this: wow!
+
+# Complex hierarchies supported.
+p1:
+  c1-1:
+    c2-1: wow!
+    c2-2: <3
+  c1-2:
+    - v1
+    - v2
+
+not supported:
+  - everything else that is not explicitly mentioned in this file
+  - side comments like -> # will not work :( use multiline comments instead
+  - apostrophes ("" and '') encapsultating values wont be removed, just don't use them
+
+faq:
+  - For what does DY stand for?
+  - DreamYaml.
+  -
+  - What is a DYModule?
+  - It is the in-memory representation of a yaml section (for example 'faq' with its key 'faq' and its values as a list, is one module).
+  -
+  - What is a DreamYaml object?
+  - It is the in-memory representation of the full yaml file and contains all of the modules, which can be accessed by their keys.
+  -
+  - What is a DYReader?
+  - It is responsible for reading the yaml file and parsing its objects into modules, which then get added to the DreamYaml object.
+

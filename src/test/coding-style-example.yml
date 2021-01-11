@@ -1,0 +1,12 @@
+name: John
+last-name: Goldman
+age: 29
+work: Reporter
+# comments like this.
+encapsulated: 
+  # comments like this.
+  name: John
+  # This is a single line comment.
+  last name: Goldman
+  age: 29
+  work: Reporter

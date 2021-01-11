@@ -1,0 +1,9 @@
+# Everything about getting, setting and updating values.
+name: John
+last-name: Goldman
+age: 29
+work: Reporter
+pending-tasks: 
+  - research
+  - 1234
+  - start working
