@@ -60,3 +60,9 @@ These examples build on top of each other, so make sure to follow the order.
 * [`ValuesValidationExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/ValuesValidationExample.java)
 * [`ParentExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/ParentExample.java)
 * [`CodingStyleExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/CodingStyleExample.java)
+## Benchmarks
+<img src="https://i.imgur.com/rupU0Ea.png">
+<details>
+  <summary>Data</summary>
+<img src="https://i.imgur.com/Dvob5Ly.png">
+</details>
