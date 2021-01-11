@@ -5,7 +5,7 @@ The best yaml file reader and writer for java.
 Required: Java 8+
 ## Motivation
 It started by not beeing able to find a api which fullfilled my needs in simplicity and performance.
-So we developed Dream-Yaml with the goal of having a simple, performant and reliable api for processing yaml files.
+So I developed Dream-Yaml with the goal of having a simple, performant and reliable api for processing yaml files.
 ## Features
 ```yaml
 # Comments and
