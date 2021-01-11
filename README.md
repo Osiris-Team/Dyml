@@ -61,6 +61,10 @@ These examples build on top of each other, so make sure to follow the order.
 * [`ParentExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/ParentExample.java)
 * [`CodingStyleExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/CodingStyleExample.java)
 ## Benchmarks
+Dream-Yaml seems to be about 9x faster than [SnakeYAML](https://bitbucket.org/asomov/snakeyaml/src/master/)
+, 8x faster than [YamlBeans](https://github.com/EsotericSoftware/yamlbeans)
+, 4x faster than [eo-yaml](https://github.com/decorators-squad/eo-yaml)
+ and 3x faster than [Simple-Yaml](https://github.com/Carleslc/Simple-YAML).
 <div align="center">
 <div>
   <img src="https://i.imgur.com/rupU0Ea.png">
