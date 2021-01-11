@@ -65,7 +65,7 @@ These examples build on top of each other, so make sure to follow the order.
 <div>
   <img src="https://i.imgur.com/rupU0Ea.png">
 <details>
-  <summary>Click here for details</summary>
+  <summary>Open/close details</summary>
 <img src="https://i.imgur.com/Dvob5Ly.png">
 </details>
 </div>
