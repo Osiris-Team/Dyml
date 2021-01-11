@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  ~ Copyright Osiris Team
-  ~ All rights reserved.
+  ~  Copyright Osiris Team
+  ~  All rights reserved.
   ~
-  ~ This software is copyrighted work licensed under the terms of the
-  ~ AutoPlug License.  Please consult the file "LICENSE" for details.
+  ~  This software is licensed work.
+  ~  Please consult the file "LICENSE" for details.
   -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0"
