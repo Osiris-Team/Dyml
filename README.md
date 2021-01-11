@@ -1,4 +1,4 @@
-# Dream-Yaml
+# Dream-Yaml [![](https://jitpack.io/v/Osiris-Team/Dream-Yaml.svg)](https://jitpack.io/#Osiris-Team/Dream-Yaml)
 The best yaml file reader and writer for java.
 ## Installation
 [Click here for maven/gradle/sbt/leinigen instructions.](https://jitpack.io/#Osiris-Team/Dream-Yaml/1)
