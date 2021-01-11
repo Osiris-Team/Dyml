@@ -12,8 +12,11 @@ package com.osiris.dyml;
 import com.osiris.dyml.exceptions.IllegalListException;
 import com.osiris.dyml.exceptions.IllegalSpaceException;
 
-import java.io.*;
-import java.util.*;
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.util.ArrayList;
+import java.util.List;
 
 class DYReader {
 

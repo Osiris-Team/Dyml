@@ -8,7 +8,6 @@
 
 package com.osiris.dyml;
 
-import com.sun.istack.internal.NotNull;
 
 import java.util.Arrays;
 import java.util.List;
@@ -29,7 +28,7 @@ public class DYModule {
         this((String) null);
     }
 
-    public DYModule(@NotNull String... keys){
+    public DYModule(String... keys){
        this(Arrays.asList(keys),null, null, null);
     }
 

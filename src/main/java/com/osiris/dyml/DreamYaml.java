@@ -11,11 +11,9 @@ package com.osiris.dyml;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
 import com.osiris.dyml.exceptions.NotLoadedException;
 import com.osiris.dyml.utils.UtilsForModules;
-import com.sun.istack.internal.NotNull;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -85,7 +83,7 @@ public class DreamYaml {
      * {@link #add(DYModule)}
      * @return the newly created module.
      */
-    public DYModule add(@NotNull String... keys) throws Exception {
+    public DYModule add(String... keys) throws Exception {
         if (keys==null) throw new Exception("Keys of this module cannot be null!");
         List<String> list = new CopyOnWriteArrayList<>();
         list.addAll(Arrays.asList(keys));
@@ -199,7 +197,7 @@ public class DreamYaml {
         }
     }
 
-    public DYModule getModuleByKeys(@NotNull String... keys) {
+    public DYModule getModuleByKeys(String... keys) {
         List<String> list = new CopyOnWriteArrayList<>();
         list.addAll(Arrays.asList(keys));
         if (!list.isEmpty())

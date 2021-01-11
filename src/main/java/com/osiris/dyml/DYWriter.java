@@ -9,9 +9,11 @@
 package com.osiris.dyml;
 
 import com.osiris.dyml.utils.UtilsForModules;
-import com.sun.istack.internal.NotNull;
 
-import java.io.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.List;
 
 class DYWriter {
@@ -52,9 +54,9 @@ class DYWriter {
 
     }
 
-    private void parseModule(@NotNull BufferedWriter writer,
-                             @NotNull DYModule m,
-                             @NotNull DYModule lastM) throws IOException {
+    private void parseModule(BufferedWriter writer,
+                             DYModule m,
+                             DYModule lastM) throws IOException {
 
         int size = m.getKeys().size();
         int lastSize = lastM.getKeys().size();
