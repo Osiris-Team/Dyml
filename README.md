@@ -6,7 +6,7 @@ Java 8+ required.
 ## Motivation
 It started by not beeing able to find an api which fullfilled my needs in simplicity and performance.
 So I developed Dream-Yaml with the goal of having a simple, performant and reliable api for processing yaml files.
-To achieve these goals, only the most essential parts of yaml will be implemented.
+To achieve these goals, only the most essential parts of yaml have been implemented.
 ## Features
 ```yaml
 # Comments and
