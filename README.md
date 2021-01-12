@@ -46,12 +46,6 @@ DYModule pending   = yaml.add("pending-tasks").setDefValues("do research", "buy 
 
 yaml.save();
 
-/*
- name: John
- last name: Goldman
- age: 29
- work: Reporter
- */
 ```
 ## Examples
 These examples build on top of each other, so make sure to follow the order.
