@@ -29,11 +29,17 @@ public class DYModule {
     }
 
     public DYModule(String... keys){
-       this(Arrays.asList(keys),null, null, null);
+        List<String> list = new CopyOnWriteArrayList<>();
+        if (keys!=null) list.addAll(Arrays.asList(keys));
+       init(list,null, null, null);
     }
 
 
     public DYModule(List<String> keys, List<String> defaultValues, List<String> values, List<String> comments) {
+        init(keys, defaultValues, values, comments);
+    }
+
+    private void init(List<String> keys, List<String> defaultValues, List<String> values, List<String> comments){
         this.keys = new CopyOnWriteArrayList<>();
         this.values = new CopyOnWriteArrayList<>();
         this.defaultValues = new CopyOnWriteArrayList<>();
@@ -66,13 +72,15 @@ public class DYModule {
      */
     public DYModule setKeys(String... keys) {
         this.keys = new CopyOnWriteArrayList<>();
-        this.keys.addAll(Arrays.asList(keys));
+        if (keys!=null)
+            this.keys.addAll(Arrays.asList(keys));
         return this;
     }
 
     public DYModule setKeys(List<String> keys) {
         this.keys = new CopyOnWriteArrayList<>();
-        this.keys.addAll(keys);
+        if (keys!=null)
+            this.keys.addAll(keys);
         return this;
     }
 
@@ -88,7 +96,7 @@ public class DYModule {
      * {@link #setKeys(String...)}
      */
     public DYModule addKeys(String... keys){
-        if (this.keys!=null)
+        if (this.keys!=null && keys!=null)
             this.keys.addAll(Arrays.asList(keys));
         return this;
     }
@@ -99,13 +107,15 @@ public class DYModule {
     }
 
     public DYModule setValues(String... v){
-        setValues(Arrays.asList(v));
+        if (v!=null)
+            setValues(Arrays.asList(v));
         return this;
     }
 
     public DYModule setValues(List<String> v){
         this.values = new CopyOnWriteArrayList<>();
-        this.values.addAll(v);
+        if (v!=null)
+            this.values.addAll(v);
         return this;
     }
 
@@ -115,7 +125,7 @@ public class DYModule {
     }
 
     public DYModule addValues(String... v){
-        if (this.values!=null)
+        if (this.values!=null && v!=null)
             this.values.addAll(Arrays.asList(v));
         return this;
     }
@@ -133,13 +143,15 @@ public class DYModule {
      * that if the normal value is null or the key didn't exist yet.
      */
     public DYModule setDefValues(String... v){
-        setDefValues(Arrays.asList(v));
+        if (v!=null)
+            setDefValues(Arrays.asList(v));
         return this;
     }
 
     public DYModule setDefValues(List<String> v){
         this.defaultValues = new CopyOnWriteArrayList<String>();
-        this.defaultValues.addAll(v);
+        if (v!=null)
+            this.defaultValues.addAll(v);
         return this;
     }
 
@@ -155,7 +167,7 @@ public class DYModule {
      * {@link #setDefValues(String...)}
      */
     public DYModule addDefValues(String... v){
-        if (this.defaultValues!=null)
+        if (this.defaultValues!=null && v!=null)
             this.defaultValues.addAll(Arrays.asList(v));
         return this;
     }
@@ -167,7 +179,8 @@ public class DYModule {
 
     public DYModule setComments(String... c){
         this.comments = new CopyOnWriteArrayList<>();
-        this.comments.addAll(Arrays.asList(c));
+        if (c!=null)
+            this.comments.addAll(Arrays.asList(c));
         return this;
     }
 
@@ -177,7 +190,7 @@ public class DYModule {
     }
 
     public DYModule addComments(String... c){
-        if (this.comments!=null)
+        if (this.comments!=null && c!=null)
             this.comments.addAll(Arrays.asList(c));
         return this;
     }

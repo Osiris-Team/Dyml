@@ -101,7 +101,7 @@ class DYWriter {
                         }
                     }
                     else{
-                        if (!m.getDefaultValues().isEmpty()){
+                        if (m.getDefaultValues()!=null && !m.getDefaultValues().isEmpty()){
                             if (m.getDefaultValues().size()==1){
                                 writer.write("" + m.getDefaultValue());
                                 writer.newLine();
