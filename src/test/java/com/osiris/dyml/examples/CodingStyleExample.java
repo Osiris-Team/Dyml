@@ -37,23 +37,23 @@ public class CodingStyleExample {
         AGE = yaml.add("age").setDefValue("29");
         PROFESSION = yaml.add("work").setDefValue("Reporter");
 
-        firstName = yaml.add("encapsulated","name").setDefValue("John").setComments("Insert your multiline", "comments like this.");
-        lastName = yaml.add("encapsulated","last name").setDefValue("Goldman").setComment("This is a single line comment.");
+        firstName = yaml.add("encapsulated","name").setDefValue("John");
+        lastName = yaml.add("encapsulated","last-name").setDefValue("Goldman");
         age = yaml.add("encapsulated","age").setDefValue("29");
         work = yaml.add("encapsulated","work").setDefValue("Reporter");
 
         yaml.save();
 
         /*
-         name: John
-         last name: Goldman
-         age: 29
-         work: Reporter
-         encapsulated:
-           name: John
-           last name: Goldman
-           age: 29
-           work: Reporter
+name: John
+last-name: Goldman
+age: 29
+work: Reporter
+encapsulated:
+  name: John
+  last-name: Goldman
+  age: 29
+  work: Reporter
          */
     }
 

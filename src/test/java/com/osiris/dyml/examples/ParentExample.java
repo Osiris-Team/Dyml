@@ -20,8 +20,7 @@ public class ParentExample {
 
     @Test
     void test() throws Exception {
-        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/parent-example.yml",
-                true);
+        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/parent-example.yml");
         yaml.load();
 
         DYModule p1 = yaml.add("p1").setComments("Create a more complex yaml file", "with multiple parents and children.");
@@ -38,13 +37,20 @@ public class ParentExample {
         yaml.save();
 
         /*
-         # Create a more complex yaml file
-         # with multiple parents and children.
-         name: John
-         # This is a single line comment.
-         last name: Goldman
-         age: 29
-         work: Reporter
+# Create a more complex yaml file
+# with multiple parents and children.
+p1:
+  c1: You can arrange your
+  c2: keys and values
+  c3: as you like!
+p2:
+  c1:
+    c2:
+      c3: awesome!
+p3:
+  c1: v1
+    c2: v2
+      c3: v3
          */
 
     }

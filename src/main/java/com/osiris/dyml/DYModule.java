@@ -72,10 +72,7 @@ public class DYModule {
      * because its the only way of distinguishing modules.
      */
     public DYModule setKeys(String... keys) {
-        if (keys!=null){
-            this.keys.clear();
-            this.keys.addAll(Arrays.asList(keys));
-        }
+        if (keys!=null) return setKeys(Arrays.asList(keys));
         return this;
     }
 
@@ -109,8 +106,7 @@ public class DYModule {
     }
 
     public DYModule setValues(String... v){
-        if (v!=null)
-            setValues(Arrays.asList(v));
+        if (v!=null) setValues(Arrays.asList(v));
         return this;
     }
 
@@ -206,15 +202,18 @@ public class DYModule {
      * Returns the first key located at index 0.
      */
     public String getKey(){
-        if (keys!=null) return keys.get(0);
-        return null;
+        return getKeyByIndex(0);
     }
 
     /**
-     * Returns the key by given index.
+     * Returns the key by given index or
+     * null if there was no index i in the list.
      */
     public String getKeyByIndex(int i){
-        if (keys!=null) return keys.get(i);
+        if (keys!=null)
+            try{
+                return keys.get(i);
+            } catch (Exception ignored) {}
         return null;
     }
 
@@ -231,7 +230,7 @@ public class DYModule {
      * at the time when load() was called.
      */
     public String getValue(){
-        if (values!=null) return values.get(0);
+        if (values!=null) return getValueByIndex(0);
         return null;
     }
 
@@ -239,7 +238,10 @@ public class DYModule {
      * Returns the value by given index.
      */
     public String getValueByIndex(int i){
-        if (values!=null) return values.get(i);
+        if (values!=null)
+            try{
+                return values.get(i);
+            } catch (Exception ignored) {}
         return null;
     }
 
@@ -252,7 +254,10 @@ public class DYModule {
     }
 
     public String getDefaultValueByIndex(int i){
-        if (defaultValues!=null) return defaultValues.get(i);
+        if (defaultValues!=null)
+            try{
+                return defaultValues.get(i);
+            } catch (Exception ignored) {}
         return null;
     }
 
@@ -264,7 +269,7 @@ public class DYModule {
      * Returns the first comment at index 0.
      */
     public String getComment(){
-        if (comments!=null) return comments.get(0);
+        if (comments!=null) return getCommentByIndex(0);
         return null;
     }
 
@@ -272,7 +277,10 @@ public class DYModule {
      * Returns a specific comment by its index.
      */
     public String getCommentByIndex(int i){
-        if (comments!=null) return comments.get(i);
+        if (comments!=null)
+            try{
+                return comments.get(i);
+            } catch (Exception ignored) {}
         return null;
     }
 
@@ -293,8 +301,10 @@ public class DYModule {
     }
 
     public String asString(int i){
-        if (values!=null) return this.values.get(i);
-        return null;
+        String v = getValueByIndex(i);
+        if (v!=null)
+            return v;
+        return "null";
     }
 
     public List<String> asStringList(){

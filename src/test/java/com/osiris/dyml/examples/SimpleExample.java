@@ -32,10 +32,14 @@ public class SimpleExample {
         yaml.save(); // Saves the default values to the file. Already existing modules won't be overwritten. Missing modules will be created.
 
         /*
-         name: John
-         last name: Goldman
-         age: 29
-         work: Reporter
+name: John
+last-name: Goldman
+age: 29
+work: Reporter
+pending-tasks:
+  - do research
+  - buy food
+  - start working
          */
 
     }

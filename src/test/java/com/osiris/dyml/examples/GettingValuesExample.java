@@ -57,15 +57,15 @@ public class GettingValuesExample {
         DYModule firstNameModuleByKeys = yaml.getModuleByKeys("name");
 
         /*
-         # Everything about getting, setting and updating values.
-         name: John
-         last-name: Goldman
-         age: 29
-         work: Reporter
-         pending-tasks:
-           - research
-           - 1234
-           - start working
+# Everything about getting values.
+name: John
+last-name: Goldman
+age: 29
+work: Reporter
+pending-tasks:
+  - research
+  - 1234
+  - start working
          */
 
     }
