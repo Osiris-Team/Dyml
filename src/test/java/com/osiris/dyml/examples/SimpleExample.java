@@ -20,9 +20,10 @@ public class SimpleExample {
 
     @Test
     void test() throws Exception {
-        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/simple-example.yml");
-        yaml.load();
+        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/simple-example.yml"); // You can find every examples yaml file here https://github.com/Osiris-Team/Dream-Yaml/tree/main/src/test
+        yaml.load(); // Creates a new file if it didn't exist already and loads it into memory by parsing it into modules
 
+        // Make sure to call load() before adding any modules.
         DYModule firstName = yaml.add("name")         .setDefValue("John");
         DYModule lastName  = yaml.add("last-name")    .setDefValue("Goldman");
         DYModule age       = yaml.add("age")          .setDefValue("29");
