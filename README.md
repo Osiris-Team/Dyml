@@ -1,5 +1,5 @@
 # Dream-Yaml [![](https://jitpack.io/v/Osiris-Team/Dream-Yaml.svg)](https://jitpack.io/#Osiris-Team/Dream-Yaml)
-The best YAML file reader and writer for java.
+A fresh Java-API for processing YAML files
 ## Installation
 [Click here for maven/gradle/sbt/leinigen instructions.](https://jitpack.io/#Osiris-Team/Dream-Yaml/1.3)
 Java 8+ required.
