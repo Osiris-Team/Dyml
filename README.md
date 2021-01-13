@@ -1,11 +1,12 @@
 # Dream-Yaml [![](https://jitpack.io/v/Osiris-Team/Dream-Yaml.svg)](https://jitpack.io/#Osiris-Team/Dream-Yaml)
 The best yaml file reader and writer for java.
 ## Installation
-[Click here for maven/gradle/sbt/leinigen instructions.](https://jitpack.io/#Osiris-Team/Dream-Yaml/1.1)
+[Click here for maven/gradle/sbt/leinigen instructions.](https://jitpack.io/#Osiris-Team/Dream-Yaml/1.2)
 Java 8+ required.
 ## Motivation
 It started by not beeing able to find an api which fullfilled my needs in simplicity and performance.
 So I developed Dream-Yaml with the goal of having a simple, performant and reliable api for processing yaml files.
+To achieve these goals, only the most essential parts of yaml have been implemented.
 ## Features
 ```yaml
 # Comments and
@@ -45,12 +46,6 @@ DYModule pending   = yaml.add("pending-tasks").setDefValues("do research", "buy 
 
 yaml.save();
 
-/*
- name: John
- last name: Goldman
- age: 29
- work: Reporter
- */
 ```
 ## Examples
 These examples build on top of each other, so make sure to follow the order.
