@@ -1,22 +1,22 @@
 # Dream-Yaml [![](https://jitpack.io/v/Osiris-Team/Dream-Yaml.svg)](https://jitpack.io/#Osiris-Team/Dream-Yaml)
-The best yaml file reader and writer for java.
+Java-API for processing YAML files
 ## Installation
-[Click here for maven/gradle/sbt/leinigen instructions.](https://jitpack.io/#Osiris-Team/Dream-Yaml/1.2)
+[Click here for maven/gradle/sbt/leinigen instructions.](https://jitpack.io/#Osiris-Team/Dream-Yaml/1.3)
 Java 8+ required.
 ## Motivation
-It started by not beeing able to find an api which fullfilled my needs in simplicity and performance.
-So I developed Dream-Yaml with the goal of having a simple, performant and reliable api for processing yaml files.
-To achieve these goals, only the most essential parts of yaml have been implemented.
+It started by not being able to find an API that fulfilled my needs in simplicity and performance.
+So I developed Dream-Yaml with the aim of having a simple, performant, and reliable API for processing YAML files.
+Currently, only the most essential parts of YAML have been implemented.
 ## Features
-```yaml
+```YAML
 # Comments and
 # multiline comments support.
 the-show-off-list:
-  - completly written from scratch without any extra dependency
-  - fastest yaml reader and writer currently available (see benchmarks below)
+  - completely written from scratch without any extra dependency
+  - fastest YAML reader and writer currently available (see benchmarks below)
   - not a single static method and very memory efficient
 supports-hyphen-separation: awesome!
-or speration by spaces: great!
+or separation by spaces: great!
 and.dots.like.this: wow!
 
 # Complex hierarchies supported.
@@ -31,7 +31,7 @@ p1:
 not supported:
   - everything else that is not explicitly mentioned in this file
   - side comments like -> # will not work :( use multiline comments instead
-  - apostrophes ("" and '') encapsultating values wont be removed, just don't use them
+  - apostrophes ("" and '') encapsulating values won’t be removed, just don't use them
 ```
 ## Getting started
 ```java
@@ -68,4 +68,3 @@ Dream-Yaml seems to be about 9x faster than [SnakeYAML](https://bitbucket.org/as
 <img src="https://i.imgur.com/Dvob5Ly.png">
 </details>
 </div>
-
