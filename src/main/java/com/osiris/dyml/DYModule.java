@@ -302,9 +302,7 @@ public class DYModule {
 
     public String asString(int i){
         String v = getValueByIndex(i);
-        if (v!=null)
-            return v;
-        return "null";
+        return v;
     }
 
     public List<String> asStringList(){
