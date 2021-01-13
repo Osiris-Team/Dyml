@@ -24,6 +24,7 @@ public class DYModule {
     private List<String> defaultValues;
     private List<String> comments;
     private DYLine line;
+    private boolean fallbackOnDefault = true;
 
     public DYModule(){
         this((String) null);
@@ -57,6 +58,23 @@ public class DYModule {
         if (defaultValues!=null) this.defaultValues.addAll(defaultValues);
         if (values!=null) this.values.addAll(values);
         if (comments!=null) this.comments.addAll(comments);
+    }
+
+    /**
+     * {@link #setFallbackOnDefault(boolean)}
+     */
+    public boolean isFallbackOnDefault() {
+        return fallbackOnDefault;
+    }
+
+    /**
+     * Null values use their default values as fallback.
+     * This is enabled by default.
+     * See {@link #getValueByIndex(int)} for details.
+     * @param fallbackOnDefault
+     */
+    public void setFallbackOnDefault(boolean fallbackOnDefault) {
+        this.fallbackOnDefault = fallbackOnDefault;
     }
 
     /**
@@ -137,8 +155,7 @@ public class DYModule {
     }
 
     /**
-     * The default value is written to the file
-     * that if the normal value is null or the key didn't exist yet.
+     * {@link #setDefValues(List)}
      */
     public DYModule setDefValues(String... v){
         if (v!=null)
@@ -146,6 +163,10 @@ public class DYModule {
         return this;
     }
 
+    /**
+     * The default value is used when the normal value is null or the key didn't exist yet.
+     * See {@link #setFallbackOnDefault(boolean)} for more details.
+     */
     public DYModule setDefValues(List<String> v){
         if (v!=null) {
             this.defaultValues.clear();
@@ -230,19 +251,24 @@ public class DYModule {
      * at the time when load() was called.
      */
     public String getValue(){
-        if (values!=null) return getValueByIndex(0);
-        return null;
+        return getValueByIndex(0);
     }
 
     /**
-     * Returns the value by given index.
+     * Returns the value by given index or
+     * its default value, if it is null and {@link #isFallbackOnDefault()} is set to true.
      */
     public String getValueByIndex(int i){
-        if (values!=null)
-            try{
-                return values.get(i);
-            } catch (Exception ignored) {}
-        return null;
+        String v = "";
+        try{
+            v = values.get(i);
+        } catch (Exception ignored) {}
+
+
+        if (v.isEmpty() && fallbackOnDefault)
+            return getDefaultValueByIndex(i);
+        else
+            return v;
     }
 
     public List<String> getValues() {
@@ -301,8 +327,7 @@ public class DYModule {
     }
 
     public String asString(int i){
-        String v = getValueByIndex(i);
-        return v;
+        return getValueByIndex(i);
     }
 
     public List<String> asStringList(){

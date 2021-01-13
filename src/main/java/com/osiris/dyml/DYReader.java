@@ -176,10 +176,9 @@ class DYReader {
                 case 35:
                     // # Hashtag indicates start of a comment
                     line.setHashTagFound(true);
-                    String v1 = optimizeString(line
+                    line.setValue(getOptimizedString(line
                             .getLineContent()
-                            .substring(charIndex+1));
-                    line.setValue(v1);
+                            .substring(charIndex+1)));
                     break;
                 case 58:
                     // : Colon enables us to define a key
@@ -187,19 +186,17 @@ class DYReader {
                     line.setKey(line
                             .getLineContent()
                             .substring(line.getCountSpaces(), charIndex));
-                    String v2 = optimizeString(line
+                    line.setValue(getOptimizedString(line
                             .getLineContent()
-                            .substring(charIndex+1));
-                    line.setValue(v2);
+                            .substring(charIndex+1)));
                     break;
                 case 45:
                     // - Hyphen indicates a list object but only if the char before didn't exist or it was a space
                     if (charCodeBefore==0 || charCodeBefore==32){
                         line.setHyphenFound(true);
-                        String v3 = optimizeString(line
+                        line.setValue(getOptimizedString(line
                                 .getLineContent()
-                                .substring(charIndex+1));
-                        line.setValue(v3);
+                                .substring(charIndex+1)));
                     }
                     break;
                 default:
@@ -215,7 +212,7 @@ class DYReader {
             if ((""+obj).isEmpty())
                 list.remove(obj);
             else
-                obj = optimizeString(""+obj);
+                obj = getOptimizedString(""+obj);
         }
     }
 
@@ -226,31 +223,24 @@ class DYReader {
             if ((""+s).isEmpty())
                 list.remove(s);
             else
-                s = optimizeString(s);
+                s = getOptimizedString(s);
         }
     }
 
     /**
      * Loop until another type than 32(stands for a space)
      * and remove that space(s).
-     * String before: '  hi'
-     * String after: 'hi'
+     * String before: '  hi boi  '
+     * String after: 'hi boi'
      * Result: removed 2 spaces.
      * @param s
      */
-    private String optimizeString(String s) {
-        if (s!=null && !s.trim().isEmpty()){
-            for (int i = 0; i < s.length(); i++) {
-                if(s.codePointAt(i)!=32){
-                    if (i!=0)
-                        s = s.substring(i);
-                    break;
-                }
-            }
-            return s;
+    private String getOptimizedString(String s) {
+        if (s != null){
+            s = s.trim();
+            if (s.isEmpty()) s = null;
         }
-        else
-            return null;
+        return s;
     }
 
 }
