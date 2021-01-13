@@ -75,7 +75,7 @@ DreamYaml.
 </details>
 <details>
   <summary>What is a DYModule?</summary>
-It is the in-memory representation of a yaml section. For example 'name: John' is one module. It as the key 'name' and the value 'John'.
+It is the in-memory representation of a yaml section. For example 'name: John' is one module. It has the key 'name' and the value 'John'.
 </details>
 <details>
   <summary>What is a DreamYaml object?</summary>
