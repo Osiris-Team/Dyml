@@ -45,7 +45,6 @@ DYModule work      = yaml.add("work")         .setDefValue("Reporter");
 DYModule pending   = yaml.add("pending-tasks").setDefValues("do research", "buy food", "start working");
 
 yaml.save();
-
 ```
 ## Examples
 These examples build on top of each other, so make sure to follow the order.
@@ -61,10 +60,29 @@ Dream-Yaml seems to be about 9x faster than [SnakeYAML](https://bitbucket.org/as
 , 4x faster than [eo-yaml](https://github.com/decorators-squad/eo-yaml)
  and 3x faster than [Simple-Yaml](https://github.com/Carleslc/Simple-YAML).
 <div align="center">
-<div>
   <img src="https://i.imgur.com/rupU0Ea.png">
 <details>
   <summary>Open/close details</summary>
 <img src="https://i.imgur.com/Dvob5Ly.png">
+</details>
+</div>
+
+## FAQ
+<div>
+<details>
+  <summary>For what does DY stand for?</summary>
+DreamYaml.
+</details>
+<details>
+  <summary>What is a DYModule?</summary>
+It is the in-memory representation of a yaml section (for example 'faq' with its key 'faq' and its values as a list, is one module).
+</details>
+<details>
+  <summary>What is a DreamYaml object?</summary>
+It is the in-memory representation of the full yaml file and contains all of the modules, which can be accessed by their keys.
+</details>
+<details>
+  <summary>What is a DYReader?</summary>
+It is responsible for reading the yaml file and parsing its objects into modules, which then get added to the DreamYaml object.
 </details>
 </div>
