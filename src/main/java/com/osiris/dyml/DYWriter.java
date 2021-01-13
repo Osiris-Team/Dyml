@@ -10,10 +10,8 @@ package com.osiris.dyml;
 
 import com.osiris.dyml.utils.UtilsForModules;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
 class DYWriter {
@@ -74,11 +72,26 @@ class DYWriter {
                     spaces = spaces+"  ";
                 }
 
+
                 for (String comment :
                         m.getComments()) {
-                    writer.write(spaces + "# " + comment);
-                    writer.newLine();
-                    writer.flush();
+                    // Adds support for Strings containing \n to split up comments
+                    BufferedReader bufReader = new BufferedReader(new StringReader(comment));
+                    String commentLine=null;
+                    boolean isMultiline = false;
+                    while( (commentLine=bufReader.readLine()) != null )
+                    {
+                        isMultiline = true;
+                        writer.write(spaces + "# " + commentLine);
+                        writer.newLine();
+                        writer.flush();
+                    }
+
+                    if (!isMultiline){
+                        writer.write(spaces + "# " + comment);
+                        writer.newLine();
+                        writer.flush();
+                    }
                 }
 
                 writer.write(spaces + key + ": ");

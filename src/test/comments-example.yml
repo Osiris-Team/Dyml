@@ -1,7 +1,10 @@
-# Insert your multiline
-# comments like this.
+# You can insert your
+# multiline comments like this.
 name: John
-# This is a single line comment.
+# This is a multiline comment 
+# separated by javas 
+# next line character!
 last-name: Goldman
+# This is a single line comment.
 age: 29
 work: Reporter

@@ -9,6 +9,7 @@
 package com.osiris.dyml;
 
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -29,7 +30,7 @@ public class DYModule {
     }
 
     public DYModule(String... keys){
-        List<String> list = new CopyOnWriteArrayList<>();
+        List<String> list = new ArrayList<>();
         if (keys!=null) list.addAll(Arrays.asList(keys));
        init(list,null, null, null);
     }
@@ -40,10 +41,10 @@ public class DYModule {
     }
 
     private void init(List<String> keys, List<String> defaultValues, List<String> values, List<String> comments){
-        this.keys = new CopyOnWriteArrayList<>();
-        this.values = new CopyOnWriteArrayList<>();
-        this.defaultValues = new CopyOnWriteArrayList<>();
-        this.comments = new CopyOnWriteArrayList<>();
+        this.keys = new ArrayList<>();
+        this.values = new ArrayList<>();
+        this.defaultValues = new ArrayList<>();
+        this.comments = new ArrayList<>();
 
         // To make sure that no null keys get added to the keys list
         if (keys!=null) {
@@ -71,16 +72,18 @@ public class DYModule {
      * because its the only way of distinguishing modules.
      */
     public DYModule setKeys(String... keys) {
-        this.keys = new CopyOnWriteArrayList<>();
-        if (keys!=null)
+        if (keys!=null){
+            this.keys.clear();
             this.keys.addAll(Arrays.asList(keys));
+        }
         return this;
     }
 
     public DYModule setKeys(List<String> keys) {
-        this.keys = new CopyOnWriteArrayList<>();
-        if (keys!=null)
+        if (keys!=null){
+            this.keys.clear();
             this.keys.addAll(keys);
+        }
         return this;
     }
 
@@ -96,8 +99,7 @@ public class DYModule {
      * {@link #setKeys(String...)}
      */
     public DYModule addKeys(String... keys){
-        if (this.keys!=null && keys!=null)
-            this.keys.addAll(Arrays.asList(keys));
+        if (keys!=null) this.keys.addAll(Arrays.asList(keys));
         return this;
     }
 
@@ -113,9 +115,10 @@ public class DYModule {
     }
 
     public DYModule setValues(List<String> v){
-        this.values = new CopyOnWriteArrayList<>();
-        if (v!=null)
+        if (v!=null){
+            this.values.clear();
             this.values.addAll(v);
+        }
         return this;
     }
 
@@ -125,8 +128,7 @@ public class DYModule {
     }
 
     public DYModule addValues(String... v){
-        if (this.values!=null && v!=null)
-            this.values.addAll(Arrays.asList(v));
+        if (v!=null) this.values.addAll(Arrays.asList(v));
         return this;
     }
 
@@ -149,9 +151,10 @@ public class DYModule {
     }
 
     public DYModule setDefValues(List<String> v){
-        this.defaultValues = new CopyOnWriteArrayList<String>();
-        if (v!=null)
+        if (v!=null) {
+            this.defaultValues.clear();
             this.defaultValues.addAll(v);
+        }
         return this;
     }
 
@@ -167,8 +170,7 @@ public class DYModule {
      * {@link #setDefValues(String...)}
      */
     public DYModule addDefValues(String... v){
-        if (this.defaultValues!=null && v!=null)
-            this.defaultValues.addAll(Arrays.asList(v));
+        if (v!=null) this.defaultValues.addAll(Arrays.asList(v));
         return this;
     }
 
@@ -178,9 +180,15 @@ public class DYModule {
     }
 
     public DYModule setComments(String... c){
-        this.comments = new CopyOnWriteArrayList<>();
-        if (c!=null)
-            this.comments.addAll(Arrays.asList(c));
+        if (c!=null) setComments(Arrays.asList(c));
+        return this;
+    }
+
+    public DYModule setComments(List<String> c){
+        if (c!=null) {
+            this.comments.clear();
+            this.comments.addAll(c);
+        }
         return this;
     }
 
@@ -190,8 +198,7 @@ public class DYModule {
     }
 
     public DYModule addComments(String... c){
-        if (this.comments!=null && c!=null)
-            this.comments.addAll(Arrays.asList(c));
+        if (c!=null) this.comments.addAll(Arrays.asList(c));
         return this;
     }
 
@@ -199,8 +206,7 @@ public class DYModule {
      * Returns the first key located at index 0.
      */
     public String getKey(){
-        if (keys!=null)
-            return keys.get(0);
+        if (keys!=null) return keys.get(0);
         return null;
     }
 
@@ -208,8 +214,7 @@ public class DYModule {
      * Returns the key by given index.
      */
     public String getKeyByIndex(int i){
-        if (keys!=null)
-            return keys.get(i);
+        if (keys!=null) return keys.get(i);
         return null;
     }
 
@@ -226,8 +231,7 @@ public class DYModule {
      * at the time when load() was called.
      */
     public String getValue(){
-        if (values!=null)
-            return values.get(0);
+        if (values!=null) return values.get(0);
         return null;
     }
 
@@ -235,8 +239,7 @@ public class DYModule {
      * Returns the value by given index.
      */
     public String getValueByIndex(int i){
-        if (values!=null)
-            return values.get(i);
+        if (values!=null) return values.get(i);
         return null;
     }
 
@@ -249,8 +252,7 @@ public class DYModule {
     }
 
     public String getDefaultValueByIndex(int i){
-        if (defaultValues!=null)
-            return defaultValues.get(i);
+        if (defaultValues!=null) return defaultValues.get(i);
         return null;
     }
 
@@ -262,8 +264,7 @@ public class DYModule {
      * Returns the first comment at index 0.
      */
     public String getComment(){
-        if (comments!=null)
-            return comments.get(0);
+        if (comments!=null) return comments.get(0);
         return null;
     }
 
@@ -271,8 +272,7 @@ public class DYModule {
      * Returns a specific comment by its index.
      */
     public String getCommentByIndex(int i){
-        if (comments!=null)
-            return comments.get(i);
+        if (comments!=null) return comments.get(i);
         return null;
     }
 
@@ -293,8 +293,7 @@ public class DYModule {
     }
 
     public String asString(int i){
-        if (values!=null)
-            return this.values.get(i);
+        if (values!=null) return this.values.get(i);
         return null;
     }
 

@@ -14,6 +14,7 @@ import com.osiris.dyml.utils.UtilsForModules;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -45,7 +46,7 @@ public class DreamYaml {
 
     public DreamYaml(String filePath, boolean debug) {
         this.filePath = filePath;
-        this.defaultModules = new CopyOnWriteArrayList<>();
+        this.defaultModules = new ArrayList<>();
         this.debug = debug;
     }
 
@@ -56,7 +57,7 @@ public class DreamYaml {
      * @throws IOException
      */
     public DreamYaml load() throws IOException {
-        this.loadedModules = new CopyOnWriteArrayList<>();
+        this.loadedModules = new ArrayList<>();
         file = new File(filePath);
         if (!file.exists()) file.createNewFile();
         new DYReader().parse(this);
@@ -66,8 +67,8 @@ public class DreamYaml {
     /**
      * Saves the current modules and their values to the provided yaml file.
      * Everything gets overwritten and stuff that couldn't be parsed into modules gets removed from the file.
-     * Missing modules get created using their default values.
-     * See {@link DYModule#setDefValues(List)} for more details.
+     * Missing modules in the file, get created using their default values.
+     * See {@link DYModule#setDefValues(List)} and {@link UtilsForModules#createUnifiedList(List, List)} for more details.
      * It's recommended to keep {@link #load()} and {@link #save()} timely close to each other, so the user
      * can't change the values in the meantime.
      * @throws NotLoadedException
@@ -85,7 +86,7 @@ public class DreamYaml {
      */
     public DYModule add(String... keys) throws Exception {
         if (keys==null) throw new Exception("Keys of this module cannot be null!");
-        List<String> list = new CopyOnWriteArrayList<>();
+        List<String> list = new ArrayList<>();
         list.addAll(Arrays.asList(keys));
         return add(list,null, null, null);
     }
@@ -198,7 +199,7 @@ public class DreamYaml {
     }
 
     public DYModule getModuleByKeys(String... keys) {
-        List<String> list = new CopyOnWriteArrayList<>();
+        List<String> list = new ArrayList<>();
         list.addAll(Arrays.asList(keys));
         if (!list.isEmpty())
             return getModuleByKeys(list);

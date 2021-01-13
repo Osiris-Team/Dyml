@@ -2,8 +2,10 @@ name: John
 last-name: Goldman
 age: 29
 work: Reporter
+# Insert your multiline
 # comments like this.
 encapsulated: 
+  # Insert your multiline
   # comments like this.
   name: John
   # This is a single line comment.

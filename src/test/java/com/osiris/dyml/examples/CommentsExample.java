@@ -23,21 +23,27 @@ public class CommentsExample {
         DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/comments-example.yml");
         yaml.load();
 
-        DYModule firstName = yaml.add("name").setDefValue("John").setComments("Insert your multiline", "comments like this.");
-        DYModule lastName = yaml.add("last-name").setDefValue("Goldman").setComment("This is a single line comment.");
-        DYModule age = yaml.add("age").setDefValue("29");
+        DYModule firstName = yaml.add("name").setDefValue("John").setComments("You can insert your", "multiline comments like this.");
+        DYModule lastName = yaml.add("last-name").setDefValue("Goldman").setComment(
+                "This is a multiline comment \n" +
+                        "separated by javas \n" +
+                        "next line character!");
+        DYModule age = yaml.add("age").setDefValue("29").setComment("This is a single line comment.");
         DYModule work = yaml.add("work").setDefValue("Reporter");
 
         yaml.save();
 
         /*
-         # Insert your multiline
-         # comments like this.
-         name: John
-         # This is a single line comment.
-         last-name: Goldman
-         age: 29
-         work: Reporter
+# You can insert your
+# multiline comments like this.
+name: John
+# This is a multiline comment
+# separated by javas
+# next line character!
+last-name: Goldman
+# This is a single line comment.
+age: 29
+work: Reporter
          */
 
     }

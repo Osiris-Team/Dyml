@@ -63,7 +63,8 @@ public class UtilsForModules {
 
     /**
      * Before writing the modules to file we need to unify the defaultModules list with the loadedModules list.
-     * Logic: Go thorough the defaultModules list, and replace them with loadedModules if the keys match.
+     * Logic: Create a new list, then go thorough the defaultModules list, and check if there is a matching key in the loadedModules list.
+     * If there is a match add that module instead, and overwrite its defaultValues and comments.
      * This ensures, that loaded modules which do not exist in the defaultModules list do not get saved to file.
      * Using save() will result in overwriting the file with the current modules. The current modules get their values from the loadedModules.
      * @param defaultModules
@@ -77,6 +78,7 @@ public class UtilsForModules {
             DYModule m1 = getExisting(m0, loadedModules); // Check the loadedModules list for an already existing module with the same key as this default module and get it
             if (m1!=null && !m1.getValues().isEmpty()) { // Only add the default module if the loaded module has no values
                 m1.setDefValues(m0.getDefaultValues());
+                m1.setComments(m0.getComments());
                 unifiedList.add(m1);
             }
             else
