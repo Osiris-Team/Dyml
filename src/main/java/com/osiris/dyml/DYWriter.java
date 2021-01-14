@@ -72,27 +72,27 @@ class DYWriter {
                     spaces = spaces+"  ";
                 }
 
+                if (m.getComments()!=null && i==(size-1)) // Only write comments to the last key in the list
+                    for (String comment :
+                            m.getComments()) {
+                        // Adds support for Strings containing \n to split up comments
+                        BufferedReader bufReader = new BufferedReader(new StringReader(comment));
+                        String commentLine=null;
+                        boolean isMultiline = false;
+                        while( (commentLine=bufReader.readLine()) != null )
+                        {
+                            isMultiline = true;
+                            writer.write(spaces + "# " + commentLine);
+                            writer.newLine();
+                            writer.flush();
+                        }
 
-                for (String comment :
-                        m.getComments()) {
-                    // Adds support for Strings containing \n to split up comments
-                    BufferedReader bufReader = new BufferedReader(new StringReader(comment));
-                    String commentLine=null;
-                    boolean isMultiline = false;
-                    while( (commentLine=bufReader.readLine()) != null )
-                    {
-                        isMultiline = true;
-                        writer.write(spaces + "# " + commentLine);
-                        writer.newLine();
-                        writer.flush();
+                        if (!isMultiline){
+                            writer.write(spaces + "# " + comment);
+                            writer.newLine();
+                            writer.flush();
+                        }
                     }
-
-                    if (!isMultiline){
-                        writer.write(spaces + "# " + comment);
-                        writer.newLine();
-                        writer.flush();
-                    }
-                }
 
                 writer.write(spaces + key + ": ");
 

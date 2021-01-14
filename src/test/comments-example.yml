@@ -8,3 +8,8 @@ last-name: Goldman
 # This is a single line comment.
 age: 29
 work: Reporter
+p1: 
+  c2: 
+    # Comments in
+    # a hierarchy.
+    c3: 

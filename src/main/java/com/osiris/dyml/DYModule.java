@@ -131,7 +131,7 @@ public class DYModule {
     public DYModule setValues(List<String> v){
         if (v!=null){
             this.values.clear();
-            this.values.addAll(v);
+            this.values.addAll(v); //TODO how to handle individual null values
         }
         return this;
     }
@@ -170,7 +170,7 @@ public class DYModule {
     public DYModule setDefValues(List<String> v){
         if (v!=null) {
             this.defaultValues.clear();
-            this.defaultValues.addAll(v);
+            this.defaultValues.addAll(v); //TODO how to handle individual null values
         }
         return this;
     }

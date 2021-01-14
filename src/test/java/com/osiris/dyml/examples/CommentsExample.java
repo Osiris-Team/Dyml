@@ -30,6 +30,7 @@ public class CommentsExample {
                         "next line character!");
         DYModule age = yaml.add("age").setDefValue("29").setComment("This is a single line comment.");
         DYModule work = yaml.add("work").setDefValue("Reporter");
+        DYModule parent = yaml.add("p1","c2","c3").setComments("Comments in", "a hierarchy.");
 
         yaml.save();
 
