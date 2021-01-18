@@ -8,7 +8,7 @@
 
 package com.osiris.dyml.exceptions;
 
-public class IllegalSpaceException extends Throwable {
+public class IllegalSpaceException extends Exception {
     private String fileName;
     private int lineNumber;
 

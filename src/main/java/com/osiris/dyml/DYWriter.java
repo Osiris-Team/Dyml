@@ -11,45 +11,27 @@ package com.osiris.dyml;
 import com.osiris.dyml.utils.UtilsForModules;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.List;
 
 class DYWriter {
 
-    public void parse(DreamYaml yaml) {
+    public void parse(DreamYaml yaml) throws Exception{
         File file = yaml.getFile();
-        if (file==null) {
-            System.err.println("File is null! Make sure to load it at least once!");
-            return;
+        if (file==null) throw new Exception("File is null! Make sure to load it at least once!");
+        if (!file.exists()) throw new Exception("File '"+file.getName()+"' doesn't exist!");
+        if (yaml.getAllAdded().isEmpty()) throw new Exception("Given modules list for file '"+file.getName()+"' is empty! Nothing to write!");
+
+        BufferedWriter writer = new BufferedWriter(new FileWriter(file), 32768); // TODO compare speed with def buffer
+        writer.write(""); // Clear old content
+
+        DYModule lastModule = new DYModule(); // Create an empty module as start point
+        for (DYModule m :
+                yaml.getAllAdded()) {
+            parseModule(writer, m, lastModule);
+            lastModule = m;
         }
 
-        if (!file.exists()){
-            System.err.println("File '"+file.getName()+"' doesn't exist!");
-            return;
-        }
-
-        try {
-            List<DYModule> completeModulesList =  new UtilsForModules().createUnifiedList(yaml.getAll(), yaml.getAllLoaded());
-            if (completeModulesList.isEmpty()){
-                System.err.println("Given modules list for file '"+file.getName()+"' is empty! Nothing to write!");
-                return;
-            }
-
-            BufferedWriter writer = new BufferedWriter(new FileWriter(file), 32768); // TODO compare speed with def buffer
-            writer.write(""); // Clear old content
-
-            DYModule lastModule = new DYModule(); // Create an empty module as start point
-            for (DYModule m :
-                    completeModulesList) {
-                parseModule(writer, m, lastModule);
-                lastModule = m;
-            }
-
-            if(yaml.isDebug()) yaml.printAll();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
+        if(yaml.isDebug()) yaml.printAll();
     }
 
     private void parseModule(BufferedWriter writer,

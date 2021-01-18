@@ -11,6 +11,7 @@ package com.osiris.dyml;
 
 import com.osiris.dyml.exceptions.IllegalListException;
 import com.osiris.dyml.exceptions.IllegalSpaceException;
+import com.osiris.dyml.utils.UtilsForModules;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -20,39 +21,38 @@ import java.util.List;
 
 class DYReader {
 
-    public void parse(DreamYaml yaml){
+    public void parse(DreamYaml yaml) throws Exception {
         File file = yaml.getFile();
-        if (file==null) {
-            System.err.println("File is null! Make sure to load it at least once!");
-            return;
-        }
+        if (file==null) throw new Exception("File is null! Make sure to load it at least once!");
+        if (!file.exists()) throw new Exception("File '"+file.getName()+"' doesn't exist!");
 
-        if (!file.exists()){
-            System.err.println("File '"+file.getName()+"' doesn't exist!");
-            return;
-        }
-
-        try {
-            BufferedReader reader = new BufferedReader(new FileReader(file));
-            String line;
-            int lineNumber = 0;
-            DYLine lastLine = null;
-            List<DYLine> lineList = new ArrayList<>();
-            while(true){
-                line = reader.readLine();
-                if (line!=null){
-                    DYLine currentLine = new DYLine(line, lineNumber);
-                    parseLine(yaml, currentLine, lastLine, lineList);
-                    if (currentLine.isColonFound())
-                        lineList.add(currentLine);
-                    lastLine = currentLine;
-                    lineNumber++;
-                }
-                else
-                    break;
+        BufferedReader reader = new BufferedReader(new FileReader(file));
+        String line;
+        int lineNumber = 0;
+        DYLine lastLine = null;
+        List<DYLine> lineList = new ArrayList<>();
+        while(true){
+            line = reader.readLine();
+            if (line!=null){
+                DYLine currentLine = new DYLine(line, lineNumber);
+                parseLine(yaml, currentLine, lastLine, lineList);
+                if (currentLine.isColonFound())
+                    lineList.add(currentLine);
+                lastLine = currentLine;
+                lineNumber++;
             }
-        } catch (Exception | IllegalSpaceException e) {
-            e.printStackTrace();
+            else
+                break;
+        }
+
+        // If there where modules added, update their values
+        UtilsForModules utils = new UtilsForModules();
+        for (DYModule loadedModule :
+                yaml.getAllLoaded()) {
+            DYModule added = utils.getExisting(loadedModule, yaml.getAllAdded());
+            if (added!=null) {
+                added.setValues(loadedModule.getValues());
+            }
         }
     }
 

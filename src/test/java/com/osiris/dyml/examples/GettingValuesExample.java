@@ -54,7 +54,7 @@ public class GettingValuesExample {
         char[] listIndex2                = pendingTasks.asCharArray(2);
 
         // Getting a module by its keys (not recommended)
-        DYModule firstNameModuleByKeys = yaml.getModuleByKeys("name");
+        DYModule firstNameModuleByKeys = yaml.getAddedModuleByKeys("name");
 
         /*
 # Everything about getting values.

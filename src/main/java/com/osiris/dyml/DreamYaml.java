@@ -9,6 +9,7 @@
 package com.osiris.dyml;
 
 import com.osiris.dyml.exceptions.DuplicateKeyException;
+import com.osiris.dyml.exceptions.IllegalSpaceException;
 import com.osiris.dyml.exceptions.NotLoadedException;
 import com.osiris.dyml.utils.UtilsForModules;
 
@@ -17,7 +18,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * The in-memory representation of the full yaml file
@@ -54,9 +54,10 @@ public class DreamYaml {
      * Loads the file into memory by parsing
      * it into modules({@link DYModule}). Creates a new file if it didn't exist already.
      * You can return the list of modules with {@link #getAllLoaded()}.
+     * Remember, that this refreshes all modules values.
      * @throws IOException
      */
-    public DreamYaml load() throws IOException {
+    public DreamYaml load() throws Exception {
         this.loadedModules = new ArrayList<>();
         file = new File(filePath);
         if (!file.exists()) file.createNewFile();
@@ -73,16 +74,15 @@ public class DreamYaml {
      * can't change the values in the meantime.
      * @throws NotLoadedException
      */
-    public DreamYaml save() throws NotLoadedException {
+    public DreamYaml save() throws Exception, NotLoadedException {
         if (file==null) throw new NotLoadedException();
         new DYWriter().parse(this);
         return this;
     }
 
     /**
-     * Creates a new {@link DYModule} and adds it to the modules list.
+     * Creates a new {@link DYModule}, adds it to the modules list and returns it.
      * {@link #add(DYModule)}
-     * @return the newly created module.
      */
     public DYModule add(String... keys) throws Exception {
         if (keys==null) throw new Exception("Keys of this module cannot be null!");
@@ -92,7 +92,7 @@ public class DreamYaml {
     }
 
     /**
-     * Creates a new {@link DYModule} and adds it to this config file.
+     * Creates a new {@link DYModule}, adds it to the modules list and returns it.
      * {@link #add(DYModule)}
      */
     public DYModule add(List<String> keys, List<String> defaultValues, List<String> values, List<String> comments) throws Exception {
@@ -136,6 +136,7 @@ public class DreamYaml {
     /**
      * Returns a list containing all loaded modules.
      * It is a temporary list which gets refreshed every time {@link #load()} is called.
+     * It does not contain default values, only the raw values from the yml file.
      */
     public List<DYModule> getAllLoaded() {
         return loadedModules;
@@ -146,12 +147,12 @@ public class DreamYaml {
     }
 
     /**
-     * Returns a list containing all modules,
-     * which should be added by {@link #add(String...)} and not this lists own add() method.
+     * Returns a list containing all currently added modules.
+     * Modules should only be added by {@link #add(String...)} and never by this lists own add() method.
      * This list is not affected by {@link #load()}, unlike the
      * 'loaded modules' list, which can be returned by {@link #getAllLoaded()}.
      */
-    public List<DYModule> getAll() {
+    public List<DYModule> getAllAdded() {
         return defaultModules;
     }
 
@@ -164,14 +165,22 @@ public class DreamYaml {
         System.out.println("Printing loaded modules from '"+file.getName()+"' file:");
         for (DYModule module :
                 getAllLoaded()) {
-            System.out.println("KEYS: " + module.getKeys().toString() + " VALUES: " + module.getValues().toString() + " COMMENTS: " + module.getComments().toString());
+            printModule(module);
         }
         System.out.println("Printing default modules from '"+file.getName()+"' file:");
         for (DYModule module :
-                getAll()) {
-            System.out.println("KEYS: " + module.getKeys().toString() + " VALUES: " + module.getValues().toString() + " COMMENTS: " + module.getComments().toString());
+                getAllAdded()) {
+            printModule(module);
         }
         System.out.println(" ");
+    }
+
+    private void printModule(DYModule module){
+        System.out.println(
+                "KEYS: " + module.getKeys().toString() +
+                        " VALUES: " + module.getValues().toString() +
+                        " DEF-VALUES: " + module.getDefaultValues().toString() +
+                        " COMMENTS: " + module.getComments().toString());
     }
 
     public String getFilePath() {
@@ -206,17 +215,50 @@ public class DreamYaml {
         }
     }
 
-    public DYModule getModuleByKeys(String... keys) {
+    /**
+     * Returns the module with same keys from the 'added modules list'.
+     * Details: {@link #getAllAdded()}
+     * @return {@link DYModule} or null if no module found with same keys
+     */
+    public DYModule getAddedModuleByKeys(String... keys) {
         List<String> list = new ArrayList<>();
         list.addAll(Arrays.asList(keys));
         if (!list.isEmpty())
-            return getModuleByKeys(list);
+            return getAddedModuleByKeys(list);
         else
             return null;
     }
 
-    public DYModule getModuleByKeys(List<String> keys) {
-        return new UtilsForModules().getExisting(keys, getAll());
+    /**
+     * Returns the module with same keys from the 'added modules list'.
+     * Details: {@link #getAllAdded()}
+     * @return {@link DYModule} or null if no module found with same keys
+     */
+    public DYModule getAddedModuleByKeys(List<String> keys) {
+        return new UtilsForModules().getExisting(keys, getAllAdded());
+    }
+
+    /**
+     * Returns the module with same keys from the 'loaded modules list'.
+     * Details: {@link #getAllLoaded()}
+     * @return {@link DYModule} or null if no module found with same keys
+     */
+    public DYModule getLoadedModuleByKeys(String... keys) {
+        List<String> list = new ArrayList<>();
+        list.addAll(Arrays.asList(keys));
+        if (!list.isEmpty())
+            return getAddedModuleByKeys(list);
+        else
+            return null;
+    }
+
+    /**
+     * Returns the module with same keys from the 'loaded modules list'.
+     * Details: {@link #getAllLoaded()}
+     * @return {@link DYModule} or null if no module found with same keys
+     */
+    public DYModule getLoadedModuleByKeys(List<String> keys) {
+        return new UtilsForModules().getExisting(keys, getAllLoaded());
     }
 }
 
