@@ -182,6 +182,14 @@ public class DreamYaml {
         return file;
     }
 
+    /**
+     * Returns the yml files name without its extension.
+     */
+    public String getFileNameWithoutExt() throws NotLoadedException{
+        if (file==null) throw new NotLoadedException();
+        return file.getName().replaceFirst("[.][^.]+$",""); // Removes the file extension
+    }
+
     public boolean isDebug() {
         return debug;
     }
