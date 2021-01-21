@@ -1,5 +1,5 @@
 # Dream-Yaml [![](https://jitpack.io/v/Osiris-Team/Dream-Yaml.svg)](https://jitpack.io/#Osiris-Team/Dream-Yaml)
-Java-API for processing YAML files
+The Java-API for processing YAML files you've always dreamed of.
 ## Installation
 [Click here for maven/gradle/sbt/leinigen instructions.](https://jitpack.io/#Osiris-Team/Dream-Yaml/1.9)
 Java 8+ required.
