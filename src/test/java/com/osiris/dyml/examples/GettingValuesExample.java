@@ -57,12 +57,6 @@ public class GettingValuesExample {
         DYModule firstNameModuleByKeys = yaml.getAddedModuleByKeys("name"); // Returns the module from the permanent added modules list
         DYModule firstNameLoadedModuleByKeys = yaml.getLoadedModuleByKeys("name"); // Returns the module from the temporary loaded modules list, at the time load() was called
 
-        // If you do not know the keys names or their order you can simply loop through the loaded modules list
-        for (DYModule m :
-                yaml.getAllLoaded()) {
-            System.out.println("Keys: " + m.getKeys().toString());
-        }
-
         /*
 # Everything about getting values.
 name: John
