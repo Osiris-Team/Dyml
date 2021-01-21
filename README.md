@@ -91,4 +91,8 @@ The only difference, is that loaded modules cannot have default values set.
 They are basically the raw output from your yaml file. Added modules get created when you call the add() method. Their initial value is taken from the  
 loaded module with the same keys.
 </details>
+<details>
+  <summary>What does save() do?</summary>
+It overwrites the yaml file with your added values. This means that anything, that was not added by the add() method won't be saved to the file.
+</details>
 </div>
