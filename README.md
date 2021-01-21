@@ -93,6 +93,6 @@ loaded module with the same keys.
 </details>
 <details>
   <summary>What does save() do?</summary>
-It overwrites the yaml file with your added values. This means that anything, that was not added by the add() method won't be saved to the file.
+It overwrites the yaml file with your added modules. This means that anything, that was not added by the add() method won't be saved to the file.
 </details>
 </div>
