@@ -88,6 +88,7 @@ It is responsible for reading the yaml file and parsing its objects into modules
 <details>
   <summary>Difference between 'loaded' and 'added' modules?</summary>
 The only difference, is that loaded modules cannot have default values set.
-They are basically the raw output from your yaml file.
+They are basically the raw output from your yaml file. Added modules get created when you call the add() method. Their initial value is taken from the  
+loaded module with the same keys.
 </details>
 </div>
