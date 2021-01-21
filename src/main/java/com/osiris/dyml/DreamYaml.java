@@ -136,7 +136,7 @@ public class DreamYaml {
     /**
      * Returns a list containing all loaded modules.
      * It is a temporary list which gets refreshed every time {@link #load()} is called.
-     * It does not contain default values, only the raw values from the yml file.
+     * Its modules, do not contain default values.
      */
     public List<DYModule> getAllLoaded() {
         return loadedModules;
