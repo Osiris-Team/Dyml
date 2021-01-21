@@ -14,11 +14,11 @@
 
     <groupId>com.osiris.dyml</groupId>
     <artifactId>dyml</artifactId>
-    <version>1.7</version>
+    <version>1.9</version>
     <packaging>jar</packaging>
 
     <name>Dream-Yaml</name>
-    <description>Efficient yaml configuration creator.</description>
+    <description>The Java-API for processing YAML files you've always dreamed of.</description>
 
     <properties>
         <java.version>8</java.version>
