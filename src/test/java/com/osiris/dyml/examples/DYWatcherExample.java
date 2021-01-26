@@ -28,7 +28,7 @@ class DYWatcherExample {
         yaml2.save();
 
 
-        // Create a watcher. Note that by default it will watch the complete, user directory in which this jar is located.
+        // Create a watcher. Note that by default it will watch the complete, user directory in which this jar is located and its subdirectories.
         DYWatcher watcher = new DYWatcher();  // You can specify a custom directory to watch by: DYWatcher watcher = new DYWatcher("C:your/custom/directory/path/here");
         watcher.start(); // Starts the watcher in its own new thread.
 
