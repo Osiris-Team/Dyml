@@ -47,6 +47,20 @@ public class DYWatcher extends Thread{
     /**
      * {@link #DYWatcher(List, String, boolean)}
      */
+    public DYWatcher(boolean registerSubDirs) {
+        this(null, null, registerSubDirs);
+    }
+
+    /**
+     * {@link #DYWatcher(List, String, boolean)}
+     */
+    public DYWatcher(String dir, boolean registerSubDirs) {
+        this(null, dir, registerSubDirs);
+    }
+
+    /**
+     * {@link #DYWatcher(List, String, boolean)}
+     */
     public DYWatcher(List<DreamYaml> dyList) {
         this(dyList, null, true);
     }
@@ -98,7 +112,6 @@ public class DYWatcher extends Thread{
     public void run() {
         super.run();
         try{
-            System.out.println("WOW");
             if (dir == null)
                 throw new Exception("Dir cannot be null!");
             if (dir.getPath().isEmpty())
@@ -157,7 +170,6 @@ public class DYWatcher extends Thread{
                     throws IOException
             {
                 register(dir);
-                subDirCount++;
                 return FileVisitResult.CONTINUE;
             }
         });
@@ -171,10 +183,11 @@ public class DYWatcher extends Thread{
         if (trace) {
             Path prev = keys.get(key);
             if (prev == null) {
-                System.out.format("register: %s\n", dir);
+                //System.out.format("register: %s\n", dir);
+                subDirCount++;
             } else {
                 if (!dir.equals(prev)) {
-                    System.out.format("update: %s -> %s\n", prev, dir);
+                    //System.out.format("update: %s -> %s\n", prev, dir);
                 }
             }
         }
