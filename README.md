@@ -33,6 +33,8 @@ not supported:
   - side comments like -> # will not work :( use multiline comments instead
   - apostrophes ("" and '') encapsulating values won’t be removed, just don't use them
 ```
+Some extras:
+ - **DYWatcher |** Yaml files watcher with recursive directory support.
 ## Getting started
 ```java
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/simple-example.yml");
@@ -54,6 +56,7 @@ These examples build on top of each other, so make sure to follow the order.
 * [`ValueValidationExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/ValueValidationExample.java)
 * [`ParentExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/ParentExample.java)
 * [`CodingStyleExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/CodingStyleExample.java)
+* [`WatcherExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/DYWatcherExample.java)
 ## Benchmarks
 Dream-Yaml seems to be about 9x faster than [SnakeYAML](https://bitbucket.org/asomov/snakeyaml/src/master/)
 , 8x faster than [YamlBeans](https://github.com/EsotericSoftware/yamlbeans)
