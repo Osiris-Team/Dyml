@@ -7,6 +7,9 @@ import com.osiris.dyml.watcher.DYWatcher;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.StandardWatchEventKinds;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DYWatcherExample {
 
@@ -66,7 +69,15 @@ class DYWatcherExample {
         firstName2.setValue("Pete"); // Imagine that this change is done by a person
         yaml2.save(); // In this moment the file gets modified
 
-        watcher.printDetails();
+
+
+        //TODO Multithreading isn't working in this test! Example:
+        AtomicBoolean success = new AtomicBoolean(false);
+        Thread thread = new Thread(()->{
+            success.set(true);
+        });
+        thread.start();
+        assertTrue(success.get());
     }
 
 }
