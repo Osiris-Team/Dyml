@@ -99,10 +99,10 @@ public class DYWatcher extends Thread{
         super.run();
         try{
             System.out.println("WOW");
-            if (dyList == null)
-                throw new Exception("Yaml files list cannot be null!");
-            if (dyList.isEmpty())
-                throw new Exception("Yaml files list cannot be empty!");
+            if (dir == null)
+                throw new Exception("Dir cannot be null!");
+            if (dir.getPath().isEmpty())
+                throw new Exception("Dir cannot be empty!");
 
             watchService
                     = FileSystems.getDefault().newWatchService();

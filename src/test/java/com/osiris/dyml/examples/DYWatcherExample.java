@@ -7,14 +7,14 @@ import com.osiris.dyml.watcher.DYWatcher;
 import org.junit.jupiter.api.Test;
 
 import java.nio.file.StandardWatchEventKinds;
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DYWatcherExample {
 
     @Test
     void test() throws Exception{
+
+        // Dev note, do not include in your code
+        System.out.println("Note that this test won't print the wanted results, because Junit doesn't allow correct multithreading!");
 
         // First we create two yaml files with some data
         DreamYaml yaml1 = new DreamYaml(System.getProperty("user.dir")+"/src/test/watcher-1-example.yml");
@@ -68,16 +68,6 @@ class DYWatcherExample {
         System.out.println("\nUser modifies yaml2:");
         firstName2.setValue("Pete"); // Imagine that this change is done by a person
         yaml2.save(); // In this moment the file gets modified
-
-
-
-        //TODO Multithreading isn't working in this test! Example:
-        AtomicBoolean success = new AtomicBoolean(false);
-        Thread thread = new Thread(()->{
-            success.set(true);
-        });
-        thread.start();
-        assertTrue(success.get());
     }
 
 }
