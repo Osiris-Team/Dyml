@@ -3,6 +3,7 @@ The Java-API for processing YAML files you've always dreamed of.
 ## Installation
 [Click here for maven/gradle/sbt/leinigen instructions.](https://jitpack.io/#Osiris-Team/Dream-Yaml/2.1)
 Java 8+ required.
+Make sure to watch this repository to get notified of future updates.
 ## Motivation
 It started by not being able to find an API that fulfilled my needs in simplicity and performance.
 So I developed Dream-Yaml with the aim of having a simple, performant, and reliable API for processing YAML files.
