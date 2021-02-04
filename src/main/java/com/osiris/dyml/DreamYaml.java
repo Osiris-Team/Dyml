@@ -9,12 +9,10 @@
 package com.osiris.dyml;
 
 import com.osiris.dyml.exceptions.DuplicateKeyException;
-import com.osiris.dyml.exceptions.IllegalSpaceException;
 import com.osiris.dyml.exceptions.NotLoadedException;
 import com.osiris.dyml.utils.UtilsForModules;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -55,7 +53,6 @@ public class DreamYaml {
      * it into modules({@link DYModule}). Creates a new file if it didn't exist already.
      * You can return the list of modules with {@link #getAllLoaded()}.
      * Remember, that this refreshes all modules values.
-     * @throws IOException
      */
     public DreamYaml load() throws Exception {
         this.loadedModules = new ArrayList<>();
@@ -74,7 +71,7 @@ public class DreamYaml {
      * can't change the values in the meantime.
      * @throws NotLoadedException
      */
-    public DreamYaml save() throws Exception, NotLoadedException {
+    public DreamYaml save() throws Exception {
         if (file==null) throw new NotLoadedException();
         new DYWriter().parse(this);
         return this;

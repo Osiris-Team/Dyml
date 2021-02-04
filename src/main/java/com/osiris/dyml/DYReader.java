@@ -10,7 +10,6 @@ package com.osiris.dyml;
 
 
 import com.osiris.dyml.exceptions.IllegalListException;
-import com.osiris.dyml.exceptions.IllegalSpaceException;
 import com.osiris.dyml.utils.UtilsForModules;
 
 import java.io.BufferedReader;
@@ -56,7 +55,7 @@ class DYReader {
         }
     }
 
-    public void parseLine(DreamYaml yaml, DYLine currentLine, DYLine lastLine, List<DYLine> lineList) throws IllegalListException, IllegalSpaceException {
+    public void parseLine(DreamYaml yaml, DYLine currentLine, DYLine lastLine, List<DYLine> lineList) throws IllegalListException {
 
         if (!currentLine.getLineContent().isEmpty()){
             if(yaml.isDebug()) System.out.println("Reading line '"+currentLine.getLineNumber()+"' with content: '"+currentLine.getLineContent()+"'");
@@ -71,9 +70,6 @@ class DYReader {
                 if (currentLine.isHashTagFound() || currentLine.isColonFound() || currentLine.isHyphenFound())
                     break;
             }
-
-            // Should always be an even number, else throw exception
-            if (currentLine.getCountSpaces()%2!=0) throw new IllegalSpaceException(yaml.getFile().getName(), currentLine.getLineNumber());
 
             // Add the module to the yaml modules list, but only under certain circumstances (logic below)
             DYModule module = new DYModule();
