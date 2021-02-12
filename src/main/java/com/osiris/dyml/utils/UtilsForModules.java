@@ -11,7 +11,9 @@ package com.osiris.dyml.utils;
 import com.osiris.dyml.DYModule;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class UtilsForModules {
 
@@ -66,31 +68,89 @@ public class UtilsForModules {
      * For simplicity we call the defaultModules list D-List and the loadedModules list L-List.
      * Logic:
      * 1. Check which list is bigger. D-List or L-List?
-     * 2. Pick the bigger list and go through its modules.
+     * 2. Pick the bigger list and go through its modules and complete its data.
      * 3. If the bigger list is the D-List its 'real-values' wont be overwritten.
-     * 4. If the bigger list is the L-List its ''
+     * 4. If the bigger list is the L-List its 'real-values' get overwritten from the D-List
      * Create a new list, then go thorough the defaultModules list, and check if there is a matching key in the loadedModules list.
      * If there is a match add that module instead, and overwrite its defaultValues and comments.
      * This ensures, that loaded modules which do not exist in the defaultModules list do not get saved to file.
      * Using save() will result in overwriting the file with the current modules. The current modules get their values from the loadedModules.
+     * LIST A (5)
+     * LIST B (2)
+     * 'hello'
+     * 'hello' 'hi'
+     * 'hello' 'hi' 'sup'
+     *
+     * 'hello'
+     * 'hello' 'hi'
+     * 'hello' 'boi'
+     * 'hello' 'boi' 'sup'
      * @param defaultModules
      * @param loadedModules
      * @return
      */
     public List<DYModule> createUnifiedList(List<DYModule> defaultModules, List<DYModule> loadedModules){
-        List<DYModule> unifiedList = new ArrayList<>(); // Extend the loadedModules list with default modules
+        List<DYModule> copyDefaultModules = new CopyOnWriteArrayList<>();
+        copyDefaultModules.addAll(defaultModules);
+        List<DYModule> copyLoadedModules = new CopyOnWriteArrayList<>();
+        copyLoadedModules.addAll(loadedModules);
+
+
+        List<DYModule> raw1UnifiedList = new ArrayList<>();
+        List<DYModule> raw2UnifiedList = new ArrayList<>();
+
+        // First go through the loaded list
+        DYModule existing;
+        for (DYModule m :
+                loadedModules) {
+            existing = getExisting(m, defaultModules);
+            if (existing!=null)
+                raw1UnifiedList.add(existing);
+            else
+                raw1UnifiedList.add(m);
+        }
+
+        // Then go through the default list and add missing modules
+        // Only add a default module if its not already existing in the unified list
+        for (DYModule m :
+                defaultModules) {
+            existing = getExisting(m, raw1UnifiedList);
+            if (existing==null)
+                raw1UnifiedList.add(m);
+        }
+
+        // Then we sort the list by their keys size
+        // This gives a performance boost
+        // For that we need to determine the highest keys size before
+        int biggest = 0;
+        for (DYModule m :
+                raw1UnifiedList) {
+            if (biggest < m.getKeys().size())
+                biggest = m.getKeys().size();
+        }
+
+        // Then we sort them by their sizes
+        for (int i = 0; i < biggest; i++) {
+            for (DYModule m :
+                    raw1UnifiedList) {
+                if (m.getKeys().size() == i)
+                    raw2UnifiedList.add(m);
+            }
+        }
+
+
         for (DYModule m0 :
                 defaultModules) {
             DYModule m1 = getExisting(m0, loadedModules); // Check the loadedModules list for an already existing module with the same key as this default module and get it
             if (m1!=null && !m1.getValues().isEmpty()) { // Only add the default module if the loaded module has no values
                 m1.setDefValues(m0.getDefaultValues());
                 m1.setComments(m0.getComments());
-                unifiedList.add(m1);
+                raw1UnifiedList.add(m1);
             }
             else
-                unifiedList.add(m0);
+                raw1UnifiedList.add(m0);
         }
-        return unifiedList;
+        return raw1UnifiedList;
     }
 
 }
