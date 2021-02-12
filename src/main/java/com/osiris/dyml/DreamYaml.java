@@ -63,15 +63,13 @@ public class DreamYaml {
     }
 
     /**
-     * Saves the current modules and their values to the provided yaml file.
-     * If 'overwrite' is true, everything gets overwritten.
-     * Stuff that couldn't be parsed into modules gets removed from the file.
-     * Missing modules in the file, get created using their default values.
+     * Parses and saves the current modules to the provided yaml file.
+     * If the file misses modules, these get created using their default values.
      * See {@link DYModule#setDefValues(List)} and {@link UtilsForModules#createUnifiedList(List, List)} for more details.
      * It's recommended to keep {@link #load()} and {@link #save()} timely close to each other, so the user
      * can't change the values in the meantime.
      * @throws NotLoadedException
-     * @param overwrite If true the yaml file gets overwritten with the added values.
+     * @param overwrite If true the yaml file gets overwritten with modules from the 'added modules list'.
      *                 That means that everything that wasn't added via {@link #add(String...)} will not exist in the file.
      *                  Default is false.
      */

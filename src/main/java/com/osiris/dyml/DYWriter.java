@@ -20,16 +20,21 @@ class DYWriter {
         File file = yaml.getFile();
         if (file==null) throw new Exception("File is null! Make sure to load it at least once!");
         if (!file.exists()) throw new Exception("File '"+file.getName()+"' doesn't exist!");
-        if (yaml.getAllAdded().isEmpty()) throw new Exception("Given modules list for file '"+file.getName()+"' is empty! Nothing to write!");
 
         BufferedWriter writer = new BufferedWriter(new FileWriter(file), 32768); // TODO compare speed with def buffer
         writer.write(""); // Clear old content
 
         List<DYModule> modulesToSave = new ArrayList<>();
-        if (overwrite)
+        if (overwrite) {
             modulesToSave = yaml.getAllAdded();
-        else
+            if (modulesToSave.isEmpty())
+                throw new Exception("Failed to write modules to file: There are no modules in the 'added modules list' for file '"+file.getName()+"' ! Nothing to write!");
+        }
+        else {
             modulesToSave = new UtilsForModules().createUnifiedList(yaml.getAllAdded(), yaml.getAllLoaded());
+            if (modulesToSave.isEmpty())
+                throw new Exception("Failed to write modules to file: There are no modules in the list for file '"+file.getName()+"' ! Nothing to write!");
+        }
         DYModule lastModule = new DYModule(); // Create an empty module as start point
         for (DYModule m :
                 yaml.getAllAdded()) {
