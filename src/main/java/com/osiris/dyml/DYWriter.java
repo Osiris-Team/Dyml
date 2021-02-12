@@ -11,11 +11,12 @@ package com.osiris.dyml;
 import com.osiris.dyml.utils.UtilsForModules;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.List;
 
 class DYWriter {
 
-    public void parse(DreamYaml yaml) throws Exception{
+    public void parse(DreamYaml yaml, boolean overwrite) throws Exception{
         File file = yaml.getFile();
         if (file==null) throw new Exception("File is null! Make sure to load it at least once!");
         if (!file.exists()) throw new Exception("File '"+file.getName()+"' doesn't exist!");
@@ -24,6 +25,11 @@ class DYWriter {
         BufferedWriter writer = new BufferedWriter(new FileWriter(file), 32768); // TODO compare speed with def buffer
         writer.write(""); // Clear old content
 
+        List<DYModule> modulesToSave = new ArrayList<>();
+        if (overwrite)
+            modulesToSave = yaml.getAllAdded();
+        else
+            modulesToSave = new UtilsForModules().createUnifiedList(yaml.getAllAdded(), yaml.getAllLoaded());
         DYModule lastModule = new DYModule(); // Create an empty module as start point
         for (DYModule m :
                 yaml.getAllAdded()) {

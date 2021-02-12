@@ -63,7 +63,13 @@ public class UtilsForModules {
 
     /**
      * Before writing the modules to file we need to unify the defaultModules list with the loadedModules list.
-     * Logic: Create a new list, then go thorough the defaultModules list, and check if there is a matching key in the loadedModules list.
+     * For simplicity we call the defaultModules list D-List and the loadedModules list L-List.
+     * Logic:
+     * 1. Check which list is bigger. D-List or L-List?
+     * 2. Pick the bigger list and go through its modules.
+     * 3. If the bigger list is the D-List its 'real-values' wont be overwritten.
+     * 4. If the bigger list is the L-List its ''
+     * Create a new list, then go thorough the defaultModules list, and check if there is a matching key in the loadedModules list.
      * If there is a match add that module instead, and overwrite its defaultValues and comments.
      * This ensures, that loaded modules which do not exist in the defaultModules list do not get saved to file.
      * Using save() will result in overwriting the file with the current modules. The current modules get their values from the loadedModules.
