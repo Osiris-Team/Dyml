@@ -88,6 +88,7 @@ It is the in-memory representation of the full yaml file and contains all of the
 <details>
   <summary>What is a DYReader?</summary>
 It is responsible for reading the yaml file and parsing its objects into modules, which then get added to the DreamYaml object.
+These are named 'loaded modules' by the way.
 </details>
 <details>
   <summary>Difference between 'loaded' and 'added' modules?</summary>

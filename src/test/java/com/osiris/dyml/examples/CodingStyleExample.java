@@ -16,12 +16,16 @@ import org.junit.jupiter.api.Test;
  * Recommendation how to use the DreamYaml api.
  */
 public class CodingStyleExample {
+    
     // If you only got a few modules and you want quick access across your code, you can add them as static fields and load your yaml file once at startup
+    // If you also want to keep this values up to date you can add a DYWatcher with an DYAction which does that.
     public static DYModule FIRST_NAME;
     public static DYModule LAST_NAME;
     public static DYModule AGE;
     public static DYModule PROFESSION;
+    
     // If you prefer encapsulating the modules you can do so, but remember that you will have to load your yaml file every time you create this class
+    // This will ensure you always are using the latest values.
     private DYModule firstName;
     private DYModule lastName;
     private DYModule age;
