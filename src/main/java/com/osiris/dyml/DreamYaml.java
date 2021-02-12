@@ -232,7 +232,7 @@ public class DreamYaml {
      * @return {@link DYModule} or null if no module found with same keys
      */
     public DYModule getAddedModuleByKeys(List<String> keys) {
-        return new UtilsForModules().getExisting(keys, getAllAdded());
+        return new UtilsForModules().getExisting(keys, defaultModules);
     }
 
     /**
@@ -244,7 +244,7 @@ public class DreamYaml {
         List<String> list = new ArrayList<>();
         list.addAll(Arrays.asList(keys));
         if (!list.isEmpty())
-            return getAddedModuleByKeys(list);
+            return getLoadedModuleByKeys(list);
         else
             return null;
     }
@@ -255,7 +255,7 @@ public class DreamYaml {
      * @return {@link DYModule} or null if no module found with same keys
      */
     public DYModule getLoadedModuleByKeys(List<String> keys) {
-        return new UtilsForModules().getExisting(keys, getAllLoaded());
+        return new UtilsForModules().getExisting(keys, loadedModules);
     }
 }
 
