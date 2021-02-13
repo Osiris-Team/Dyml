@@ -63,19 +63,41 @@ public class DreamYaml {
     }
 
     /**
+     * Caution! This method will completely reset your yaml file, but not delete it.
+     * To delete, use {@link File#delete()} instead. You can get the file via {@link #getFile()}.
+     * Also the {@link #getAllLoaded()} list is empty after this operation.
+     * The {@link #getAllAdded()} list is not affected.
+     */
+    public DreamYaml reset() throws Exception{
+        if (file==null) this.load();
+        new DYWriter().parse(this, true, true);
+        this.load();
+        return this;
+    }
+
+    /**
+     * Convenience method for saving and loading afterwards.
+     */
+    public DreamYaml reload() throws Exception{
+        if (file==null) this.load();
+        this.save();
+        this.load();
+        return this;
+    }
+
+    /**
      * Parses and saves the current modules to the provided yaml file.
      * If the file misses modules, these get created using their default values.
      * See {@link DYModule#setDefValues(List)} and {@link UtilsForModules#createUnifiedList(List, List)} for more details.
      * It's recommended to keep {@link #load()} and {@link #save()} timely close to each other, so the user
      * can't change the values in the meantime.
-     * @throws NotLoadedException
      * @param overwrite If true the yaml file gets overwritten with modules from the 'added modules list'.
      *                 That means that everything that wasn't added via {@link #add(String...)} will not exist in the file.
      *                  Default is false.
      */
     public DreamYaml save(boolean overwrite) throws Exception {
-        if (file==null) throw new NotLoadedException();
-        new DYWriter().parse(this, overwrite);
+        if (file==null) this.load();
+        new DYWriter().parse(this, overwrite, false);
         return this;
     }
 
@@ -169,16 +191,23 @@ public class DreamYaml {
 
     public void printAll(){
         System.out.println(" ");
-        System.out.println("Printing loaded modules from '"+file.getName()+"' file:");
+        System.out.println("Printing LOADED modules from '"+file.getName()+"' file:");
         for (DYModule module :
                 getAllLoaded()) {
             printModule(module);
         }
-        System.out.println("Printing default modules from '"+file.getName()+"' file:");
+        System.out.println("Printing ADDED modules from '"+file.getName()+"' file:");
         for (DYModule module :
                 getAllAdded()) {
             printModule(module);
         }
+
+        System.out.println("Printing UNIFIED modules from '"+file.getName()+"' file:");
+        for (DYModule module :
+                new UtilsForModules().createUnifiedList(getAllAdded(),getAllLoaded())) {
+            printModule(module);
+        }
+
         System.out.println(" ");
     }
 

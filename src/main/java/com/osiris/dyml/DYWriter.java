@@ -16,13 +16,15 @@ import java.util.List;
 
 class DYWriter {
 
-    public void parse(DreamYaml yaml, boolean overwrite) throws Exception{
+    public void parse(DreamYaml yaml, boolean overwrite, boolean reset) throws Exception{
         File file = yaml.getFile();
         if (file==null) throw new Exception("File is null! Make sure to load it at least once!");
         if (!file.exists()) throw new Exception("File '"+file.getName()+"' doesn't exist!");
 
         BufferedWriter writer = new BufferedWriter(new FileWriter(file), 32768); // TODO compare speed with def buffer
         writer.write(""); // Clear old content
+
+        if (reset) return;
 
         List<DYModule> modulesToSave = new ArrayList<>();
         if (overwrite) {

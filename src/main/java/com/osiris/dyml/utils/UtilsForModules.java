@@ -64,28 +64,11 @@ public class UtilsForModules {
 
     /**
      * If this method is used, it must mean that overwrite is false.
-     * This method returns a unified list containing the loaded modules as base, extended by the added modules.
-     * Before writing the modules to file we need to unify the defaultModules list with the loadedModules list.
-     * For simplicity we call the defaultModules list D-List and the loadedModules list L-List.
+     * This method returns a unified list containing the loaded modules as base or structure, extended by the added modules.
      * Logic:
-     * 1. Check which list is bigger. D-List or L-List?
-     * 2. Pick the bigger list and go through its modules and complete its data.
-     * 3. If the bigger list is the D-List its 'real-values' wont be overwritten.
-     * 4. If the bigger list is the L-List its 'real-values' get overwritten from the D-List
-     * Create a new list, then go thorough the defaultModules list, and check if there is a matching key in the loadedModules list.
-     * If there is a match add that module instead, and overwrite its defaultValues and comments.
-     * This ensures, that loaded modules which do not exist in the defaultModules list do not get saved to file.
-     * Using save() will result in overwriting the file with the current modules. The current modules get their values from the loadedModules.
-     * LIST A (5)
-     * LIST B (2)
-     * 'hello'
-     * 'hello' 'hi'
-     * 'hello' 'hi' 'sup'
-     *
-     * 'hello'
-     * 'hello' 'hi'
-     * 'hello' 'boi'
-     * 'hello' 'boi' 'sup'
+     * 1. If the loaded modules list is empty, nothing needs to be done! Return added modules.
+     * 2. Else go through the loaded modules and compare each module with the added modules list. If there is a added module with the same keys, add it to the unified list instead of the loaded module.
+     * 3. If there are NEW modules in the added modules list, insert them into the right places of unified list.
      * @param addedModules
      * @param loadedModules
      * @return
@@ -94,8 +77,12 @@ public class UtilsForModules {
         List<DYModule> copyAddedModules = new CopyOnWriteArrayList<>();
         copyAddedModules.addAll(addedModules);
 
+        if (loadedModules.isEmpty()) return addedModules;
+
         List<DYModule> unifiedList = new ArrayList<>();
         // Go through the loadedModules list
+        //System.out.println("");
+        //System.out.println("Go through the loadedModules list: ");
         for (DYModule m :
                 loadedModules) {
             // Check if there is the same 'added module' available
@@ -104,11 +91,25 @@ public class UtilsForModules {
                 unifiedList.add(existing);
                 // Also remove it from its own list, so at the end there are only 'new' modules in that list
                 copyAddedModules.remove(existing);
+                //System.out.println("Added an 'added module' to unified and removed from copyAdded.");
             }
-            else
+            else {
                 unifiedList.add(m);
+                //System.out.println("Added an 'loaded module' to unified.");
+            }
         }
 
+        //System.out.println("");
+        //System.out.println("Go through the copyAddedModules("+copyAddedModules.size()+") list and add NEW ones to unified: ");
+        for (DYModule m :
+                unifiedList) {
+            //System.out.println("unifiedList: KEY" + m.getKeys());
+        }
+
+        for (DYModule m :
+                copyAddedModules) {
+            //System.out.println("copyAddedModules: KEY" + m.getKeys());
+        }
         // Now the unified list, has its structure from the 'loaded modules'
         // and its latest module values from the 'added modules'.
         // The only missing thing, is that there could be NEW modules in the 'added modules' list.
@@ -134,11 +135,14 @@ public class UtilsForModules {
                     for (int i = 0; i < uM.getKeys().size(); i++) {
                         if (uM.getKeys().get(i).equals(m.getKeys().get(i)))
                             keyMatches++;
+                        else
+                            break;
                     }
                     // If this has more matches than the highest matches count, overwrite it and set the lastModule
                     if (keyMatches >= highestKeyMatches) {
                         highestKeyMatches = keyMatches;
                         lastModulePos = position;
+                        //System.out.println("New high-score: "+highestKeyMatches+" at pos: "+lastModulePos);
                     }
                 }
 
@@ -160,14 +164,19 @@ public class UtilsForModules {
             // Next example 3-9: 3 gets incremented to 4, so the last module isn't duplicated, so this list contains 4-9 and the new Module at the last index 10
             int lastPos = 0;
             int cycle = 0;
-            for (Integer pos :
+            for (Integer pos : // The last modules index position in the unifiedList
                     lastModulesPositions) {
+                //System.out.println("Cycle: "+cycle+" with pos: "+pos);
                 List<DYModule> modules = new ArrayList<>();
-                if (lastPos!=0) lastPos++; // Increment lastPos, so that the last module doesn't get duplicated
-                for (int i = lastPos; i < pos; i++) {
+                // Increment lastPos, so that the last module doesn't get duplicated.
+                // Only don't do this for the first cycle, so index 0 doesn't get skipped.
+                if(cycle!=0) lastPos++;
+                for (int i = lastPos; i <= pos; i++) {
                     modules.add(unifiedList.get(i));
+                    //System.out.println("modules added: KEY"+unifiedList.get(i).getKeys());
                 }
                 modules.add(copyAddedModules.get(cycle));
+                //System.out.println("modules added: KEY"+copyAddedModules.get(cycle).getKeys());
                 fullUnifiedList.addAll(modules);
                 lastPos = pos;
                 cycle++;
