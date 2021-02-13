@@ -52,6 +52,7 @@ yaml.save();
 ## Examples
 These examples build on top of each other, so make sure to follow the order.
 * [`SimpleExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/SimpleExample.java)
+* [`SavingExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/SavingExample.java)
 * [`CommentsExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/CommentsExample.java)
 * [`GettingValuesExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/GettingValuesExample.java)
 * [`ValueValidationExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/ValueValidationExample.java)
@@ -95,9 +96,5 @@ These are named 'loaded modules' by the way.
 The only difference, is that loaded modules cannot have default values set.
 They are basically the raw output from your yaml file. Added modules get created when you call the add() method. Their initial value is taken from the  
 loaded module with the same keys.
-</details>
-<details>
-  <summary>What does save() do?</summary>
-It overwrites the yaml file with your added modules. This means that anything, that was not added by the add() method won't be saved to the file.
 </details>
 </div>
