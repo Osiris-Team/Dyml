@@ -91,6 +91,7 @@ public class DreamYaml {
      * See {@link DYModule#setDefValues(List)} and {@link UtilsForModules#createUnifiedList(List, List)} for more details.
      * It's recommended to keep {@link #load()} and {@link #save()} timely close to each other, so the user
      * can't change the values in the meantime.
+     * IMPORTANT: Stuff that isn't supported by DreamYaml (see features.yml) wont be parsed and thus removed from the file after you save it!
      * @param overwrite If true the yaml file gets overwritten with modules from the 'added modules list'.
      *                 That means that everything that wasn't added via {@link #add(String...)} will not exist in the file.
      *                  Default is false.
