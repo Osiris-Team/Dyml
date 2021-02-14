@@ -35,7 +35,7 @@ not supported:
   - apostrophes ("" and '') encapsulating values won’t be removed, just don't use them
 ```
 Some extras:
- - **DYWatcher |** Yaml files watcher with recursive directory support.
+ - **DYWatcher |** Yaml files watcher with recursive directory watching support.
 ## Getting started
 ```java
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/simple-example.yml");
