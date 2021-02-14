@@ -40,8 +40,8 @@ public class UtilsForModules {
     //TODO Check which (above or below) method is more efficient
     /**
      * Check for duplicate objects (objects with same key).
-     * @param modules
-     * @param queryModule
+     * @param modules the list where to search for the duplicate.
+     * @param queryModule the module which should be checked.
      * @return the already existing object, otherwise null.
      */
     public DYModule getExisting(DYModule queryModule, List<DYModule> modules){
@@ -63,17 +63,16 @@ public class UtilsForModules {
     }
 
     /**
-     * If this method is used, it must mean that overwrite is false.
-     * This method returns a unified list containing the loaded modules as base or structure, extended by the added modules.
+     * This method returns a unified list containing the loaded modules as base, overwritten and extended by the added modules.
+     * This ensures, that the structure(hierarchies) of the loaded file stay the same
+     * and that new modules are inserted in the correct position.
      * Logic:
      * 1. If the loaded modules list is empty, nothing needs to be done! Return added modules.
      * 2. Else go through the loaded modules and compare each module with the added modules list. If there is a added module with the same keys, add it to the unified list instead of the loaded module.
      * 3. If there are NEW modules in the added modules list, insert them into the right places of unified list.
-     * @param addedModules
-     * @param loadedModules
-     * @return
+     * @return a fresh unified list containing loaded modules extended by added modules.
      */
-    public List<DYModule> createUnifiedList(List<DYModule> addedModules, List<DYModule> loadedModules){
+    public synchronized List<DYModule> createUnifiedList(List<DYModule> addedModules, List<DYModule> loadedModules){
         List<DYModule> copyAddedModules = new CopyOnWriteArrayList<>();
         copyAddedModules.addAll(addedModules);
 

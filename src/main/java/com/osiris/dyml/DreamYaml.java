@@ -52,7 +52,7 @@ public class DreamYaml {
      * Loads the file into memory by parsing
      * it into modules({@link DYModule}). Creates a new file if it didn't exist already.
      * You can return the list of modules with {@link #getAllLoaded()}.
-     * Remember, that this refreshes all modules values.
+     * Remember, that this updates your added modules values.
      */
     public DreamYaml load() throws Exception {
         this.loadedModules = new ArrayList<>();
@@ -190,35 +190,55 @@ public class DreamYaml {
         return defaultModules.get(defaultModules.size()-1);
     }
 
+    /**
+     * Prints out all lists.
+     */
     public void printAll(){
+        printLoaded();
+        printAdded();
+        printUnified();
+        System.out.println(" ");
+    }
+
+    /**
+     * Prints out all modules in the loaded list.
+     * For more info see {@link #getAllLoaded()}.
+     */
+    public void printLoaded(){
         System.out.println(" ");
         System.out.println("Printing LOADED modules from '"+file.getName()+"' file:");
         for (DYModule module :
                 getAllLoaded()) {
-            printModule(module);
+            module.print();
         }
+    }
+
+    /**
+     * Prints out all modules in the added list.
+     * For more info see {@link #getAllAdded()}.
+     */
+    public void printAdded(){
+        System.out.println(" ");
         System.out.println("Printing ADDED modules from '"+file.getName()+"' file:");
         for (DYModule module :
                 getAllAdded()) {
-            printModule(module);
+            module.print();
         }
+    }
 
+    /**
+     * Prints out all modules in the unified list.
+     * For more info see {@link UtilsForModules#createUnifiedList(List, List)}.
+     */
+    public void printUnified(){
+        System.out.println(" ");
         System.out.println("Printing UNIFIED modules from '"+file.getName()+"' file:");
         for (DYModule module :
                 new UtilsForModules().createUnifiedList(getAllAdded(),getAllLoaded())) {
-            printModule(module);
+            module.print();
         }
-
-        System.out.println(" ");
     }
 
-    private void printModule(DYModule module){
-        System.out.println(
-                "KEYS: " + module.getKeys().toString() +
-                        " VALUES: " + module.getValues().toString() +
-                        " DEF-VALUES: " + module.getDefaultValues().toString() +
-                        " COMMENTS: " + module.getComments().toString());
-    }
 
     public String getFilePath() {
         return filePath;

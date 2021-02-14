@@ -37,9 +37,11 @@ class DYWriter {
             if (modulesToSave.isEmpty())
                 throw new Exception("Failed to write modules to file: There are no modules in the list for file '"+file.getName()+"' ! Nothing to write!");
         }
+
+
         DYModule lastModule = new DYModule(); // Create an empty module as start point
         for (DYModule m :
-                yaml.getAllAdded()) {
+                modulesToSave) {
             parseModule(writer, m, lastModule);
             lastModule = m;
         }
@@ -72,7 +74,7 @@ class DYWriter {
                             m.getComments()) {
                         // Adds support for Strings containing \n to split up comments
                         BufferedReader bufReader = new BufferedReader(new StringReader(comment));
-                        String commentLine=null;
+                        String commentLine = null;
                         boolean isMultiline = false;
                         while( (commentLine=bufReader.readLine()) != null )
                         {

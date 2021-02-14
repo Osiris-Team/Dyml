@@ -12,7 +12,6 @@ package com.osiris.dyml;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * The in-memory representation of a yaml section.
@@ -68,10 +67,9 @@ public class DYModule {
     }
 
     /**
-     * Null values use their default values as fallback.
+     * Null values return their default values as fallback.
      * This is enabled by default.
      * See {@link #getValueByIndex(int)} for details.
-     * @param fallbackOnDefault
      */
     public void setFallbackOnDefault(boolean fallbackOnDefault) {
         this.fallbackOnDefault = fallbackOnDefault;
@@ -108,6 +106,14 @@ public class DYModule {
     public DYModule addKey(String key){
         addKeys(key);
         return this;
+    }
+
+    public void print(){
+        System.out.println(
+                "KEYS: " + this.getKeys().toString() +
+                        " VALUES: " + this.getValues().toString() +
+                        " DEF-VALUES: " + this.getDefaultValues().toString() +
+                        " COMMENTS: " + this.getComments().toString());
     }
 
     /**
