@@ -99,42 +99,38 @@ class DYWriter {
                 if (m.getValues()!=null && i==(size-1)){ // Only write values to the last key in the list
                     if (!m.getValues().isEmpty()){ // Write values if they exist, else write defaults, else write nothing
                         if (m.getValues().size() == 1){
-                            if (m.getValue() != null){ // Only write if its not null
+                            if (m.getValue() != null) // Only write if its not null
                                 writer.write("" + m.getValue());
-                                writer.newLine();
-                                writer.flush();
-                            }
+                            writer.newLine();
+                            writer.flush();
                         }
                         else {
                             writer.newLine();
                             for (String value :
                                     m.getValues()) {
-                                if (value!=null){ // Only write if its not null
+                                if (value!=null) // Only write if its not null
                                     writer.write(spaces + "  - " + value);
-                                    writer.newLine();
-                                    writer.flush();
-                                }
+                                writer.newLine();
+                                writer.flush();
                             }
                         }
                     }
                     else{
                         if (m.getDefaultValues()!=null && !m.getDefaultValues().isEmpty()){
                             if (m.getDefaultValues().size()==1){
-                                if (m.getDefaultValue()!=null){
+                                if (m.getDefaultValue()!=null)
                                     writer.write("" + m.getDefaultValue());
-                                    writer.newLine();
-                                    writer.flush();
-                                }
+                                writer.newLine();
+                                writer.flush();
                             }
                             else {
                                 writer.newLine();
                                 for (String value :
                                         m.getDefaultValues()) {
-                                    if (value!=null){
+                                    if (value!=null)
                                         writer.write(spaces + "  - " + value);
-                                        writer.newLine();
-                                        writer.flush();
-                                    }
+                                    writer.newLine();
+                                    writer.flush();
                                 }
                             }
                         }
