@@ -10,24 +10,20 @@ package com.osiris.dyml;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class DefaultsFallbackTest {
 
     @Test
     void testFallback() throws Exception{
         DreamYaml yml = new DreamYaml(System.getProperty("user.dir")+"/src/test/test-fallback.yml");
-        yml.load();
-        DYModule v1 = yml.add("v1").setDefValue("def-value");
+        yml.reset(); // Make sure that the file is empty
+        DYModule v1 = yml.add("v1").setValue(null).setDefValue("def-value");
         v1.setFallbackOnDefault(false);
-        v1.setValue("");
-        yml.save(); // First we disable fallback and write an empty String for v1
-        assertTrue(v1.asString().equals("")); // Check if that worked
+        assertTrue(v1.asString() == null); // Returns null, since fallback is disabled
 
-        // Then enabled fallback again and check its value now
         v1.setFallbackOnDefault(true);
-        yml.save();
-        assertTrue(v1.asString().equals("def-value"));
+        assertTrue(v1.asString().equals("def-value")); // Returns the default value, since fallback is enabled again
     }
 
 }

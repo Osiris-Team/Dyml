@@ -18,6 +18,9 @@ import java.io.FileReader;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Responsible for reading the provided file and parsing it into modules.
+ */
 class DYReader {
 
     public void parse(DreamYaml yaml) throws Exception {
@@ -26,12 +29,11 @@ class DYReader {
         if (!file.exists()) throw new Exception("File '"+file.getName()+"' doesn't exist!");
 
         BufferedReader reader = new BufferedReader(new FileReader(file));
-        String line;
-        int lineNumber = 0;
         DYLine lastLine = null;
         List<DYLine> lineList = new ArrayList<>();
         while(true){
-            line = reader.readLine();
+            String line = reader.readLine(); // Its important, that a new, unique Object is created for each line and number
+            int lineNumber = 0; // Its important, that a new, unique Object is created for each line and number
             if (line!=null){
                 DYLine currentLine = new DYLine(line, lineNumber);
                 parseLine(yaml, currentLine, lastLine, lineList);
@@ -224,8 +226,7 @@ class DYReader {
     }
 
     /**
-     * Loop until another type than 32(stands for a space)
-     * and remove that space(s).
+     * Trims the string and sets it null if empty.
      * String before: '  hi boi  '
      * String after: 'hi boi'
      * Result: removed 2 spaces.

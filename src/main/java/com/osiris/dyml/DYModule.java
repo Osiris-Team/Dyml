@@ -25,17 +25,30 @@ public class DYModule {
     private DYLine line;
     private boolean fallbackOnDefault = true;
 
+    /**
+     * See {@link #DYModule(List, List, List, List)} for details.
+     */
     public DYModule(){
         this((String) null);
     }
 
+    /**
+     * See {@link #DYModule(List, List, List, List)} for details.
+     */
     public DYModule(String... keys){
         List<String> list = new ArrayList<>();
         if (keys!=null) list.addAll(Arrays.asList(keys));
        init(list,null, null, null);
     }
 
-
+    /**
+     * Creates a new module.
+     * Null values are allowed for creation, but should be replaced with actual values later.
+     * @param keys a list containing its keys.
+     * @param defaultValues a list containing its default values.
+     * @param values a list containing its values.
+     * @param comments a list containing its comments.
+     */
     public DYModule(List<String> keys, List<String> defaultValues, List<String> values, List<String> comments) {
         init(keys, defaultValues, values, comments);
     }
@@ -60,7 +73,18 @@ public class DYModule {
     }
 
     /**
-     * {@link #setFallbackOnDefault(boolean)}
+     * Prints out this modules most important details.
+     */
+    public void print(){
+        System.out.println(
+                "KEYS: " + this.getKeys().toString() +
+                        " VALUES: " + this.getValues().toString() +
+                        " DEF-VALUES: " + this.getDefaultValues().toString() +
+                        " COMMENTS: " + this.getComments().toString());
+    }
+
+    /**
+     * See {@link #setFallbackOnDefault(boolean)} for details.
      */
     public boolean isFallbackOnDefault() {
         return fallbackOnDefault;
@@ -76,7 +100,7 @@ public class DYModule {
     }
 
     /**
-     * {@link #setKeys(String...)}
+     * See {@link #setKeys(List)} for details.
      */
     public DYModule setKey(String key) {
         setKeys(key);
@@ -84,14 +108,18 @@ public class DYModule {
     }
 
     /**
-     * Duplicate keys are not allowed,
-     * because its the only way of distinguishing modules.
+     * See {@link #setKeys(List)} for details.
      */
     public DYModule setKeys(String... keys) {
         if (keys!=null) return setKeys(Arrays.asList(keys));
         return this;
     }
 
+    /**
+     * Clears the list and adds the given keys.
+     * Duplicate keys are not allowed,
+     * because its the only way of distinguishing modules.
+     */
     public DYModule setKeys(List<String> keys) {
         if (keys!=null){
             this.keys.clear();
@@ -101,59 +129,79 @@ public class DYModule {
     }
 
     /**
-     * {@link #setKeys(String...)}
+     * See {@link #addKeys(String...)} for details.
      */
     public DYModule addKey(String key){
         addKeys(key);
         return this;
     }
 
-    public void print(){
-        System.out.println(
-                "KEYS: " + this.getKeys().toString() +
-                        " VALUES: " + this.getValues().toString() +
-                        " DEF-VALUES: " + this.getDefaultValues().toString() +
-                        " COMMENTS: " + this.getComments().toString());
-    }
-
     /**
-     * {@link #setKeys(String...)}
+     * Adds a new key to the list.
+     * Duplicate keys are not allowed,
+     * because its the only way of distinguishing modules.
      */
     public DYModule addKeys(String... keys){
         if (keys!=null) this.keys.addAll(Arrays.asList(keys));
         return this;
     }
 
+    /**
+     * See {@link #setValues(List)} for details.
+     */
     public DYModule setValue(String v){
         setValues(v);
         return this;
     }
 
+    /**
+     * See {@link #setValues(List)} for details.
+     */
     public DYModule setValues(String... v){
         if (v!=null) setValues(Arrays.asList(v));
         return this;
     }
 
+    /**
+     * Clears the values list and adds the values from the provided list.
+     */
     public DYModule setValues(List<String> v){
         if (v!=null){
             this.values.clear();
-            this.values.addAll(v); //TODO how to handle individual null values
+            this.values.addAll(v);
         }
         return this;
     }
 
+    /**
+     * See {@link #addValues(String...)} for details.
+     */
     public DYModule addValue(String v){
         addValues(v);
         return this;
     }
 
+    /**
+     * See {@link #addValues(String...)} for details.
+     */
     public DYModule addValues(String... v){
-        if (v!=null) this.values.addAll(Arrays.asList(v));
+        if (v!=null) addValues(Arrays.asList(v));
         return this;
     }
 
     /**
-     * {@link #setDefValues(String...)}
+     * Adds new values to the list.
+     * Note that null values wont be added!
+     */
+    public DYModule addValues(List<String> v){
+        if (v!=null){
+            this.values.addAll(v);
+        }
+        return this;
+    }
+
+    /**
+     * See {@link #setDefValues(String...)} for details.
      */
     public DYModule setDefValue(String v){
         setDefValues(v);
@@ -161,7 +209,7 @@ public class DYModule {
     }
 
     /**
-     * {@link #setDefValues(List)}
+     * See {@link #setDefValues(List)} for details.
      */
     public DYModule setDefValues(String... v){
         if (v!=null)
@@ -170,19 +218,20 @@ public class DYModule {
     }
 
     /**
-     * The default value is used when the normal value is null or the key didn't exist yet.
+     * The default value is used when the normal value is null/empty or the key didn't exist yet.
      * See {@link #setFallbackOnDefault(boolean)} for more details.
+     * Note that null values wont be added!
      */
     public DYModule setDefValues(List<String> v){
         if (v!=null) {
             this.defaultValues.clear();
-            this.defaultValues.addAll(v); //TODO how to handle individual null values
+            this.defaultValues.addAll(v);
         }
         return this;
     }
 
     /**
-     * {@link #setDefValues(String...)}
+     * {@link #addDefValues(List)}
      */
     public DYModule addDefValue(String v){
         addDefValues(v);
@@ -190,10 +239,22 @@ public class DYModule {
     }
 
     /**
-     * {@link #setDefValues(String...)}
+     * {@link #addDefValues(List)}
      */
     public DYModule addDefValues(String... v){
-        if (v!=null) this.defaultValues.addAll(Arrays.asList(v));
+        if (v!=null)
+            addDefValues(Arrays.asList(v));
+        return this;
+    }
+
+    /**
+     * Adds new default values to the list.
+     * Note that null values wont be added!
+     */
+    public DYModule addDefValues(List<String> v){
+        if (v!=null) {
+            this.defaultValues.addAll(v);
+        }
         return this;
     }
 
@@ -221,7 +282,8 @@ public class DYModule {
     }
 
     public DYModule addComments(String... c){
-        if (c!=null) this.comments.addAll(Arrays.asList(c));
+        if (c!=null)
+            this.comments.addAll(Arrays.asList(c));
         return this;
     }
 
@@ -237,10 +299,9 @@ public class DYModule {
      * null if there was no index i in the list.
      */
     public String getKeyByIndex(int i){
-        if (keys!=null)
-            try{
-                return keys.get(i);
-            } catch (Exception ignored) {}
+        try{
+            return keys.get(i);
+        } catch (Exception ignored) {}
         return null;
     }
 
@@ -262,19 +323,19 @@ public class DYModule {
 
     /**
      * Returns the value by given index or
-     * its default value, if it is null and {@link #isFallbackOnDefault()} is set to true.
+     * its default value, if the value is null/empty and {@link #isFallbackOnDefault()} is set to true.
+     * Note that there can't be null values! All null values are regarded as empty!
+     * This is because a null String will return 'null' and not actually null.
+     * To avoid that an empty string is returned instead.
      */
     public String getValueByIndex(int i){
-        String v = "";
+        String v = null;
         try{
             v = values.get(i);
         } catch (Exception ignored) {}
 
-
-        if (v.isEmpty() && fallbackOnDefault)
-            return getDefaultValueByIndex(i);
-        else
-            return v;
+        if (v==null && fallbackOnDefault) return getDefaultValueByIndex(i);
+        return v;
     }
 
     public List<String> getValues() {
@@ -286,11 +347,11 @@ public class DYModule {
     }
 
     public String getDefaultValueByIndex(int i){
-        if (defaultValues!=null)
-            try{
-                return defaultValues.get(i);
-            } catch (Exception ignored) {}
-        return null;
+        String v = null;
+        try{
+            v = defaultValues.get(i);
+        } catch (Exception ignored) {}
+        return v;
     }
 
     public List<String> getDefaultValues() {
@@ -301,18 +362,16 @@ public class DYModule {
      * Returns the first comment at index 0.
      */
     public String getComment(){
-        if (comments!=null) return getCommentByIndex(0);
-        return null;
+        return getCommentByIndex(0);
     }
 
     /**
-     * Returns a specific comment by its index.
+     * Returns a specific comment by its index or null if nothing found at that index.
      */
     public String getCommentByIndex(int i){
-        if (comments!=null)
-            try{
-                return comments.get(i);
-            } catch (Exception ignored) {}
+        try{
+            return comments.get(i);
+        } catch (Exception ignored) {}
         return null;
     }
 

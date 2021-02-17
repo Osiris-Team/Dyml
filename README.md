@@ -97,4 +97,15 @@ The only difference, is that loaded modules cannot have default values set.
 They are basically the raw output from your yaml file. Added modules get created when you call the add() method. Their initial value is taken from the  
 loaded module with the same keys.
 </details>
+<details>
+  <summary>How are null values handled?</summary>
+Null values won't be written to the file. 
+But they can be added to the (default-)values lists, like everything else.
+Developers all around the world are still trying to figure out the sense in doing that tho...
+</details>
+<details>
+  <summary>Fallback to default values?</summary>
+When the 'real value' is null, return the default value.
+This feature is enabled by default. You can change it for each individual module.
+</details>
 </div>

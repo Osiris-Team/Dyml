@@ -25,26 +25,40 @@ public class DreamYaml {
     private String filePath;
     private File file;
     private List<DYModule> loadedModules;
-    private List<DYModule> defaultModules;
+    private List<DYModule> addedModules;
     //private List<DYModule> unifiedModules;
     private boolean debug;
 
-
+    /**
+     * See {@link #DreamYaml(String, boolean)} for details.
+     */
     public DreamYaml(File file){
         this(file.getAbsolutePath());
     }
 
+    /**
+     * See {@link #DreamYaml(String, boolean)} for details.
+     */
     public DreamYaml(File file, boolean debug){
         this(file.getAbsolutePath(), debug);
     }
 
+    /**
+     * See {@link #DreamYaml(String, boolean)} for details.
+     */
     public DreamYaml(String filePath) {
         this(filePath,false);
     }
 
+    /**
+     * Creates a new DreamYaml object.
+     * Next step would be to {@link #load()} your file into memory.
+     * @param filePath your yaml files path.
+     * @param debug show debugging stuff. Default is false.
+     */
     public DreamYaml(String filePath, boolean debug) {
         this.filePath = filePath;
-        this.defaultModules = new ArrayList<>();
+        this.addedModules = new ArrayList<>();
         this.debug = debug;
     }
 
@@ -112,7 +126,7 @@ public class DreamYaml {
 
     /**
      * Creates a new {@link DYModule}, adds it to the modules list and returns it.
-     * {@link #add(DYModule)}
+     * See {@link #add(DYModule)} for details.
      */
     public DYModule add(String... keys) throws Exception {
         if (keys==null) throw new Exception("Keys of this module cannot be null!");
@@ -123,25 +137,27 @@ public class DreamYaml {
 
     /**
      * Creates a new {@link DYModule}, adds it to the modules list and returns it.
-     * {@link #add(DYModule)}
+     * See {@link #add(DYModule)} for details.
      */
     public DYModule add(List<String> keys, List<String> defaultValues, List<String> values, List<String> comments) throws Exception {
         return add(new DYModule(keys, defaultValues, values, comments));
     }
 
     /**
-     * Adds a module to the list, which will get parsed and written to file by {@link #save()}.
+     * Adds the given module to the modules list, which will get parsed and written to file by {@link #save()}.
      * Doing changes to this modules values and saving them, will affect the original yaml file.
+     * Note that null KEYS are not allowed!
      * @param module module to add.
      * @return the added module.
      * @throws NotLoadedException if the yaml file has not been loaded once yet
      * @throws DuplicateKeyException if another module with the same keys already exists
      */
     public DYModule add(DYModule module) throws Exception {
-        if (module.getKeys()==null) throw new Exception("Keys of this module cannot be null!");
+        if (module.getKeys()==null || module.getKeys().isEmpty()) throw new Exception("Keys list of this module is null or empty!");
         if (file==null) throw new NotLoadedException(); // load() should've been called at least once before
+        if (module.getKeys().contains(null)) throw new Exception("Null keys are not allowed!");
         UtilsForModules utils = new UtilsForModules();
-        if (utils.getExisting(module, this.defaultModules)!=null) // Check for the same keys in the defaultModules list. Same keys are not allowed.
+        if (utils.getExisting(module, this.addedModules)!=null) // Check for the same keys in the defaultModules list. Same keys are not allowed.
             throw new DuplicateKeyException(file.getName(), module.getKeys().toString());
 
         DYModule loaded = utils.getExisting(module, this.loadedModules);
@@ -149,18 +165,18 @@ public class DreamYaml {
             module.setValues(loaded.getValues());
         }
 
-        this.defaultModules.add(module);
+        this.addedModules.add(module);
         return module;
     }
 
     /**
-     * Removes a module the module.
+     * Convenience method for removing a module from the 'added modules list'.
      * If you call {@link #save()} after this, the module should also
      * be removed from the yaml file.
      * @param module the module to remove.
      */
     public void remove(DYModule module){
-        this.defaultModules.remove(module);
+        this.addedModules.remove(module);
     }
 
     /**
@@ -172,6 +188,9 @@ public class DreamYaml {
         return loadedModules;
     }
 
+    /**
+     * Convenience method for returning the last module from the 'loaded modules list'.
+     */
     public DYModule getLastLoadedModule(){
         return loadedModules.get(loadedModules.size()-1);
     }
@@ -183,11 +202,14 @@ public class DreamYaml {
      * 'loaded modules' list, which can be returned by {@link #getAllLoaded()}.
      */
     public List<DYModule> getAllAdded() {
-        return defaultModules;
+        return addedModules;
     }
 
-    public DYModule getLastDefModule(){
-        return defaultModules.get(defaultModules.size()-1);
+    /**
+     * Convenience method for returning the last module from the 'added modules list'.
+     */
+    public DYModule getLastAddedModule(){
+        return addedModules.get(addedModules.size()-1);
     }
 
     /**
@@ -264,14 +286,6 @@ public class DreamYaml {
         this.debug = debug;
     }
 
-    private void duplicateCheck(List<DYModule> modules, DYModule queryModule) throws DuplicateKeyException {
-        for (DYModule listModule :
-                modules) {
-            if (listModule.getKeys().equals(queryModule.getKeys()))
-                throw new DuplicateKeyException(file.getName(), queryModule.getKey());
-        }
-    }
-
     /**
      * Returns the module with same keys from the 'added modules list'.
      * Details: {@link #getAllAdded()}
@@ -292,7 +306,7 @@ public class DreamYaml {
      * @return {@link DYModule} or null if no module found with same keys
      */
     public DYModule getAddedModuleByKeys(List<String> keys) {
-        return new UtilsForModules().getExisting(keys, defaultModules);
+        return new UtilsForModules().getExisting(keys, addedModules);
     }
 
     /**

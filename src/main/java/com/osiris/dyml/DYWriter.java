@@ -14,6 +14,9 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Responsible for parsing and writing the provided modules to file.
+ */
 class DYWriter {
 
     public void parse(DreamYaml yaml, boolean overwrite, boolean reset) throws Exception{
@@ -95,35 +98,43 @@ class DYWriter {
 
                 if (m.getValues()!=null && i==(size-1)){ // Only write values to the last key in the list
                     if (!m.getValues().isEmpty()){ // Write values if they exist, else write defaults, else write nothing
-                        if (m.getValues().size()==1){
-                            writer.write("" + m.getValue());
-                            writer.newLine();
-                            writer.flush();
+                        if (m.getValues().size() == 1){
+                            if (m.getValue() != null){ // Only write if its not null
+                                writer.write("" + m.getValue());
+                                writer.newLine();
+                                writer.flush();
+                            }
                         }
                         else {
                             writer.newLine();
                             for (String value :
                                     m.getValues()) {
-                                writer.write(spaces + "  - " + value);
-                                writer.newLine();
-                                writer.flush();
+                                if (value!=null){ // Only write if its not null
+                                    writer.write(spaces + "  - " + value);
+                                    writer.newLine();
+                                    writer.flush();
+                                }
                             }
                         }
                     }
                     else{
                         if (m.getDefaultValues()!=null && !m.getDefaultValues().isEmpty()){
                             if (m.getDefaultValues().size()==1){
-                                writer.write("" + m.getDefaultValue());
-                                writer.newLine();
-                                writer.flush();
+                                if (m.getDefaultValue()!=null){
+                                    writer.write("" + m.getDefaultValue());
+                                    writer.newLine();
+                                    writer.flush();
+                                }
                             }
                             else {
                                 writer.newLine();
                                 for (String value :
                                         m.getDefaultValues()) {
-                                    writer.write(spaces + "  - " + value);
-                                    writer.newLine();
-                                    writer.flush();
+                                    if (value!=null){
+                                        writer.write(spaces + "  - " + value);
+                                        writer.newLine();
+                                        writer.flush();
+                                    }
                                 }
                             }
                         }
