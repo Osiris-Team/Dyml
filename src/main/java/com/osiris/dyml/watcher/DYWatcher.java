@@ -38,35 +38,35 @@ public class DYWatcher extends Thread{
     private boolean trace = false;
 
     /**
-     * {@link #DYWatcher(List, String, boolean)}
+     * See {@link #DYWatcher(List, String, boolean)} for details.
      */
     public DYWatcher() {
         this("");
     }
 
     /**
-     * {@link #DYWatcher(List, String, boolean)}
+     * See {@link #DYWatcher(List, String, boolean)} for details.
      */
     public DYWatcher(boolean registerSubDirs) {
         this(null, null, registerSubDirs);
     }
 
     /**
-     * {@link #DYWatcher(List, String, boolean)}
+     * See {@link #DYWatcher(List, String, boolean)} for details.
      */
     public DYWatcher(String dir, boolean registerSubDirs) {
         this(null, dir, registerSubDirs);
     }
 
     /**
-     * {@link #DYWatcher(List, String, boolean)}
+     * See {@link #DYWatcher(List, String, boolean)} for details.
      */
     public DYWatcher(List<DreamYaml> dyList) {
         this(dyList, null, true);
     }
 
     /**
-     * {@link #DYWatcher(List, String, boolean)}
+     * See {@link #DYWatcher(List, String, boolean)} for details.
      */
     public DYWatcher(DreamYaml... dy) throws Exception {
         if (dy == null)
@@ -76,16 +76,17 @@ public class DYWatcher extends Thread{
 
 
     /**
-     * {@link #DYWatcher(List, String, boolean)}
+     * See {@link #DYWatcher(List, String, boolean)} for details.
      */
     public DYWatcher(String dir) {
         init(null, dir, true);
     }
 
     /**
-     * Create a new DreamYamlWatcher/YamlFilesWatcher within a new thread.
+     * Create a new DreamYamlWatcher/YamlFilesWatcher. Start this watcher by its {@link #start()} method.
      * @param dyList a list containing the yaml files to be watched
      * @param dir the directory path where to listen for changes. If null/empty the user-dir will be used.
+     * @param registerSubDirs Register all sub directories. Default is true.
      */
     public DYWatcher(List<DreamYaml> dyList, String dir, boolean registerSubDirs) {
         init(dyList, dir, registerSubDirs);
