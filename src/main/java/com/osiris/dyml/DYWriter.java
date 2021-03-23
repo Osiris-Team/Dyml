@@ -8,7 +8,7 @@
 
 package com.osiris.dyml;
 
-import com.osiris.dyml.utils.UtilsForModules;
+import com.osiris.dyml.utils.UtilsDYModule;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ class DYWriter {
                 throw new Exception("Failed to write modules to file: There are no modules in the 'added modules list' for file '"+file.getName()+"' ! Nothing to write!");
         }
         else {
-            modulesToSave = new UtilsForModules().createUnifiedList(yaml.getAllAdded(), yaml.getAllLoaded());
+            modulesToSave = new UtilsDYModule().createUnifiedList(yaml.getAllAdded(), yaml.getAllLoaded());
             if (modulesToSave.isEmpty())
                 throw new Exception("Failed to write modules to file: There are no modules in the list for file '"+file.getName()+"' ! Nothing to write!");
         }

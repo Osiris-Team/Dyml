@@ -10,9 +10,11 @@ package com.osiris.dyml;
 
 import com.osiris.dyml.exceptions.DuplicateKeyException;
 import com.osiris.dyml.exceptions.NotLoadedException;
-import com.osiris.dyml.utils.UtilsForModules;
+import com.osiris.dyml.utils.UtilsDYModule;
+import com.osiris.dyml.utils.UtilsDreamYaml;
 
 import java.io.File;
+import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -27,7 +29,9 @@ public class DreamYaml {
     private List<DYModule> loadedModules;
     private List<DYModule> addedModules;
     //private List<DYModule> unifiedModules;
+    private final UtilsDreamYaml utils = new UtilsDreamYaml(this);
     private boolean debug;
+
 
     /**
      * See {@link #DreamYaml(String, boolean)} for details.
@@ -102,7 +106,7 @@ public class DreamYaml {
     /**
      * Parses and saves the current modules to the provided yaml file.
      * If the file misses modules, these get created using their default values.
-     * See {@link DYModule#setDefValues(List)} and {@link UtilsForModules#createUnifiedList(List, List)} for more details.
+     * See {@link DYModule#setDefValues(List)} and {@link UtilsDYModule#createUnifiedList(List, List)} for more details.
      * It's recommended to keep {@link #load()} and {@link #save()} timely close to each other, so the user
      * can't change the values in the meantime.
      * IMPORTANT: Stuff that isn't supported by DreamYaml (see features.yml) wont be parsed and thus removed from the file after you save it!
@@ -156,7 +160,7 @@ public class DreamYaml {
         if (module.getKeys()==null || module.getKeys().isEmpty()) throw new Exception("Keys list of this module is null or empty!");
         if (file==null) throw new NotLoadedException(); // load() should've been called at least once before
         if (module.getKeys().contains(null)) throw new Exception("Null keys are not allowed!");
-        UtilsForModules utils = new UtilsForModules();
+        UtilsDYModule utils = new UtilsDYModule();
         if (utils.getExisting(module, this.addedModules)!=null) // Check for the same keys in the defaultModules list. Same keys are not allowed.
             throw new DuplicateKeyException(file.getName(), module.getKeys().toString());
 
@@ -224,41 +228,26 @@ public class DreamYaml {
 
     /**
      * Prints out all modules in the loaded list.
-     * For more info see {@link #getAllLoaded()}.
+     * For more info see {@link UtilsDreamYaml#printLoaded(PrintStream)}}.
      */
     public void printLoaded(){
-        System.out.println(" ");
-        System.out.println("Printing LOADED modules from '"+file.getName()+"' file:");
-        for (DYModule module :
-                getAllLoaded()) {
-            module.print();
-        }
+        utils.printLoaded(System.out);
     }
 
     /**
      * Prints out all modules in the added list.
-     * For more info see {@link #getAllAdded()}.
+     * For more info see {@link UtilsDreamYaml#printAdded(PrintStream)}}.
      */
     public void printAdded(){
-        System.out.println(" ");
-        System.out.println("Printing ADDED modules from '"+file.getName()+"' file:");
-        for (DYModule module :
-                getAllAdded()) {
-            module.print();
-        }
+        utils.printAdded(System.out);
     }
 
     /**
      * Prints out all modules in the unified list.
-     * For more info see {@link UtilsForModules#createUnifiedList(List, List)}.
+     * For more info see {@link UtilsDYModule#createUnifiedList(List, List)} and {@link UtilsDreamYaml#printUnified(PrintStream)}}.
      */
     public void printUnified(){
-        System.out.println(" ");
-        System.out.println("Printing UNIFIED modules from '"+file.getName()+"' file:");
-        for (DYModule module :
-                new UtilsForModules().createUnifiedList(getAllAdded(),getAllLoaded())) {
-            module.print();
-        }
+        utils.printUnified(System.out);
     }
 
 
@@ -268,6 +257,10 @@ public class DreamYaml {
 
     public File getFile() {
         return file;
+    }
+
+    public UtilsDreamYaml getUtils() {
+        return utils;
     }
 
     /**
@@ -306,7 +299,7 @@ public class DreamYaml {
      * @return {@link DYModule} or null if no module found with same keys
      */
     public DYModule getAddedModuleByKeys(List<String> keys) {
-        return new UtilsForModules().getExisting(keys, addedModules);
+        return new UtilsDYModule().getExisting(keys, addedModules);
     }
 
     /**
@@ -329,7 +322,7 @@ public class DreamYaml {
      * @return {@link DYModule} or null if no module found with same keys
      */
     public DYModule getLoadedModuleByKeys(List<String> keys) {
-        return new UtilsForModules().getExisting(keys, loadedModules);
+        return new UtilsDYModule().getExisting(keys, loadedModules);
     }
 }
 

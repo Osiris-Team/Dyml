@@ -11,7 +11,7 @@ package com.osiris.dyml.utils;
 import java.time.Duration;
 import java.time.Instant;
 
-public class TimeStopper {
+public class UtilsTimeStopper {
     private Instant time1;
     private Instant time2;
 

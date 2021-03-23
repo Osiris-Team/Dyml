@@ -10,7 +10,7 @@ package com.osiris.dyml;
 
 
 import com.osiris.dyml.exceptions.IllegalListException;
-import com.osiris.dyml.utils.UtilsForModules;
+import com.osiris.dyml.utils.UtilsDYModule;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -47,7 +47,7 @@ class DYReader {
         }
 
         // If there where modules added, update their values
-        UtilsForModules utils = new UtilsForModules();
+        UtilsDYModule utils = new UtilsDYModule();
         for (DYModule loadedModule :
                 yaml.getAllLoaded()) {
             DYModule added = utils.getExisting(loadedModule, yaml.getAllAdded());

@@ -1,0 +1,9 @@
+name: John
+last-name: Goldman
+age: 29
+work: Reporter
+encapsulated: 
+  name: John
+  last-name: Goldman
+  age: 29
+  work: Reporter

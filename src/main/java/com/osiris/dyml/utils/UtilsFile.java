@@ -28,7 +28,7 @@ public class UtilsFile {
         System.out.println("Printing '"+file.getName()+"' from path '"+file.getAbsolutePath()+"'");
         System.out.println("CONTENT START =================================");
         try {
-            TimeStopper time = new TimeStopper();
+            UtilsTimeStopper time = new UtilsTimeStopper();
             time.start();
             BufferedReader reader = new BufferedReader(new FileReader(file));
             String line;

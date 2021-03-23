@@ -76,11 +76,17 @@ public class DYModule {
      * Prints out this modules most important details.
      */
     public void print(){
-        System.out.println(
-                "KEYS: " + this.getKeys().toString() +
-                        " VALUES: " + this.getValues().toString() +
-                        " DEF-VALUES: " + this.getDefaultValues().toString() +
-                        " COMMENTS: " + this.getComments().toString());
+        System.out.println(getModuleInformationAsString());
+    }
+
+    /**
+     * Formats this module into a {@link String}.
+     */
+    public String getModuleInformationAsString(){
+        return  "KEYS: " + this.getKeys().toString() +
+                " VALUES: " + this.getValues().toString() +
+                " DEF-VALUES: " + this.getDefaultValues().toString() +
+                " COMMENTS: " + this.getComments().toString();
     }
 
     /**

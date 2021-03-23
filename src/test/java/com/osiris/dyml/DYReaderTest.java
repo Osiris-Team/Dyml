@@ -8,14 +8,11 @@
 
 package com.osiris.dyml;
 
-import com.osiris.dyml.utils.TimeStopper;
 import com.osiris.dyml.utils.UtilsFile;
+import com.osiris.dyml.utils.UtilsTimeStopper;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
-import java.io.FileOutputStream;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class DYReaderTest {
 
@@ -25,7 +22,7 @@ class DYReaderTest {
         DreamYaml yaml = new DreamYaml(file);
         System.out.println("Parsing '"+file.getName()+"' from path '"+file.getAbsolutePath()+"'");
         try{
-            TimeStopper time = new TimeStopper();
+            UtilsTimeStopper time = new UtilsTimeStopper();
             time.start();
             yaml.load();
             time.stop();

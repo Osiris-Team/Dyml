@@ -6,9 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-class UtilsForModulesTest {
+class UtilsDYModuleTest {
 
     @Test
     void createUnifiedList() {
@@ -27,7 +25,7 @@ class UtilsForModulesTest {
         addedModules.add(new DYModule("p3", "c1", "cc1")); // NEW
         addedModules.add(new DYModule("p4", "c1", "cc1")); // NEW
 
-        List<DYModule> unified = new UtilsForModules().createUnifiedList(addedModules, loadedModules);
+        List<DYModule> unified = new UtilsDYModule().createUnifiedList(addedModules, loadedModules);
         for (DYModule m :
                 unified) {
             System.out.println("KEYS" + m.getKeys());
