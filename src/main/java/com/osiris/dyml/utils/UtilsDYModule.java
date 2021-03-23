@@ -68,7 +68,7 @@ public class UtilsDYModule {
      * and that new modules are inserted in the correct position.
      * Logic:
      * 1. If the loaded modules list is empty, nothing needs to be done! Return added modules.
-     * 2. Else go through the loaded modules and compare each module with the added modules list. If there is a added module with the same keys, add it to the unified list instead of the loaded module.
+     * 2. Else go through the loaded modules and compare each module with the added modules list. If there is an added module with the same keys, add it to the unified list instead of the loaded module.
      * 3. If there are NEW modules in the added modules list, insert them into the right places of unified list.
      * @return a fresh unified list containing loaded modules extended by added modules.
      */
