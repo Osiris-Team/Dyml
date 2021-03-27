@@ -127,7 +127,7 @@ This feature is enabled by default. You can change it for each individual module
 <div>
 <details>
   <summary>Open/Close tags</summary>
-Tags are used to make this repository easier to find for others.
+Tags are used to make this repository easier to find for others. <br>
 yaml javascript
 yaml java library
 yaml java map
