@@ -127,7 +127,175 @@ This feature is enabled by default. You can change it for each individual module
 <div>
 <details>
   <summary>Open/Close tags</summary>
-DreamYaml.
+Tags are used to make this repository easier to find for others.
+yaml javascript
+yaml java library
+yaml java map
+yaml java map example
+yaml java list
+yaml java api
+yaml javascript example
+yaml java code generation
+yaml java spring
+java yaml array
+yaml and java
+java yaml arraylist
+yaml annotations java
+java yaml anchors
+java yaml auslesen
+yaml string array java
+load a yaml file java
+read a yaml file java
+yaml java boolean
+java yaml binding
+java yaml build
+java yaml bean
+yaml java spring boot
+best yaml java library
+java best yaml parser
+yaml bigdecimal java
+yaml java class
+yaml java configuration
+yaml java create
+java yaml configuration library
+java yaml config example
+yaml checker java
+java yaml cannot create property
+yaml java doc
+yaml java dictionary
+yaml deserialize java
+yaml deserialization java
+java yaml dump to file
+yaml diff java
+java yaml default value
+java yaml dump options
+yaml java example
+yaml java enums
+yaml en java
+yaml escape java
+java yaml einlesen
+yaml parser java example
+yaml java jackson example
+java yaml file reader
+yaml for java
+yaml files java
+yaml for java configuration
+java yaml file writer
+java yaml framework
+yaml flatten java
+yaml factory java
+yaml java github
+yaml java generator
+yaml generate java class
+java yaml get value
+yaml generate java
+swagger yaml generate java
+openapi yaml generate java
+yaml java hashmap
+yaml to html java
+heroku yml java
+yaml java.io.ioexception stream closed
+yaml in java
+java yaml inheritance
+java yaml import
+yaml interface java
+java yaml implementation
+yaml iterator java
+read yaml in java
+yaml java jackson
+yaml java json
+yaml parser java jackson
+yaml to json java library
+java yaml vs json
+java yaml to json jackson
+yaml file to json java
+kubernetes yaml java_opts
+java kubernetes yaml
+java yaml key value
+yaml java lib
+yaml java list of objects
+java.lang.illegalargumentexception could not resolve placeholder yml
+yaml.load java
+java yaml list example
+java yaml libraries
+yaml java maven
+yaml java mapping
+java yaml map of objects
+java yaml merge
+java yaml mapper
+java yaml maven dependency
+yaml java.nio.charset.malformedinputexception input length = 1
+java yaml ignore null
+java yaml nested objects
+yaml nested java
+yaml caused by java.nio.charset.malformedinputexception input length = 1
+java yaml dot notation
+java yaml dump ignore null
+yaml java object
+yaml java_opts
+java yaml output
+java yaml override
+yaml or java
+yaml to java online
+yaml parser java online
+yaml java parser
+yaml java properties
+yaml java parser example
+yaml java parsing
+yaml java pojo
+java yaml parser jackson
+java yaml properties example
+java yaml parser library
+yaml query java
+yaml java reader
+yaml java rest
+java yaml read list
+java yaml reader library
+yaml file reader java
+yaml config reader java
+java read yaml properties
+java read yaml configuration file
+yaml java set
+yaml java snakeyaml
+java yaml schema validator
+yaml schema java
+java yaml snakeyaml example
+yaml java tutorial
+java yaml to json
+yaml to java
+yaml to java object
+java yaml to map
+yaml to java class
+java yaml to properties
+yaml class java.util.linkedhashmap cannot be cast to class
+java use yaml
+yaml java.lang.classcastexception java.util.linkedhashmap cannot be cast to
+yaml to java.util.properties
+java update yaml file
+read yaml using java
+generate yaml using java
+java update yaml
+yaml validator java
+java yaml vs properties
+java yaml variables
+java yaml @value
+java yaml writer
+yaml with java
+java yaml parser with comments
+yaml file writer java
+read yaml with java
+use yaml with java
+read yaml in java with jackson
+write yaml in java with jackson
+yaml to xml java
+yaml xpath java
+java yaml vs xml
+yaml java 11
+java yaml 1.2 parser
+java yaml 1.2
+yaml 2 java
+openapi 3 yaml to java
+java 8 yaml parser
+java 8 yaml
 </details>
-<details>
- </div>
+</div>
