@@ -123,9 +123,10 @@ This feature is enabled by default. You can change it for each individual module
 </details>
 </div>
 
+## Tags
 <div>
 <details>
-  <summary>For what does DY stand for?</summary>
+  <summary>Open/Close tags</summary>
 DreamYaml.
 </details>
 <details>
