@@ -51,6 +51,17 @@ DYModule pending   = yaml.add("pending-tasks").setDefValues("do research", "buy 
 
 yaml.save();
 ```
+The code above generates the following YAML:
+```yaml
+name: John
+last-name: Goldman
+age: 29
+work: Reporter
+pending-tasks: 
+  - do research
+  - buy food
+  - start working
+```
 ## Examples
 These examples build on top of each other, so make sure to follow the order.
 * [`SimpleExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/SimpleExample.java)
