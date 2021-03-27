@@ -122,3 +122,11 @@ When the 'real value' is null, return the default value.
 This feature is enabled by default. You can change it for each individual module.
 </details>
 </div>
+
+<div>
+<details>
+  <summary>For what does DY stand for?</summary>
+DreamYaml.
+</details>
+<details>
+ </div>
