@@ -8,7 +8,9 @@
 
 package com.osiris.dyml.examples;
 
+import com.osiris.dyml.DYComment;
 import com.osiris.dyml.DYModule;
+import com.osiris.dyml.DYValue;
 import com.osiris.dyml.DreamYaml;
 import org.junit.jupiter.api.Test;
 
@@ -39,17 +41,17 @@ public class GettingValuesExample {
         Object valueI        = firstName.getValueByIndex(0); // John // Returns the value by given index.
         Object defaultValue  = firstName.getDefaultValue(); // John // Returns the default value
         Object defaultValueI = firstName.getDefaultValueByIndex(0); // John // Returns the default value
-        String comment       = firstName.getComment(); // Everything about... // Returns the first comment.
-        String commentI      = firstName.getCommentByIndex(0); // Everything about... // Returns the comment by given index.
+        DYComment comment       = firstName.getComment(); // Everything about... // Returns the first comment.
+        DYComment commentI      = firstName.getCommentByIndex(0); // Everything about... // Returns the comment by given index.
 
         // All the methods below return the 'real' values at the time when load() was called.
         Object firstNameAsObject         = firstName.getValue();
-        String firstNameAsString         = firstName.asString();
+        DYValue firstNameAsString         = firstName.asString();
         int ageAsInt                     = age.asInt();
-        List<String> pendingTasksObjects = pendingTasks.getValues();
-        List<String> pendingTasksStrings = pendingTasks.asStringList();
+        List<DYValue> pendingTasksObjects = pendingTasks.getValues();
+        List<DYValue> pendingTasksStrings = pendingTasks.asStringList();
         // You can also get each value from the list as an independent object
-        String listIndex0                = pendingTasks.asString(0);
+        DYValue listIndex0                = pendingTasks.asString(0);
         int listIndex1                   = pendingTasks.asInt(1);
         char[] listIndex2                = pendingTasks.asCharArray(2);
 

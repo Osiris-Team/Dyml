@@ -19,9 +19,9 @@ import java.util.List;
  */
 public class DYModule {
     private List<String> keys;
-    private List<String> values;
-    private List<String> defaultValues;
-    private List<String> comments;
+    private List<DYValue> values;
+    private List<DYValue> defaultValues;
+    private List<DYComment> comments;
     private DYLine line;
     private boolean fallbackOnDefault = true;
 
@@ -49,15 +49,15 @@ public class DYModule {
      * @param values a list containing its values.
      * @param comments a list containing its comments.
      */
-    public DYModule(List<String> keys, List<String> defaultValues, List<String> values, List<String> comments) {
+    public DYModule(List<String> keys, List<DYValue> defaultValues, List<DYValue> values, List<DYComment> comments) {
         init(keys, defaultValues, values, comments);
     }
 
-    private void init(List<String> keys, List<String> defaultValues, List<String> values, List<String> comments){
+    private void init(List<String> keys, List<DYValue> defaultValues, List<DYValue> values, List<DYComment> comments){
         this.keys = new ArrayList<>();
-        this.values = new ArrayList<>();
-        this.defaultValues = new ArrayList<>();
-        this.comments = new ArrayList<>();
+        this.values = new ArrayList<DYValue>();
+        this.defaultValues = new ArrayList<DYValue>();
+        this.comments = new ArrayList<DYComment>();
 
         // To make sure that no null keys get added to the keys list
         if (keys!=null) {
@@ -171,7 +171,7 @@ public class DYModule {
     /**
      * Clears the values list and adds the values from the provided list.
      */
-    public DYModule setValues(List<String> v){
+    public DYModule setValues(List<DYValue> v){
         if (v!=null){
             this.values.clear();
             this.values.addAll(v);
@@ -199,7 +199,7 @@ public class DYModule {
      * Adds new values to the list.
      * Note that null values wont be added!
      */
-    public DYModule addValues(List<String> v){
+    public DYModule addValues(List<DYValue> v){
         if (v!=null){
             this.values.addAll(v);
         }
@@ -228,7 +228,7 @@ public class DYModule {
      * See {@link #setFallbackOnDefault(boolean)} for more details.
      * Note that null values wont be added!
      */
-    public DYModule setDefValues(List<String> v){
+    public DYModule setDefValues(List<DYValue> v){
         if (v!=null) {
             this.defaultValues.clear();
             this.defaultValues.addAll(v);
@@ -257,7 +257,7 @@ public class DYModule {
      * Adds new default values to the list.
      * Note that null values wont be added!
      */
-    public DYModule addDefValues(List<String> v){
+    public DYModule addDefValues(List<DYValue> v){
         if (v!=null) {
             this.defaultValues.addAll(v);
         }
@@ -274,7 +274,7 @@ public class DYModule {
         return this;
     }
 
-    public DYModule setComments(List<String> c){
+    public DYModule setComments(List<DYComment> c){
         if (c!=null) {
             this.comments.clear();
             this.comments.addAll(c);
@@ -323,7 +323,7 @@ public class DYModule {
      * Returns the 'real' value from the yaml file
      * at the time when load() was called.
      */
-    public String getValue(){
+    public DYValue getValue(){
         return getValueByIndex(0);
     }
 
@@ -334,8 +334,8 @@ public class DYModule {
      * This is because a null String will return 'null' and not actually null.
      * To avoid that an empty string is returned instead.
      */
-    public String getValueByIndex(int i){
-        String v = null;
+    public DYValue getValueByIndex(int i){
+        DYValue v = null;
         try{
             v = values.get(i);
         } catch (Exception ignored) {}
@@ -344,44 +344,44 @@ public class DYModule {
         return v;
     }
 
-    public List<String> getValues() {
+    public List<DYValue> getValues() {
         return values;
     }
 
-    public String getDefaultValue(){
+    public DYValue getDefaultValue(){
         return getDefaultValueByIndex(0);
     }
 
-    public String getDefaultValueByIndex(int i){
-        String v = null;
+    public DYValue getDefaultValueByIndex(int i){
+        DYValue v = null;
         try{
             v = defaultValues.get(i);
         } catch (Exception ignored) {}
         return v;
     }
 
-    public List<String> getDefaultValues() {
+    public List<DYValue> getDefaultValues() {
         return defaultValues;
     }
 
     /**
      * Returns the first comment at index 0.
      */
-    public String getComment(){
+    public DYComment getComment(){
         return getCommentByIndex(0);
     }
 
     /**
      * Returns a specific comment by its index or null if nothing found at that index.
      */
-    public String getCommentByIndex(int i){
+    public DYComment getCommentByIndex(int i){
         try{
             return comments.get(i);
         } catch (Exception ignored) {}
         return null;
     }
 
-    public List<String> getComments() {
+    public List<DYComment> getComments() {
         return comments;
     }
 
@@ -393,15 +393,15 @@ public class DYModule {
         this.line = line;
     }
 
-    public String asString(){
+    public DYValue asString(){
         return asString(0);
     }
 
-    public String asString(int i){
+    public DYValue asString(int i){
         return getValueByIndex(i);
     }
 
-    public List<String> asStringList(){
+    public List<DYValue> asStringList(){
         return this.values;
     }
 
@@ -468,4 +468,5 @@ public class DYModule {
     public Double asDouble(int i){
         return Double.parseDouble(asString(i));
     }
+
 }

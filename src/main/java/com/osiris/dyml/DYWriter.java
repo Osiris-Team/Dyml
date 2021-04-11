@@ -73,7 +73,7 @@ class DYWriter {
                 }
 
                 if (m.getComments()!=null && i==(size-1)) // Only write comments to the last key in the list
-                    for (String comment :
+                    for (DYComment comment :
                             m.getComments()) {
                         // Adds support for Strings containing \n to split up comments
                         BufferedReader bufReader = new BufferedReader(new StringReader(comment));
@@ -106,7 +106,7 @@ class DYWriter {
                         }
                         else {
                             writer.newLine();
-                            for (String value :
+                            for (DYValue value :
                                     m.getValues()) {
                                 if (value!=null) // Only write if its not null
                                     writer.write(spaces + "  - " + value);
@@ -125,7 +125,7 @@ class DYWriter {
                             }
                             else {
                                 writer.newLine();
-                                for (String value :
+                                for (DYValue value :
                                         m.getDefaultValues()) {
                                     if (value!=null)
                                         writer.write(spaces + "  - " + value);

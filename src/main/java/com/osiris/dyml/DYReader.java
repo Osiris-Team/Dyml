@@ -55,6 +55,13 @@ class DYReader {
                 added.setValues(loadedModule.getValues());
             }
         }
+
+        // Do post processing if enabled
+        if (yaml.isPostProcessingEnabled())
+            for (DYModule m :
+                    yaml.getAllLoaded()) {
+                utils.optimizeValues(m.getValues());
+            }
     }
 
     public void parseLine(DreamYaml yaml, DYLine currentLine, DYLine lastLine, List<DYLine> lineList) throws IllegalListException {
@@ -68,6 +75,7 @@ class DYReader {
                 charCode = currentLine.getLineContent().codePointAt(i);
                 checkChar(currentLine, charCode, i, charCodeBefore);
                 charCodeBefore = charCode;
+                // TODO
                 //System.out.println(currentLine.getLineAsChar()[i]+" : "+charCode);
                 if (currentLine.isHashTagFound() || currentLine.isColonFound() || currentLine.isHyphenFound())
                     break;
@@ -203,33 +211,12 @@ class DYReader {
             }
     }
 
-    private void optimizeList(List<Object> list){
-        List<Object> copy = new ArrayList<>(list); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
-        for (Object obj :
-                copy) {
-            if ((""+obj).isEmpty())
-                list.remove(obj);
-            else
-                obj = getOptimizedString(""+obj);
-        }
-    }
-
-    private void optimizeStringList(List<String> list){
-        List<String> copy = new ArrayList<>(list); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
-        for (String s :
-                copy) {
-            if ((""+s).isEmpty())
-                list.remove(s);
-            else
-                s = getOptimizedString(s);
-        }
-    }
 
     /**
      * Trims the string and sets it null if empty.
      * String before: '  hi boi  '
      * String after: 'hi boi'
-     * Result: removed 2 spaces.
+     * Result: removed 4 spaces.
      * @param s
      */
     private String getOptimizedString(String s) {

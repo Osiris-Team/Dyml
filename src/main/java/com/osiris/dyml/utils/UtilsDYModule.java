@@ -9,6 +9,7 @@
 package com.osiris.dyml.utils;
 
 import com.osiris.dyml.DYModule;
+import com.osiris.dyml.DYValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -60,6 +61,29 @@ public class UtilsDYModule {
                 return listModule;
         }
         return null;
+    }
+
+    /**
+     * Removes "" and '' from those encapsulated values.<br>
+     * Note that the {@link DYValue#getValueAsString()} must already have been
+     * optimized by {@link com.osiris.dyml.DYReader#getOptimizedString(String)}.
+     * @param values
+     */
+    public void optimizeValues(List<DYValue> values){
+        List<DYValue> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
+        for (DYValue val :
+                copy) {
+            String s = val.getValueAsString(); // This string must be a optimized/trimmed string without spaces at the start/end
+            char firstChar = s.charAt(0);
+            char lastChar = s.charAt(s.length()-1);
+            if (firstChar==lastChar){ // Check if the value is encapsulated
+                int firstPoint = s.codePointAt(0); // Since first and last are the same we only need one of them
+                if (firstPoint==34 || firstPoint==39){ // " is 34 and ' is 39
+                    s = s.substring(1, s.length()-1); // Remove the first and last chars
+                    val.setValueAsString(s); //TODO dono if this is needed or not
+                }
+            }
+        }
     }
 
     /**

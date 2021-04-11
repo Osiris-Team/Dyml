@@ -30,39 +30,44 @@ public class DreamYaml {
     private List<DYModule> addedModules;
     //private List<DYModule> unifiedModules;
     private final UtilsDreamYaml utils = new UtilsDreamYaml(this);
+    private boolean postProcessingEnabled;
     private boolean debug;
 
 
     /**
-     * See {@link #DreamYaml(String, boolean)} for details.
+     * See {@link #DreamYaml(String, boolean, boolean)} for details.
      */
     public DreamYaml(File file){
         this(file.getAbsolutePath());
     }
 
     /**
-     * See {@link #DreamYaml(String, boolean)} for details.
+     * See {@link #DreamYaml(String, boolean, boolean)} for details.
      */
     public DreamYaml(File file, boolean debug){
-        this(file.getAbsolutePath(), debug);
+        this(file.getAbsolutePath(),true, debug);
     }
 
     /**
-     * See {@link #DreamYaml(String, boolean)} for details.
+     * See {@link #DreamYaml(String, boolean, boolean)} for details.
      */
     public DreamYaml(String filePath) {
-        this(filePath,false);
+        this(filePath,true,false);
     }
 
     /**
      * Creates a new DreamYaml object.
-     * Next step would be to {@link #load()} your file into memory.
-     * @param filePath your yaml files path.
-     * @param debug show debugging stuff. Default is false.
+     * Next step would be to {@link #load()} your file into memory. <br>
+     *
+     * @param filePath Your yaml files path.
+     * @param postProcessingEnabled Enable/Disable post processing. Enabled by default.
+     *                       Responsible for removing "" and '' from your values.
+     * @param debug Enable/Disable debugging. Disabled by default. Shows debugging stuff.
      */
-    public DreamYaml(String filePath, boolean debug) {
+    public DreamYaml(String filePath, boolean postProcessingEnabled, boolean debug) {
         this.filePath = filePath;
         this.addedModules = new ArrayList<>();
+        this.postProcessingEnabled = postProcessingEnabled;
         this.debug = debug;
     }
 
@@ -110,9 +115,10 @@ public class DreamYaml {
      * It's recommended to keep {@link #load()} and {@link #save()} timely close to each other, so the user
      * can't change the values in the meantime.
      * IMPORTANT: Stuff that isn't supported by DreamYaml (see features.yml) wont be parsed and thus removed from the file after you save it!
-     * @param overwrite If true the yaml file gets overwritten with modules from the 'added modules list'.
-     *                 That means that everything that wasn't added via {@link #add(String...)} will not exist in the file.
-     *                  Default is false.
+     * @param overwrite Enable/Disable overwriting the yaml file. Disabled by default.
+     *                  If true the yaml file gets overwritten with modules from the 'added modules list'.
+     *                  That means that everything that wasn't added via {@link #add(String...)} will not exist in the file.
+     *
      */
     public DreamYaml save(boolean overwrite) throws Exception {
         if (file==null) this.load();
@@ -143,7 +149,7 @@ public class DreamYaml {
      * Creates a new {@link DYModule}, adds it to the modules list and returns it.
      * See {@link #add(DYModule)} for details.
      */
-    public DYModule add(List<String> keys, List<String> defaultValues, List<String> values, List<String> comments) throws Exception {
+    public DYModule add(List<String> keys, List<DYValue> defaultValues, List<DYValue> values, List<DYComment> comments) throws Exception {
         return add(new DYModule(keys, defaultValues, values, comments));
     }
 
@@ -323,6 +329,14 @@ public class DreamYaml {
      */
     public DYModule getLoadedModuleByKeys(List<String> keys) {
         return new UtilsDYModule().getExisting(keys, loadedModules);
+    }
+
+    public boolean isPostProcessingEnabled() {
+        return postProcessingEnabled;
+    }
+
+    public void setPostProcessingEnabled(boolean postProcessingEnabled) {
+        this.postProcessingEnabled = postProcessingEnabled;
     }
 }
 
