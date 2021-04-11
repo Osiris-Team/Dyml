@@ -82,18 +82,24 @@ class DYReader {
             }
 
             // Add the module to the yaml modules list, but only under certain circumstances (logic below)
+            List<DYModule> loaded = yaml.getAllLoaded();
             DYModule module = new DYModule();
             if (lastLine!=null){
                 if (currentLine.isHashTagFound()){
-                    module.setLine(currentLine); // Line gets set for everything except lists/hyphens
-                    if (lastLine.isHashTagFound())
-                        module = yaml.getLastLoadedModule(); // If the current line and the last line are comments, add the current comment to the last comments object/module
-                    else{
-                        yaml.getAllLoaded().add(module);
+                    module.setLine(currentLine); // Line gets set for everything except lists/hyphens. Forgot why though...
+                    if (currentLine.isColonFound()){ // Means that this is a side-comment
+
                     }
-                    String c = currentLine.getValue();
-                    if (c!=null)
-                        module.addComment(c);
+                    else{ // No side-comment, but regular comment
+                        if (lastLine.isHashTagFound())
+                            module = yaml.getLastLoadedModule(); // If the current line and the last line are comments, add the current comment to the last comments object/module
+                        else{
+                            loaded.add(module);
+                        }
+                        String c = currentLine.getValue();
+                        if (c!=null)
+                            module.addComment(c);
+                    }
                 }
                 else if(currentLine.isColonFound()){
                     module.setLine(currentLine);
@@ -111,7 +117,7 @@ class DYReader {
                         for (int i = lineList.size()-1; i >= 0; i--) { // -2 is not needed, because the current-line only gets added to the list after the method finished
                             DYLine line = lineList.get(i);
                             if (line.isColonFound() && line.getCountSpaces()<currentLine.getCountSpaces()){
-                                module.getKeys().addAll(yaml.getAllLoaded().get(i).getKeys()); // module.getKeys().addAll(yaml.getAllLoaded().get(i).getKeys());
+                                module.getKeys().addAll(loaded.get(i).getKeys()); // module.getKeys().addAll(loaded.get(i).getKeys());
                                 break;
                             }
                         }
@@ -120,17 +126,17 @@ class DYReader {
                         for (int i = lineList.size()-1; i >= 0; i--) {
                             DYLine line = lineList.get(i);
                             if (line.isColonFound() && (line.getCountSpaces()<currentLine.getCountSpaces())){
-                                module.getKeys().addAll(yaml.getAllLoaded().get(i).getKeys()); //module.getKeys().addAll(yaml.getAllLoaded().get(i).getKeys());
+                                module.getKeys().addAll(loaded.get(i).getKeys()); //module.getKeys().addAll(loaded.get(i).getKeys());
                                 break;
                             }
                         }
-                        yaml.getAllLoaded().add(module);
+                        loaded.add(module);
                     }
                     else if (lastLine.isHashTagFound()){
                         module = yaml.getLastLoadedModule();
                     }
                     else{
-                        yaml.getAllLoaded().add(module);
+                        loaded.add(module);
                     }
                     module.addKey(currentLine.getKey());
                     String v = currentLine.getValue();
@@ -167,7 +173,7 @@ class DYReader {
                         module.addValue(v);
                 }
 
-                yaml.getAllLoaded().add(module);
+                loaded.add(module);
             }
         }
     }

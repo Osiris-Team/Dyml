@@ -8,7 +8,6 @@
 
 package com.osiris.dyml.examples;
 
-import com.osiris.dyml.DYComment;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DYValue;
 import com.osiris.dyml.DreamYaml;
@@ -41,8 +40,8 @@ public class GettingValuesExample {
         Object valueI        = firstName.getValueByIndex(0); // John // Returns the value by given index.
         Object defaultValue  = firstName.getDefaultValue(); // John // Returns the default value
         Object defaultValueI = firstName.getDefaultValueByIndex(0); // John // Returns the default value
-        DYComment comment       = firstName.getComment(); // Everything about... // Returns the first comment.
-        DYComment commentI      = firstName.getCommentByIndex(0); // Everything about... // Returns the comment by given index.
+        String comment       = firstName.getComment(); // Everything about... // Returns the first comment.
+        String commentI      = firstName.getCommentByIndex(0); // Everything about... // Returns the comment by given index.
 
         // All the methods below return the 'real' values at the time when load() was called.
         Object firstNameAsObject         = firstName.getValue();

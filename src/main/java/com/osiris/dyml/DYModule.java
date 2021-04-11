@@ -9,6 +9,8 @@
 package com.osiris.dyml;
 
 
+import com.osiris.dyml.utils.UtilsDYModule;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -21,9 +23,10 @@ public class DYModule {
     private List<String> keys;
     private List<DYValue> values;
     private List<DYValue> defaultValues;
-    private List<DYComment> comments;
+    private List<String> comments;
     private DYLine line;
     private boolean fallbackOnDefault = true;
+    private UtilsDYModule utils;
 
     /**
      * See {@link #DYModule(List, List, List, List)} for details.
@@ -49,15 +52,15 @@ public class DYModule {
      * @param values a list containing its values.
      * @param comments a list containing its comments.
      */
-    public DYModule(List<String> keys, List<DYValue> defaultValues, List<DYValue> values, List<DYComment> comments) {
+    public DYModule(List<String> keys, List<DYValue> defaultValues, List<DYValue> values, List<String> comments) {
         init(keys, defaultValues, values, comments);
     }
 
-    private void init(List<String> keys, List<DYValue> defaultValues, List<DYValue> values, List<DYComment> comments){
+    private void init(List<String> keys, List<DYValue> defaultValues, List<DYValue> values, List<String> comments){
         this.keys = new ArrayList<>();
         this.values = new ArrayList<DYValue>();
         this.defaultValues = new ArrayList<DYValue>();
-        this.comments = new ArrayList<DYComment>();
+        this.comments = new ArrayList<String>();
 
         // To make sure that no null keys get added to the keys list
         if (keys!=null) {
@@ -164,6 +167,14 @@ public class DYModule {
      * See {@link #setValues(List)} for details.
      */
     public DYModule setValues(String... v){
+        if (v!=null) setValues(utils.stringArrayToValuesList(v));
+        return this;
+    }
+
+    /**
+     * See {@link #setValues(List)} for details.
+     */
+    public DYModule setValues(DYValue... v){
         if (v!=null) setValues(Arrays.asList(v));
         return this;
     }
@@ -188,16 +199,23 @@ public class DYModule {
     }
 
     /**
-     * See {@link #addValues(String...)} for details.
+     * See {@link #addValues(List)} for details.
      */
     public DYModule addValues(String... v){
+        if (v!=null) addValues(utils.stringArrayToValuesList(v));
+        return this;
+    }
+
+    /**
+     * See {@link #addValues(List)} for details.
+     */
+    public DYModule addValues(DYValue... v){
         if (v!=null) addValues(Arrays.asList(v));
         return this;
     }
 
     /**
      * Adds new values to the list.
-     * Note that null values wont be added!
      */
     public DYModule addValues(List<DYValue> v){
         if (v!=null){
@@ -218,6 +236,15 @@ public class DYModule {
      * See {@link #setDefValues(List)} for details.
      */
     public DYModule setDefValues(String... v){
+        if (v!=null)
+            setDefValues(utils.stringArrayToValuesList(v));
+        return this;
+    }
+
+    /**
+     * See {@link #setDefValues(List)} for details.
+     */
+    public DYModule setDefValues(DYValue... v){
         if (v!=null)
             setDefValues(Arrays.asList(v));
         return this;
@@ -249,6 +276,15 @@ public class DYModule {
      */
     public DYModule addDefValues(String... v){
         if (v!=null)
+            addDefValues(utils.stringArrayToValuesList(v));
+        return this;
+    }
+
+    /**
+     * {@link #addDefValues(List)}
+     */
+    public DYModule addDefValues(DYValue... v){
+        if (v!=null)
             addDefValues(Arrays.asList(v));
         return this;
     }
@@ -274,7 +310,7 @@ public class DYModule {
         return this;
     }
 
-    public DYModule setComments(List<DYComment> c){
+    public DYModule setComments(List<String> c){
         if (c!=null) {
             this.comments.clear();
             this.comments.addAll(c);
@@ -291,6 +327,10 @@ public class DYModule {
         if (c!=null)
             this.comments.addAll(Arrays.asList(c));
         return this;
+    }
+
+    public UtilsDYModule getUtils() {
+        return utils;
     }
 
     /**
@@ -367,21 +407,21 @@ public class DYModule {
     /**
      * Returns the first comment at index 0.
      */
-    public DYComment getComment(){
+    public String getComment(){
         return getCommentByIndex(0);
     }
 
     /**
      * Returns a specific comment by its index or null if nothing found at that index.
      */
-    public DYComment getCommentByIndex(int i){
+    public String getCommentByIndex(int i){
         try{
             return comments.get(i);
         } catch (Exception ignored) {}
         return null;
     }
 
-    public List<DYComment> getComments() {
+    public List<String> getComments() {
         return comments;
     }
 

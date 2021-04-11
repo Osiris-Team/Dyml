@@ -61,7 +61,8 @@ public class DreamYaml {
      *
      * @param filePath Your yaml files path.
      * @param postProcessingEnabled Enable/Disable post processing. Enabled by default.
-     *                       Responsible for removing "" and '' from your values.
+     *                              Responsible for removing "" and '' from your values.
+     *
      * @param debug Enable/Disable debugging. Disabled by default. Shows debugging stuff.
      */
     public DreamYaml(String filePath, boolean postProcessingEnabled, boolean debug) {
@@ -149,7 +150,7 @@ public class DreamYaml {
      * Creates a new {@link DYModule}, adds it to the modules list and returns it.
      * See {@link #add(DYModule)} for details.
      */
-    public DYModule add(List<String> keys, List<DYValue> defaultValues, List<DYValue> values, List<DYComment> comments) throws Exception {
+    public DYModule add(List<String> keys, List<DYValue> defaultValues, List<DYValue> values, List<String> comments) throws Exception {
         return add(new DYModule(keys, defaultValues, values, comments));
     }
 

@@ -12,6 +12,7 @@ import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DYValue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -61,6 +62,19 @@ public class UtilsDYModule {
                 return listModule;
         }
         return null;
+    }
+
+    public List<DYValue> stringArrayToValuesList(String[] array){
+        return stringListToValuesList(Arrays.asList(array));
+    }
+
+    public List<DYValue> stringListToValuesList(List<String> list){
+        List<DYValue> values = new ArrayList<>();
+        for (String s :
+                list) {
+            values.add(new DYValue(s));
+        }
+        return values;
     }
 
     /**

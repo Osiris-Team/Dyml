@@ -9,6 +9,10 @@
 package com.osiris.dyml;
 
 // TODO WORK IN PROGRESS
+
+/**
+ * Holds 
+ */
 public class DYComment {
     private String keyCommentAsString;
     private String valueCommentAsString;
@@ -24,7 +28,8 @@ public class DYComment {
         this.valueCommentAsString = valueCommentAsString;
 
         if (keyCommentAsString ==null && valueCommentAsString ==null)
-            throw new NullPointerException("Its not allowed that both of the params are null!");
+            throw new NullPointerException("Its not allowed that both of the params are null! " +
+                    "Please define at least one param.");
 
         if (keyCommentAsString !=null && valueCommentAsString !=null)
             throw new NullPointerException("Its not allowed that both of the params are NOT null! At least one of " +
