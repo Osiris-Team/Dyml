@@ -11,6 +11,8 @@ It started by not being able to find an API that fulfilled my needs in simplicit
 So I developed Dream-Yaml with the aim of having a simple, performant, and reliable API for processing YAML files.
 Currently, only the most essential parts of YAML are implemented.
 ## Features
+
+![](./src/test/features.yml)
 ```YAML
 # Comments and
 # multiline comments support.
