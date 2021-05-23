@@ -30,7 +30,8 @@ public class SimpleExample {
         DYModule work      = yaml.add("work")         .setDefValue("Reporter");
         DYModule pending   = yaml.add("pending-tasks").setDefValues("do research", "buy food", "start working");
 
-        yaml.save(); // Saves the default values to the file. Already existing modules won't be overwritten. Missing modules will be created.
+        //yaml.save(); // Saves the default values to the file. Already existing modules won't be overwritten. Missing modules will be created.
+        yaml.save(true); // Due to testing we overwrite the file.
 
         /*
 name: John

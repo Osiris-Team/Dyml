@@ -46,7 +46,7 @@ public class CodingStyleExample {
         age = yaml.add("encapsulated","age").setDefValue("29");
         work = yaml.add("encapsulated","work").setDefValue("Reporter");
 
-        yaml.save();
+        yaml.save(true);
 
         /*
 name: John

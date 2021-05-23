@@ -20,12 +20,12 @@ class DYWatcherExample {
         DreamYaml yaml1 = new DreamYaml(System.getProperty("user.dir")+"/src/test/watcher-1-example.yml");
         yaml1.load();
         DYModule firstName1 = yaml1.add("name").setDefValue("John");
-        yaml1.save();
+        yaml1.save(true);
 
         DreamYaml yaml2 = new DreamYaml(System.getProperty("user.dir")+"/src/test/watcher-2-example.yml");
         yaml2.load();
         DYModule firstName2 = yaml2.add("name").setDefValue("John");
-        yaml2.save();
+        yaml2.save(true);
 
 
         // Create a watcher. Note that by default it will watch the complete, user directory in which this jar is located and its subdirectories.

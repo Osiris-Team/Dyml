@@ -11,7 +11,7 @@ package com.osiris.dyml;
 // TODO WORK IN PROGRESS
 
 /**
- * Holds 
+ * Holds
  */
 public class DYComment {
     private String keyCommentAsString;
@@ -20,6 +20,7 @@ public class DYComment {
     /**
      * One of the params must be null, its not allowed to have
      * both of them null.
+     *
      * @param keyCommentAsString
      * @param valueCommentAsString
      */
@@ -27,11 +28,11 @@ public class DYComment {
         this.keyCommentAsString = keyCommentAsString;
         this.valueCommentAsString = valueCommentAsString;
 
-        if (keyCommentAsString ==null && valueCommentAsString ==null)
+        if (keyCommentAsString == null && valueCommentAsString == null)
             throw new NullPointerException("Its not allowed that both of the params are null! " +
                     "Please define at least one param.");
 
-        if (keyCommentAsString !=null && valueCommentAsString !=null)
+        if (keyCommentAsString != null && valueCommentAsString != null)
             throw new NullPointerException("Its not allowed that both of the params are NOT null! At least one of " +
                     "the params must be null!");
     }
@@ -41,7 +42,7 @@ public class DYComment {
     /**
      * Returns the regular comment if not null, else returns the side comment.
      */
-    public String getComment(){
+    public String getComment() {
         if (isKeyComment())
             return keyCommentAsString;
         else
@@ -50,11 +51,11 @@ public class DYComment {
 
     // IS METHODS:
 
-    public boolean isKeyComment(){
+    public boolean isKeyComment() {
         return keyCommentAsString != null;
     }
 
-    public boolean isValueComment(){
+    public boolean isValueComment() {
         return valueCommentAsString != null;
     }
 

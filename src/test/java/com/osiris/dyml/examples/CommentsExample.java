@@ -32,7 +32,7 @@ public class CommentsExample {
         DYModule work = yaml.add("work").setDefValue("Reporter");
         DYModule parent = yaml.add("p1","c2","c3").setComments("Comments in", "a hierarchy.");
 
-        yaml.save();
+        yaml.save(true);
 
         /*
 # You can insert your

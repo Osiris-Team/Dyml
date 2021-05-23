@@ -20,8 +20,9 @@ public class UtilsDYModule {
 
     /**
      * Searches for a module with the same keys and returns it if it finds it, else null.
+     *
      * @param queryModule use this modules keys to search for a matching module.
-     * @param modules the list in which to search for the module.
+     * @param modules     the list in which to search for the module.
      * @return a module containing exactly the same keys or null if it doesn't.
      */
     public DYModule getAlreadyExistingModuleByKeys(DYModule queryModule, List<DYModule> modules) {
@@ -32,7 +33,7 @@ public class UtilsDYModule {
                 for (int i = 0; i < size; i++) {
                     if (!queryModule.getKeys().get(i).equals(listModule.getKeys().get(i)))
                         break;
-                    if (i==(size-1))
+                    if (i == (size - 1))
                         return listModule;
                 }
         }
@@ -40,13 +41,15 @@ public class UtilsDYModule {
     }
 
     //TODO Check which (above or below) method is more efficient
+
     /**
      * Check for duplicate objects (objects with same key).
-     * @param modules the list where to search for the duplicate.
+     *
+     * @param modules     the list where to search for the duplicate.
      * @param queryModule the module which should be checked.
      * @return the already existing object, otherwise null.
      */
-    public DYModule getExisting(DYModule queryModule, List<DYModule> modules){
+    public DYModule getExisting(DYModule queryModule, List<DYModule> modules) {
         for (DYModule listModule :
                 modules) {
             if (listModule.getKeys().equals(queryModule.getKeys()))
@@ -55,7 +58,7 @@ public class UtilsDYModule {
         return null;
     }
 
-    public DYModule getExisting(List<String> keys, List<DYModule> modules){
+    public DYModule getExisting(List<String> keys, List<DYModule> modules) {
         for (DYModule listModule :
                 modules) {
             if (listModule.getKeys().equals(keys))
@@ -64,11 +67,11 @@ public class UtilsDYModule {
         return null;
     }
 
-    public List<DYValue> stringArrayToValuesList(String[] array){
+    public List<DYValue> stringArrayToValuesList(String[] array) {
         return stringListToValuesList(Arrays.asList(array));
     }
 
-    public List<DYValue> stringListToValuesList(List<String> list){
+    public List<DYValue> stringListToValuesList(List<String> list) {
         List<DYValue> values = new ArrayList<>();
         for (String s :
                 list) {
@@ -77,24 +80,34 @@ public class UtilsDYModule {
         return values;
     }
 
+    public List<String> valuesListToStringList(List<DYValue> list) {
+        List<String> stringList = new ArrayList<>();
+        for (DYValue value :
+                list) {
+            stringList.add(value.asString());
+        }
+        return stringList;
+    }
+
     /**
      * Removes "" and '' from those encapsulated values.<br>
-     * Note that the {@link DYValue#getValueAsString()} must already have been
+     * Note that the {@link DYValue#asString()} must already have been
      * optimized by {@link com.osiris.dyml.DYReader#getOptimizedString(String)}.
+     *
      * @param values
      */
-    public void optimizeValues(List<DYValue> values){
+    public void optimizeValues(List<DYValue> values) {
         List<DYValue> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
-        for (DYValue val :
+        for (DYValue value :
                 copy) {
-            String s = val.getValueAsString(); // This string must be a optimized/trimmed string without spaces at the start/end
+            String s = value.asString(); // This string must be an already optimized/trimmed string without spaces at the start/end
             char firstChar = s.charAt(0);
-            char lastChar = s.charAt(s.length()-1);
-            if (firstChar==lastChar){ // Check if the value is encapsulated
+            char lastChar = s.charAt(s.length() - 1);
+            if (firstChar == lastChar) { // Check if the value is encapsulated
                 int firstPoint = s.codePointAt(0); // Since first and last are the same we only need one of them
-                if (firstPoint==34 || firstPoint==39){ // " is 34 and ' is 39
-                    s = s.substring(1, s.length()-1); // Remove the first and last chars
-                    val.setValueAsString(s); //TODO dono if this is needed or not
+                if (firstPoint == 34 || firstPoint == 39) { // " is 34 and ' is 39
+                    s = s.substring(1, s.length() - 1); // Remove the first and last chars
+                    value.set(s);
                 }
             }
         }
@@ -108,9 +121,10 @@ public class UtilsDYModule {
      * 1. If the loaded modules list is empty, nothing needs to be done! Return added modules.
      * 2. Else go through the loaded modules and compare each module with the added modules list. If there is an added module with the same keys, add it to the unified list instead of the loaded module.
      * 3. If there are NEW modules in the added modules list, insert them into the right places of unified list.
+     *
      * @return a fresh unified list containing loaded modules extended by added modules.
      */
-    public synchronized List<DYModule> createUnifiedList(List<DYModule> addedModules, List<DYModule> loadedModules){
+    public synchronized List<DYModule> createUnifiedList(List<DYModule> addedModules, List<DYModule> loadedModules) {
         List<DYModule> copyAddedModules = new CopyOnWriteArrayList<>();
         copyAddedModules.addAll(addedModules);
 
@@ -124,13 +138,12 @@ public class UtilsDYModule {
                 loadedModules) {
             // Check if there is the same 'added module' available
             DYModule existing = getExisting(m, copyAddedModules);
-            if (existing!=null) {
+            if (existing != null) {
                 unifiedList.add(existing);
                 // Also remove it from its own list, so at the end there are only 'new' modules in that list
                 copyAddedModules.remove(existing);
                 //System.out.println("Added an 'added module' to unified and removed from copyAdded.");
-            }
-            else {
+            } else {
                 unifiedList.add(m);
                 //System.out.println("Added an 'loaded module' to unified.");
             }
@@ -166,7 +179,7 @@ public class UtilsDYModule {
 
             for (DYModule uM :
                     unifiedList) {
-                if (uM.getKeys().size() <= size){
+                if (uM.getKeys().size() <= size) {
                     // Compare each key
                     int keyMatches = 0;
                     for (int i = 0; i < uM.getKeys().size(); i++) {
@@ -192,7 +205,7 @@ public class UtilsDYModule {
 
         if (lastModulesPositions.isEmpty())
             return unifiedList;
-        else{
+        else {
             // Since we now have the last modules positions we create a new unifiedList and add the NEW modules AFTER the last module
             List<DYModule> fullUnifiedList = new ArrayList<>();
 
@@ -207,7 +220,7 @@ public class UtilsDYModule {
                 List<DYModule> modules = new ArrayList<>();
                 // Increment lastPos, so that the last module doesn't get duplicated.
                 // Only don't do this for the first cycle, so index 0 doesn't get skipped.
-                if(cycle!=0) lastPos++;
+                if (cycle != 0) lastPos++;
                 for (int i = lastPos; i <= pos; i++) {
                     modules.add(unifiedList.get(i));
                     //System.out.println("modules added: KEY"+unifiedList.get(i).getKeys());

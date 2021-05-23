@@ -8,16 +8,15 @@ class DYModuleTest {
 
     @Test
     void nullValuesTest() throws Exception {
-        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/null-values-test.yml"
-        , true);
+        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/null-values-test.yml");
         yaml.reset(); // Make sure the file is empty
         DYModule nullValueModule = yaml.add("i have no value")
-                .setValue(null)
-                .setDefValue(null);
+                .setValue((DYValue) null)
+                .setDefValue((DYValue) null);
         yaml.reload();
-        assertTrue(null == nullValueModule.asString());
+        assertTrue(null == nullValueModule.getValue());
         assertTrue(null == nullValueModule.getDefaultValue());
         DYModule secondModule = yaml.add("im also empty inside");
-        yaml.reload();
+        yaml.save(true);
     }
 }

@@ -24,13 +24,13 @@ public class ValueValidationExample {
 
         DYModule m = yaml.add("is-valid").setDefValue("false");
 
-        yaml.save(); // It could be that the file is empty and the default value doesn't exist yet.
+        yaml.save(true); // It could be that the file is empty and the default value doesn't exist yet.
 
 
         if (!m.asBoolean())
             System.err.println("Invalid value '"+m.getValue()+"' at "+m.getKeys()+" Corrected to -> '"+m.setValue("true").getValue()+"'");
 
-        yaml.save(); // Remember to save and update the file, after doing the correction.
+        yaml.save(true); // Remember to save and update the file, after doing the correction.
 
 
         /*

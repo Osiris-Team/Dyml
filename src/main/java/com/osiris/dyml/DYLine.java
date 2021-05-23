@@ -17,8 +17,8 @@ public class DYLine {
     private boolean colonFound;
     private boolean hyphenFound;
     private boolean wordFound;
-    private String key;
-    private String value;
+    private String rawStringKey;
+    private String rawStringValue;
 
     public DYLine(String lineContent, int lineNumber) {
         this.lineContent = lineContent;
@@ -78,24 +78,24 @@ public class DYLine {
         return colonFound;
     }
 
-    public void setColonFound(boolean colonFound){
+    public void setColonFound(boolean colonFound) {
         this.colonFound = colonFound;
     }
 
-    public String getKey() {
-        return key;
+    public String getRawStringKey() {
+        return rawStringKey;
     }
 
-    public void setKey(String key) {
-        this.key = key;
+    public void setRawStringKey(String rawStringKey) {
+        this.rawStringKey = rawStringKey;
     }
 
-    public String getValue() {
-        return this.value;
+    public String getRawStringValue() {
+        return this.rawStringValue;
     }
 
-    public void setValue(String value) {
-        this.value = value;
+    public void setRawStringValue(String rawStringValue) {
+        this.rawStringValue = rawStringValue;
     }
 
     public boolean isWordFound() {

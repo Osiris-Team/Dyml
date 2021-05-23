@@ -9,12 +9,14 @@
 package com.osiris.dyml;
 
 
+import com.osiris.dyml.exceptions.DYReaderException;
 import com.osiris.dyml.exceptions.IllegalListException;
 import com.osiris.dyml.utils.UtilsDYModule;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,26 +25,25 @@ import java.util.List;
  */
 class DYReader {
 
-    public void parse(DreamYaml yaml) throws Exception {
+    public void parse(DreamYaml yaml) throws DYReaderException, IOException, IllegalListException {
         File file = yaml.getFile();
-        if (file==null) throw new Exception("File is null! Make sure to load it at least once!");
-        if (!file.exists()) throw new Exception("File '"+file.getName()+"' doesn't exist!");
+        if (file == null) throw new DYReaderException("File is null! Make sure to load it at least once!");
+        if (!file.exists()) throw new DYReaderException("File '" + file.getName() + "' doesn't exist!");
 
         BufferedReader reader = new BufferedReader(new FileReader(file));
         DYLine lastLine = null;
         List<DYLine> lineList = new ArrayList<>();
-        while(true){
+        while (true) {
             String line = reader.readLine(); // Its important, that a new, unique Object is created for each line and number
             int lineNumber = 0; // Its important, that a new, unique Object is created for each line and number
-            if (line!=null){
+            if (line != null) {
                 DYLine currentLine = new DYLine(line, lineNumber);
                 parseLine(yaml, currentLine, lastLine, lineList);
                 if (currentLine.isColonFound())
                     lineList.add(currentLine);
                 lastLine = currentLine;
                 lineNumber++;
-            }
-            else
+            } else
                 break;
         }
 
@@ -51,7 +52,7 @@ class DYReader {
         for (DYModule loadedModule :
                 yaml.getAllLoaded()) {
             DYModule added = utils.getExisting(loadedModule, yaml.getAllAdded());
-            if (added!=null) {
+            if (added != null) {
                 added.setValues(loadedModule.getValues());
             }
         }
@@ -66,8 +67,9 @@ class DYReader {
 
     public void parseLine(DreamYaml yaml, DYLine currentLine, DYLine lastLine, List<DYLine> lineList) throws IllegalListException {
 
-        if (!currentLine.getLineContent().isEmpty()){
-            if(yaml.isDebug()) System.out.println("Reading line '"+currentLine.getLineNumber()+"' with content: '"+currentLine.getLineContent()+"'");
+        if (!currentLine.getLineContent().isEmpty()) {
+            if (yaml.isDebugEnabled())
+                System.out.println("Reading line '" + currentLine.getLineNumber() + "' with content: '" + currentLine.getLineContent() + "'");
             // Go thorough each character of the string, until a special one is found
             int charCode = 0;
             int charCodeBefore = 0;
@@ -84,26 +86,24 @@ class DYReader {
             // Add the module to the yaml modules list, but only under certain circumstances (logic below)
             List<DYModule> loaded = yaml.getAllLoaded();
             DYModule module = new DYModule();
-            if (lastLine!=null){
-                if (currentLine.isHashTagFound()){
+            if (lastLine != null) {
+                if (currentLine.isHashTagFound()) {
                     module.setLine(currentLine); // Line gets set for everything except lists/hyphens. Forgot why though...
-                    if (currentLine.isColonFound()){ // Means that this is a side-comment
+                    if (currentLine.isColonFound()) { // Means that this is a side-comment
 
-                    }
-                    else{ // No side-comment, but regular comment
+                    } else { // No side-comment, but regular comment
                         if (lastLine.isHashTagFound())
                             module = yaml.getLastLoadedModule(); // If the current line and the last line are comments, add the current comment to the last comments object/module
-                        else{
+                        else {
                             loaded.add(module);
                         }
-                        String c = currentLine.getValue();
-                        if (c!=null)
+                        String c = currentLine.getRawStringValue();
+                        if (c != null)
                             module.addComment(c);
                     }
-                }
-                else if(currentLine.isColonFound()){
+                } else if (currentLine.isColonFound()) {
                     module.setLine(currentLine);
-                    if(lastLine.isHashTagFound() && currentLine.getCountSpaces()>0){
+                    if (lastLine.isHashTagFound() && currentLine.getCountSpaces() > 0) {
                         /*
                         Adds support for: (Child-Keys in general and with same parents)
                         p1:
@@ -114,62 +114,55 @@ class DYReader {
                          */
                         module = yaml.getLastLoadedModule(); // If the current line is a key, but the last line was a comment, add the key to the last comments object
                         // Go reversely through the lines list and search for the parent
-                        for (int i = lineList.size()-1; i >= 0; i--) { // -2 is not needed, because the current-line only gets added to the list after the method finished
+                        for (int i = lineList.size() - 1; i >= 0; i--) { // -2 is not needed, because the current-line only gets added to the list after the method finished
                             DYLine line = lineList.get(i);
-                            if (line.isColonFound() && line.getCountSpaces()<currentLine.getCountSpaces()){
+                            if (line.isColonFound() && line.getCountSpaces() < currentLine.getCountSpaces()) {
                                 module.getKeys().addAll(loaded.get(i).getKeys()); // module.getKeys().addAll(loaded.get(i).getKeys());
                                 break;
                             }
                         }
-                    }
-                    else if(!lastLine.isHashTagFound() && currentLine.getCountSpaces()>0){
-                        for (int i = lineList.size()-1; i >= 0; i--) {
+                    } else if (!lastLine.isHashTagFound() && currentLine.getCountSpaces() > 0) {
+                        for (int i = lineList.size() - 1; i >= 0; i--) {
                             DYLine line = lineList.get(i);
-                            if (line.isColonFound() && (line.getCountSpaces()<currentLine.getCountSpaces())){
+                            if (line.isColonFound() && (line.getCountSpaces() < currentLine.getCountSpaces())) {
                                 module.getKeys().addAll(loaded.get(i).getKeys()); //module.getKeys().addAll(loaded.get(i).getKeys());
                                 break;
                             }
                         }
                         loaded.add(module);
-                    }
-                    else if (lastLine.isHashTagFound()){
+                    } else if (lastLine.isHashTagFound()) {
                         module = yaml.getLastLoadedModule();
-                    }
-                    else{
+                    } else {
                         loaded.add(module);
                     }
-                    module.addKey(currentLine.getKey());
-                    String v = currentLine.getValue();
-                    if (v!=null)
+                    module.addKey(currentLine.getRawStringKey());
+                    String v = currentLine.getRawStringValue();
+                    if (v != null)
                         module.setValue(v);
-                }
-                else if(currentLine.isHyphenFound()){
-                    if(lastLine.isColonFound() || lastLine.isHyphenFound())
+                } else if (currentLine.isHyphenFound()) {
+                    if (lastLine.isColonFound() || lastLine.isHyphenFound())
                         module = yaml.getLastLoadedModule();
                     else
-                        throw new IllegalListException(yaml.getFile().getName(), currentLine);
-                    String v = currentLine.getValue();
-                    if (v!=null)
+                        throw new IllegalListException("Error reading list: " + yaml.getFile().getName() + " The last line is missing a colon(:) or hyphen(-).", currentLine);
+                    String v = currentLine.getRawStringValue();
+                    if (v != null)
                         module.addValue(v);
                 }
-            }
-            else{
-                if (currentLine.isHashTagFound()){
+            } else {
+                if (currentLine.isHashTagFound()) {
                     module.setLine(currentLine);
-                    String c = currentLine.getValue();
-                    if (c!=null)
+                    String c = currentLine.getRawStringValue();
+                    if (c != null)
                         module.addComment(c);
-                }
-                else if(currentLine.isColonFound()){
+                } else if (currentLine.isColonFound()) {
                     module.setLine(currentLine);
-                    module.setKeys(currentLine.getKey());
-                    String v = currentLine.getValue();
-                    if (v!=null)
+                    module.setKeys(currentLine.getRawStringKey());
+                    String v = currentLine.getRawStringValue();
+                    if (v != null)
                         module.setValue(v);
-                }
-                else if(currentLine.isHyphenFound()){
-                    String v = currentLine.getValue();
-                    if (v!=null)
+                } else if (currentLine.isHyphenFound()) {
+                    String v = currentLine.getRawStringValue();
+                    if (v != null)
                         module.addValue(v);
                 }
 
@@ -179,42 +172,42 @@ class DYReader {
     }
 
     private void checkChar(DYLine line, int charCode, int charIndex, int charCodeBefore) {
-            switch (charCode){
-                case 32:
-                    // Empty space before a colon, indicates objects tree position. Increment until a colon is found.
-                    if (!line.isWordFound())
-                        line.setCountSpaces(line.getCountSpaces() + 1);
-                    break;
-                case 35:
-                    // # Hashtag indicates start of a comment
-                    line.setHashTagFound(true);
-                    line.setValue(getOptimizedString(line
+        switch (charCode) {
+            case 32: //
+                // Empty space before a colon, indicates objects tree position. Increment until a colon is found.
+                if (!line.isWordFound())
+                    line.setCountSpaces(line.getCountSpaces() + 1);
+                break;
+            case 35: // #
+                // Hashtag indicates start of a comment
+                line.setHashTagFound(true);
+                line.setRawStringValue(getOptimizedString(line
+                        .getLineContent()
+                        .substring(charIndex + 1)));
+                break;
+            case 58: // :
+                // Colon enables us to define a key
+                line.setColonFound(true);
+                line.setRawStringKey(line
+                        .getLineContent()
+                        .substring(line.getCountSpaces(), charIndex));
+                line.setRawStringValue(getOptimizedString(line
+                        .getLineContent()
+                        .substring(charIndex + 1)));
+                break;
+            case 45: // -
+                // Hyphen indicates a list object but only if the char before didn't exist or it was a space
+                if (charCodeBefore == 0 || charCodeBefore == 32) {
+                    line.setHyphenFound(true);
+                    line.setRawStringValue(getOptimizedString(line
                             .getLineContent()
-                            .substring(charIndex+1)));
-                    break;
-                case 58:
-                    // : Colon enables us to define a key
-                    line.setColonFound(true);
-                    line.setKey(line
-                            .getLineContent()
-                            .substring(line.getCountSpaces(), charIndex));
-                    line.setValue(getOptimizedString(line
-                            .getLineContent()
-                            .substring(charIndex+1)));
-                    break;
-                case 45:
-                    // - Hyphen indicates a list object but only if the char before didn't exist or it was a space
-                    if (charCodeBefore==0 || charCodeBefore==32){
-                        line.setHyphenFound(true);
-                        line.setValue(getOptimizedString(line
-                                .getLineContent()
-                                .substring(charIndex+1)));
-                    }
-                    break;
-                default:
-                    // Any other charCode than above will count as word
-                    line.setWordFound(true);
-            }
+                            .substring(charIndex + 1)));
+                }
+                break;
+            default:
+                // Any other charCode than above will count as word
+                line.setWordFound(true);
+        }
     }
 
 
@@ -223,10 +216,11 @@ class DYReader {
      * String before: '  hi boi  '
      * String after: 'hi boi'
      * Result: removed 4 spaces.
+     *
      * @param s
      */
     private String getOptimizedString(String s) {
-        if (s != null){
+        if (s != null) {
             s = s.trim();
             if (s.isEmpty()) s = null;
         }

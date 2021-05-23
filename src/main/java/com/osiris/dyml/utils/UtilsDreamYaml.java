@@ -11,8 +11,8 @@ import java.util.List;
  * extend DreamYaml's functionality.
  */
 public class UtilsDreamYaml {
-    private final DreamYaml yaml;
     private static final String n = System.lineSeparator();
+    private final DreamYaml yaml;
 
     /**
      * Contains methods which
@@ -51,8 +51,8 @@ public class UtilsDreamYaml {
      * to an {@link OutputStream}.
      */
     public void writeLoaded(OutputStream out) throws IOException {
-        try(BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out))){
-            writer.write(getLoadedModulesInformationAsString()+n);
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out))) {
+            writer.write(getLoadedModulesInformationAsString() + n);
         }
     }
 
@@ -61,8 +61,8 @@ public class UtilsDreamYaml {
      * to an {@link OutputStream}.
      */
     public void writeAdded(OutputStream out) throws IOException {
-        try(BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out))){
-            writer.write(getAddedModulesInformationAsString()+n);
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out))) {
+            writer.write(getAddedModulesInformationAsString() + n);
         }
     }
 
@@ -71,8 +71,8 @@ public class UtilsDreamYaml {
      * to an {@link OutputStream}.
      */
     public void writeUnified(OutputStream out) throws IOException {
-        try(BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out))){
-            writer.write(getUnifiedModulesInformationAsString()+n);
+        try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out))) {
+            writer.write(getUnifiedModulesInformationAsString() + n);
         }
     }
 
@@ -80,7 +80,7 @@ public class UtilsDreamYaml {
      * Util method for returning the modules information
      * formatted as {@link String}.
      */
-    public String getLoadedModulesInformationAsString(){
+    public String getLoadedModulesInformationAsString() {
         return "LOADED modules from '" + yaml.getFile().getName() + "' file:" + n + getModulesInformationFromListAsString(yaml.getAllLoaded());
     }
 
@@ -88,7 +88,7 @@ public class UtilsDreamYaml {
      * Util method for returning the modules information
      * formatted as {@link String}.
      */
-    public String getAddedModulesInformationAsString(){
+    public String getAddedModulesInformationAsString() {
         return "ADDED modules from '" + yaml.getFile().getName() + "' file:" + n + getModulesInformationFromListAsString(yaml.getAllAdded());
     }
 
@@ -96,15 +96,15 @@ public class UtilsDreamYaml {
      * Util method for returning the modules information
      * formatted as {@link String}.
      */
-    public String getUnifiedModulesInformationAsString(){
-        return "UNIFIED modules from '" + yaml.getFile().getName() + "' file:" + n + getModulesInformationFromListAsString(new UtilsDYModule().createUnifiedList(yaml.getAllAdded(),yaml.getAllLoaded()));
+    public String getUnifiedModulesInformationAsString() {
+        return "UNIFIED modules from '" + yaml.getFile().getName() + "' file:" + n + getModulesInformationFromListAsString(new UtilsDYModule().createUnifiedList(yaml.getAllAdded(), yaml.getAllLoaded()));
     }
 
     /**
      * Util method for returning the modules information from a {@link List}
      * formatted as {@link String}.
      */
-    public String getModulesInformationFromListAsString(List<DYModule> modules){
+    public String getModulesInformationFromListAsString(List<DYModule> modules) {
         StringBuilder s = new StringBuilder();
         for (DYModule module :
                 modules) {

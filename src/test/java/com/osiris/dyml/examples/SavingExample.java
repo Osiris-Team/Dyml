@@ -29,7 +29,7 @@ public class SavingExample {
         // Change it to what we want:
         work.setValue("Developer");
         // And save the file:
-        yaml.save(); // Note that stuff that isn't supported by DreamYaml wont be parsed and thus removed from the file after you save it!
+        yaml.save(true); // Note that stuff that isn't supported by DreamYaml wont be parsed and thus removed from the file after you save it!
         // Just as simple as that!
 
         // SCENARIO 2:

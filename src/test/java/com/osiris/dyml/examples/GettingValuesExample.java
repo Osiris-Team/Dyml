@@ -22,8 +22,8 @@ public class GettingValuesExample {
 
     @Test
     void test() throws Exception {
-        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/getting-values-example.yml");
-        yaml.load();
+        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/getting-values-example.yml",
+                true);
 
         DYModule firstName    = yaml.add("name")         .setDefValue("John").setComment("Everything about getting values.");
         DYModule lastName     = yaml.add("last-name")    .setDefValue("Goldman");
@@ -31,7 +31,7 @@ public class GettingValuesExample {
         DYModule work         = yaml.add("work")         .setDefValue("Reporter");
         DYModule pendingTasks = yaml.add("pending-tasks").setDefValues("research", "1234", "start working");
 
-        yaml.save();
+        yaml.save(true);
 
         // Getting module details
         String key           = firstName.getKey(); // name // Returns the first key.
@@ -45,12 +45,12 @@ public class GettingValuesExample {
 
         // All the methods below return the 'real' values at the time when load() was called.
         Object firstNameAsObject         = firstName.getValue();
-        DYValue firstNameAsString         = firstName.asString();
+        String firstNameAsString         = firstName.asString();
         int ageAsInt                     = age.asInt();
-        List<DYValue> pendingTasksObjects = pendingTasks.getValues();
-        List<DYValue> pendingTasksStrings = pendingTasks.asStringList();
+        List<DYValue> pendingTasksValues = pendingTasks.getValues();
+        List<String> pendingTasksStrings = pendingTasks.asStringList();
         // You can also get each value from the list as an independent object
-        DYValue listIndex0                = pendingTasks.asString(0);
+        String listIndex0                = pendingTasks.asString(0);
         int listIndex1                   = pendingTasks.asInt(1);
         char[] listIndex2                = pendingTasks.asCharArray(2);
 

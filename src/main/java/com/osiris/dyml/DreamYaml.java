@@ -8,12 +8,15 @@
 
 package com.osiris.dyml;
 
+import com.osiris.dyml.exceptions.DYReaderException;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
+import com.osiris.dyml.exceptions.IllegalListException;
 import com.osiris.dyml.exceptions.NotLoadedException;
 import com.osiris.dyml.utils.UtilsDYModule;
 import com.osiris.dyml.utils.UtilsDreamYaml;
 
 import java.io.File;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,52 +27,65 @@ import java.util.List;
  * that contains all of the default and loaded modules.
  */
 public class DreamYaml {
-    private String filePath;
-    private File file;
-    private List<DYModule> loadedModules;
-    private List<DYModule> addedModules;
     //private List<DYModule> unifiedModules;
     private final UtilsDreamYaml utils = new UtilsDreamYaml(this);
+    private final String filePath;
+    private final List<DYModule> addedModules;
+    private File file;
+    private List<DYModule> loadedModules;
     private boolean postProcessingEnabled;
-    private boolean debug;
+    private boolean debugEnabled;
+    private boolean autoLoadEnabled;
 
 
     /**
-     * See {@link #DreamYaml(String, boolean, boolean)} for details.
+     * Initialises the {@link DreamYaml} object with useful features enabled. <br>
+     * See {@link #DreamYaml(String, boolean, boolean, boolean)} for details.
      */
-    public DreamYaml(File file){
+    public DreamYaml(File file) throws IOException, DYReaderException, IllegalListException {
         this(file.getAbsolutePath());
     }
 
     /**
-     * See {@link #DreamYaml(String, boolean, boolean)} for details.
+     * Initialises the {@link DreamYaml} object with useful features enabled. <br>
+     * See {@link #DreamYaml(String, boolean, boolean, boolean)} for details.
      */
-    public DreamYaml(File file, boolean debug){
-        this(file.getAbsolutePath(),true, debug);
+    public DreamYaml(File file, boolean debugEnabled) throws IOException, DYReaderException, IllegalListException {
+        this(file.getAbsolutePath(), true, debugEnabled, true);
     }
 
     /**
-     * See {@link #DreamYaml(String, boolean, boolean)} for details.
+     * Initialises the {@link DreamYaml} object with useful features enabled. <br>
+     * See {@link #DreamYaml(String, boolean, boolean, boolean)} for details.
      */
-    public DreamYaml(String filePath) {
-        this(filePath,true,false);
+    public DreamYaml(String filePath) throws IOException, DYReaderException, IllegalListException {
+        this(filePath, true, false, true);
     }
 
     /**
-     * Creates a new DreamYaml object.
-     * Next step would be to {@link #load()} your file into memory. <br>
+     * Initialises the {@link DreamYaml} object with useful features enabled. <br>
+     * See {@link #DreamYaml(String, boolean, boolean, boolean)} for details.
+     */
+    public DreamYaml(String filePath, boolean debugEnabled) throws IOException, DYReaderException, IllegalListException {
+        this(filePath, true, debugEnabled, true);
+    }
+
+    /**
+     * Initialises the {@link DreamYaml} object.
      *
-     * @param filePath Your yaml files path.
-     * @param postProcessingEnabled Enable/Disable post processing. Enabled by default.
+     * @param filePath              Your yaml files path.
+     * @param postProcessingEnabled Enabled by default.
      *                              Responsible for removing "" and '' from your values.
-     *
-     * @param debug Enable/Disable debugging. Disabled by default. Shows debugging stuff.
+     * @param debugEnabled          Disabled by default. Shows debugging stuff.
+     * @param autoLoadEnabled       Enabled by default. Calls {@link #load()} inside of the constructor.
      */
-    public DreamYaml(String filePath, boolean postProcessingEnabled, boolean debug) {
+    public DreamYaml(String filePath, boolean postProcessingEnabled, boolean debugEnabled, boolean autoLoadEnabled) throws IOException, DYReaderException, IllegalListException {
         this.filePath = filePath;
         this.addedModules = new ArrayList<>();
         this.postProcessingEnabled = postProcessingEnabled;
-        this.debug = debug;
+        this.debugEnabled = debugEnabled;
+        this.autoLoadEnabled = autoLoadEnabled;
+        if (autoLoadEnabled) load();
     }
 
     /**
@@ -78,7 +94,7 @@ public class DreamYaml {
      * You can return the list of modules with {@link #getAllLoaded()}.
      * Remember, that this updates your added modules values.
      */
-    public DreamYaml load() throws Exception {
+    public DreamYaml load() throws IOException, DYReaderException, IllegalListException {
         this.loadedModules = new ArrayList<>();
         file = new File(filePath);
         if (!file.exists()) file.createNewFile();
@@ -92,8 +108,8 @@ public class DreamYaml {
      * Also the {@link #getAllLoaded()} list is empty after this operation.
      * The {@link #getAllAdded()} list is not affected.
      */
-    public DreamYaml reset() throws Exception{
-        if (file==null) this.load();
+    public DreamYaml reset() throws Exception {
+        if (file == null) this.load();
         new DYWriter().parse(this, true, true);
         this.load();
         return this;
@@ -102,8 +118,8 @@ public class DreamYaml {
     /**
      * Convenience method for saving and loading afterwards.
      */
-    public DreamYaml reload() throws Exception{
-        if (file==null) this.load();
+    public DreamYaml reload() throws Exception {
+        if (file == null) this.load();
         this.save();
         this.load();
         return this;
@@ -116,13 +132,13 @@ public class DreamYaml {
      * It's recommended to keep {@link #load()} and {@link #save()} timely close to each other, so the user
      * can't change the values in the meantime.
      * IMPORTANT: Stuff that isn't supported by DreamYaml (see features.yml) wont be parsed and thus removed from the file after you save it!
+     *
      * @param overwrite Enable/Disable overwriting the yaml file. Disabled by default.
      *                  If true the yaml file gets overwritten with modules from the 'added modules list'.
      *                  That means that everything that wasn't added via {@link #add(String...)} will not exist in the file.
-     *
      */
     public DreamYaml save(boolean overwrite) throws Exception {
-        if (file==null) this.load();
+        if (file == null) this.load();
         new DYWriter().parse(this, overwrite, false);
         return this;
     }
@@ -130,7 +146,7 @@ public class DreamYaml {
     /**
      * For more details see: {@link #save(boolean)}
      */
-    public DreamYaml save() throws Exception{
+    public DreamYaml save() throws Exception {
         this.save(false);
         return this;
     }
@@ -140,10 +156,10 @@ public class DreamYaml {
      * See {@link #add(DYModule)} for details.
      */
     public DYModule add(String... keys) throws Exception {
-        if (keys==null) throw new Exception("Keys of this module cannot be null!");
+        if (keys == null) throw new Exception("Keys of this module cannot be null!");
         List<String> list = new ArrayList<>();
         list.addAll(Arrays.asList(keys));
-        return add(list,null, null, null);
+        return add(list, null, null, null);
     }
 
     /**
@@ -158,21 +174,23 @@ public class DreamYaml {
      * Adds the given module to the modules list, which will get parsed and written to file by {@link #save()}.
      * Doing changes to this modules values and saving them, will affect the original yaml file.
      * Note that null KEYS are not allowed!
+     *
      * @param module module to add.
      * @return the added module.
-     * @throws NotLoadedException if the yaml file has not been loaded once yet
+     * @throws NotLoadedException    if the yaml file has not been loaded once yet
      * @throws DuplicateKeyException if another module with the same keys already exists
      */
     public DYModule add(DYModule module) throws Exception {
-        if (module.getKeys()==null || module.getKeys().isEmpty()) throw new Exception("Keys list of this module is null or empty!");
-        if (file==null) throw new NotLoadedException(); // load() should've been called at least once before
+        if (module.getKeys() == null || module.getKeys().isEmpty())
+            throw new Exception("Keys list of this module is null or empty!");
+        if (file == null) throw new NotLoadedException(); // load() should've been called at least once before
         if (module.getKeys().contains(null)) throw new Exception("Null keys are not allowed!");
         UtilsDYModule utils = new UtilsDYModule();
-        if (utils.getExisting(module, this.addedModules)!=null) // Check for the same keys in the defaultModules list. Same keys are not allowed.
+        if (utils.getExisting(module, this.addedModules) != null) // Check for the same keys in the defaultModules list. Same keys are not allowed.
             throw new DuplicateKeyException(file.getName(), module.getKeys().toString());
 
         DYModule loaded = utils.getExisting(module, this.loadedModules);
-        if (loaded!=null) {
+        if (loaded != null) {
             module.setValues(loaded.getValues());
         }
 
@@ -184,9 +202,10 @@ public class DreamYaml {
      * Convenience method for removing a module from the 'added modules list'.
      * If you call {@link #save()} after this, the module should also
      * be removed from the yaml file.
+     *
      * @param module the module to remove.
      */
-    public void remove(DYModule module){
+    public void remove(DYModule module) {
         this.addedModules.remove(module);
     }
 
@@ -202,8 +221,8 @@ public class DreamYaml {
     /**
      * Convenience method for returning the last module from the 'loaded modules list'.
      */
-    public DYModule getLastLoadedModule(){
-        return loadedModules.get(loadedModules.size()-1);
+    public DYModule getLastLoadedModule() {
+        return loadedModules.get(loadedModules.size() - 1);
     }
 
     /**
@@ -219,14 +238,14 @@ public class DreamYaml {
     /**
      * Convenience method for returning the last module from the 'added modules list'.
      */
-    public DYModule getLastAddedModule(){
-        return addedModules.get(addedModules.size()-1);
+    public DYModule getLastAddedModule() {
+        return addedModules.get(addedModules.size() - 1);
     }
 
     /**
      * Prints out all lists.
      */
-    public void printAll(){
+    public void printAll() {
         printLoaded();
         printAdded();
         printUnified();
@@ -237,7 +256,7 @@ public class DreamYaml {
      * Prints out all modules in the loaded list.
      * For more info see {@link UtilsDreamYaml#printLoaded(PrintStream)}}.
      */
-    public void printLoaded(){
+    public void printLoaded() {
         utils.printLoaded(System.out);
     }
 
@@ -245,7 +264,7 @@ public class DreamYaml {
      * Prints out all modules in the added list.
      * For more info see {@link UtilsDreamYaml#printAdded(PrintStream)}}.
      */
-    public void printAdded(){
+    public void printAdded() {
         utils.printAdded(System.out);
     }
 
@@ -253,7 +272,7 @@ public class DreamYaml {
      * Prints out all modules in the unified list.
      * For more info see {@link UtilsDYModule#createUnifiedList(List, List)} and {@link UtilsDreamYaml#printUnified(PrintStream)}}.
      */
-    public void printUnified(){
+    public void printUnified() {
         utils.printUnified(System.out);
     }
 
@@ -273,22 +292,23 @@ public class DreamYaml {
     /**
      * Returns the yml files name without its extension.
      */
-    public String getFileNameWithoutExt() throws NotLoadedException{
-        if (file==null) throw new NotLoadedException();
-        return file.getName().replaceFirst("[.][^.]+$",""); // Removes the file extension
+    public String getFileNameWithoutExt() throws NotLoadedException {
+        if (file == null) throw new NotLoadedException();
+        return file.getName().replaceFirst("[.][^.]+$", ""); // Removes the file extension
     }
 
-    public boolean isDebug() {
-        return debug;
+    public boolean isDebugEnabled() {
+        return debugEnabled;
     }
 
-    public void setDebug(boolean debug) {
-        this.debug = debug;
+    public void setDebugEnabled(boolean debugEnabled) {
+        this.debugEnabled = debugEnabled;
     }
 
     /**
      * Returns the module with same keys from the 'added modules list'.
      * Details: {@link #getAllAdded()}
+     *
      * @return {@link DYModule} or null if no module found with same keys
      */
     public DYModule getAddedModuleByKeys(String... keys) {
@@ -303,6 +323,7 @@ public class DreamYaml {
     /**
      * Returns the module with same keys from the 'added modules list'.
      * Details: {@link #getAllAdded()}
+     *
      * @return {@link DYModule} or null if no module found with same keys
      */
     public DYModule getAddedModuleByKeys(List<String> keys) {
@@ -312,6 +333,7 @@ public class DreamYaml {
     /**
      * Returns the module with same keys from the 'loaded modules list'.
      * Details: {@link #getAllLoaded()}
+     *
      * @return {@link DYModule} or null if no module found with same keys
      */
     public DYModule getLoadedModuleByKeys(String... keys) {
@@ -326,18 +348,39 @@ public class DreamYaml {
     /**
      * Returns the module with same keys from the 'loaded modules list'.
      * Details: {@link #getAllLoaded()}
+     *
      * @return {@link DYModule} or null if no module found with same keys
      */
     public DYModule getLoadedModuleByKeys(List<String> keys) {
         return new UtilsDYModule().getExisting(keys, loadedModules);
     }
 
+    /**
+     * Responsible for removing "" and '' from your values.
+     */
     public boolean isPostProcessingEnabled() {
         return postProcessingEnabled;
     }
 
+    /**
+     * Responsible for removing "" and '' from your values.
+     */
     public void setPostProcessingEnabled(boolean postProcessingEnabled) {
         this.postProcessingEnabled = postProcessingEnabled;
+    }
+
+    /**
+     * Calls {@link #load()} inside the constructor.
+     */
+    public boolean isAutoLoadEnabled() {
+        return autoLoadEnabled;
+    }
+
+    /**
+     * Calls {@link #load()} inside the constructor.
+     */
+    public void setAutoLoadEnabled(boolean autoLoadEnabled) {
+        this.autoLoadEnabled = autoLoadEnabled;
     }
 }
 

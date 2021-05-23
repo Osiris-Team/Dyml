@@ -27,10 +27,10 @@ public class DYAction {
      */
     public DYAction(DreamYaml yaml) {
         this.yaml = yaml;
-        if (yaml!=null) setAffectAll(false);
+        if (yaml != null) setAffectAll(false);
     }
 
-    public void run(){
+    public void run() {
         this.runnable.run();
     }
 

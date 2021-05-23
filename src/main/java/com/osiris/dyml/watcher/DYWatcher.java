@@ -27,15 +27,15 @@ import static java.nio.file.StandardWatchEventKinds.*;
  * Detects changes to the given yaml files and performs actions
  * on their corresponding in-memory representations ({@link DreamYaml}).
  */
-public class DYWatcher extends Thread{
+public class DYWatcher extends Thread {
+    private final boolean trace = false;
     private List<DreamYaml> dyList = new CopyOnWriteArrayList<>();
     private List<DYAction> actions = new CopyOnWriteArrayList<>();
     private File dir;
     private boolean registerSubDirs = true;
     private int subDirCount;
     private WatchService watchService;
-    private Map<WatchKey,Path> keys;
-    private boolean trace = false;
+    private Map<WatchKey, Path> keys;
 
     /**
      * See {@link #DYWatcher(List, String, boolean)} for details.
@@ -84,8 +84,9 @@ public class DYWatcher extends Thread{
 
     /**
      * Create a new DreamYamlWatcher/YamlFilesWatcher. Start this watcher by its {@link #start()} method.
-     * @param dyList a list containing the yaml files to be watched
-     * @param dir the directory path where to listen for changes. If null/empty the user-dir will be used.
+     *
+     * @param dyList          a list containing the yaml files to be watched
+     * @param dir             the directory path where to listen for changes. If null/empty the user-dir will be used.
      * @param registerSubDirs Register all sub directories. Default is true.
      */
     public DYWatcher(List<DreamYaml> dyList, String dir, boolean registerSubDirs) {
@@ -93,26 +94,26 @@ public class DYWatcher extends Thread{
     }
 
     private void init(List<DreamYaml> dyList, String dir, boolean registerSubDirs) {
-        if (dir==null) dir = System.getProperty("user.dir");
-        if (dir!=null && dir.isEmpty()) dir = System.getProperty("user.dir");
+        if (dir == null) dir = System.getProperty("user.dir");
+        if (dir != null && dir.isEmpty()) dir = System.getProperty("user.dir");
         this.dir = new File(dir);
-        if (dyList!=null && !dyList.isEmpty()) this.dyList.addAll(dyList);
+        if (dyList != null && !dyList.isEmpty()) this.dyList.addAll(dyList);
         this.registerSubDirs = registerSubDirs;
         this.keys = new HashMap<>();
     }
 
-    public void printDetails(){
-        System.out.println("Watcher: "+this);
-        System.out.println("Dir: "+dir.getAbsolutePath());
-        System.out.println("SubDirs: "+ registerSubDirs +" ("+subDirCount+") ");
-        System.out.println("Watching: ("+dyList.size()+") "+dyList.toString());
-        System.out.println("Actions: ("+actions.size()+") "+actions.toString());
+    public void printDetails() {
+        System.out.println("Watcher: " + this);
+        System.out.println("Dir: " + dir.getAbsolutePath());
+        System.out.println("SubDirs: " + registerSubDirs + " (" + subDirCount + ") ");
+        System.out.println("Watching: (" + dyList.size() + ") " + dyList);
+        System.out.println("Actions: (" + actions.size() + ") " + actions);
     }
 
     @Override
     public void run() {
         super.run();
-        try{
+        try {
             if (dir == null)
                 throw new Exception("Dir cannot be null!");
             if (dir.getPath().isEmpty())
@@ -134,16 +135,15 @@ public class DYWatcher extends Thread{
                     for (DreamYaml yaml :
                             dyList) {
                         // Check if the event is for one of our given yaml files
-                        if (yaml.getFile().getName().equals(file_name)){
+                        if (yaml.getFile().getName().equals(file_name)) {
                             // Perform the actions according to their settings
                             for (DYAction action :
                                     actions) {
                                 action.setEventKind(event.kind());
-                                if (action.isAffectAll()){
+                                if (action.isAffectAll()) {
                                     action.setYaml(yaml);
                                     action.run();
-                                }
-                                else if (action.getYaml().getFile().getName().equals(file_name))
+                                } else if (action.getYaml().getFile().getName().equals(file_name))
                                     action.run();
                                 // Otherwise do nothing
                             }
@@ -168,8 +168,7 @@ public class DYWatcher extends Thread{
         Files.walkFileTree(start, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
-                    throws IOException
-            {
+                    throws IOException {
                 register(dir);
                 return FileVisitResult.CONTINUE;
             }
@@ -198,14 +197,14 @@ public class DYWatcher extends Thread{
     /**
      * Lazy method for adding yaml objects.
      */
-    public void addYaml(DreamYaml yaml){
+    public void addYaml(DreamYaml yaml) {
         this.dyList.add(yaml);
     }
 
     /**
      * Lazy method for adding actions.
      */
-    public void addAction(DYAction action){
+    public void addAction(DYAction action) {
         this.actions.add(action);
     }
 

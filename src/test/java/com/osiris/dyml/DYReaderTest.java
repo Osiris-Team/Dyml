@@ -8,16 +8,19 @@
 
 package com.osiris.dyml;
 
+import com.osiris.dyml.exceptions.DYReaderException;
+import com.osiris.dyml.exceptions.IllegalListException;
 import com.osiris.dyml.utils.UtilsFile;
 import com.osiris.dyml.utils.UtilsTimeStopper;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
+import java.io.IOException;
 
 class DYReaderTest {
 
     @Test
-    void testFileReading() {
+    void testFileReading() throws IOException, DYReaderException, IllegalListException {
         File file = new File(System.getProperty("user.dir")+"/src/test/features.yml");
         DreamYaml yaml = new DreamYaml(file);
         System.out.println("Parsing '"+file.getName()+"' from path '"+file.getAbsolutePath()+"'");

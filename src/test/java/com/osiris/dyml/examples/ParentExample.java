@@ -34,7 +34,7 @@ public class ParentExample {
         DYModule p3C2 = yaml.add("p3", "c1", "c2").setDefValue("v2");
         DYModule p3C3 = yaml.add("p3", "c1", "c2", "c3").setDefValue("v3");
 
-        yaml.save();
+        yaml.save(true);
 
         /*
 # Create a more complex yaml file

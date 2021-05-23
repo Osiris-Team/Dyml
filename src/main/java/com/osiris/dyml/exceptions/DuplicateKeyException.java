@@ -9,8 +9,8 @@
 package com.osiris.dyml.exceptions;
 
 public class DuplicateKeyException extends Exception {
-    private String fileName;
-    private String key;
+    private final String fileName;
+    private final String key;
 
     public DuplicateKeyException(String fileName, String key) {
         super();

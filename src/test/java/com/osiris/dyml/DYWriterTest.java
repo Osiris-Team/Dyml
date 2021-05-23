@@ -30,4 +30,20 @@ class DYWriterTest {
         assertNotNull(new UtilsDYModule().getExisting(queryModule1, list));
         assertNull(new UtilsDYModule().getExisting(queryModule2, list));
     }
+
+    @Test
+    void writeDYModuleInsideAnotherDYModule() throws Exception {
+        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/writeDYModuleInsideAnotherDYModule.yml");
+        yaml.load();
+        yaml.add("module1").setValues(new DYValue(new DYModule("module2").setDefValues("module2s value")));
+        yaml.save(true);
+    }
+
+    @Test
+    void writeDYModuleListInsideAnotherDYModule() throws Exception {
+        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/writeDYModuleListInsideAnotherDYModule.yml");
+        yaml.load();
+        yaml.add("module1").setValues(new DYValue(new DYModule("module2").setDefValues("hello", "there", "my guy")));
+        yaml.save(true);
+    }
 }
