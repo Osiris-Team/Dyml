@@ -14,11 +14,11 @@ Currently, only the most essential parts of YAML are implemented.
 ```YAML
 # Comments and
 # multiline comments support.
-the-show-off-list:
+the-show-off-list: 
   - completely written from scratch without any extra dependency
   - fastest YAML reader and writer currently available (see benchmarks below)
   - not a single static method and very memory efficient
-supports-hyphen-separation: awesome!
+supports-hyphen-separation: awesome! # Side-comments supported!
 or separation by spaces: great!
 and.dots.like.this: wow!
 
@@ -43,11 +43,11 @@ Some extras:
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/simple-example.yml");
 yaml.load();
 
-DYModule firstName = yaml.add("name")         .setDefValue("John");
-DYModule lastName  = yaml.add("last-name")    .setDefValue("Goldman");
-DYModule age       = yaml.add("age")          .setDefValue("29");
-DYModule work      = yaml.add("work")         .setDefValue("Reporter");
-DYModule pending   = yaml.add("pending-tasks").setDefValues("do research", "buy food", "start working");
+yaml.add("name")         .setValue("John");
+yaml.add("last-name")    .setValue("Goldman");
+yaml.add("age")          .setValue("29");
+yaml.add("work")         .setValue("Reporter");
+yaml.add("pending-tasks").setValues("do research", "buy food", "start working");
 
 yaml.save();
 ```
@@ -111,10 +111,18 @@ They are basically the raw output from your yaml file. Added modules get created
 loaded module with the same keys.
 </details>
 <details>
-  <summary>How are null values handled?</summary>
-Null values won't be written to the file. 
-But they can be added to the (default-)values lists, like everything else.
-Developers all around the world are still trying to figure out the sense in doing that tho...
+  <summary>How are null/empty values handled?</summary>
+<pre>
+parent:
+  key1:               # this value is null
+  key2: ~             # not null, but a string
+  key3: null          # not null, but a string
+  key5: "null"        # not null, but a string
+  key5: ""            # this value is null (note that if you disable the remove quotes post-processing option, this is a string("") and not empty, otherwise this gets turned into a null value)
+</pre>
+To sum it up: <b>Empty values do NOT exist. Null values exist. </b>
+Note that null values are removed from the modules values list, in the post-processing part while parsing the yaml file.
+You can disable it though, if you want.
 </details>
 <details>
   <summary>Fallback to default values?</summary>

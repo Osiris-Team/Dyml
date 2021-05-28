@@ -22,6 +22,6 @@ public class IllegalListException extends Exception {
 
     @Override
     public String getMessage() {
-        return "Illegal list  '" + line.getLineContent() + "' found in '" + fileName + "' file at line " + line.getLineNumber() + ".";
+        return "Illegal list  '" + line.getFullLine() + "' found in '" + fileName + "' file at line " + line.getLineNumber() + ".";
     }
 }

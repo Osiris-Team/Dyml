@@ -90,37 +90,65 @@ public class UtilsDYModule {
     }
 
     /**
-     * Removes "" and '' from those encapsulated values.<br>
-     * Note that the {@link DYValue#asString()} must already have been
-     * optimized by {@link com.osiris.dyml.DYReader#getOptimizedString(String)}.
-     *
-     * @param values
+     * We assume that none of the {@link DYValue}s in the list is null. {@link DYValue#asString()} however can be null.
      */
-    public void optimizeValues(List<DYValue> values) {
+    public void trimValues(List<DYValue> values) {
         List<DYValue> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
         for (DYValue value :
                 copy) {
-            String s = value.asString(); // This string must be an already optimized/trimmed string without spaces at the start/end
-            char firstChar = s.charAt(0);
-            char lastChar = s.charAt(s.length() - 1);
-            if (firstChar == lastChar) { // Check if the value is encapsulated
-                int firstPoint = s.codePointAt(0); // Since first and last are the same we only need one of them
-                if (firstPoint == 34 || firstPoint == 39) { // " is 34 and ' is 39
-                    s = s.substring(1, s.length() - 1); // Remove the first and last chars
-                    value.set(s);
+            String s;
+            if ((s = value.asString()) != null) {
+                s = s.trim();
+                value.set(s);
+            }
+        }
+    }
+
+    /**
+     * Removes "" and '' from those encapsulated values.<br>
+     * Its recommended, that each value was trimmed before, to achieve the best results. <br>
+     * We assume that none of the {@link DYValue}s in the list is null. {@link DYValue#asString()} however can be null. <br>
+     */
+    public void removeQuotesFromValues(List<DYValue> values) {
+        List<DYValue> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
+        for (DYValue value :
+                copy) {
+            String s;
+            if ((s = value.asString()) != null && !s.isEmpty()) {
+                // This string must be an already optimized/trimmed string without spaces at the start/end
+                char firstChar = s.charAt(0);
+                char lastChar = s.charAt(s.length() - 1);
+                if (firstChar == lastChar) { // Check if the value is encapsulated
+                    int firstPoint = s.codePointAt(0); // Since first and last are the same we only need one of them
+                    if (firstPoint == 34 || firstPoint == 39) { // " is 34 and ' is 39
+                        s = s.substring(1, s.length() - 1); // Remove the first and last chars
+                        value.set(s);
+                    }
                 }
             }
         }
     }
 
     /**
-     * This method returns a unified list containing the loaded modules as base, overwritten and extended by the added modules.
-     * This ensures, that the structure(hierarchies) of the loaded file stay the same
-     * and that new modules are inserted in the correct position.
-     * Logic:
-     * 1. If the loaded modules list is empty, nothing needs to be done! Return added modules.
-     * 2. Else go through the loaded modules and compare each module with the added modules list. If there is an added module with the same keys, add it to the unified list instead of the loaded module.
-     * 3. If there are NEW modules in the added modules list, insert them into the right places of unified list.
+     * We assume that none of the {@link DYValue}s in the list is null. {@link DYValue#asString()} however can be null.
+     */
+    public void removeNullValues(List<DYValue> values) {
+        List<DYValue> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
+        for (int i = 0; i < copy.size(); i++) {
+            if (copy.get(i).asString() == null) values.remove(i);
+        }
+    }
+
+    /**
+     * This method returns a new unified list containing the loaded and added modules merged together. <br>
+     * The loaded modules list is used as 'base' and is overwritten/extended by the added modules list. <br>
+     * This ensures, that the structure(hierarchies) of the loaded file stay the same <br>
+     * and that new modules are inserted in the correct position. <br>
+     * Logic: <br>
+     * 1. If the loaded modules list is empty, nothing needs to be done! Return added modules. <br>
+     * 2. Else go through the loaded modules and compare each module with the added modules list.
+     * If there is an added module with the same keys, add it to the unified list instead of the loaded module. <br>
+     * 3. If there are NEW modules in the added modules list, insert them into the right places of unified list. <br>
      *
      * @return a fresh unified list containing loaded modules extended by added modules.
      */

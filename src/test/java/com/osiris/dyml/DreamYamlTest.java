@@ -7,7 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class DreamYamlTest {
 
     @Test
-    void getAddedModuleByKeys() throws Exception{
+    void getAddedModuleByKeys() throws Exception {
         DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml");
         yaml.load();
         yaml.add("hello").setDefValue("world");
@@ -26,7 +26,7 @@ class DreamYamlTest {
     }
 
     @Test
-    void reset() throws Exception{
+    void reset() throws Exception {
         DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/reset-test.yml");
         yaml.load();
         yaml.add("hello").setDefValue("world");
@@ -36,7 +36,7 @@ class DreamYamlTest {
     }
 
     @Test
-    void save() throws Exception{
+    void save() throws Exception {
         DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/save-test.yml");
         yaml.reset();
         yaml.add("p1");

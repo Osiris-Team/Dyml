@@ -9,29 +9,30 @@
 package com.osiris.dyml;
 
 public class DYLine {
-    private String lineContent;
+    private String fullLine;
     private int lineNumber;
-    private char[] lineAsChar;
+    private char[] fullLineAsChar;
     private int countSpaces;
-    private boolean hashTagFound;
-    private boolean colonFound;
+    private boolean commentFound;
+    private boolean keyFound;
     private boolean hyphenFound;
-    private boolean wordFound;
-    private String rawStringKey;
-    private String rawStringValue;
+    private boolean charFound;
+    private String rawKey;
+    private String rawValue;
+    private String rawComment;
 
-    public DYLine(String lineContent, int lineNumber) {
-        this.lineContent = lineContent;
+    public DYLine(String fullLine, int lineNumber) {
+        this.fullLine = fullLine;
         this.lineNumber = lineNumber;
-        this.lineAsChar = lineContent.toCharArray();
+        this.fullLineAsChar = fullLine.toCharArray();
     }
 
-    public String getLineContent() {
-        return lineContent;
+    public String getFullLine() {
+        return fullLine;
     }
 
-    public void setLineContent(String lineContent) {
-        this.lineContent = lineContent;
+    public void setFullLine(String fullLine) {
+        this.fullLine = fullLine;
     }
 
     public int getLineNumber() {
@@ -42,12 +43,12 @@ public class DYLine {
         this.lineNumber = lineNumber;
     }
 
-    public char[] getLineAsChar() {
-        return lineAsChar;
+    public char[] getFullLineAsChar() {
+        return fullLineAsChar;
     }
 
-    public void setLineAsChar(char[] lineAsChar) {
-        this.lineAsChar = lineAsChar;
+    public void setFullLineAsChar(char[] fullLineAsChar) {
+        this.fullLineAsChar = fullLineAsChar;
     }
 
     public int getCountSpaces() {
@@ -58,12 +59,12 @@ public class DYLine {
         this.countSpaces = countSpaces;
     }
 
-    public boolean isHashTagFound() {
-        return hashTagFound;
+    public boolean isCommentFound() {
+        return commentFound;
     }
 
-    public void setHashTagFound(boolean hashTagFound) {
-        this.hashTagFound = hashTagFound;
+    public void setCommentFound(boolean commentFound) {
+        this.commentFound = commentFound;
     }
 
     public boolean isHyphenFound() {
@@ -74,35 +75,43 @@ public class DYLine {
         this.hyphenFound = hyphenFound;
     }
 
-    public boolean isColonFound() {
-        return colonFound;
+    public boolean isKeyFound() {
+        return keyFound;
     }
 
-    public void setColonFound(boolean colonFound) {
-        this.colonFound = colonFound;
+    public void setKeyFound(boolean keyFound) {
+        this.keyFound = keyFound;
     }
 
-    public String getRawStringKey() {
-        return rawStringKey;
+    public String getRawKey() {
+        return rawKey;
     }
 
-    public void setRawStringKey(String rawStringKey) {
-        this.rawStringKey = rawStringKey;
+    public void setRawKey(String rawKey) {
+        this.rawKey = rawKey;
     }
 
-    public String getRawStringValue() {
-        return this.rawStringValue;
+    public String getRawValue() {
+        return this.rawValue;
     }
 
-    public void setRawStringValue(String rawStringValue) {
-        this.rawStringValue = rawStringValue;
+    public void setRawValue(String rawValue) {
+        this.rawValue = rawValue;
     }
 
-    public boolean isWordFound() {
-        return wordFound;
+    public boolean isCharFound() {
+        return charFound;
     }
 
-    public void setWordFound(boolean wordFound) {
-        this.wordFound = wordFound;
+    public void setCharFound(boolean charFound) {
+        this.charFound = charFound;
+    }
+
+    public String getRawComment() {
+        return rawComment;
+    }
+
+    public void setRawComment(String rawComment) {
+        this.rawComment = rawComment;
     }
 }

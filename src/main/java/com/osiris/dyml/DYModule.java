@@ -9,11 +9,13 @@
 package com.osiris.dyml;
 
 
+import com.osiris.dyml.exceptions.DuplicateKeyException;
 import com.osiris.dyml.utils.UtilsDYModule;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * The in-memory representation of a yaml section.
@@ -25,8 +27,11 @@ public class DYModule {
     private List<DYValue> values;
     private List<DYValue> defaultValues;
     private List<String> comments;
-    private DYLine line;
-    private boolean fallbackOnDefault = true;
+    private boolean isReturnDefaultWhenValueIsNullEnabled = false;
+    private boolean isWriteDefaultWhenValuesListIsEmptyEnabled = true;
+
+    private List<DYModule> parentModules = new ArrayList<>();
+    private List<DYModule> childModules = new ArrayList<>();
 
     /**
      * See {@link #DYModule(List, List, List, List)} for details.
@@ -103,22 +108,6 @@ public class DYModule {
     }
 
     /**
-     * See {@link #setFallbackOnDefault(boolean)} for details.
-     */
-    public boolean isFallbackOnDefault() {
-        return fallbackOnDefault;
-    }
-
-    /**
-     * Null values return their default values as fallback.
-     * This is enabled by default.
-     * See {@link #getValueByIndex(int)} for details.
-     */
-    public void setFallbackOnDefault(boolean fallbackOnDefault) {
-        this.fallbackOnDefault = fallbackOnDefault;
-    }
-
-    /**
      * See {@link #addKeys(String...)} for details.
      */
     public DYModule addKey(String key) {
@@ -127,19 +116,22 @@ public class DYModule {
     }
 
     /**
-     * Adds a new key to the list.
-     * Duplicate keys are not allowed,
-     * because its the only way of distinguishing modules.
+     * Adds a new key to the list. <br>
+     * Duplicate keys and null keys are not allowed.
      */
     public DYModule addKeys(String... keys) {
-        if (keys != null) this.keys.addAll(Arrays.asList(keys));
+        for (String key :
+                keys) {
+            Objects.requireNonNull(key);
+            this.keys.add(key);
+        }
         return this;
     }
 
     /**
      * See {@link #addValues(List)} for details.
      */
-    public DYModule addValue(String v) {
+    public DYModule addValue(String v) throws DuplicateKeyException {
         addValues(v);
         return this;
     }
@@ -147,7 +139,7 @@ public class DYModule {
     /**
      * See {@link #addValues(List)} for details.
      */
-    public DYModule addValue(DYValue v) {
+    public DYModule addValue(DYValue v) throws DuplicateKeyException {
         addValues(v);
         return this;
     }
@@ -155,26 +147,25 @@ public class DYModule {
     /**
      * See {@link #addValues(List)} for details.
      */
-    public DYModule addValues(String... v) {
-        if (v != null) addValues(utils.stringArrayToValuesList(v));
+    public DYModule addValues(String... v) throws DuplicateKeyException {
+        addValues(utils.stringArrayToValuesList(v));
         return this;
     }
 
     /**
      * See {@link #addValues(List)} for details.
      */
-    public DYModule addValues(DYValue... v) {
-        if (v != null) addValues(Arrays.asList(v));
+    public DYModule addValues(DYValue... v) throws DuplicateKeyException {
+        addValues(Arrays.asList(v));
         return this;
     }
 
     /**
-     * Adds new values to the list.
+     * Adds new values to the list. <br>
+     * Checks for duplicate keys, if the value is a {@link DYModule}.
      */
     public DYModule addValues(List<DYValue> v) {
-        if (v != null) {
-            this.values.addAll(v);
-        }
+        this.values.addAll(v);
         return this;
     }
 
@@ -198,8 +189,7 @@ public class DYModule {
      * See {@link #setDefValues(List)} for details.
      */
     public DYModule setDefValues(String... v) {
-        if (v != null)
-            setDefValues(utils.stringArrayToValuesList(v));
+        setDefValues(utils.stringArrayToValuesList(v));
         return this;
     }
 
@@ -207,21 +197,19 @@ public class DYModule {
      * See {@link #setDefValues(List)} for details.
      */
     public DYModule setDefValues(DYValue... v) {
-        if (v != null)
-            setDefValues(Arrays.asList(v));
+        setDefValues(Arrays.asList(v));
         return this;
     }
 
     /**
-     * The default value is used when the normal value is null/empty or the key didn't exist yet.
-     * See {@link #setFallbackOnDefault(boolean)} for more details.
-     * Note that null values wont be added!
+     * The default values are written to the yaml file, when there were no regular values set/added. <br>
+     * Further details: <br>
+     * {@link #isWriteDefaultWhenValuesListIsEmptyEnabled()} <br>
+     * {@link #isReturnDefaultWhenValueIsNullEnabled()} <br>
      */
     public DYModule setDefValues(List<DYValue> v) {
-        if (v != null) {
-            this.defaultValues.clear();
-            this.defaultValues.addAll(v);
-        }
+        this.defaultValues.clear();
+        this.defaultValues.addAll(v);
         return this;
     }
 
@@ -313,8 +301,7 @@ public class DYModule {
     }
 
     /**
-     * Returns all keys.
-     * Their order is essential for a correct yaml file.
+     * Returns all keys. Their order is essential for a correct yaml file. <br>
      */
     public List<String> getKeys() {
         return keys;
@@ -352,7 +339,7 @@ public class DYModule {
     /**
      * See {@link #setValues(List)} for details.
      */
-    public DYModule setValue(String v) {
+    public DYModule setValue(String v) throws DuplicateKeyException {
         setValues(v);
         return this;
     }
@@ -360,14 +347,14 @@ public class DYModule {
     /**
      * See {@link #setValues(List)} for details.
      */
-    public DYModule setValue(DYValue v) {
+    public DYModule setValue(DYValue v) throws DuplicateKeyException {
         setValues(v);
         return this;
     }
 
     /**
      * Returns the value by given index or
-     * its default value, if the value is null/empty and {@link #isFallbackOnDefault()} is set to true.
+     * its default value, if the value is null/empty and {@link #isReturnDefaultWhenValueIsNullEnabled()} is set to true.
      */
     public DYValue getValueByIndex(int i) {
         DYValue v = null;
@@ -376,7 +363,7 @@ public class DYModule {
         } catch (Exception ignored) {
         }
 
-        if (v == null && fallbackOnDefault) return getDefaultValueByIndex(i);
+        if (v == null && isReturnDefaultWhenValueIsNullEnabled) return getDefaultValueByIndex(i);
         return v;
     }
 
@@ -387,27 +374,25 @@ public class DYModule {
     /**
      * See {@link #setValues(List)} for details.
      */
-    public DYModule setValues(String... v) {
-        if (v != null) setValues(utils.stringArrayToValuesList(v));
+    public DYModule setValues(String... v) throws DuplicateKeyException {
+        setValues(utils.stringArrayToValuesList(v));
         return this;
     }
 
     /**
      * See {@link #setValues(List)} for details.
      */
-    public DYModule setValues(DYValue... v) {
-        if (v != null) setValues(Arrays.asList(v));
+    public DYModule setValues(DYValue... v) throws DuplicateKeyException {
+        setValues(Arrays.asList(v));
         return this;
     }
 
     /**
      * Clears the values list and adds the values from the provided list.
      */
-    public DYModule setValues(List<DYValue> v) {
-        if (v != null) {
-            this.values.clear();
-            this.values.addAll(v);
-        }
+    public DYModule setValues(List<DYValue> v) throws DuplicateKeyException {
+        this.values.clear();
+        addValues(v);
         return this;
     }
 
@@ -466,14 +451,6 @@ public class DYModule {
             this.comments.addAll(c);
         }
         return this;
-    }
-
-    public DYLine getLine() {
-        return line;
-    }
-
-    public void setLine(DYLine line) {
-        this.line = line;
     }
 
     /**
@@ -593,4 +570,89 @@ public class DYModule {
         return getValueByIndex(i).asDouble();
     }
 
+    /**
+     * <p style="color:red;">Do not modify this list directly, unless you know what you are doing!</p>
+     * A list containing this modules parent modules, aka the generation before. <br>
+     * More about generations here: {@link DYReader#parseLine(DreamYaml, DYLine)}.
+     */
+    public List<DYModule> getParentModules() {
+        return parentModules;
+    }
+
+    /**
+     * <p style="color:red;">Do not modify this list directly, unless you know what you are doing!</p>
+     * A list containing this modules parent modules, aka the generation before. <br>
+     * More about generations here: {@link DYReader#parseLine(DreamYaml, DYLine)}.
+     */
+    public DYModule setParentModules(List<DYModule> parentModules) {
+        this.parentModules = parentModules;
+        return this;
+    }
+
+    public DYModule addParentModules(DYModule... pModules) {
+        Objects.requireNonNull(pModules);
+        parentModules.addAll(Arrays.asList(pModules));
+        return this;
+    }
+
+    /**
+     * <p style="color:red;">Do not modify this list directly, unless you know what you are doing!</p>
+     * A list containing this modules child modules, aka the next generation. <br>
+     * More about generations here: {@link DYReader#parseLine(DreamYaml, DYLine)}.
+     */
+    public List<DYModule> getChildModules() {
+        return childModules;
+    }
+
+    /**
+     * <p style="color:red;">Do not modify this list directly, unless you know what you are doing!</p>
+     * A list containing this modules child modules, aka the next generation. <br>
+     * More about generations here: {@link DYReader#parseLine(DreamYaml, DYLine)}.
+     */
+    public DYModule setChildModules(List<DYModule> childModules) {
+        this.childModules = childModules;
+        return this;
+    }
+
+    public DYModule addChildModules(DYModule... cModules) {
+        Objects.requireNonNull(cModules);
+        childModules.addAll(Arrays.asList(cModules));
+        return this;
+    }
+
+    /**
+     * Disabled by default. <br>
+     * Null values return their default values as fallback.<br>
+     * See {@link #getValueByIndex(int)} for details.
+     */
+    public boolean isReturnDefaultWhenValueIsNullEnabled() {
+        return isReturnDefaultWhenValueIsNullEnabled;
+    }
+
+    /**
+     * Disabled by default. <br>
+     * Null values return their default values as fallback. <br>
+     * See {@link #getValueByIndex(int)} for details.
+     */
+    public DYModule setReturnDefaultWhenValueIsNullEnabled(boolean returnDefaultWhenValueIsNullEnabled) {
+        this.isReturnDefaultWhenValueIsNullEnabled = returnDefaultWhenValueIsNullEnabled;
+        return this;
+    }
+
+    /**
+     * Enabled by default. <br>
+     * If there are no values to write, write the default values.
+     */
+    public boolean isWriteDefaultWhenValuesListIsEmptyEnabled() {
+        return isWriteDefaultWhenValuesListIsEmptyEnabled;
+    }
+
+    /**
+     * Enabled by default. <br>
+     * If there are no values to write, write the default values.
+     */
+    public DYModule setWriteDefaultWhenValuesListIsEmptyEnabled(boolean writeDefaultWhenValuesListIsEmptyEnabled) {
+        isWriteDefaultWhenValuesListIsEmptyEnabled = writeDefaultWhenValuesListIsEmptyEnabled;
+        return this;
+    }
 }

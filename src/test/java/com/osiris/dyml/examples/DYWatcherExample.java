@@ -11,18 +11,18 @@ import java.nio.file.StandardWatchEventKinds;
 class DYWatcherExample {
 
     @Test
-    void test() throws Exception{
+    void test() throws Exception {
 
         // Dev note, do not include in your code
         System.out.println("Note that this test won't print the wanted results, because Junit doesn't allow correct multithreading!");
 
         // First we create two yaml files with some data
-        DreamYaml yaml1 = new DreamYaml(System.getProperty("user.dir")+"/src/test/watcher-1-example.yml");
+        DreamYaml yaml1 = new DreamYaml(System.getProperty("user.dir") + "/src/test/watcher-1-example.yml");
         yaml1.load();
         DYModule firstName1 = yaml1.add("name").setDefValue("John");
         yaml1.save(true);
 
-        DreamYaml yaml2 = new DreamYaml(System.getProperty("user.dir")+"/src/test/watcher-2-example.yml");
+        DreamYaml yaml2 = new DreamYaml(System.getProperty("user.dir") + "/src/test/watcher-2-example.yml");
         yaml2.load();
         DYModule firstName2 = yaml2.add("name").setDefValue("John");
         yaml2.save(true);
@@ -38,11 +38,11 @@ class DYWatcherExample {
 
         // Create the action we want to perform when these files change
         DYAction action1 = new DYAction();
-        action1.setRunnable(()->{
+        action1.setRunnable(() -> {
             // This action will reload every config watched by the watcher when its changed
             try {
                 action1.getYaml().load();
-                System.out.println("The "+action1.getYaml().getFile().getName()+" file was modified! Event kind: "+action1.getEventKind());
+                System.out.println("The " + action1.getYaml().getFile().getName() + " file was modified! Event kind: " + action1.getEventKind());
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -50,10 +50,10 @@ class DYWatcherExample {
 
         // Besides, you can create an action for a specific yaml file, by simply adding that file to the actions constructor
         DYAction action2 = new DYAction(yaml2);
-        action2.setRunnable(()->{
+        action2.setRunnable(() -> {
             // Displays a message when the file gets modified. For more events see StandardWatchEventKinds.
             if (action2.getEventKind().equals(StandardWatchEventKinds.ENTRY_MODIFY))
-                System.out.println("This is a specific message for the file yaml2("+action2.getYaml().getFile().getName()+"), that it was modified!");
+                System.out.println("This is a specific message for the file yaml2(" + action2.getYaml().getFile().getName() + "), that it was modified!");
         });
 
         // Add the actions to the watcher

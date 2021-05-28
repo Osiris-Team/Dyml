@@ -52,29 +52,44 @@ class DYWriter {
         if (yaml.isDebugEnabled()) yaml.printAll();
     }
 
+    /**
+     * Writes an in-memory {@link DYModule} object to file.
+     *
+     * @param writer       the writer to use.
+     * @param module       the current module to write.
+     * @param beforeModule the last already written module.
+     * @throws IOException
+     */
     private void parseModule(BufferedWriter writer,
-                             DYModule m,
-                             DYModule lastM) throws IOException {
+                             DYModule module,
+                             DYModule beforeModule) throws IOException {
+        String spaces = "";
+        int keysSize = module.getKeys().size();
+        int beforeKeysSize = beforeModule.getKeys().size();
+        String currentKey; // The current key of the current module
+        String currentBeforeKey; // The current key of the before module
+        for (int i = 0; i < keysSize; i++) { // Go through each key of the module
 
-        int size = m.getKeys().size();
-        int lastSize = lastM.getKeys().size();
-        String key;
-        String beforeKey;
-        for (int i = 0; i < size; i++) { // Go through each key
-            key = m.getKeyByIndex(i);
-            if (i < lastSize && !lastM.getKeys().isEmpty()) beforeKey = lastM.getKeyByIndex(i);
-            else beforeKey = "";
+            // Get current modules key and beforeModules key.
+            // It may happen that the beforeModule has less keys, or no keys at all,
+            // so deal with that:
+            currentKey = module.getKeyByIndex(i);
+            if (i < beforeKeysSize && !beforeModule.getKeys().isEmpty())
+                currentBeforeKey = beforeModule.getKeyByIndex(i);
+            else
+                currentBeforeKey = "";
 
-            if (!key.equals(beforeKey) || (i != 0 && !m.getKeyByIndex(i - 1).equals(lastM.getKeyByIndex(i - 1)))) {
-                // Only write new key if this key isn't equal to the key before
-                String spaces = "";
+            // Only write this key, if its not equal to the currentBeforeKey
+            // or... the other part is hard to explain.
+            if (!currentKey.equals(currentBeforeKey) || (i != 0 && !module.getKeyByIndex(i - 1).equals(beforeModule.getKeyByIndex(i - 1)))) {
+
                 for (int j = 0; j < i; j++) { // The current keys index/position in the list defines how much spaces are needed.
                     spaces = spaces + "  ";
                 }
 
-                if (m.getComments() != null && i == (size - 1)) // Only write comments to the last key in the list
+                if (module.getComments() != null && i == (keysSize - 1)) // Only write comments to the last key in the list
                     for (String comment :
-                            m.getComments()) {
+                            module.getComments()) {
                         // Adds support for Strings containing \n to split up comments
                         BufferedReader bufReader = new BufferedReader(new StringReader(comment));
                         String commentLine = null;
@@ -93,67 +108,58 @@ class DYWriter {
                         }
                     }
 
-                writer.write(spaces + key + ": ");
+                writer.write(spaces + currentKey + ": ");
 
-                if (m.getValues() != null && i == (size - 1)) { // Only write values to the last key in the list
-                    if (!m.getValues().isEmpty()) { // Write values if they exist, else write defaults, else write nothing
-                        if (m.getValues().size() == 1) {
-                            DYValue value = m.getValue();
-                            if (value != null) // Only write if its not null
-                                if (value.isDYModule()) // Check if its a module
-                                    parseModule(writer, value.asDYModule(), m);
-                                else {
-                                    writer.write(value.asString());
-                                    if (value.hasComment()) // Append side comment to value
-                                        writer.write(value.getComment());
-                                }
+                if (module.getValues() != null && i == (keysSize - 1)) { // Only write values to the last key in the list
+                    if (!module.getValues().isEmpty()) { // Write values if they exist, else write defaults, else write nothing
+                        if (module.getValues().size() == 1) { // Even if we only got one DYModule, it written as a list
+                            DYValue value = module.getValue();
+                            if (value != null) { // Only write if its not null
+                                if (value.asString() != null) writer.write(value.asString());
+                                if (value.hasComment())
+                                    writer.write(" # " + value.getComment()); // Append side comment to value
+                            }
 
                             writer.newLine();
                             writer.flush();
-                        } else { // This means we got a list and not just a single value
+                        } else { // This means we got multiple values, aka a list
                             writer.newLine();
-                            for (DYValue value :
-                                    m.getValues()) {
-                                if (value != null) // Only write if its not null
-                                    if (value.isDYModule()) // Check if its a module
-                                        parseModule(writer, value.asDYModule(), m);
-                                    else {
-                                        writer.write(spaces + "  - " + value.asString());
-                                        if (value.hasComment()) // Append side comment to value
-                                            writer.write(value.getComment());
-                                    }
+                            for (int j = 0; j < module.getValues().size(); j++) {
+                                DYValue value = module.getValueByIndex(j);
+                                if (value != null) {
+                                    writer.write(spaces + "  - ");
+                                    if (value.asString() != null) writer.write(value.asString()); // Append the value
+                                    if (value.hasComment())
+                                        writer.write(" # " + value.getComment()); // Append side comment to value
+                                }
 
                                 writer.newLine();
                                 writer.flush();
                             }
                         }
-                    } else {
-                        if (m.getDefaultValues() != null && !m.getDefaultValues().isEmpty()) {
-                            if (m.getDefaultValues().size() == 1) {
-                                DYValue defValue = m.getDefaultValue();
-                                if (defValue != null)
-                                    if (defValue.isDYModule()) // Check if its a module
-                                        parseModule(writer, defValue.asDYModule(), m);
-                                    else {
-                                        writer.write(defValue.asString());
-                                        if (defValue.hasComment()) // Append side comment to value
-                                            writer.write(defValue.getComment());
-                                    }
+                    } else if (module.isWriteDefaultWhenValuesListIsEmptyEnabled()) {
+                        if (module.getDefaultValues() != null && !module.getDefaultValues().isEmpty()) {
+                            if (module.getDefaultValues().size() == 1) {
+                                DYValue defValue = module.getDefaultValue();
+                                if (defValue != null) {
+                                    if (defValue.asString() != null) writer.write(defValue.asString());
+                                    if (defValue.hasComment())
+                                        writer.write(" # " + defValue.getComment()); // Append side comment to value
+                                }
 
                                 writer.newLine();
                                 writer.flush();
                             } else {
                                 writer.newLine();
-                                for (DYValue value :
-                                        m.getDefaultValues()) {
-                                    if (value != null)
-                                        if (value.isDYModule()) // Check if its a module
-                                            parseModule(writer, value.asDYModule(), m);
-                                        else {
-                                            writer.write(spaces + "  - " + value.asString());
-                                            if (value.hasComment()) // Append side comment to value
-                                                writer.write(value.getComment());
-                                        }
+                                for (int j = 0; j < module.getDefaultValues().size(); j++) {
+                                    DYValue value = module.getDefaultValueByIndex(j);
+                                    if (value != null) {
+                                        writer.write(spaces + "  - ");
+                                        if (value.asString() != null)
+                                            writer.write(value.asString()); // Append the value
+                                        if (value.hasComment())
+                                            writer.write(" # " + value.getComment()); // Append side comment to value
+                                    }
 
                                     writer.newLine();
                                     writer.flush();

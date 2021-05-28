@@ -18,7 +18,7 @@ public class CharTest {
         System.out.println("Chars and points: ");
         String chars = "abcdefghijklmnopqrstuvxyz1234567890!\"²§³$%&/{()[]=}?ß`´+*~#',;.:-_<>|^°";
         for (int i = 0; i < chars.length(); i++) {
-            System.out.println(chars.charAt(i)+" : "+chars.codePointAt(i));
+            System.out.println(chars.charAt(i) + " : " + chars.codePointAt(i));
         }
     }
 
@@ -41,11 +41,11 @@ public class CharTest {
             // Method 2
             timer2.start();
             for (int j = 0; j < s1.length(); j++) {
-                if (s1.codePointAt(j)==53) // 53 equals 5
+                if (s1.codePointAt(j) == 53) // 53 equals 5
                     break;
             }
             timer2.stop();
-            System.out.println("Timer1: "+timer1.getMillis()+"ms  Timer2: "+timer2.getMillis()+"ms");
+            System.out.println("Timer1: " + timer1.getMillis() + "ms  Timer2: " + timer2.getMillis() + "ms");
         }
 
 

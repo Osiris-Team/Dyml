@@ -13,7 +13,7 @@ class DYModuleTest {
         DYModule nullValueModule = yaml.add("i have no value")
                 .setValue((DYValue) null)
                 .setDefValue((DYValue) null);
-        yaml.reload();
+        yaml.saveAndReload();
         assertTrue(null == nullValueModule.getValue());
         assertTrue(null == nullValueModule.getDefaultValue());
         DYModule secondModule = yaml.add("im also empty inside");

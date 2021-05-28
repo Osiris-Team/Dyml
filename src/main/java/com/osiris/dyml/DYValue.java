@@ -6,15 +6,10 @@ package com.osiris.dyml;
  */
 public class DYValue {
     private String valueAsString;
-    private DYModule valueAsModule;
     private String comment;
 
     public DYValue(String valueAsString) {
         this(valueAsString, null);
-    }
-
-    public DYValue(DYModule valueAsModule) {
-        this(valueAsModule, null);
     }
 
     public DYValue(char[] value) {
@@ -91,19 +86,6 @@ public class DYValue {
         setComment(comment);
     }
 
-    /**
-     * A value can also be another {@link DYModule}. <br>
-     * This can go on forever like a Matroschka.
-     *
-     * @param valueAsModule Can be null.
-     * @param comment       Can be null.
-     */
-    public DYValue(DYModule valueAsModule, String comment) {
-        this.valueAsModule = valueAsModule;
-        //this.valueAsString = valueAsModule.toString();
-        setComment(comment);
-    }
-
 
     // COMMENT STUFF:
 
@@ -129,18 +111,15 @@ public class DYValue {
      * Line separators get removed.
      * See {@link #getComment()} for details.
      */
-    public void setComment(String comment) {
+    public DYValue setComment(String comment) {
         if (comment != null)
             comment = comment.replace(System.lineSeparator(), "");
         this.comment = comment;
+        return this;
     }
 
 
     // GETTERS:
-
-    public DYModule asDYModule() {
-        return valueAsModule;
-    }
 
     public String asString() {
         return valueAsString;
@@ -184,141 +163,116 @@ public class DYValue {
 
     public DYValue set(String value) {
         this.valueAsString = value;
-        this.valueAsModule = null;
         return this;
     }
 
     public DYValue set(char[] value) {
         this.valueAsString = String.valueOf(value);
-        this.valueAsModule = null;
         return this;
     }
 
     public DYValue set(boolean value) {
         this.valueAsString = String.valueOf(value);
-        this.valueAsModule = null;
         return this;
     }
 
     public DYValue set(Boolean value) {
         if (value == null) {
             this.valueAsString = null;
-            this.valueAsModule = null;
             return this;
         }
         this.valueAsString = value.toString();
-        this.valueAsModule = null;
         return this;
     }
 
     public DYValue set(byte value) {
         this.valueAsString = String.valueOf(value);
-        this.valueAsModule = null;
         return this;
     }
 
     public DYValue set(Byte value) {
         if (value == null) {
             this.valueAsString = null;
-            this.valueAsModule = null;
             return this;
         }
         this.valueAsString = value.toString();
-        this.valueAsModule = null;
         return this;
     }
 
     public DYValue set(short value) {
         this.valueAsString = String.valueOf(value);
-        this.valueAsModule = null;
         return this;
     }
 
     public DYValue set(Short value) {
         if (value == null) {
             this.valueAsString = null;
-            this.valueAsModule = null;
             return this;
         }
         this.valueAsString = value.toString();
-        this.valueAsModule = null;
         return this;
     }
 
     public DYValue set(int value) {
         this.valueAsString = String.valueOf(value);
-        this.valueAsModule = null;
+
         return this;
     }
 
     public DYValue set(Integer value) {
         if (value == null) {
             this.valueAsString = null;
-            this.valueAsModule = null;
             return this;
         }
         this.valueAsString = value.toString();
-        this.valueAsModule = null;
         return this;
     }
 
     public DYValue set(long value) {
         this.valueAsString = String.valueOf(value);
-        this.valueAsModule = null;
         return this;
     }
 
     public DYValue set(Long value) {
         if (value == null) {
             this.valueAsString = null;
-            this.valueAsModule = null;
             return this;
         }
         this.valueAsString = value.toString();
-        this.valueAsModule = null;
         return this;
     }
 
     public DYValue set(float value) {
         this.valueAsString = String.valueOf(value);
-        this.valueAsModule = null;
         return this;
     }
 
     public DYValue set(Float value) {
         if (value == null) {
             this.valueAsString = null;
-            this.valueAsModule = null;
             return this;
         }
         this.valueAsString = value.toString();
-        this.valueAsModule = null;
         return this;
     }
 
     public DYValue set(double value) {
         this.valueAsString = String.valueOf(value);
-        this.valueAsModule = null;
         return this;
     }
 
     public DYValue set(Double value) {
         if (value == null) {
             this.valueAsString = null;
-            this.valueAsModule = null;
             return this;
         }
         this.valueAsString = value.toString();
-        this.valueAsModule = null;
         return this;
     }
 
 
     // TYPE CHECKS:
 
-    public boolean isDYModule() {
-        return valueAsModule != null;
-    }
 
     public boolean isBoolean() {
         return valueAsString.equalsIgnoreCase("true") || valueAsString.equalsIgnoreCase("false");

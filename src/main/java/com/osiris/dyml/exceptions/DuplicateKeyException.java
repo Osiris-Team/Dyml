@@ -11,15 +11,28 @@ package com.osiris.dyml.exceptions;
 public class DuplicateKeyException extends Exception {
     private final String fileName;
     private final String key;
+    private final String message;
+
+    public DuplicateKeyException(String message) {
+        this(message, null, null);
+    }
 
     public DuplicateKeyException(String fileName, String key) {
+        this(null, fileName, key);
+    }
+
+    public DuplicateKeyException(String message, String fileName, String key) {
         super();
         this.fileName = fileName;
         this.key = key;
+        if (message == null)
+            this.message = "Duplicate key '" + key + "' found in '" + fileName + "' file.";
+        else
+            this.message = message;
     }
 
     @Override
     public String getMessage() {
-        return "Duplicate key '" + key + "' found in '" + fileName + "' file.";
+        return message;
     }
 }
