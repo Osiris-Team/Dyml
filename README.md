@@ -34,7 +34,6 @@ p1:
 not supported:
   - everything else that is not explicitly mentioned in this file
   - side comments like -> # will not work :( use multiline comments instead
-  - apostrophes ("" and '') encapsulating values won’t be removed, just don't use them
 ```
 Some extras:
  - **DYWatcher |** Yaml files watcher with recursive directory watching support.
