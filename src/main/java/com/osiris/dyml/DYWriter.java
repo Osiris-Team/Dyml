@@ -72,7 +72,6 @@ class DYWriter {
      * @param writer       the writer to use.
      * @param module       the current module to write.
      * @param beforeModule the last already written module.
-     * @throws IOException
      */
     private void parseModule(BufferedWriter writer,
                              DYModule module,

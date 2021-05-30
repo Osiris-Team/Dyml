@@ -172,8 +172,7 @@ public class UtilsDYModule {
      * @return a fresh unified list containing loaded modules extended by added modules.
      */
     public synchronized List<DYModule> createUnifiedList(List<DYModule> addedModules, List<DYModule> loadedModules) {
-        List<DYModule> copyAddedModules = new CopyOnWriteArrayList<>();
-        copyAddedModules.addAll(addedModules);
+        List<DYModule> copyAddedModules = new CopyOnWriteArrayList<>(addedModules);
 
         if (loadedModules.isEmpty()) return addedModules;
 

@@ -58,8 +58,8 @@ public class GettingValuesExample {
         char[] listIndex2 = pendingTasks.asCharArray(2);
 
         // Finding and getting a module by its keys
-        DYModule firstNameModuleByKeys = yaml.getAddedModuleByKeys("name"); // Returns the module from the permanent added modules list
-        DYModule firstNameLoadedModuleByKeys = yaml.getLoadedModuleByKeys("name"); // Returns the module from the temporary loaded modules list, at the time load() was called
+        DYModule firstNameModuleByKeys = yaml.get("name"); // Returns the module from the permanent added modules list
+        DYModule firstNameLoadedModuleByKeys = yaml.get("name"); // Returns the module from the temporary loaded modules list, at the time load() was called
 
         /*
 # Everything about getting values.

@@ -228,8 +228,7 @@ public class DreamYaml {
      */
     public DYModule add(String... keys) throws NotLoadedException, IllegalKeyException, DuplicateKeyException {
         Objects.requireNonNull(keys);
-        List<String> list = new ArrayList<>();
-        list.addAll(Arrays.asList(keys));
+        List<String> list = new ArrayList<>(Arrays.asList(keys));
         return add(list, null, null, null);
     }
 

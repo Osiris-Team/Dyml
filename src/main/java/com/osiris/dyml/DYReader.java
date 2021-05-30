@@ -273,10 +273,6 @@ class DYReader {
      *   key2: value   # G1 | Child of key1 | Count of spaces: 2
      * </pre>
      *
-     * @param yaml
-     * @param currentLine
-     * @throws IllegalListException
-     * @throws DuplicateKeyException
      */
     public void parseLine(DreamYaml yaml, DYLine currentLine) throws IllegalListException, DuplicateKeyException {
 
@@ -450,7 +446,6 @@ class DYReader {
      * This is useful, because {@link String#substring(int)} returns an empty string instead of null,
      * even though an empty string in YAML means that the value is null.
      *
-     * @return
      */
     private String emptyToNull(String s) {
         if (s.trim().isEmpty()) return null;

@@ -12,7 +12,7 @@ class DreamYamlTest {
         yaml.load();
         yaml.put("hello").setDefValue("world");
         yaml.save(true);
-        assertEquals("world", yaml.getAddedModuleByKeys("hello").asString());
+        assertEquals("world", yaml.get("hello").asString());
     }
 
     @Test
@@ -22,7 +22,7 @@ class DreamYamlTest {
         yaml.put("hello").setDefValue("world");
         yaml.save(true);
         yaml.load(); // Reload the config so we got the loaded Module
-        assertEquals("world", yaml.getLoadedModuleByKeys("hello").asString());
+        assertEquals("world", yaml.get("hello").asString());
     }
 
     @Test
