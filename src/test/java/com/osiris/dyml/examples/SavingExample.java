@@ -22,7 +22,7 @@ public class SavingExample {
         DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/saving-example.yml");
         //yaml.load(); // Not needed because of autoLoad
         yaml.reset(); // Ignore this!
-        yaml.add("work").setDefValue("Reporter"); // Ignore this!
+        yaml.add("work").setDefValues("Reporter"); // Ignore this!
 
         // SCENARIO 1:
         // Lets imagine this file contains tons of information but we only want to modify/update that one section and keep the rest.
@@ -38,9 +38,9 @@ public class SavingExample {
         // Lets imagine another scenario where this file contains a lot of unnecessary stuff we want to get rid of
         // and add other data instead.
         // For that we (again) add the modules first:
-        DYModule firstName = yaml.add("name").setDefValue("John");
-        DYModule lastName = yaml.add("last-name").setDefValue("Goldman");
-        DYModule age = yaml.add("age").setDefValue("29");
+        DYModule firstName = yaml.add("name").setDefValues("John");
+        DYModule lastName = yaml.add("last-name").setDefValues("Goldman");
+        DYModule age = yaml.add("age").setDefValues("29");
         // Then save it with 'overwrite' true:
         yaml.save(true);
         // That's it!

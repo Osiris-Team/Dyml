@@ -42,11 +42,11 @@ Some extras:
 ```java
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/simple-example.yml");
 
-yaml.put("name")         .setValues("John");
-yaml.put("last-name")    .setValues("Goldman");
-yaml.put("age")          .setValues("29");
-yaml.put("work")         .setValues("Reporter");
-yaml.put("pending-tasks").setValues("do research", "buy food", "start working");
+yaml.put("name")         .setDefValues("John");
+yaml.put("last-name")    .setDefValues("Goldman");
+yaml.put("age")          .setDefValues("29");
+yaml.put("work")         .setDefValues("Reporter");
+yaml.put("pending-tasks").setDefValues("do research", "buy food", "start working");
 
 yaml.save();
 ```

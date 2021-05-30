@@ -12,7 +12,7 @@ class DYModuleTest {
         yaml.reset(); // Make sure the file is empty
         DYModule nullValueModule = yaml.add("i have no value")
                 .setValues((DYValue) null)
-                .setDefValue((DYValue) null);
+                .setDefValues((DYValue) null);
         yaml.saveAndLoad();
         assertTrue(null == nullValueModule.getValue());
         assertTrue(null == nullValueModule.getDefaultValue());

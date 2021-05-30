@@ -26,14 +26,14 @@ public class CommentsExample {
         yaml.reset(); // DO NOT CALL THIS IN PRODUCTION, IT WILL REMOVE ALL THE INFORMATION FROM YOUR YAML FILE!
         // I am doing this only for the sake of testing!
 
-        DYModule firstName = yaml.put("name").setDefValue("John").setComments("You can insert your", "multiline comments like this.");
-        DYModule lastName = yaml.put("last-name").setDefValue("Goldman").setComments(
+        DYModule firstName = yaml.put("name").setDefValues("John").setComments("You can insert your", "multiline comments like this.");
+        DYModule lastName = yaml.put("last-name").setDefValues("Goldman").setComments(
                 "This is a multiline comment \n" +
                         "separated by javas \n" +
                         "next line character!");
-        DYModule age = yaml.put("age").setDefValue(new DYValue(29).setComment("This is a side-comment/value-comment"))
+        DYModule age = yaml.put("age").setDefValues(new DYValue(29).setComment("This is a side-comment/value-comment"))
                 .setComments("This is a single line comment.");
-        DYModule work = yaml.put("work").setDefValue("Reporter");
+        DYModule work = yaml.put("work").setDefValues("Reporter");
         DYModule parent = yaml.put("p1", "c2", "c3").setComments("Comments in", "a hierarchy.");
 
         yaml.saveAndLoad();

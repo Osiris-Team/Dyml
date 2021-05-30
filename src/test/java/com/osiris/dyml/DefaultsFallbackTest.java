@@ -18,7 +18,7 @@ class DefaultsFallbackTest {
     void testFallback() throws Exception {
         DreamYaml yml = new DreamYaml(System.getProperty("user.dir") + "/src/test/test-fallback.yml");
         yml.reset(); // Make sure that the file is empty
-        DYModule m1 = yml.add("v1").setValues((DYValue) null).setDefValue("def-value");
+        DYModule m1 = yml.add("v1").setValues((DYValue) null).setDefValues("def-value");
         m1.setReturnDefaultWhenValueIsNullEnabled(false);
         assertTrue(m1.getValue() == null); // Returns null, since fallback is disabled
 

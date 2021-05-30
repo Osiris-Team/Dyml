@@ -103,14 +103,6 @@ public class DYModule {
     }
 
     /**
-     * See {@link #addKeys(String...)} for details.
-     */
-    public DYModule addKey(String key) {
-        addKeys(key);
-        return this;
-    }
-
-    /**
      * Adds a new key to the list. <br>
      * Duplicate keys and null keys are not allowed.
      */
@@ -120,22 +112,6 @@ public class DYModule {
             Objects.requireNonNull(key);
             this.keys.add(key);
         }
-        return this;
-    }
-
-    /**
-     * See {@link #addValues(List)} for details.
-     */
-    public DYModule addValue(String v) throws DuplicateKeyException {
-        addValues(v);
-        return this;
-    }
-
-    /**
-     * See {@link #addValues(List)} for details.
-     */
-    public DYModule addValue(DYValue v) throws DuplicateKeyException {
-        addValues(v);
         return this;
     }
 
@@ -161,22 +137,6 @@ public class DYModule {
      */
     public DYModule addValues(List<DYValue> v) {
         this.values.addAll(v);
-        return this;
-    }
-
-    /**
-     * See {@link #setDefValues(List)} for details.
-     */
-    public DYModule setDefValue(String v) {
-        setDefValues(v);
-        return this;
-    }
-
-    /**
-     * See {@link #setDefValues(List)} for details.
-     */
-    public DYModule setDefValue(DYValue v) {
-        setDefValues(v);
         return this;
     }
 
@@ -239,10 +199,6 @@ public class DYModule {
         return this;
     }
 
-    public DYModule addComment(String c) {
-        addComments(c);
-        return this;
-    }
 
     public DYModule addComments(String... c) {
         if (c != null)

@@ -19,12 +19,12 @@ class DYWatcherExample {
         // First we create two yaml files with some data
         DreamYaml yaml1 = new DreamYaml(System.getProperty("user.dir") + "/src/test/watcher-1-example.yml");
         yaml1.load();
-        DYModule firstName1 = yaml1.put("name").setDefValue("John");
+        DYModule firstName1 = yaml1.put("name").setDefValues("John");
         yaml1.save(true);
 
         DreamYaml yaml2 = new DreamYaml(System.getProperty("user.dir") + "/src/test/watcher-2-example.yml");
         yaml2.load();
-        DYModule firstName2 = yaml2.put("name").setDefValue("John");
+        DYModule firstName2 = yaml2.put("name").setDefValues("John");
         yaml2.save(true);
 
 

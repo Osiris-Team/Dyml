@@ -244,7 +244,7 @@ class DYReader {
                 } else if (currentLine.isHyphenFound()) { // Its a side comment, so we add of a value in a list
                     throw new IllegalListException(yaml.getFile().getName(), currentLine);
                 } else { // Regular comment, so add it to the module
-                    module.addComment(currentLine.getRawComment());
+                    module.addComments(currentLine.getRawComment());
                     // DOES NOT get added to the loaded list, until a key was found
                 }
             } else if (currentLine.isKeyFound()) {
@@ -320,7 +320,7 @@ class DYReader {
                         }
                     }
 
-                    module.addKey(currentLine.getRawKey());
+                    module.addKeys(currentLine.getRawKey());
                     module.setValues(new DYValue(currentLine.getRawValue(), currentLine.getRawComment()));
                     allLoaded.add(module);
                 } else if (currentLine.isHyphenFound()) { // Comment + Hyphen found without a key
@@ -358,7 +358,7 @@ class DYReader {
                                 oldModule.getValues().remove(0);
 
                             // Since the allLoaded lists and keyLinesList sizes are the same we can do the below:
-                            oldModule.addValue(new DYValue(currentLine.getRawValue(), currentLine.getRawComment()));
+                            oldModule.addValues(new DYValue(currentLine.getRawValue(), currentLine.getRawComment()));
                             addedValue = true;
                             break;
                         }
@@ -367,13 +367,13 @@ class DYReader {
                     if (!addedValue)
                         throw new IllegalListException(yaml.getFile().getName(), currentLine);
                 } else { // No side-comment, but regular comment
-                    module.addComment(currentLine.getRawComment());
+                    module.addComments(currentLine.getRawComment());
                     // If the current line and the last line are comments, add the current comment to the last comments object/module.
                     // In both cases, don't add the module to the list.
                     // The module gets added to the list, once a key was found in the next lines.
                     if (beforeLine.isCommentFound() && !beforeLine.isKeyFound()) // To make sure its not a side-comment
                         module = beforeModule;
-                    module.addComment(currentLine.getRawComment());
+                    module.addComments(currentLine.getRawComment());
                 }
             } else if (currentLine.isKeyFound()) { // CURRENT LINE DOES NOT CONTAIN A COMMENT!
                 // This line does NOT contain a HYPHEN, but HAS a KEY. Example:
@@ -399,7 +399,7 @@ class DYReader {
                     }
                 }
 
-                module.addKey(currentLine.getRawKey());
+                module.addKeys(currentLine.getRawKey());
                 module.setValues(currentLine.getRawValue());
                 allLoaded.add(module);
             } else if (currentLine.isHyphenFound()) { // CURRENT LINE DOES NOT CONTAIN A COMMENT OR A KEY! Multiple examples:
@@ -427,7 +427,7 @@ class DYReader {
                         if (!beforeLine.isHyphenFound() && oldModule.getValues().size() == 1 && oldModule.getValues().get(0).asString() == null) {
                             oldModule.getValues().remove(0);
                         }
-                        oldModule.addValue(currentLine.getRawValue()); // Now all we do is add the current value to the parent module.
+                        oldModule.addValues(currentLine.getRawValue()); // Now all we do is add the current value to the parent module.
                         addedValue = true;
                         break;
                     }

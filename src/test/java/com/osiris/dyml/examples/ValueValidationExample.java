@@ -24,7 +24,7 @@ public class ValueValidationExample {
         yaml.reset(); // DO NOT CALL THIS IN PRODUCTION, IT WILL REMOVE ALL THE INFORMATION FROM YOUR YAML FILE!
         // I am doing this only for the sake of testing!
 
-        DYModule module = yaml.put("is-valid").setDefValue("false");
+        DYModule module = yaml.put("is-valid").setDefValues("false");
 
         yaml.saveAndLoad(); // It could be that the file is empty and the default value doesn't exist yet.
 

@@ -28,10 +28,10 @@ public class GettingValuesExample {
         yaml.reset(); // DO NOT CALL THIS IN PRODUCTION, IT WILL REMOVE ALL THE INFORMATION FROM YOUR YAML FILE!
         // I am doing this only for the sake of testing!
 
-        DYModule firstName = yaml.put("name").setDefValue("John").setComments("Everything about getting values.");
-        DYModule lastName = yaml.put("last-name").setDefValue("Goldman");
-        DYModule age = yaml.put("age").setDefValue("29");
-        DYModule work = yaml.put("work").setDefValue("Reporter");
+        DYModule firstName = yaml.put("name").setDefValues("John").setComments("Everything about getting values.");
+        DYModule lastName = yaml.put("last-name").setDefValues("Goldman");
+        DYModule age = yaml.put("age").setDefValues("29");
+        DYModule work = yaml.put("work").setDefValues("Reporter");
         DYModule pendingTasks = yaml.put("pending-tasks").setDefValues("research", "1234", "start working");
 
         yaml.saveAndLoad(); // Since the file got reset, we need to reload it after saving it

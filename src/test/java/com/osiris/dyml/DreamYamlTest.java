@@ -10,7 +10,7 @@ class DreamYamlTest {
     void getAddedModuleByKeys() throws Exception {
         DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml");
         yaml.load();
-        yaml.put("hello").setDefValue("world");
+        yaml.put("hello").setDefValues("world");
         yaml.save(true);
         assertEquals("world", yaml.get("hello").asString());
     }
@@ -19,7 +19,7 @@ class DreamYamlTest {
     void getLoadedModuleByKeys() throws Exception {
         DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml");
         yaml.load();
-        yaml.put("hello").setDefValue("world");
+        yaml.put("hello").setDefValues("world");
         yaml.save(true);
         yaml.load(); // Reload the config so we got the loaded Module
         assertEquals("world", yaml.get("hello").asString());
@@ -29,7 +29,7 @@ class DreamYamlTest {
     void reset() throws Exception {
         DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/reset-test.yml");
         yaml.load();
-        yaml.put("hello").setDefValue("world");
+        yaml.put("hello").setDefValues("world");
         yaml.save(true);
         yaml.reset();
         assertEquals(0, yaml.getFile().length());
