@@ -11,6 +11,7 @@ package com.osiris.dyml;
 import com.osiris.dyml.exceptions.*;
 import com.osiris.dyml.utils.UtilsDYModule;
 import com.osiris.dyml.utils.UtilsDreamYaml;
+import com.osiris.dyml.utils.UtilsFile;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,18 +28,28 @@ import java.util.Objects;
 public class DreamYaml {
     private final UtilsDreamYaml utilsDreamYaml = new UtilsDreamYaml(this);
     private final UtilsDYModule utilsDYModule = new UtilsDYModule();
+    private final UtilsFile utilsFile = new UtilsFile();
     private final String filePath;
-    private final List<DYModule> addedModules;
+    /**
+     * A final list, that contains {@link DYModule}s that. <br>
+     * In contrary to the {@link #loadedModules} list, this list doesn't get cleared <br>
+     * and its {@link DYModule}s stay the same, no matter how often you call {@link #load()}. <br>
+     */
+    private final List<DYModule> inEditModules = new ArrayList<>();
+    /**
+     * A final list, that contains loaded {@link DYModule}s. <br>
+     * It gets cleared and refilled with new {@link DYModule}s in {@link #load()}. <br>
+     */
+    private final List<DYModule> loadedModules = new ArrayList<>();
     private File file;
-    private List<DYModule> loadedModules;
-
     private boolean isDebugEnabled;
     private boolean isAutoLoadEnabled;
 
-    private boolean isAllPostProcessingEnabled;
+    private boolean isPostProcessingEnabled;
     private boolean isTrimLoadedValuesEnabled = true;
     private boolean isRemoveQuotesFromLoadedValuesEnabled = true;
     private boolean isRemoveLoadedNullValuesEnabled = true;
+    private boolean isTrimCommentsEnabled = true;
 
 
     /**
@@ -76,30 +87,31 @@ public class DreamYaml {
     /**
      * Initialises the {@link DreamYaml} object.
      *
-     * @param filePath                   Your yaml files path.
-     * @param isAllPostProcessingEnabled Enabled by default. <br>
-     *                                   You can also enable/disable specific post-processing options individually: <br>
-     *                                   See {@link #isAllPostProcessingEnabled()} for details.
-     * @param isDebugEnabled             Disabled by default. Shows debugging stuff.
-     * @param isAutoLoadEnabled          Enabled by default. Calls {@link #load()} inside of the constructor.
+     * @param filePath                Your yaml files path.
+     * @param isPostProcessingEnabled Enabled by default. <br>
+     *                                You can also enable/disable specific post-processing options individually: <br>
+     *                                See {@link #isPostProcessingEnabled()} for details.
+     * @param isDebugEnabled          Disabled by default. Shows debugging stuff.
+     * @param isAutoLoadEnabled       Enabled by default. Calls {@link #load()} inside of the constructor.
      */
-    public DreamYaml(String filePath, boolean isAllPostProcessingEnabled, boolean isDebugEnabled, boolean isAutoLoadEnabled) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
+    public DreamYaml(String filePath, boolean isPostProcessingEnabled, boolean isDebugEnabled, boolean isAutoLoadEnabled) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
         this.filePath = filePath;
-        this.addedModules = new ArrayList<>();
-        this.isAllPostProcessingEnabled = isAllPostProcessingEnabled;
+        this.isPostProcessingEnabled = isPostProcessingEnabled;
         this.isDebugEnabled = isDebugEnabled;
         this.isAutoLoadEnabled = isAutoLoadEnabled;
         if (isAutoLoadEnabled) load();
     }
 
     /**
-     * Loads the file into memory by parsing
-     * it into modules({@link DYModule}). Creates a new file if it didn't exist already.
-     * You can return the list of modules with {@link #getAllLoaded()}.
-     * Remember, that this updates your added modules values.
+     * Loads the file into memory by parsing it into modules({@link DYModule}). <br>
+     * Creates a new file if it didn't exist already. <br>
+     * You can return the list of modules with {@link #getAllLoaded()}. <br>
+     * Remember, that this updates your added modules values. <br>
+     * Also note that it post-processes the 'loaded modules'. <br>
+     * You can also enable/disable specific post-processing options individually: <br>
+     * See {@link #isPostProcessingEnabled()} for details.
      */
     public DreamYaml load() throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
-        this.loadedModules = new ArrayList<>();
         file = new File(filePath);
         if (!file.exists()) file.createNewFile();
         new DYReader().parse(this);
@@ -110,9 +122,9 @@ public class DreamYaml {
      * Caution! This method will completely reset/remove all information from your yaml file, but not delete it.
      * To delete, use {@link File#delete()} instead. You can get the file via {@link #getFile()}.
      * Also the {@link #getAllLoaded()} list is empty after this operation.
-     * The {@link #getAllAdded()} list is not affected.
+     * The {@link #getAllInEdit()} list is not affected.
      */
-    public DreamYaml reset() throws Exception {
+    public DreamYaml reset() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException {
         if (file == null) this.load();
         new DYWriter().parse(this, true, true);
         this.load();
@@ -123,7 +135,7 @@ public class DreamYaml {
      * Convenience method for saving and loading afterwards. <br>
      * See {@link #save(boolean)} and {@link #load()} for details.
      */
-    public DreamYaml saveAndReload() throws Exception {
+    public DreamYaml saveAndLoad() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException {
         if (file == null) this.load();
         this.save();
         this.load();
@@ -133,7 +145,7 @@ public class DreamYaml {
     /**
      * For more details see: {@link #save(boolean)}
      */
-    public DreamYaml save() throws Exception {
+    public DreamYaml save() throws DYWriterException, IOException, DuplicateKeyException, DYReaderException, IllegalListException {
         this.save(false);
         return this;
     }
@@ -141,7 +153,7 @@ public class DreamYaml {
     /**
      * <p style="color:red;">IMPORTANT: Stuff that isn't supported by DreamYaml (see features.yml) wont be parsed and thus removed from the file after you save it!</p>
      * Parses and saves the current modules to the provided yaml file. <br>
-     * Note that this method won't reload the file after. Use {@link #saveAndReload()} instead. <br>
+     * Note that this method won't reload the file after. Use {@link #saveAndLoad()} instead. <br>
      * It's recommended to keep {@link #load()} and {@link #save()} timely close to each other, so the user  <br>
      * can't change the values in the meantime. <br>
      * If the yaml file is missing some 'added modules', these get created using their values/default values.<br>
@@ -154,10 +166,59 @@ public class DreamYaml {
      *                  If true, the yaml file gets overwritten with only modules from the 'added modules list'.
      *                  That means that everything that wasn't added via {@link #add(String...)} (loaded modules) will not exist in the file.
      */
-    public DreamYaml save(boolean overwrite) throws Exception {
+    public DreamYaml save(boolean overwrite) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException {
         if (file == null) this.load();
         new DYWriter().parse(this, overwrite, false);
         return this;
+    }
+
+    /**
+     * Returns the {@link DYModule} with matching keys or null. <br>
+     * Details: <br>
+     * Searches the {@link #inEditModules} list, and the {@link #loadedModules} list for
+     * the matching {@link DYModule}
+     * and returns it. Null if no matching {@link DYModule} for the provided keys could be found. <br>
+     * If the {@link DYModule} was found in the {@link #loadedModules} list, it gets removed from there and
+     * added to the {@link #inEditModules} list. <br>
+     */
+    public DYModule get(String... keys) {
+        Objects.requireNonNull(keys);
+        DYModule module = utilsDYModule.getExisting(Arrays.asList(keys), inEditModules);
+        if (module == null) {
+            module = utilsDYModule.getExisting(Arrays.asList(keys), loadedModules);
+            if (module != null) {
+                loadedModules.remove(module);
+                inEditModules.add(module);
+            }
+        }
+        return module;
+    }
+
+    /**
+     * Returns the existing {@link DYModule} with matching keys, or adds a new one. <br>
+     * Details: <br>
+     * Searches for duplicate in the {@link #inEditModules}, <br>
+     * and the {@link #loadedModules} list and returns it if could find one. <br>
+     * Otherwise, it creates a new {@link DYModule} from the <br>
+     * provided keys, adds it to the {@link #inEditModules} list and returns it. <br>
+     */
+    public DYModule put(String... keys) throws NotLoadedException, IllegalKeyException {
+        Objects.requireNonNull(keys);
+        DYModule module = utilsDYModule.getExisting(Arrays.asList(keys), inEditModules);
+        if (module == null) {
+            module = utilsDYModule.getExisting(Arrays.asList(keys), loadedModules);
+            if (module != null) {
+                loadedModules.remove(module);
+                inEditModules.add(module);
+            } else
+                try {
+                    module = add(keys);
+                } catch (NotLoadedException | IllegalKeyException e) {
+                    throw e;
+                } catch (DuplicateKeyException ignored) {
+                }
+        }
+        return module;
     }
 
 
@@ -173,7 +234,7 @@ public class DreamYaml {
     }
 
     /**
-     * Creates a new {@link DYModule}, with the provided keys, adds it to the modules list and returns it. <br>
+     * Creates a new {@link DYModule}, with the provided keys, adds it and returns it. <br>
      * See {@link #add(DYModule)} for details.
      */
     public DYModule add(List<String> keys, List<DYValue> defaultValues, List<DYValue> values, List<String> comments) throws NotLoadedException, IllegalKeyException, DuplicateKeyException {
@@ -181,9 +242,12 @@ public class DreamYaml {
     }
 
     /**
-     * Adds the provided module to the modules list, which will get parsed and written to file by {@link #save()}.
-     * Doing changes to this modules values and saving them, will affect the original yaml file.
-     * Note that null KEYS are not allowed!
+     * Adds the provided {@link DYModule} or throws exception if it already exists. <br>
+     * Note that null or duplicate KEYS are not allowed. <br>
+     * Details: <br>
+     * Searches for duplicates in the {@link #inEditModules}, and the {@link #loadedModules} list and throws
+     * {@link DuplicateKeyException} if it could find one. Otherwise, it creates a new {@link DYModule} from the
+     * provided keys, adds it to the {@link #inEditModules} list and returns it.
      *
      * @param module module to add.
      * @return the added module.
@@ -198,43 +262,80 @@ public class DreamYaml {
         if (module.getKeys().contains(null))
             throw new IllegalKeyException("The provided keys list contains null key(s)! This is not allowed!");
 
-        if (utilsDYModule.getExisting(module, this.addedModules) != null) // Check for the same keys in the defaultModules list. Same keys are not allowed.
+        if (utilsDYModule.getExisting(module, this.inEditModules) != null)
             throw new DuplicateKeyException(file.getName(), module.getKeys().toString());
 
-        DYModule loaded = utilsDYModule.getExisting(module, this.loadedModules);
-        if (loaded != null) {
-            module.setValues(loaded.getValues());
-        }
+        if (utilsDYModule.getExisting(module, this.loadedModules) != null)
+            throw new DuplicateKeyException(file.getName(), module.getKeys().toString());
 
-        this.addedModules.add(module);
+        this.inEditModules.add(module);
         return module;
     }
 
     /**
-     * Convenience method for removing a module from the 'added modules list'.
-     * If you call {@link #save()} after this, the module should also
-     * be removed from the yaml file.
-     *
-     * @param module the module to remove.
+     * Replaces {@link DYModule}, with the provided {@link DYModule}. <br>
+     * Details: <br>
+     * Searches the {@link #inEditModules} list, and the {@link #loadedModules} list for the {@link DYModule} to replace. <br>
+     * Replaces it and returns the replacement, or null if {@link DYModule} to replace couldn't be found. <br>
+     * If the {@link DYModule} to replace was found in the {@link #loadedModules} list, it gets removed from there and <br>
+     * the replacement gets added to the {@link #inEditModules} list. <br>
      */
-    public void remove(DYModule module) {
-        this.addedModules.remove(module);
+    public DYModule replace(DYModule moduleToReplace, DYModule newModule) {
+        Objects.requireNonNull(moduleToReplace);
+        Objects.requireNonNull(newModule);
+        DYModule module = utilsDYModule.getExisting(moduleToReplace, inEditModules);
+        if (module == null) {
+            module = utilsDYModule.getExisting(moduleToReplace, loadedModules);
+            if (module != null) {
+                loadedModules.remove(module);
+                inEditModules.add(newModule);
+            }
+        } else {
+            int i = inEditModules.indexOf(moduleToReplace);
+            inEditModules.remove(moduleToReplace);
+            inEditModules.add(i, newModule);
+        }
+        return module;
     }
 
     /**
-     * Returns a fresh unified list with all loaded and added modules merged together. <br>
+     * Removes the module from the yaml file once {@link #save()} was called. <br>
+     */
+    public DreamYaml remove(String... keys) throws NotLoadedException, IllegalKeyException, DuplicateKeyException {
+        Objects.requireNonNull(keys);
+        remove(new DYModule(keys));
+        return this;
+    }
+
+    /**
+     * Removes the module from the yaml file once {@link #save()} was called. <br>
+     */
+    public DreamYaml remove(DYModule module) {
+        DYModule addedM = utilsDYModule.getExisting(module, inEditModules);
+        if (addedM != null)
+            this.inEditModules.remove(addedM);
+        DYModule loadedM = utilsDYModule.getExisting(module, loadedModules);
+        if (loadedM != null)
+            this.loadedModules.remove(loadedM);
+        return this;
+    }
+
+
+    /**
+     * Returns a fresh unified, ordered list with {@link #loadedModules} and {@link #inEditModules} merged together. <br>
      * Note that this is not the original list, but a copy and thus any changes to it, won't have affect and changes to the original
      * won't be reflected in this copy. <br>
+     * This list is the one, that gets written to the yaml file. <br>
      * See {@link UtilsDYModule#createUnifiedList(List, List)} for details.
      */
     public List<DYModule> getAll() {
-        return new UtilsDYModule().createUnifiedList(this.addedModules, this.loadedModules);
+        return new UtilsDYModule().createUnifiedList(this.inEditModules, this.loadedModules);
     }
 
     /**
      * <p style="color:red;">Do not modify this list directly, unless you know what you are doing!</p>
      * Returns a list containing all loaded modules. <br>
-     * This is the original list. Note that its values/modules get updated every time {@link #load()} is called.
+     * This is the original list. Note that its modules get updated every time {@link #load()} is called.
      * Its modules, do not contain default values.
      */
     public List<DYModule> getAllLoaded() {
@@ -250,56 +351,68 @@ public class DreamYaml {
 
     /**
      * <p style="color:red;">Do not modify this list directly, unless you know what you are doing!</p>
-     * Returns a list containing all currently added modules.
-     * Modules should only be added by {@link #add(String...)} and never by this lists own add() method.
+     * Returns a list containing all {@link DYModule}s that are being edited.
+     * Modules should only be added by {@link #put(String...)}/{@link #add(String...)} and never by this lists own add() method.
      * This list is not affected by {@link #load()}, unlike the
      * 'loaded modules' list, which can be returned by {@link #getAllLoaded()}.
      */
-    public List<DYModule> getAllAdded() {
-        return addedModules;
+    public List<DYModule> getAllInEdit() {
+        return inEditModules;
     }
 
     /**
      * Convenience method for returning the last module from the 'added modules list'.
      */
     public DYModule getLastAddedModule() {
-        return addedModules.get(addedModules.size() - 1);
+        return inEditModules.get(inEditModules.size() - 1);
     }
 
     /**
      * Prints out all lists.
      */
-    public void printAll() {
+    public DreamYaml printAll() {
         printLoaded();
         printAdded();
         printUnified();
-        System.out.println(" ");
+        System.out.println();
+        return this;
     }
 
     /**
      * Prints out all modules in the loaded list.
      * For more info see {@link UtilsDreamYaml#printLoaded(PrintStream)}}.
      */
-    public void printLoaded() {
+    public DreamYaml printLoaded() {
         utilsDreamYaml.printLoaded(System.out);
+        return this;
     }
 
     /**
      * Prints out all modules in the added list.
-     * For more info see {@link UtilsDreamYaml#printAdded(PrintStream)}}.
+     * For more info see {@link UtilsDreamYaml#printInEdit(PrintStream)}}.
      */
-    public void printAdded() {
-        utilsDreamYaml.printAdded(System.out);
+    public DreamYaml printAdded() {
+        utilsDreamYaml.printInEdit(System.out);
+        return this;
     }
 
     /**
      * Prints out all modules in the unified list.
      * For more info see {@link UtilsDYModule#createUnifiedList(List, List)} and {@link UtilsDreamYaml#printUnified(PrintStream)}}.
      */
-    public void printUnified() {
+    public DreamYaml printUnified() {
         utilsDreamYaml.printUnified(System.out);
+        return this;
     }
 
+    /**
+     * Prints out the files content.
+     */
+    public DreamYaml printFile() {
+        Objects.requireNonNull(file);
+        utilsFile.printFile(file);
+        return this;
+    }
 
     public String getFilePath() {
         return filePath;
@@ -325,58 +438,24 @@ public class DreamYaml {
         return isDebugEnabled;
     }
 
-    public void setDebugEnabled(boolean debugEnabled) {
+    public DreamYaml setDebugEnabled(boolean debugEnabled) {
         this.isDebugEnabled = debugEnabled;
+        return this;
     }
 
     /**
-     * Returns the module with same keys from the 'added modules list'.
-     * Details: {@link #getAllAdded()}
-     *
-     * @return {@link DYModule} or null if no module found with same keys
+     * Enabled by default. Convenience method for toggling post-processing.<br>
+     * When disabled none of the post-processing options gets run, no matter if they are enabled/disabled. <br>
+     * Post-Processing happens inside {@link #load()}. If you want to change them, <br>
+     * its recommended to disable autoLoad ({@link #isAutoLoadEnabled}) in the constructor,
+     * so you don't have to load the file twice.
+     * All available options are: <br>
+     * {@link #setTrimLoadedValuesEnabled(boolean)} <br>
+     * {@link #setRemoveQuotesFromLoadedValuesEnabled(boolean)} <br>
+     * {@link #setRemoveLoadedNullValuesEnabled(boolean)} <br>
      */
-    public DYModule getAddedModuleByKeys(String... keys) {
-        List<String> list = new ArrayList<>();
-        list.addAll(Arrays.asList(keys));
-        if (!list.isEmpty())
-            return getAddedModuleByKeys(list);
-        else
-            return null;
-    }
-
-    /**
-     * Returns the module with same keys from the 'added modules list'.
-     * Details: {@link #getAllAdded()}
-     *
-     * @return {@link DYModule} or null if no module found with same keys
-     */
-    public DYModule getAddedModuleByKeys(List<String> keys) {
-        return new UtilsDYModule().getExisting(keys, addedModules);
-    }
-
-    /**
-     * Returns the module with same keys from the 'loaded modules list'.
-     * Details: {@link #getAllLoaded()}
-     *
-     * @return {@link DYModule} or null if no module found with same keys
-     */
-    public DYModule getLoadedModuleByKeys(String... keys) {
-        List<String> list = new ArrayList<>();
-        list.addAll(Arrays.asList(keys));
-        if (!list.isEmpty())
-            return getLoadedModuleByKeys(list);
-        else
-            return null;
-    }
-
-    /**
-     * Returns the module with same keys from the 'loaded modules list'.
-     * Details: {@link #getAllLoaded()}
-     *
-     * @return {@link DYModule} or null if no module found with same keys
-     */
-    public DYModule getLoadedModuleByKeys(List<String> keys) {
-        return new UtilsDYModule().getExisting(keys, loadedModules);
+    public boolean isPostProcessingEnabled() {
+        return isPostProcessingEnabled;
     }
 
     /**
@@ -390,23 +469,9 @@ public class DreamYaml {
      * {@link #setRemoveQuotesFromLoadedValuesEnabled(boolean)} <br>
      * {@link #setRemoveLoadedNullValuesEnabled(boolean)} <br>
      */
-    public boolean isAllPostProcessingEnabled() {
-        return isAllPostProcessingEnabled;
-    }
-
-    /**
-     * Enabled by default.<br>
-     * Convenience method for enabling/disabling all post-processing options. <br>
-     * Post-Processing happens inside {@link #load()}. If you want to change them, <br>
-     * its recommended to disable autoLoad ({@link #isAutoLoadEnabled}) in the constructor,
-     * so you don't have to load the file twice.
-     * All available options are: <br>
-     * {@link #setTrimLoadedValuesEnabled(boolean)} <br>
-     * {@link #setRemoveQuotesFromLoadedValuesEnabled(boolean)} <br>
-     * {@link #setRemoveLoadedNullValuesEnabled(boolean)} <br>
-     */
-    public void setAllPostProcessingEnabled(boolean allPostProcessingEnabled) {
-        this.isAllPostProcessingEnabled = allPostProcessingEnabled;
+    public DreamYaml setPostProcessingEnabled(boolean postProcessingEnabled) {
+        this.isPostProcessingEnabled = postProcessingEnabled;
+        return this;
     }
 
     /**
@@ -419,8 +484,9 @@ public class DreamYaml {
     /**
      * Calls {@link #load()} inside the constructor.
      */
-    public void setAutoLoadEnabled(boolean autoLoadEnabled) {
+    public DreamYaml setAutoLoadEnabled(boolean autoLoadEnabled) {
         this.isAutoLoadEnabled = autoLoadEnabled;
+        return this;
     }
 
     /**
@@ -445,8 +511,9 @@ public class DreamYaml {
      * Result: removed 4 spaces.
      * </pre>
      */
-    public void setTrimLoadedValuesEnabled(boolean trimLoadedValuesEnabled) {
+    public DreamYaml setTrimLoadedValuesEnabled(boolean trimLoadedValuesEnabled) {
         isTrimLoadedValuesEnabled = trimLoadedValuesEnabled;
+        return this;
     }
 
     /**
@@ -471,13 +538,14 @@ public class DreamYaml {
      * Result: removed 2 quotation-marks.
      * </pre>
      */
-    public void setRemoveQuotesFromLoadedValuesEnabled(boolean removeQuotesFromLoadedValuesEnabled) {
+    public DreamYaml setRemoveQuotesFromLoadedValuesEnabled(boolean removeQuotesFromLoadedValuesEnabled) {
         isRemoveQuotesFromLoadedValuesEnabled = removeQuotesFromLoadedValuesEnabled;
+        return this;
     }
 
     /**
      * Enabled by default. Part of post-processing. <br>
-     * Removes all null loaded {@link DYValue}s.<br>
+     * If {@link DYValue#asString()} returns null, the whole {@link DYValue} gets removed from the modules values list. <br>
      */
     public boolean isRemoveLoadedNullValuesEnabled() {
         return isRemoveLoadedNullValuesEnabled;
@@ -485,11 +553,41 @@ public class DreamYaml {
 
     /**
      * Enabled by default. Part of post-processing. <br>
-     * Removes all null loaded {@link DYValue}s. <br>
+     * If {@link DYValue#asString()} returns null, the whole {@link DYValue} gets removed from the modules values list. <br>
      */
-    public void setRemoveLoadedNullValuesEnabled(boolean removeLoadedNullValuesEnabled) {
+    public DreamYaml setRemoveLoadedNullValuesEnabled(boolean removeLoadedNullValuesEnabled) {
         isRemoveLoadedNullValuesEnabled = removeLoadedNullValuesEnabled;
+        return this;
     }
 
+    public UtilsFile getUtilsFile() {
+        return utilsFile;
+    }
+
+    /**
+     * Enabled by default. Part of post-processing. <br>
+     * Trims the loaded key-/value-comments. Example: <br>
+     * <pre>
+     * String before: '  hello there  '
+     * String after: 'hello there'
+     * Result: removed 4 spaces.
+     * </pre>
+     */
+    public boolean isTrimCommentsEnabled() {
+        return isTrimCommentsEnabled;
+    }
+
+    /**
+     * Enabled by default. Part of post-processing. <br>
+     * Trims the loaded key-/value-comments. Example: <br>
+     * <pre>
+     * String before: '  hello there  '
+     * String after: 'hello there'
+     * Result: removed 4 spaces.
+     * </pre>
+     */
+    public void setTrimCommentsEnabled(boolean trimCommentsEnabled) {
+        isTrimCommentsEnabled = trimCommentsEnabled;
+    }
 }
 

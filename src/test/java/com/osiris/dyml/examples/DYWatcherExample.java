@@ -19,12 +19,12 @@ class DYWatcherExample {
         // First we create two yaml files with some data
         DreamYaml yaml1 = new DreamYaml(System.getProperty("user.dir") + "/src/test/watcher-1-example.yml");
         yaml1.load();
-        DYModule firstName1 = yaml1.add("name").setDefValue("John");
+        DYModule firstName1 = yaml1.put("name").setDefValue("John");
         yaml1.save(true);
 
         DreamYaml yaml2 = new DreamYaml(System.getProperty("user.dir") + "/src/test/watcher-2-example.yml");
         yaml2.load();
-        DYModule firstName2 = yaml2.add("name").setDefValue("John");
+        DYModule firstName2 = yaml2.put("name").setDefValue("John");
         yaml2.save(true);
 
 
@@ -62,11 +62,11 @@ class DYWatcherExample {
 
         // That's it. Now we run some test to see if it works:
         System.out.println("\nUser modifies yaml1:");
-        firstName1.setValue("Pete"); // Imagine that this change is done by a person
+        firstName1.setValues("Pete"); // Imagine that this change is done by a person
         yaml1.save(); // In this moment the file gets modified
 
         System.out.println("\nUser modifies yaml2:");
-        firstName2.setValue("Pete"); // Imagine that this change is done by a person
+        firstName2.setValues("Pete"); // Imagine that this change is done by a person
         yaml2.save(); // In this moment the file gets modified
     }
 

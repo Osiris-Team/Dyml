@@ -10,9 +10,11 @@ package com.osiris.dyml;
 
 import com.osiris.dyml.exceptions.DYWriterException;
 import com.osiris.dyml.utils.UtilsDYModule;
+import com.osiris.dyml.utils.UtilsTimeStopper;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -21,6 +23,13 @@ import java.util.List;
 class DYWriter {
 
     public void parse(DreamYaml yaml, boolean overwrite, boolean reset) throws DYWriterException, IOException {
+        UtilsTimeStopper timer = new UtilsTimeStopper();
+        timer.start();
+        if (yaml.isDebugEnabled()) {
+            System.out.println();
+            System.out.println("Started writing yaml file: " + yaml.getFile().getName() + " at " + new Date());
+        }
+
         File file = yaml.getFile();
         if (file == null) throw new DYWriterException("File is null! Make sure to load it at least once!");
         if (!file.exists()) throw new DYWriterException("File '" + file.getName() + "' doesn't exist!");
@@ -32,11 +41,11 @@ class DYWriter {
 
         List<DYModule> modulesToSave = new ArrayList<>();
         if (overwrite) {
-            modulesToSave = yaml.getAllAdded();
+            modulesToSave = yaml.getAllInEdit();
             if (modulesToSave.isEmpty())
-                throw new DYWriterException("Failed to write modules to file: There are no modules in the 'added modules list' for file '" + file.getName() + "' ! Nothing to write!");
+                throw new DYWriterException("Failed to write modules to file: There are no modules in the 'inEditModules list' for file '" + file.getName() + "' ! Nothing to write!");
         } else {
-            modulesToSave = new UtilsDYModule().createUnifiedList(yaml.getAllAdded(), yaml.getAllLoaded());
+            modulesToSave = new UtilsDYModule().createUnifiedList(yaml.getAllInEdit(), yaml.getAllLoaded());
             if (modulesToSave.isEmpty())
                 throw new DYWriterException("Failed to write modules to file: There are no modules in the list for file '" + file.getName() + "' ! Nothing to write!");
         }
@@ -49,7 +58,12 @@ class DYWriter {
             lastModule = m;
         }
 
-        if (yaml.isDebugEnabled()) yaml.printAll();
+        timer.stop();
+        if (yaml.isDebugEnabled()) {
+            System.out.println();
+            System.out.println("Finished writing of " + yaml.getFile().getName() + " at " + new Date());
+            System.out.println("Operation took " + timer.getFormattedMillis() + "ms or " + timer.getFormattedSeconds() + "s");
+        }
     }
 
     /**
@@ -63,7 +77,6 @@ class DYWriter {
     private void parseModule(BufferedWriter writer,
                              DYModule module,
                              DYModule beforeModule) throws IOException {
-        String spaces = "";
         int keysSize = module.getKeys().size();
         int beforeKeysSize = beforeModule.getKeys().size();
         String currentKey; // The current key of the current module
@@ -83,6 +96,7 @@ class DYWriter {
             // or... the other part is hard to explain.
             if (!currentKey.equals(currentBeforeKey) || (i != 0 && !module.getKeyByIndex(i - 1).equals(beforeModule.getKeyByIndex(i - 1)))) {
 
+                String spaces = "";
                 for (int j = 0; j < i; j++) { // The current keys index/position in the list defines how much spaces are needed.
                     spaces = spaces + "  ";
                 }

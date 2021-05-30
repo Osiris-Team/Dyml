@@ -37,7 +37,7 @@ public class DYModule {
      * See {@link #DYModule(List, List, List, List)} for details.
      */
     public DYModule() {
-        this((String) null);
+        this((String[]) null);
     }
 
     /**
@@ -53,39 +53,34 @@ public class DYModule {
      * Creates a new module.
      * Null values are allowed for creation, but should be replaced with actual values later.
      *
-     * @param keys          a list containing its keys.
-     * @param defaultValues a list containing its default values.
-     * @param values        a list containing its values.
-     * @param comments      a list containing its comments.
+     * @param keys          a list containing its keys. Pass over null to create a new list.
+     *                      Note that you must add at least one key, otherwise u can't
+     *                      save/parse this module.
+     * @param defaultValues a list containing its default values. Pass over null to create a new list.
+     * @param values        a list containing its values. Pass over null to create a new list.
+     * @param comments      a list containing its comments. Pass over null to create a new list.
      */
     public DYModule(List<String> keys, List<DYValue> defaultValues, List<DYValue> values, List<String> comments) {
         init(keys, defaultValues, values, comments);
     }
 
     private void init(List<String> keys, List<DYValue> defaultValues, List<DYValue> values, List<String> comments) {
-        this.keys = new ArrayList<>();
-        this.values = new ArrayList<DYValue>();
-        this.defaultValues = new ArrayList<DYValue>();
-        this.comments = new ArrayList<String>();
-
-        // To make sure that no null keys get added to the keys list
-        if (keys != null) {
-            for (String s :
-                    keys) {
-                if (s != null)
-                    this.keys.add(s);
-            }
-        }
-        if (defaultValues != null) this.defaultValues.addAll(defaultValues);
-        if (values != null) this.values.addAll(values);
-        if (comments != null) this.comments.addAll(comments);
+        this.keys = keys;
+        this.values = values;
+        this.defaultValues = defaultValues;
+        this.comments = comments;
+        if (keys == null) this.keys = new ArrayList<>();
+        if (defaultValues == null) this.defaultValues = new ArrayList<>();
+        if (values == null) this.values = new ArrayList<>();
+        if (comments == null) this.comments = new ArrayList<>();
     }
 
     /**
      * Prints out this modules most important details.
      */
-    public void print() {
+    public DYModule print() {
         System.out.println(getModuleInformationAsString());
+        return this;
     }
 
     /**
@@ -214,23 +209,8 @@ public class DYModule {
     }
 
     /**
-     * {@link #addDefValues(List)}
-     */
-    public DYModule addDefValue(String v) {
-        addDefValues(v);
-        return this;
-    }
-
-    /**
-     * {@link #addDefValues(List)}
-     */
-    public DYModule addDefValue(DYValue v) {
-        addDefValues(v);
-        return this;
-    }
-
-    /**
-     * {@link #addDefValues(List)}
+     * Converts the provided string array, into a {@link DYValue}s list. <br>
+     * See {@link #addDefValues(List)} for details.
      */
     public DYModule addDefValues(String... v) {
         if (v != null)
@@ -248,8 +228,9 @@ public class DYModule {
     }
 
     /**
-     * Adds new default values to the list.
-     * Note that null values wont be added!
+     * Adds new default {@link DYValue}s to the list. <br>
+     * Note that the list cannot contain null {@link DYValue}s. <br>
+     * {@link DYValue#asString()} may return null though.
      */
     public DYModule addDefValues(List<DYValue> v) {
         if (v != null) {
@@ -280,13 +261,6 @@ public class DYModule {
         return getKeyByIndex(0);
     }
 
-    /**
-     * See {@link #setKeys(List)} for details.
-     */
-    public DYModule setKey(String key) {
-        setKeys(key);
-        return this;
-    }
 
     /**
      * Returns the key by given index or
@@ -336,21 +310,6 @@ public class DYModule {
         return getValueByIndex(0);
     }
 
-    /**
-     * See {@link #setValues(List)} for details.
-     */
-    public DYModule setValue(String v) throws DuplicateKeyException {
-        setValues(v);
-        return this;
-    }
-
-    /**
-     * See {@link #setValues(List)} for details.
-     */
-    public DYModule setValue(DYValue v) throws DuplicateKeyException {
-        setValues(v);
-        return this;
-    }
 
     /**
      * Returns the value by given index or
@@ -363,7 +322,8 @@ public class DYModule {
         } catch (Exception ignored) {
         }
 
-        if (v == null && isReturnDefaultWhenValueIsNullEnabled) return getDefaultValueByIndex(i);
+        if (v == null && isReturnDefaultWhenValueIsNullEnabled)
+            return getDefaultValueByIndex(i);
         return v;
     }
 
@@ -374,7 +334,7 @@ public class DYModule {
     /**
      * See {@link #setValues(List)} for details.
      */
-    public DYModule setValues(String... v) throws DuplicateKeyException {
+    public DYModule setValues(String... v) {
         setValues(utils.stringArrayToValuesList(v));
         return this;
     }
@@ -382,24 +342,32 @@ public class DYModule {
     /**
      * See {@link #setValues(List)} for details.
      */
-    public DYModule setValues(DYValue... v) throws DuplicateKeyException {
+    public DYModule setValues(DYValue... v) {
         setValues(Arrays.asList(v));
         return this;
     }
 
     /**
-     * Clears the values list and adds the values from the provided list.
+     * Clears the values list and adds the values from the provided list. <br>
+     * Note that the list cannot contain null {@link DYValue}s. <br>
+     * {@link DYValue#asString()} may return null though.
      */
-    public DYModule setValues(List<DYValue> v) throws DuplicateKeyException {
+    public DYModule setValues(List<DYValue> v) {
         this.values.clear();
         addValues(v);
         return this;
     }
 
+    /**
+     * Returns the first {@link DYValue} in the default values list.
+     */
     public DYValue getDefaultValue() {
         return getDefaultValueByIndex(0);
     }
 
+    /**
+     * Returns the {@link DYValue} at index i in the default values list.
+     */
     public DYValue getDefaultValueByIndex(int i) {
         DYValue v = null;
         try {
@@ -418,11 +386,6 @@ public class DYModule {
      */
     public String getComment() {
         return getCommentByIndex(0);
-    }
-
-    public DYModule setComment(String c) {
-        setComments(c);
-        return this;
     }
 
     /**
@@ -573,6 +536,7 @@ public class DYModule {
     /**
      * <p style="color:red;">Do not modify this list directly, unless you know what you are doing!</p>
      * A list containing this modules parent modules, aka the generation before. <br>
+     * Note that this list does NOT contain generations beyond that. <br>
      * More about generations here: {@link DYReader#parseLine(DreamYaml, DYLine)}.
      */
     public List<DYModule> getParentModules() {
@@ -582,6 +546,7 @@ public class DYModule {
     /**
      * <p style="color:red;">Do not modify this list directly, unless you know what you are doing!</p>
      * A list containing this modules parent modules, aka the generation before. <br>
+     * Note that this list does NOT contain generations beyond that. <br>
      * More about generations here: {@link DYReader#parseLine(DreamYaml, DYLine)}.
      */
     public DYModule setParentModules(List<DYModule> parentModules) {
@@ -598,6 +563,7 @@ public class DYModule {
     /**
      * <p style="color:red;">Do not modify this list directly, unless you know what you are doing!</p>
      * A list containing this modules child modules, aka the next generation. <br>
+     * Note that this list does NOT contain generations beyond that. <br>
      * More about generations here: {@link DYReader#parseLine(DreamYaml, DYLine)}.
      */
     public List<DYModule> getChildModules() {
@@ -607,6 +573,7 @@ public class DYModule {
     /**
      * <p style="color:red;">Do not modify this list directly, unless you know what you are doing!</p>
      * A list containing this modules child modules, aka the next generation. <br>
+     * Note that this list does NOT contain generations beyond that. <br>
      * More about generations here: {@link DYReader#parseLine(DreamYaml, DYLine)}.
      */
     public DYModule setChildModules(List<DYModule> childModules) {

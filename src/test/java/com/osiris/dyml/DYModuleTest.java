@@ -11,9 +11,9 @@ class DYModuleTest {
         DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/null-values-test.yml");
         yaml.reset(); // Make sure the file is empty
         DYModule nullValueModule = yaml.add("i have no value")
-                .setValue((DYValue) null)
+                .setValues((DYValue) null)
                 .setDefValue((DYValue) null);
-        yaml.saveAndReload();
+        yaml.saveAndLoad();
         assertTrue(null == nullValueModule.getValue());
         assertTrue(null == nullValueModule.getDefaultValue());
         DYModule secondModule = yaml.add("im also empty inside");

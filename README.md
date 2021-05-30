@@ -1,6 +1,7 @@
 # Dream-Yaml [![](https://jitpack.io/v/Osiris-Team/Dream-Yaml.svg)](https://jitpack.io/#Osiris-Team/Dream-Yaml)
 The Java-API for processing YAML files you've always dreamed of.
 ## Links
+ - [API-Design](DESIGN.md)
  - Support and chat over at [Discord](https://discord.com/invite/GGNmtCC)
 ## Installation
 [Click here for maven/gradle/sbt/leinigen instructions.](https://jitpack.io/#Osiris-Team/Dream-Yaml/LATEST)
@@ -40,13 +41,12 @@ Some extras:
 ## Getting started
 ```java
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/simple-example.yml");
-yaml.load();
 
-yaml.add("name")         .setValue("John");
-yaml.add("last-name")    .setValue("Goldman");
-yaml.add("age")          .setValue("29");
-yaml.add("work")         .setValue("Reporter");
-yaml.add("pending-tasks").setValues("do research", "buy food", "start working");
+yaml.put("name")         .setValues("John");
+yaml.put("last-name")    .setValues("Goldman");
+yaml.put("age")          .setValues("29");
+yaml.put("work")         .setValues("Reporter");
+yaml.put("pending-tasks").setValues("do research", "buy food", "start working");
 
 yaml.save();
 ```

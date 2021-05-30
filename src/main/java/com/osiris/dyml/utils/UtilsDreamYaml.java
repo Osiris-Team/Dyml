@@ -31,11 +31,11 @@ public class UtilsDreamYaml {
     }
 
     /**
-     * Util method for printing the modules information got by {@link #getAddedModulesInformationAsString()}
+     * Util method for printing the modules information got by {@link #getInEditModulesInformationAsString()}
      * to an {@link PrintStream}.
      */
-    public void printAdded(PrintStream out) {
-        out.println(getAddedModulesInformationAsString());
+    public void printInEdit(PrintStream out) {
+        out.println(getInEditModulesInformationAsString());
     }
 
     /**
@@ -57,12 +57,12 @@ public class UtilsDreamYaml {
     }
 
     /**
-     * Util method for writing the modules information got by {@link #getAddedModulesInformationAsString()}
+     * Util method for writing the modules information got by {@link #getInEditModulesInformationAsString()}
      * to an {@link OutputStream}.
      */
-    public void writeAdded(OutputStream out) throws IOException {
+    public void writeInEdit(OutputStream out) throws IOException {
         try (BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out))) {
-            writer.write(getAddedModulesInformationAsString() + n);
+            writer.write(getInEditModulesInformationAsString() + n);
         }
     }
 
@@ -88,8 +88,8 @@ public class UtilsDreamYaml {
      * Util method for returning the modules information
      * formatted as {@link String}.
      */
-    public String getAddedModulesInformationAsString() {
-        return "ADDED modules from '" + yaml.getFile().getName() + "' file:" + n + getModulesInformationFromListAsString(yaml.getAllAdded());
+    public String getInEditModulesInformationAsString() {
+        return "ADDED modules from '" + yaml.getFile().getName() + "' file:" + n + getModulesInformationFromListAsString(yaml.getAllInEdit());
     }
 
     /**
@@ -97,7 +97,7 @@ public class UtilsDreamYaml {
      * formatted as {@link String}.
      */
     public String getUnifiedModulesInformationAsString() {
-        return "UNIFIED modules from '" + yaml.getFile().getName() + "' file:" + n + getModulesInformationFromListAsString(new UtilsDYModule().createUnifiedList(yaml.getAllAdded(), yaml.getAllLoaded()));
+        return "UNIFIED modules from '" + yaml.getFile().getName() + "' file:" + n + getModulesInformationFromListAsString(new UtilsDYModule().createUnifiedList(yaml.getAllInEdit(), yaml.getAllLoaded()));
     }
 
     /**

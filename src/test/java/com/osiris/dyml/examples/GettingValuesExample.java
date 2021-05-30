@@ -28,13 +28,13 @@ public class GettingValuesExample {
         yaml.reset(); // DO NOT CALL THIS IN PRODUCTION, IT WILL REMOVE ALL THE INFORMATION FROM YOUR YAML FILE!
         // I am doing this only for the sake of testing!
 
-        DYModule firstName = yaml.add("name").setDefValue("John").setComment("Everything about getting values.");
-        DYModule lastName = yaml.add("last-name").setDefValue("Goldman");
-        DYModule age = yaml.add("age").setDefValue("29");
-        DYModule work = yaml.add("work").setDefValue("Reporter");
-        DYModule pendingTasks = yaml.add("pending-tasks").setDefValues("research", "1234", "start working");
+        DYModule firstName = yaml.put("name").setDefValue("John").setComments("Everything about getting values.");
+        DYModule lastName = yaml.put("last-name").setDefValue("Goldman");
+        DYModule age = yaml.put("age").setDefValue("29");
+        DYModule work = yaml.put("work").setDefValue("Reporter");
+        DYModule pendingTasks = yaml.put("pending-tasks").setDefValues("research", "1234", "start working");
 
-        yaml.saveAndReload(); // Since the file got reset, we need to reload it after saving it
+        yaml.saveAndLoad(); // Since the file got reset, we need to reload it after saving it
 
         // Getting module details
         String key = firstName.getKey(); // name // Returns the first key.
@@ -47,8 +47,8 @@ public class GettingValuesExample {
         String commentI = firstName.getCommentByIndex(0); // Everything about... // Returns the comment by given index.
 
         // All the methods below return the 'real' values at the time when load() was called.
-        Object firstNameAsObject = firstName.getValue();
-        String firstNameAsString = firstName.asString();
+        DYValue firstNameValue = firstName.getValue(); // This is never null, and acts as a container for the actual string value
+        String firstNameAsString = firstName.asString(); // Can be null if there is no actual string value
         int ageAsInt = age.asInt();
         List<DYValue> pendingTasksValues = pendingTasks.getValues();
         List<String> pendingTasksStrings = pendingTasks.asStringList();

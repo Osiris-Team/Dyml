@@ -38,15 +38,15 @@ public class CodingStyleExample {
         yaml.reset(); // DO NOT CALL THIS IN PRODUCTION, IT WILL REMOVE ALL THE INFORMATION FROM YOUR YAML FILE!
         // I am doing this only for the sake of testing!
 
-        FIRST_NAME = yaml.add("name").setDefValue("John");
-        LAST_NAME = yaml.add("last-name").setDefValue("Goldman");
-        AGE = yaml.add("age").setDefValue("29");
-        PROFESSION = yaml.add("work").setDefValue("Reporter");
+        FIRST_NAME = yaml.put("name").setDefValue("John");
+        LAST_NAME = yaml.put("last-name").setDefValue("Goldman");
+        AGE = yaml.put("age").setDefValue("29");
+        PROFESSION = yaml.put("work").setDefValue("Reporter");
 
-        firstName = yaml.add("encapsulated", "name").setDefValue("John");
-        lastName = yaml.add("encapsulated", "last-name").setDefValue("Goldman");
-        age = yaml.add("encapsulated", "age").setDefValue("29");
-        work = yaml.add("encapsulated", "work").setDefValue("Reporter");
+        firstName = yaml.put("encapsulated", "name").setDefValue("John");
+        lastName = yaml.put("encapsulated", "last-name").setDefValue("Goldman");
+        age = yaml.put("encapsulated", "age").setDefValue("29");
+        work = yaml.put("encapsulated", "work").setDefValue("Reporter");
 
         yaml.save(true);
 

@@ -10,6 +10,6 @@ age: 29 # This is a side-comment/value-comment
 work: Reporter
 p1: 
   c2: 
-      # Comments in
-      # a hierarchy.
-      c3: 
+    # Comments in
+    # a hierarchy.
+    c3: 

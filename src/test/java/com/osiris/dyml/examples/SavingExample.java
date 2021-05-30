@@ -20,16 +20,16 @@ public class SavingExample {
     @Test
     void test() throws Exception {
         DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/saving-example.yml");
-        //yaml.load(); // We don't need to call this, since autoLoad is enabled by default.
-        yaml.reset(); // DO NOT CALL THIS IN PRODUCTION, IT WILL REMOVE ALL THE INFORMATION FROM YOUR YAML FILE!
-        // I am doing this only for the sake of testing!
+        //yaml.load(); // Not needed because of autoLoad
+        yaml.reset(); // Ignore this!
+        yaml.add("work").setDefValue("Reporter"); // Ignore this!
 
         // SCENARIO 1:
         // Lets imagine this file contains tons of information but we only want to modify/update that one section and keep the rest.
         // For that we simply add that section into memory by:
-        DYModule work = yaml.add("work").setDefValue("Reporter");
+        DYModule work = yaml.put("work");
         // Change it to what we want:
-        work.setValue("Developer");
+        work.setValues("Developer");
         // And save the file:
         yaml.save(); // Note that stuff that isn't supported by DreamYaml wont be parsed and thus removed from the file after you save it!
         // Just as simple as that!

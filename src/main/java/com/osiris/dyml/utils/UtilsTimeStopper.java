@@ -23,32 +23,29 @@ public class UtilsTimeStopper {
         time2 = System.nanoTime();
     }
 
-    public Double getSeconds() throws Exception {
-        check();
+    public Double getSeconds() {
         return ((time2 - time1) / 1000000D) / 1000D;
     }
 
-    public Double getMillis() throws Exception {
-        check();
+    public Double getMillis() {
         return (time2 - time1) / 1000000D;
     }
 
-    public Double getNanos() throws Exception {
-        check();
+    public Double getNanos() {
         return (time2 - time1) + 0D;
     }
 
-    public String getFormattedSeconds() throws Exception {
+    public String getFormattedSeconds() {
         Double d = getSeconds();
         return df.format(d).replace(".", ",");
     }
 
-    public String getFormattedMillis() throws Exception {
+    public String getFormattedMillis() {
         Double d = getMillis();
         return df.format(d).replace(".", ",");
     }
 
-    public String getFormattedNanos() throws Exception {
+    public String getFormattedNanos() {
         Double d = getNanos();
         return df.format(d).replace(".", ",");
     }

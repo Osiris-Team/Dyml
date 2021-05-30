@@ -104,6 +104,25 @@ public class UtilsDYModule {
         }
     }
 
+    public void trimValuesComments(List<DYValue> values) {
+        List<DYValue> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
+        for (DYValue value :
+                copy) {
+            if (value.hasComment())
+                value.setComment(value.getComment().trim());
+        }
+    }
+
+    public void trimComments(List<String> comments) {
+        List<String> copy = new ArrayList<>(comments); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
+        for (String comment :
+                copy) {
+            if (comment != null) {
+                comment = comment.trim();
+            }
+        }
+    }
+
     /**
      * Removes "" and '' from those encapsulated values.<br>
      * Its recommended, that each value was trimmed before, to achieve the best results. <br>
@@ -262,5 +281,4 @@ public class UtilsDYModule {
             return fullUnifiedList;
         }
     }
-
 }

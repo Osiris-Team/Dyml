@@ -26,17 +26,21 @@ public class CommentsExample {
         yaml.reset(); // DO NOT CALL THIS IN PRODUCTION, IT WILL REMOVE ALL THE INFORMATION FROM YOUR YAML FILE!
         // I am doing this only for the sake of testing!
 
-        DYModule firstName = yaml.add("name").setDefValue("John").setComments("You can insert your", "multiline comments like this.");
-        DYModule lastName = yaml.add("last-name").setDefValue("Goldman").setComment(
+        DYModule firstName = yaml.put("name").setDefValue("John").setComments("You can insert your", "multiline comments like this.");
+        DYModule lastName = yaml.put("last-name").setDefValue("Goldman").setComments(
                 "This is a multiline comment \n" +
                         "separated by javas \n" +
                         "next line character!");
-        DYModule age = yaml.add("age").setDefValue(new DYValue(29).setComment("This is a side-comment/value-comment"))
-                .setComment("This is a single line comment.");
-        DYModule work = yaml.add("work").setDefValue("Reporter");
-        DYModule parent = yaml.add("p1", "c2", "c3").setComments("Comments in", "a hierarchy.");
+        DYModule age = yaml.put("age").setDefValue(new DYValue(29).setComment("This is a side-comment/value-comment"))
+                .setComments("This is a single line comment.");
+        DYModule work = yaml.put("work").setDefValue("Reporter");
+        DYModule parent = yaml.put("p1", "c2", "c3").setComments("Comments in", "a hierarchy.");
 
-        yaml.save();
+        yaml.saveAndLoad();
+
+        // How to get comments?
+        firstName.getComments(); // Returns this modules key/top-comments
+        age.getValue().getComment(); // Returns this modules, values/side-comment
 
 /*
 # You can insert your

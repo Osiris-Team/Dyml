@@ -24,13 +24,12 @@ public class ValueValidationExample {
         yaml.reset(); // DO NOT CALL THIS IN PRODUCTION, IT WILL REMOVE ALL THE INFORMATION FROM YOUR YAML FILE!
         // I am doing this only for the sake of testing!
 
-        DYModule m = yaml.add("is-valid").setDefValue("false");
+        DYModule module = yaml.put("is-valid").setDefValue("false");
 
-        yaml.saveAndReload(); // It could be that the file is empty and the default value doesn't exist yet.
+        yaml.saveAndLoad(); // It could be that the file is empty and the default value doesn't exist yet.
 
-
-        if (!m.asBoolean())
-            System.err.println("Invalid value '" + m.getValue() + "' at " + m.getKeys() + " Corrected to -> '" + m.setValue("true").getValue() + "'");
+        if (!module.asBoolean())
+            System.err.println("Invalid value '" + module.getValue().asBoolean() + "' at " + module.getKeys() + " Corrected to -> '" + module.setValues("true").getValue().asBoolean() + "'");
 
         yaml.save(true); // Remember to save and update the file, after doing the correction.
 

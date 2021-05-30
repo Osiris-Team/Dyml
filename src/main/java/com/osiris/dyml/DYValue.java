@@ -2,6 +2,8 @@ package com.osiris.dyml;
 
 /**
  * The in-memory representation of a single value. <br>
+ * Note that this class acts as some sort of 'container' that holds
+ * the actual value as a string. <br>
  * This value may have a comment (side comment).
  */
 public class DYValue {

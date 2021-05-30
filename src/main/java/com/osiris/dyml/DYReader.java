@@ -13,38 +13,46 @@ import com.osiris.dyml.exceptions.DYReaderException;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
 import com.osiris.dyml.exceptions.IllegalListException;
 import com.osiris.dyml.utils.UtilsDYModule;
+import com.osiris.dyml.utils.UtilsTimeStopper;
 
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
  * Responsible for reading the provided file and parsing it into modules.
  */
 class DYReader {
-    private BufferedReader reader;
-    private DYLine beforeLine;
-
     /**
      * A list that only contains already read lines, that contain a key. <br>
      * Is used when working with regular modules <br>
      */
     private final List<DYLine> keyLinesList = new ArrayList<>();
-
+    private BufferedReader reader;
+    private DYLine beforeLine;
     /**
      * Gets set at the end of {@link #parseFirstLine(DreamYaml, DYLine)} and {@link #parseLine(DreamYaml, DYLine)}.
      */
     private DYModule beforeModule;
 
     public void parse(DreamYaml yaml) throws DYReaderException, IOException, IllegalListException, DuplicateKeyException {
+        UtilsTimeStopper timer = new UtilsTimeStopper();
+        timer.start();
+        if (yaml.isDebugEnabled()) {
+            System.out.println();
+            System.out.println("Started loading yaml file: " + yaml.getFile().getName() + " at " + new Date());
+        }
+
         File file = yaml.getFile();
         if (file == null) throw new DYReaderException("File is null! Make sure to load it at least once!");
         if (!file.exists()) throw new DYReaderException("File '" + file.getName() + "' doesn't exist!");
 
         reader = new BufferedReader(new FileReader(file));
+        yaml.getAllLoaded().clear();
 
 
         int lineNumber = 1; // Start at 1 because it makes more sense. This number is only used to display the line number in exceptions and has no effect on important stuff.
@@ -75,7 +83,7 @@ class DYReader {
 
         // Do post processing if enabled
         UtilsDYModule utils = new UtilsDYModule();
-        if (yaml.isAllPostProcessingEnabled()) {
+        if (yaml.isPostProcessingEnabled()) {
 
             if (yaml.isTrimLoadedValuesEnabled())
                 for (DYModule m :
@@ -94,17 +102,55 @@ class DYReader {
                         yaml.getAllLoaded()) {
                     utils.removeNullValues(m.getValues());
                 }
+
+            if (yaml.isTrimCommentsEnabled())
+                for (DYModule m :
+                        yaml.getAllLoaded()) {
+                    utils.trimComments(m.getComments());
+                    utils.trimValuesComments(m.getValues());
+                }
         }
 
+        // Update the inEditModules values and their parent/child modules.
+        // This is done, because these modules may have only default values set.
+        if (!yaml.getAllLoaded().isEmpty())
+            for (DYModule inEditM :
+                    yaml.getAllInEdit()) {
+                DYModule loadedM = utils.getExisting(inEditM, yaml.getAllLoaded());
+                inEditM.setValues(loadedM.getValues());
+                inEditM.setParentModules(loadedM.getParentModules());
+                inEditM.setChildModules(loadedM.getChildModules());
+            }
 
-        // If there are already existing added modules, update their values
-        for (DYModule loadedModule :
-                yaml.getAllLoaded()) {
-            DYModule added = utils.getExisting(loadedModule, yaml.getAllAdded());
-            if (added != null) {
-                added.setValues(loadedModule.getValues());
+        timer.stop();
+        if (yaml.isDebugEnabled()) {
+            System.out.println();
+            System.out.println("Finished parsing of " + yaml.getFile().getName() + " at " + new Date());
+            System.out.println("Operation took " + timer.getFormattedMillis() + "ms or " + timer.getFormattedSeconds() + "s");
+            System.out.println("Loaded modules details:");
+            for (DYModule loadedModule :
+                    yaml.getAllLoaded()) {
+
+                System.out.println();
+                System.out.println("---> " + loadedModule.getModuleInformationAsString());
+                for (DYModule parentModule :
+                        loadedModule.getParentModules()) {
+                    if (parentModule != null)
+                        System.out.println("PARENT -> " + parentModule.getModuleInformationAsString());
+                    else
+                        System.out.println("PARENT -> NULL");
+                }
+
+                for (DYModule childModule :
+                        loadedModule.getChildModules()) {
+                    if (childModule != null)
+                        System.out.println("CHILD -> " + childModule.getModuleInformationAsString());
+                    else
+                        System.out.println("CHILD -> NULL");
+                }
             }
         }
+
     }
 
     /**
@@ -193,7 +239,7 @@ class DYReader {
             if (currentLine.isCommentFound()) {
                 if (currentLine.isKeyFound()) { // Its a side comment, so we add the comment to the value
                     module.setKeys(currentLine.getRawKey())
-                            .setValue(new DYValue(currentLine.getRawValue(), currentLine.getRawComment()));
+                            .setValues(new DYValue(currentLine.getRawValue(), currentLine.getRawComment()));
                     yaml.getAllLoaded().add(module);
                 } else if (currentLine.isHyphenFound()) { // Its a side comment, so we add of a value in a list
                     throw new IllegalListException(yaml.getFile().getName(), currentLine);
@@ -203,7 +249,7 @@ class DYReader {
                 }
             } else if (currentLine.isKeyFound()) {
                 module.setKeys(currentLine.getRawKey())
-                        .setValue(currentLine.getRawValue());
+                        .setValues(currentLine.getRawValue());
                 yaml.getAllLoaded().add(module);
             } else if (currentLine.isHyphenFound()) {
                 throw new IllegalListException(yaml.getFile().getName(), currentLine);
@@ -269,14 +315,17 @@ class DYReader {
                         for (int i = keyLinesList.size() - 1; i >= 0; i--) {
                             DYLine oldLine = keyLinesList.get(i);
                             if ((currentLine.getCountSpaces() - oldLine.getCountSpaces()) == 2) {
-                                module.getKeys().addAll(allLoaded.get(i).getKeys());
+                                DYModule oldModule = allLoaded.get(i);
+                                module.getKeys().addAll(oldModule.getKeys());
+                                module.addParentModules(oldModule);
+                                oldModule.addChildModules(module);
                                 break;
                             }
                         }
                     }
 
                     module.addKey(currentLine.getRawKey());
-                    module.setValue(new DYValue(currentLine.getRawValue(), currentLine.getRawComment()));
+                    module.setValues(new DYValue(currentLine.getRawValue(), currentLine.getRawComment()));
                     allLoaded.add(module);
                 } else if (currentLine.isHyphenFound()) { // Comment + Hyphen found without a key
                     // Its a side comment from a value in a list. Also add support for value top comments inside a list. Example:
@@ -287,8 +336,8 @@ class DYReader {
                     boolean addedValue = false;
                     for (int i = keyLinesList.size() - 1; i >= 0; i--) {
                         DYLine oldLine = keyLinesList.get(i);
-                        DYModule oldModule = allLoaded.get(i);
                         if ((currentLine.getCountSpaces() - oldLine.getCountSpaces()) == 2) {
+                            DYModule oldModule = allLoaded.get(i);
                             if (beforeLine.isCommentFound() && !beforeLine.isKeyFound()) { // In this special case, we put the comments from the last line/module together
                                 String c = currentLine.getRawComment();
                                 for (String comment :
@@ -345,14 +394,17 @@ class DYReader {
                     for (int i = keyLinesList.size() - 1; i >= 0; i--) {
                         DYLine oldLine = keyLinesList.get(i);
                         if ((currentLine.getCountSpaces() - oldLine.getCountSpaces()) == 2) {
-                            module.getKeys().addAll(allLoaded.get(i).getKeys());
+                            DYModule oldModule = allLoaded.get(i);
+                            module.getKeys().addAll(oldModule.getKeys());
+                            module.addParentModules(oldModule);
+                            oldModule.addChildModules(module);
                             break;
                         }
                     }
                 }
 
                 module.addKey(currentLine.getRawKey());
-                module.setValue(currentLine.getRawValue());
+                module.setValues(currentLine.getRawValue());
                 allLoaded.add(module);
             } else if (currentLine.isHyphenFound()) { // CURRENT LINE DOES NOT CONTAIN A COMMENT OR A KEY! Multiple examples:
                 // m1:
@@ -376,10 +428,7 @@ class DYReader {
                             }
                             currentLine.setRawComment(c);
                         }
-                        System.out.println("" + oldModule.getValues().size());
-                        System.out.println("" + oldModule.getValues().get(0).asString());
                         if (!beforeLine.isHyphenFound() && oldModule.getValues().size() == 1 && oldModule.getValues().get(0).asString() == null) {
-                            System.out.println("REMOVED");
                             oldModule.getValues().remove(0);
                         }
                         oldModule.addValue(currentLine.getRawValue()); // Now all we do is add the current value to the parent module.
