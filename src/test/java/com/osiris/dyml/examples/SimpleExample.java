@@ -13,7 +13,7 @@ import com.osiris.dyml.DreamYaml;
 import org.junit.jupiter.api.Test;
 
 /**
- * Create a simple yaml file
+ * Create a simple configuration file
  * with random person data.
  */
 public class SimpleExample {
@@ -21,17 +21,14 @@ public class SimpleExample {
     @Test
     void test() throws Exception {
         DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/simple-example.yml"); // You can find every examples yaml file here https://github.com/Osiris-Team/Dream-Yaml/tree/main/src/test
-        // yaml.load(); // We don't need to call this, since autoLoad is enabled by default.
-        // You can disable it in the constructor though.
-        yaml.reset(); // DO NOT CALL THIS IN PRODUCTION, IT WILL REMOVE ALL THE INFORMATION FROM YOUR YAML FILE!
-        // I am doing this only for the sake of testing!
+        // yaml.load(); // Not needed, because of autoLoad. You can disable it in the constructor.
 
         // Your file must have been loaded at least once before adding any modules.
-        DYModule firstName = yaml.put("name").setDefValue("John");
-        DYModule lastName = yaml.put("last-name").setDefValue("Goldman");
-        DYModule age = yaml.put("age").setDefValue("29");
-        DYModule work = yaml.put("work").setDefValue("Reporter");
-        DYModule pending = yaml.put("pending-tasks").setDefValues("do research", "buy food", "start working");
+        DYModule firstName = yaml.put("name")         .setDefValue("John");
+        DYModule lastName  = yaml.put("last-name")    .setDefValue("Goldman");
+        DYModule age       = yaml.put("age")          .setDefValue("29");
+        DYModule work      = yaml.put("work")         .setDefValue("Reporter");
+        DYModule pending   = yaml.put("pending-tasks").setDefValues("do research", "buy food", "start working");
 
         yaml.save(); // Saves the default values to the file. Already existing modules won't be overwritten. Missing modules will be created.
 
