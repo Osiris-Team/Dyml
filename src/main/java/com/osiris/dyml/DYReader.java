@@ -243,7 +243,7 @@ class DYReader {
             }
 
             // In comparison to parseLine we got a lot less stuff to check.
-            DYModule module = new DYModule();
+            DYModule module = new DYModule(yaml);
             if (currentLine.isCommentFound()) {
                 if (currentLine.isKeyFound()) { // Its a side comment, so we add the comment to the value
                     module.setKeys(currentLine.getRawKey())
@@ -289,7 +289,7 @@ class DYReader {
 
             // Add the module to the yaml loaded modules list, but only under certain circumstances (logic below)
             List<DYModule> allLoaded = yaml.getAllLoaded();
-            DYModule module = new DYModule();
+            DYModule module = new DYModule(yaml);
             // Go thorough each character of the string, until a special one is found
             int charCode = 0;
             String fullLine = currentLine.getFullLine();

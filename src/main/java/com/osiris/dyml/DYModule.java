@@ -23,38 +23,37 @@ import java.util.Objects;
  */
 public class DYModule {
     private final UtilsDYModule utils = new UtilsDYModule();
+    private DreamYaml yaml;
     private List<String> keys;
     private List<DYValue> values;
     private List<DYValue> defaultValues;
     private List<String> comments;
     private List<String> defaultComments;
-    private boolean isReturnDefaultWhenValueIsNullEnabled = false;
-    private boolean isWriteDefaultValuesWhenEmptyEnabled = true;
-    private boolean isWriteDefaultCommentsWhenEmptyEnabled = true;
 
     private List<DYModule> parentModules = new ArrayList<>();
     private List<DYModule> childModules = new ArrayList<>();
 
     /**
-     * See {@link #DYModule(List, List, List, List)} for details.
+     * See {@link #DYModule(DreamYaml, List, List, List, List)} for details.
      */
-    public DYModule() {
-        this((String[]) null);
+    public DYModule(DreamYaml yaml) {
+        this(yaml, (String[]) null);
     }
 
     /**
-     * See {@link #DYModule(List, List, List, List)} for details.
+     * See {@link #DYModule(DreamYaml, List, List, List, List)} for details.
      */
-    public DYModule(String... keys) {
+    public DYModule(DreamYaml yaml, String... keys) {
         List<String> list = new ArrayList<>();
         if (keys != null) list.addAll(Arrays.asList(keys));
-        init(list, null, null, null);
+        init(yaml, list, null, null, null);
     }
 
     /**
      * Creates a new module.
      * Null values are allowed for creation, but should be replaced with actual values later.
      *
+     * @param yaml          this modules yaml file.
      * @param keys          a list containing its keys. Pass over null to create a new list.
      *                      Note that you must add at least one key, otherwise u can't
      *                      save/parse this module.
@@ -62,11 +61,12 @@ public class DYModule {
      * @param values        a list containing its values. Pass over null to create a new list.
      * @param comments      a list containing its comments. Pass over null to create a new list.
      */
-    public DYModule(List<String> keys, List<DYValue> defaultValues, List<DYValue> values, List<String> comments) {
-        init(keys, defaultValues, values, comments);
+    public DYModule(DreamYaml yaml, List<String> keys, List<DYValue> defaultValues, List<DYValue> values, List<String> comments) {
+        init(yaml, keys, defaultValues, values, comments);
     }
 
-    private void init(List<String> keys, List<DYValue> defaultValues, List<DYValue> values, List<String> comments) {
+    private void init(DreamYaml yaml, List<String> keys, List<DYValue> defaultValues, List<DYValue> values, List<String> comments) {
+        this.yaml = yaml;
         this.keys = keys;
         this.values = values;
         this.defaultValues = defaultValues;
@@ -296,7 +296,7 @@ public class DYModule {
 
     /**
      * Returns the value by given index or
-     * its default value, if the value is null/empty and {@link #isReturnDefaultWhenValueIsNullEnabled()} is set to true.
+     * its default value, if the value is null/empty and {@link DreamYaml#isReturnDefaultWhenValueIsNullEnabled()} is set to true.
      */
     public DYValue getValueByIndex(int i) {
         DYValue v = new DYValue((String) null);
@@ -305,7 +305,7 @@ public class DYModule {
         } catch (Exception ignored) {
         }
 
-        if (v.asString() == null && isReturnDefaultWhenValueIsNullEnabled)
+        if (v.asString() == null && yaml.isReturnDefaultWhenValueIsNullEnabled())
             return getDefValueByIndex(i);
         return v;
     }
@@ -385,8 +385,8 @@ public class DYModule {
     /**
      * The default values are written to the yaml file, when there were no regular values set/added. <br>
      * Further details: <br>
-     * {@link #isWriteDefaultValuesWhenEmptyEnabled()} <br>
-     * {@link #isReturnDefaultWhenValueIsNullEnabled()} <br>
+     * {@link DreamYaml#isWriteDefaultValuesWhenEmptyEnabled()} <br>
+     * {@link DreamYaml#isReturnDefaultWhenValueIsNullEnabled()} <br>
      */
     public DYModule setDefValues(List<DYValue> v) {
         this.defaultValues.clear();
@@ -642,55 +642,5 @@ public class DYModule {
         return this;
     }
 
-    /**
-     * Disabled by default. <br>
-     * Null values return their default values as fallback.<br>
-     * See {@link #getValueByIndex(int)} for details.
-     */
-    public boolean isReturnDefaultWhenValueIsNullEnabled() {
-        return isReturnDefaultWhenValueIsNullEnabled;
-    }
 
-    /**
-     * Disabled by default. <br>
-     * Null values return their default values as fallback. <br>
-     * See {@link #getValueByIndex(int)} for details.
-     */
-    public DYModule setReturnDefaultWhenValueIsNullEnabled(boolean returnDefaultWhenValueIsNullEnabled) {
-        this.isReturnDefaultWhenValueIsNullEnabled = returnDefaultWhenValueIsNullEnabled;
-        return this;
-    }
-
-    /**
-     * Enabled by default. <br>
-     * If there are no values to write, write the default values.
-     */
-    public boolean isWriteDefaultValuesWhenEmptyEnabled() {
-        return isWriteDefaultValuesWhenEmptyEnabled;
-    }
-
-    /**
-     * Enabled by default. <br>
-     * If there are no values to write, write the default values.
-     */
-    public DYModule setWriteDefaultValuesWhenEmptyEnabled(boolean writeDefaultValuesWhenEmptyEnabled) {
-        isWriteDefaultValuesWhenEmptyEnabled = writeDefaultValuesWhenEmptyEnabled;
-        return this;
-    }
-
-    /**
-     * Enabled by default. <br>
-     * If there are no comments to write, write the default comments.
-     */
-    public boolean isWriteDefaultCommentsWhenEmptyEnabled() {
-        return isWriteDefaultCommentsWhenEmptyEnabled;
-    }
-
-    /**
-     * Enabled by default. <br>
-     * If there are no comments to write, write the default comments.
-     */
-    public void setWriteDefaultCommentsWhenEmptyEnabled(boolean writeDefaultCommentsWhenEmptyEnabled) {
-        isWriteDefaultCommentsWhenEmptyEnabled = writeDefaultCommentsWhenEmptyEnabled;
-    }
 }

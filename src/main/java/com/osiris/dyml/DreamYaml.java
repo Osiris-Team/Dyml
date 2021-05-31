@@ -45,12 +45,17 @@ public class DreamYaml {
     private boolean isDebugEnabled;
     private boolean isAutoLoadEnabled;
 
+    // Post-Processing:
     private boolean isPostProcessingEnabled;
     private boolean isTrimLoadedValuesEnabled = true;
     private boolean isRemoveQuotesFromLoadedValuesEnabled = true;
     private boolean isRemoveLoadedNullValuesEnabled = true;
     private boolean isTrimCommentsEnabled = true;
 
+    // Modules:
+    private boolean isReturnDefaultWhenValueIsNullEnabled = true;
+    private boolean isWriteDefaultValuesWhenEmptyEnabled = true;
+    private boolean isWriteDefaultCommentsWhenEmptyEnabled = true;
 
     /**
      * Initialises the {@link DreamYaml} object with useful features enabled. <br>
@@ -158,7 +163,7 @@ public class DreamYaml {
      * can't change the values in the meantime. <br>
      * If the yaml file is missing some 'added modules', these get created using their values/default values.<br>
      * More info on this topic: <br>
-     * {@link DYModule#isWriteDefaultValuesWhenEmptyEnabled()} <br>
+     * {@link #isWriteDefaultValuesWhenEmptyEnabled()} <br>
      * {@link DYModule#setDefValues(List)} <br>
      * {@link UtilsDYModule#createUnifiedList(List, List)} <br>
      *
@@ -235,7 +240,7 @@ public class DreamYaml {
      * See {@link #add(DYModule)} for details.
      */
     public DYModule add(List<String> keys, List<DYValue> defaultValues, List<DYValue> values, List<String> comments) throws NotLoadedException, IllegalKeyException, DuplicateKeyException {
-        return add(new DYModule(keys, defaultValues, values, comments));
+        return add(new DYModule(this, keys, defaultValues, values, comments));
     }
 
     /**
@@ -299,7 +304,7 @@ public class DreamYaml {
      */
     public DreamYaml remove(String... keys) throws NotLoadedException, IllegalKeyException, DuplicateKeyException {
         Objects.requireNonNull(keys);
-        remove(new DYModule(keys));
+        remove(new DYModule(this, keys));
         return this;
     }
 
@@ -584,6 +589,62 @@ public class DreamYaml {
      */
     public void setTrimCommentsEnabled(boolean trimCommentsEnabled) {
         isTrimCommentsEnabled = trimCommentsEnabled;
+    }
+
+
+    // CONFIGS FOR MODULES
+
+
+    /**
+     * Enabled by default. <br>
+     * Null values return their default values as fallback.<br>
+     * See {@link DYModule#getValueByIndex(int)} for details.
+     */
+    public boolean isReturnDefaultWhenValueIsNullEnabled() {
+        return isReturnDefaultWhenValueIsNullEnabled;
+    }
+
+    /**
+     * Enabled by default. <br>
+     * Null values return their default values as fallback. <br>
+     * See {@link      * See {@link DYModule#getValueByIndex(int)} for details.#getValueByIndex(int)} for details.
+     */
+    public DreamYaml setReturnDefaultWhenValueIsNullEnabled(boolean returnDefaultWhenValueIsNullEnabled) {
+        this.isReturnDefaultWhenValueIsNullEnabled = returnDefaultWhenValueIsNullEnabled;
+        return this;
+    }
+
+    /**
+     * Enabled by default. <br>
+     * If there are no values to write, write the default values.
+     */
+    public boolean isWriteDefaultValuesWhenEmptyEnabled() {
+        return isWriteDefaultValuesWhenEmptyEnabled;
+    }
+
+    /**
+     * Enabled by default. <br>
+     * If there are no values to write, write the default values.
+     */
+    public DreamYaml setWriteDefaultValuesWhenEmptyEnabled(boolean writeDefaultValuesWhenEmptyEnabled) {
+        isWriteDefaultValuesWhenEmptyEnabled = writeDefaultValuesWhenEmptyEnabled;
+        return this;
+    }
+
+    /**
+     * Enabled by default. <br>
+     * If there are no comments to write, write the default comments.
+     */
+    public boolean isWriteDefaultCommentsWhenEmptyEnabled() {
+        return isWriteDefaultCommentsWhenEmptyEnabled;
+    }
+
+    /**
+     * Enabled by default. <br>
+     * If there are no comments to write, write the default comments.
+     */
+    public void setWriteDefaultCommentsWhenEmptyEnabled(boolean writeDefaultCommentsWhenEmptyEnabled) {
+        isWriteDefaultCommentsWhenEmptyEnabled = writeDefaultCommentsWhenEmptyEnabled;
     }
 }
 

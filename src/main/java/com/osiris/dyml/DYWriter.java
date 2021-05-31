@@ -20,8 +20,10 @@ import java.util.List;
  * Responsible for parsing and writing the provided modules to file.
  */
 class DYWriter {
+    private DreamYaml yaml;
 
     public void parse(DreamYaml yaml, boolean overwrite, boolean reset) throws DYWriterException, IOException {
+        this.yaml = yaml;
         UtilsTimeStopper timer = new UtilsTimeStopper();
         timer.start();
         if (yaml.isDebugEnabled()) {
@@ -50,7 +52,7 @@ class DYWriter {
         }
 
 
-        DYModule lastModule = new DYModule(); // Create an empty module as start point
+        DYModule lastModule = new DYModule(yaml); // Create an empty module as start point
         for (DYModule m :
                 modulesToSave) {
             parseModule(writer, m, lastModule);
@@ -146,7 +148,7 @@ class DYWriter {
                                 writer.flush();
                             }
                         }
-                    } else if (module.isWriteDefaultCommentsWhenEmptyEnabled()) {
+                    } else if (yaml.isWriteDefaultCommentsWhenEmptyEnabled()) {
                         for (String comment :
                                 module.getComments()) {
                             // Adds support for Strings containing \n to split up comments
@@ -197,7 +199,7 @@ class DYWriter {
                                 writer.flush();
                             }
                         }
-                    } else if (module.isWriteDefaultValuesWhenEmptyEnabled()) {
+                    } else if (yaml.isWriteDefaultValuesWhenEmptyEnabled()) {
                         if (module.getDefValues() != null && !module.getDefValues().isEmpty()) {
                             if (module.getDefValues().size() == 1) {
                                 DYValue defValue = module.getDefValue();
