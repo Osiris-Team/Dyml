@@ -44,7 +44,7 @@ class DYReader {
         timer.start();
         if (yaml.isDebugEnabled()) {
             System.out.println();
-            System.out.println("Started loading yaml file: " + yaml.getFile().getName() + " at " + new Date());
+            System.out.println("Started reading yaml file: " + yaml.getFile().getName() + " at " + new Date());
         }
 
         File file = yaml.getFile();
@@ -125,7 +125,7 @@ class DYReader {
         timer.stop();
         if (yaml.isDebugEnabled()) {
             System.out.println();
-            System.out.println("Finished parsing of " + yaml.getFile().getName() + " at " + new Date());
+            System.out.println("Finished reading of " + yaml.getFile().getName() + " at " + new Date());
             System.out.println("Operation took " + timer.getFormattedMillis() + "ms or " + timer.getFormattedSeconds() + "s");
             System.out.println("Loaded modules details:");
             for (DYModule loadedModule :
@@ -180,6 +180,12 @@ class DYReader {
                 if (charCodeBefore == 0 || charCodeBefore == 32) {
                     line.setCommentFound(true);
                     line.setRawComment(line.getFullLine().substring(charCodePos + 1));
+                    // Since we got side comments, also remove this from the value
+                    if (line.getRawValue() != null)
+                        if (line.isKeyFound())
+                            line.setRawValue(line.getFullLine().substring(line.getKeyFoundPos() + 1, charCodePos));
+                        else if (line.isHyphenFound())
+                            line.setRawValue(line.getFullLine().substring(line.getHyphenFoundPos() + 1, charCodePos));
                 }
                 break;
             }
@@ -194,6 +200,7 @@ class DYReader {
                 } // Don't use an if statement to avoid, bc this is more efficient.
                 if (charCodeNext == 32 || charCodeNext == 0) {
                     line.setKeyFound(true);
+                    line.setKeyFoundPos(charCodePos);
                     line.setRawKey(line.getFullLine().substring(line.getCountSpaces(), charCodePos));
                     line.setRawValue(emptyToNull(line.getFullLine().substring(charCodePos + 1)));
                 }
@@ -209,6 +216,7 @@ class DYReader {
                 if ((charCodeBefore == 32 || charCodeBefore == 0)
                         && !line.isKeyFound()) { // To avoid hyphens inside values
                     line.setHyphenFound(true);
+                    line.setHyphenFoundPos(charCodePos);
                     line.setRawValue(emptyToNull(line
                             .getFullLine()
                             .substring(charCodePos + 1)));
@@ -221,7 +229,7 @@ class DYReader {
         }
     }
 
-    public void parseFirstLine(DreamYaml yaml, DYLine currentLine) throws DuplicateKeyException, IllegalListException {
+    public void parseFirstLine(DreamYaml yaml, DYLine currentLine) throws IllegalListException {
         if (!currentLine.getFullLine().isEmpty()) {
             if (yaml.isDebugEnabled())
                 System.out.println("Reading first line '" + currentLine.getLineNumber() + "' with content: '" + currentLine.getFullLine() + "'");
@@ -301,7 +309,7 @@ class DYReader {
                     //   # Key-Comment
                     //   m2: value # Side-Comment <---
 
-                    if (beforeLine.isCommentFound() && !beforeLine.isKeyFound()) // If the current line is a key, but the last line was a comment, add the key to the last comments module.
+                    if (beforeLine.isCommentFound() && !beforeLine.isKeyFound() && !beforeLine.isHyphenFound()) // If the current line is a key, but the last line was a comment, add the key to the last comments module.
                         module = beforeModule;
 
                     // Go reversely through the lines list, search for the parent and copy its keys.
@@ -333,7 +341,7 @@ class DYReader {
                         DYLine oldLine = keyLinesList.get(i);
                         if ((currentLine.getCountSpaces() - oldLine.getCountSpaces()) == 2) {
                             DYModule oldModule = allLoaded.get(i);
-                            if (beforeLine.isCommentFound() && !beforeLine.isKeyFound()) { // In this special case, we put the comments from the last line/module together
+                            if (beforeLine.isCommentFound() && !beforeLine.isKeyFound() && !beforeLine.isHyphenFound()) { // In this special case, we put the comments from the last line/module together
                                 String c = currentLine.getRawComment();
                                 for (String comment :
                                         beforeModule.getComments()) {
@@ -366,11 +374,10 @@ class DYReader {
                     if (!addedValue)
                         throw new IllegalListException(yaml.getFile().getName(), currentLine);
                 } else { // No side-comment, but regular comment
-                    module.addComments(currentLine.getRawComment());
                     // If the current line and the last line are comments, add the current comment to the last comments object/module.
                     // In both cases, don't add the module to the list.
                     // The module gets added to the list, once a key was found in the next lines.
-                    if (beforeLine.isCommentFound() && !beforeLine.isKeyFound()) // To make sure its not a side-comment
+                    if (beforeLine.isCommentFound() && !beforeLine.isKeyFound() && !beforeLine.isHyphenFound()) // To make sure its not a side-comment
                         module = beforeModule;
                     module.addComments(currentLine.getRawComment());
                 }
@@ -380,7 +387,7 @@ class DYReader {
                 //   # BeforeLine comment
                 //   m2: value <---
 
-                if (beforeLine.isCommentFound() && !beforeLine.isKeyFound()) // If the current line is a key, but the last line was a comment, add the key to the last comments module.
+                if (beforeLine.isCommentFound() && !beforeLine.isKeyFound() && !beforeLine.isHyphenFound()) // If the current line is a key, but the last line was a comment, add the key to the last comments module.
                     module = beforeModule;
 
                 // Go reversely through the lines list, search for the parent and copy its keys.
@@ -415,7 +422,7 @@ class DYReader {
                     DYLine oldLine = keyLinesList.get(i);
                     if ((currentLine.getCountSpaces() - oldLine.getCountSpaces()) == 2) {
                         DYModule oldModule = allLoaded.get(i);
-                        if (beforeLine.isCommentFound() && !beforeLine.isKeyFound()) { // In this special case, we put the comments from the last line/module together
+                        if (beforeLine.isCommentFound() && !beforeLine.isKeyFound() && !beforeLine.isHyphenFound()) { // In this special case, we put the comments from the last line/module together
                             String c = currentLine.getRawComment();
                             for (String comment :
                                     beforeModule.getComments()) {

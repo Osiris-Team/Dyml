@@ -9,6 +9,7 @@ package com.osiris.dyml;
 public class DYValue {
     private String valueAsString;
     private String comment;
+    private String defaultComment;
 
     public DYValue(String valueAsString) {
         this(valueAsString, null);
@@ -84,8 +85,27 @@ public class DYValue {
      * @param comment       Can be null.
      */
     public DYValue(String valueAsString, String comment) {
+        this(valueAsString, comment, null);
+    }
+
+    /**
+     * The in-memory representation of a single value. <br>
+     * This value may have a comment (side comment). <br>
+     * Note that multi lined side comments do not exist. <br>
+     * For that sake line-separators get removed from the comment string.
+     *
+     * @param valueAsString Can be null.
+     * @param comment       Can be null.
+     * @param defComment    Can be null.
+     */
+    public DYValue(String valueAsString, String comment, String defComment) {
         this.valueAsString = valueAsString;
         setComment(comment);
+        setDefComment(defComment);
+    }
+
+    public String getValueInformationAsString() {
+        return "VALUE: " + valueAsString + " COMMENT: " + comment + " DEF-COMMENT: " + defaultComment;
     }
 
 
@@ -117,6 +137,17 @@ public class DYValue {
         if (comment != null)
             comment = comment.replace(System.lineSeparator(), "");
         this.comment = comment;
+        return this;
+    }
+
+    /**
+     * Line separators get removed.
+     * See {@link #getComment()} for details.
+     */
+    public DYValue setDefComment(String defComment) {
+        if (defComment != null)
+            defComment = defComment.replace(System.lineSeparator(), "");
+        this.defaultComment = defComment;
         return this;
     }
 

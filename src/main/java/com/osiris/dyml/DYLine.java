@@ -19,7 +19,9 @@ public class DYLine {
     private int countSpaces;
     private boolean commentFound;
     private boolean keyFound;
+    private int keyFoundPos;
     private boolean hyphenFound;
+    private int hyphenFoundPos;
     private boolean charFound;
     private String rawKey;
     private String rawValue;
@@ -117,5 +119,21 @@ public class DYLine {
 
     public void setRawComment(String rawComment) {
         this.rawComment = rawComment;
+    }
+
+    public int getKeyFoundPos() {
+        return keyFoundPos;
+    }
+
+    public void setKeyFoundPos(int keyFoundPos) {
+        this.keyFoundPos = keyFoundPos;
+    }
+
+    public int getHyphenFoundPos() {
+        return hyphenFoundPos;
+    }
+
+    public void setHyphenFoundPos(int hyphenFoundPos) {
+        this.hyphenFoundPos = hyphenFoundPos;
     }
 }

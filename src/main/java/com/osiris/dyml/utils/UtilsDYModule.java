@@ -84,7 +84,7 @@ public class UtilsDYModule {
         List<String> stringList = new ArrayList<>();
         for (DYValue value :
                 list) {
-            stringList.add(value.asString());
+            stringList.add(value.getValueInformationAsString());
         }
         return stringList;
     }
@@ -171,11 +171,10 @@ public class UtilsDYModule {
      *
      * @return a fresh unified list containing loaded modules extended by added modules.
      */
-    public synchronized List<DYModule> createUnifiedList(List<DYModule> addedModules, List<DYModule> loadedModules) {
-        List<DYModule> copyAddedModules = new CopyOnWriteArrayList<>(addedModules);
+    public synchronized List<DYModule> createUnifiedList(List<DYModule> inEditModules, List<DYModule> loadedModules) {
+        if (loadedModules.isEmpty()) return inEditModules;
 
-        if (loadedModules.isEmpty()) return addedModules;
-
+        List<DYModule> copyInEditModules = new CopyOnWriteArrayList<>(inEditModules);
         List<DYModule> unifiedList = new ArrayList<>();
         // Go through the loadedModules list
         //System.out.println("");
@@ -183,11 +182,11 @@ public class UtilsDYModule {
         for (DYModule m :
                 loadedModules) {
             // Check if there is the same 'added module' available
-            DYModule existing = getExisting(m, copyAddedModules);
+            DYModule existing = getExisting(m, copyInEditModules);
             if (existing != null) {
                 unifiedList.add(existing);
                 // Also remove it from its own list, so at the end there are only 'new' modules in that list
-                copyAddedModules.remove(existing);
+                copyInEditModules.remove(existing);
                 //System.out.println("Added an 'added module' to unified and removed from copyAdded.");
             } else {
                 unifiedList.add(m);
@@ -196,15 +195,15 @@ public class UtilsDYModule {
         }
 
         //System.out.println("");
-        //System.out.println("Go through the copyAddedModules("+copyAddedModules.size()+") list and add NEW ones to unified: ");
+        //System.out.println("Go through the copyInEditModules("+copyInEditModules.size()+") list and add NEW ones to unified: ");
         for (DYModule m :
                 unifiedList) {
             //System.out.println("unifiedList: KEY" + m.getKeys());
         }
 
         for (DYModule m :
-                copyAddedModules) {
-            //System.out.println("copyAddedModules: KEY" + m.getKeys());
+                copyInEditModules) {
+            //System.out.println("copyInEditModules: KEY" + m.getKeys());
         }
         // Now the unified list, has its structure from the 'loaded modules'
         // and its latest module values from the 'added modules'.
@@ -214,7 +213,7 @@ public class UtilsDYModule {
         // In the following we go through these NEW modules and determine their future positions in the unified list.
         List<Integer> lastModulesPositions = new ArrayList<>();
         for (DYModule m :
-                copyAddedModules) {
+                copyInEditModules) {
 
             int size = m.getKeys().size();
             int position = 0; // The current lists position.
@@ -271,8 +270,8 @@ public class UtilsDYModule {
                     modules.add(unifiedList.get(i));
                     //System.out.println("modules added: KEY"+unifiedList.get(i).getKeys());
                 }
-                modules.add(copyAddedModules.get(cycle));
-                //System.out.println("modules added: KEY"+copyAddedModules.get(cycle).getKeys());
+                modules.add(copyInEditModules.get(cycle));
+                //System.out.println("modules added: KEY"+copyInEditModules.get(cycle).getKeys());
                 fullUnifiedList.addAll(modules);
                 lastPos = pos;
                 cycle++;

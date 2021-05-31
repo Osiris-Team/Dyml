@@ -158,7 +158,7 @@ public class DreamYaml {
      * can't change the values in the meantime. <br>
      * If the yaml file is missing some 'added modules', these get created using their values/default values.<br>
      * More info on this topic: <br>
-     * {@link DYModule#isWriteDefaultWhenValuesListIsEmptyEnabled()} <br>
+     * {@link DYModule#isWriteDefaultValuesWhenEmptyEnabled()} <br>
      * {@link DYModule#setDefValues(List)} <br>
      * {@link UtilsDYModule#createUnifiedList(List, List)} <br>
      *
@@ -187,7 +187,6 @@ public class DreamYaml {
         if (module == null) {
             module = utilsDYModule.getExisting(Arrays.asList(keys), loadedModules);
             if (module != null) {
-                loadedModules.remove(module);
                 inEditModules.add(module);
             }
         }
@@ -208,7 +207,6 @@ public class DreamYaml {
         if (module == null) {
             module = utilsDYModule.getExisting(Arrays.asList(keys), loadedModules);
             if (module != null) {
-                loadedModules.remove(module);
                 inEditModules.add(module);
             } else
                 try {
@@ -286,7 +284,6 @@ public class DreamYaml {
         if (module == null) {
             module = utilsDYModule.getExisting(moduleToReplace, loadedModules);
             if (module != null) {
-                loadedModules.remove(module);
                 inEditModules.add(newModule);
             }
         } else {

@@ -1,21 +1,15 @@
-# Comments and
-# multiline comments support.
-the-show-off-list:
-  - completly written from scratch without any extra dependency
-  - fastest yaml reader and writer currently available (see benchmarks below)
+the-show-off-list: 
+  - completely written from scratch without any extra dependency
+  - fastest YAML reader and writer currently available (see benchmarks below)
   - not a single static method and very memory efficient
-supports-hyphen-separation: awesome! # Side comments
-or speration by spaces: great!
+supports-hyphen-separation: awesome!
+or separation by spaces: great! # side-comments supported!
 and.dots.like.this: wow!
-
-# Complex hierarchies supported.
-p1:
-  c1-1:
-    c2-1: wow!
-    c2-2: <3
-  c1-2:
-    - v1
-    - v2
-
-not supported:
-  - everything else that is not explicitly mentioned in this file
+m1-g0: 
+  m1-g1: 
+    m1-g2: wow!
+    m2-g2: <3
+  m2-g1: 
+    - v1 # This is a side-comment in a list
+    - v2 # This is also a side-comment, for the value below
+not supported: everything else that is not explicitly mentioned in this file

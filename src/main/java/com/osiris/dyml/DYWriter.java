@@ -13,7 +13,6 @@ import com.osiris.dyml.utils.UtilsDYModule;
 import com.osiris.dyml.utils.UtilsTimeStopper;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -27,7 +26,7 @@ class DYWriter {
         timer.start();
         if (yaml.isDebugEnabled()) {
             System.out.println();
-            System.out.println("Started writing yaml file: " + yaml.getFile().getName() + " at " + new Date());
+            System.out.println("Started writing yaml file: " + yaml.getFile().getName() + " at " + new Date() + " with overwrite: " + overwrite + " and reset: " + reset);
         }
 
         File file = yaml.getFile();
@@ -39,7 +38,7 @@ class DYWriter {
 
         if (reset) return;
 
-        List<DYModule> modulesToSave = new ArrayList<>();
+        List<DYModule> modulesToSave;
         if (overwrite) {
             modulesToSave = yaml.getAllInEdit();
             if (modulesToSave.isEmpty())
@@ -62,7 +61,33 @@ class DYWriter {
         if (yaml.isDebugEnabled()) {
             System.out.println();
             System.out.println("Finished writing of " + yaml.getFile().getName() + " at " + new Date());
+            System.out.println("Written unified modules details:");
+            for (DYModule loadedModule :
+                    modulesToSave) {
+
+                System.out.println();
+                System.out.println("---> " + loadedModule.getModuleInformationAsString());
+                for (DYModule parentModule :
+                        loadedModule.getParentModules()) {
+                    if (parentModule != null)
+                        System.out.println("PARENT -> " + parentModule.getModuleInformationAsString());
+                    else
+                        System.out.println("PARENT -> NULL");
+                }
+
+                for (DYModule childModule :
+                        loadedModule.getChildModules()) {
+                    if (childModule != null)
+                        System.out.println("CHILD -> " + childModule.getModuleInformationAsString());
+                    else
+                        System.out.println("CHILD -> NULL");
+                }
+            }
+        }
+        if (yaml.isDebugEnabled()) {
+            System.out.println("Finished writing of " + yaml.getFile().getName() + " at " + new Date());
             System.out.println("Operation took " + timer.getFormattedMillis() + "ms or " + timer.getFormattedSeconds() + "s");
+            System.out.println();
         }
     }
 
@@ -101,23 +126,45 @@ class DYWriter {
                 }
 
                 if (module.getComments() != null && i == (keysSize - 1)) // Only write comments to the last key in the list
-                    for (String comment :
-                            module.getComments()) {
-                        // Adds support for Strings containing \n to split up comments
-                        BufferedReader bufReader = new BufferedReader(new StringReader(comment));
-                        String commentLine = null;
-                        boolean isMultiline = false;
-                        while ((commentLine = bufReader.readLine()) != null) {
-                            isMultiline = true;
-                            writer.write(spaces + "# " + commentLine);
-                            writer.newLine();
-                            writer.flush();
-                        }
+                    if (!module.getComments().isEmpty()) {
+                        for (String comment :
+                                module.getComments()) {
+                            // Adds support for Strings containing \n to split up comments
+                            BufferedReader bufReader = new BufferedReader(new StringReader(comment));
+                            String commentLine = null;
+                            boolean isMultiline = false;
+                            while ((commentLine = bufReader.readLine()) != null) {
+                                isMultiline = true;
+                                writer.write(spaces + "# " + commentLine);
+                                writer.newLine();
+                                writer.flush();
+                            }
 
-                        if (!isMultiline) {
-                            writer.write(spaces + "# " + comment);
-                            writer.newLine();
-                            writer.flush();
+                            if (!isMultiline) {
+                                writer.write(spaces + "# " + comment);
+                                writer.newLine();
+                                writer.flush();
+                            }
+                        }
+                    } else if (module.isWriteDefaultCommentsWhenEmptyEnabled()) {
+                        for (String comment :
+                                module.getComments()) {
+                            // Adds support for Strings containing \n to split up comments
+                            BufferedReader bufReader = new BufferedReader(new StringReader(comment));
+                            String commentLine = null;
+                            boolean isMultiline = false;
+                            while ((commentLine = bufReader.readLine()) != null) {
+                                isMultiline = true;
+                                writer.write(spaces + "# " + commentLine);
+                                writer.newLine();
+                                writer.flush();
+                            }
+
+                            if (!isMultiline) {
+                                writer.write(spaces + "# " + comment);
+                                writer.newLine();
+                                writer.flush();
+                            }
                         }
                     }
 
@@ -150,7 +197,7 @@ class DYWriter {
                                 writer.flush();
                             }
                         }
-                    } else if (module.isWriteDefaultWhenValuesListIsEmptyEnabled()) {
+                    } else if (module.isWriteDefaultValuesWhenEmptyEnabled()) {
                         if (module.getDefValues() != null && !module.getDefValues().isEmpty()) {
                             if (module.getDefValues().size() == 1) {
                                 DYValue defValue = module.getDefValue();

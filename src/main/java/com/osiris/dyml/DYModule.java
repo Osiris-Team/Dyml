@@ -27,8 +27,10 @@ public class DYModule {
     private List<DYValue> values;
     private List<DYValue> defaultValues;
     private List<String> comments;
+    private List<String> defaultComments;
     private boolean isReturnDefaultWhenValueIsNullEnabled = false;
-    private boolean isWriteDefaultWhenValuesListIsEmptyEnabled = true;
+    private boolean isWriteDefaultValuesWhenEmptyEnabled = true;
+    private boolean isWriteDefaultCommentsWhenEmptyEnabled = true;
 
     private List<DYModule> parentModules = new ArrayList<>();
     private List<DYModule> childModules = new ArrayList<>();
@@ -91,14 +93,6 @@ public class DYModule {
                 " VALUES: " + utils.valuesListToStringList(this.getValues()).toString() +
                 " DEF-VALUES: " + utils.valuesListToStringList(this.getDefValues()).toString() +
                 " COMMENTS: " + this.getComments().toString());
-
-        // add side comments
-        s.append(" SIDE-COMMENTS: ");
-        for (DYValue value :
-                getValues()) {
-            if (value != null && value.hasComment())
-                s.append(" #").append(value.getComment());
-        }
         return s.toString();
     }
 
@@ -222,6 +216,12 @@ public class DYModule {
     public DYModule addComments(String... c) {
         if (c != null)
             this.comments.addAll(Arrays.asList(c));
+        return this;
+    }
+
+    public DYModule addDefComments(String... c) {
+        if (c != null)
+            this.defaultComments.addAll(Arrays.asList(c));
         return this;
     }
 
@@ -385,7 +385,7 @@ public class DYModule {
     /**
      * The default values are written to the yaml file, when there were no regular values set/added. <br>
      * Further details: <br>
-     * {@link #isWriteDefaultWhenValuesListIsEmptyEnabled()} <br>
+     * {@link #isWriteDefaultValuesWhenEmptyEnabled()} <br>
      * {@link #isReturnDefaultWhenValueIsNullEnabled()} <br>
      */
     public DYModule setDefValues(List<DYValue> v) {
@@ -425,6 +425,41 @@ public class DYModule {
         if (c != null) {
             this.comments.clear();
             this.comments.addAll(c);
+        }
+        return this;
+    }
+
+    /**
+     * Returns the first default comment at index 0.
+     */
+    public String getDefComment() {
+        return getDefCommentByIndex(0);
+    }
+
+    /**
+     * Returns a specific default comment by its index or null if nothing found at that index.
+     */
+    public String getDefCommentByIndex(int i) {
+        try {
+            return defaultComments.get(i);
+        } catch (Exception ignored) {
+        }
+        return null;
+    }
+
+    public List<String> getDefComments() {
+        return defaultComments;
+    }
+
+    public DYModule setDefComments(String... c) {
+        if (c != null) setDefComments(Arrays.asList(c));
+        return this;
+    }
+
+    public DYModule setDefComments(List<String> c) {
+        if (c != null) {
+            this.defaultComments.clear();
+            this.defaultComments.addAll(c);
         }
         return this;
     }
@@ -630,16 +665,32 @@ public class DYModule {
      * Enabled by default. <br>
      * If there are no values to write, write the default values.
      */
-    public boolean isWriteDefaultWhenValuesListIsEmptyEnabled() {
-        return isWriteDefaultWhenValuesListIsEmptyEnabled;
+    public boolean isWriteDefaultValuesWhenEmptyEnabled() {
+        return isWriteDefaultValuesWhenEmptyEnabled;
     }
 
     /**
      * Enabled by default. <br>
      * If there are no values to write, write the default values.
      */
-    public DYModule setWriteDefaultWhenValuesListIsEmptyEnabled(boolean writeDefaultWhenValuesListIsEmptyEnabled) {
-        isWriteDefaultWhenValuesListIsEmptyEnabled = writeDefaultWhenValuesListIsEmptyEnabled;
+    public DYModule setWriteDefaultValuesWhenEmptyEnabled(boolean writeDefaultValuesWhenEmptyEnabled) {
+        isWriteDefaultValuesWhenEmptyEnabled = writeDefaultValuesWhenEmptyEnabled;
         return this;
+    }
+
+    /**
+     * Enabled by default. <br>
+     * If there are no comments to write, write the default comments.
+     */
+    public boolean isWriteDefaultCommentsWhenEmptyEnabled() {
+        return isWriteDefaultCommentsWhenEmptyEnabled;
+    }
+
+    /**
+     * Enabled by default. <br>
+     * If there are no comments to write, write the default comments.
+     */
+    public void setWriteDefaultCommentsWhenEmptyEnabled(boolean writeDefaultCommentsWhenEmptyEnabled) {
+        isWriteDefaultCommentsWhenEmptyEnabled = writeDefaultCommentsWhenEmptyEnabled;
     }
 }
