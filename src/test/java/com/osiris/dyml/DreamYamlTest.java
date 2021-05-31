@@ -44,9 +44,9 @@ class DreamYamlTest {
         yaml.put("p3");
         yaml.save(true);
         yaml.load();
-        assertEquals("p1", yaml.getAllLoaded().get(0).getKey());
-        assertEquals("p2", yaml.getAllLoaded().get(1).getKey());
-        assertEquals("p3", yaml.getAllLoaded().get(2).getKey());
+        assertEquals("p1", yaml.getAllLoaded().get(0).getFirstKey());
+        assertEquals("p2", yaml.getAllLoaded().get(1).getFirstKey());
+        assertEquals("p3", yaml.getAllLoaded().get(2).getFirstKey());
         // Test if save() orders the modules to the right parents
         yaml.getAllInEdit().clear();
         yaml.put("p1", "c1");

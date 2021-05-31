@@ -342,7 +342,7 @@ public class DreamYaml {
     }
 
     /**
-     * Convenience method for returning the last module from the 'loaded modules list'.
+     * Convenience method for returning the last module from the {@link #inEditModules} list.
      */
     public DYModule getLastLoadedModule() {
         return loadedModules.get(loadedModules.size() - 1);
@@ -360,9 +360,9 @@ public class DreamYaml {
     }
 
     /**
-     * Convenience method for returning the last module from the 'added modules list'.
+     * Convenience method for returning the last module from the {@link #inEditModules} list.
      */
-    public DYModule getLastAddedModule() {
+    public DYModule getLastInEditModule() {
         return inEditModules.get(inEditModules.size() - 1);
     }
 
@@ -371,7 +371,7 @@ public class DreamYaml {
      */
     public DreamYaml printAll() {
         printLoaded();
-        printAdded();
+        printInEdit();
         printUnified();
         System.out.println();
         return this;
@@ -390,7 +390,7 @@ public class DreamYaml {
      * Prints out all modules in the added list.
      * For more info see {@link UtilsDreamYaml#printInEdit(PrintStream)}}.
      */
-    public DreamYaml printAdded() {
+    public DreamYaml printInEdit() {
         utilsDreamYaml.printInEdit(System.out);
         return this;
     }

@@ -37,7 +37,7 @@ public class GettingValuesExample {
         yaml.saveAndLoad(); // Since the file got reset, we need to reload it after saving it
 
         // Getting module details
-        String key = firstName.getKey(); // name // Returns the first key.
+        String key = firstName.getFirstKey(); // name // Returns the first key.
         String keyI = firstName.getKeyByIndex(0); // name // Returns the key by given index. More on this in later examples.
         Object value = firstName.getValue(); // John // Returns the 'real' value from the yaml file at the time when load() was called.
         Object valueI = firstName.getValueByIndex(0); // John // Returns the value by given index.

@@ -36,7 +36,7 @@ public class ParentExample {
         DYModule p3C2 = yaml.put("p3", "c1", "c2").setDefValues("v2");
         DYModule p3C3 = yaml.put("p3", "c1", "c2", "c3").setDefValues("v3");
 
-        yaml.printAdded();
+        yaml.printInEdit();
         yaml.save();
 
         /*

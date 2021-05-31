@@ -213,8 +213,15 @@ public class DYModule {
     /**
      * Returns the first key located at index 0.
      */
-    public String getKey() {
+    public String getFirstKey() {
         return getKeyByIndex(0);
+    }
+
+    /**
+     * Returns the last key.
+     */
+    public String getLastKey() {
+        return getKeyByIndex(keys.size()-1);
     }
 
 
