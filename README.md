@@ -19,7 +19,7 @@ the-show-off-list:
   - completely written from scratch without any extra dependency
   - fastest YAML reader and writer currently available (see benchmarks below)
   - not a single static method and very memory efficient
-supports-hyphen-separation: awesome! # Side-comments supported!
+supports-hyphen-separation: awesome! # side-comments supported!
 or separation by spaces: great!
 and.dots.like.this: wow!
 
@@ -29,7 +29,8 @@ p1:
     c2-1: wow!
     c2-2: <3
   c1-2:
-    - v1
+    - v1 # side-coments in lists
+    # This is also a side-comment, for the value below
     - v2
 
 not supported:
