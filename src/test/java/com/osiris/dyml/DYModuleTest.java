@@ -2,7 +2,8 @@ package com.osiris.dyml;
 
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 class DYModuleTest {
 
@@ -11,11 +12,21 @@ class DYModuleTest {
         DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/null-values-test.yml");
         yaml.reset(); // Make sure the file is empty
         DYModule nullValueModule = yaml.add("i have no value")
-                .setValues((DYValue) null)
-                .setDefValues((DYValue) null);
+                .setValues((String) null)
+                .setDefValues((String) null);
         yaml.saveAndLoad();
-        assertTrue(null == nullValueModule.getValue());
-        assertTrue(null == nullValueModule.getDefaultValue());
+        assertNotNull(nullValueModule.getValue());
+        assertNotNull(nullValueModule.getDefValue());
+        assertNull(nullValueModule.getValue().asString());
+        assertNull(nullValueModule.getDefValue().asString());
+
+        nullValueModule.setDefValues("hello");
+        assertNull(nullValueModule.getValue().asString());
+        assertNotNull(nullValueModule.getDefValue().asString());
+
+        nullValueModule.setReturnDefaultWhenValueIsNullEnabled(true);
+        assertNotNull(nullValueModule.getValue().asString());
+        assertNotNull(nullValueModule.getDefValue().asString());
         DYModule secondModule = yaml.add("im also empty inside");
         yaml.save(true);
     }

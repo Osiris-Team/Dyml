@@ -41,8 +41,8 @@ public class GettingValuesExample {
         String keyI = firstName.getKeyByIndex(0); // name // Returns the key by given index. More on this in later examples.
         Object value = firstName.getValue(); // John // Returns the 'real' value from the yaml file at the time when load() was called.
         Object valueI = firstName.getValueByIndex(0); // John // Returns the value by given index.
-        Object defaultValue = firstName.getDefaultValue(); // John // Returns the default value
-        Object defaultValueI = firstName.getDefaultValueByIndex(0); // John // Returns the default value
+        Object defaultValue = firstName.getDefValue(); // John // Returns the default value
+        Object defaultValueI = firstName.getDefValueByIndex(0); // John // Returns the default value
         String comment = firstName.getComment(); // Everything about... // Returns the first comment.
         String commentI = firstName.getCommentByIndex(0); // Everything about... // Returns the comment by given index.
 

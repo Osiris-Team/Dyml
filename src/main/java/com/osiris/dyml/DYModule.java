@@ -89,7 +89,7 @@ public class DYModule {
     public String getModuleInformationAsString() {
         StringBuilder s = new StringBuilder("KEYS: " + this.getKeys().toString() +
                 " VALUES: " + utils.valuesListToStringList(this.getValues()).toString() +
-                " DEF-VALUES: " + utils.valuesListToStringList(this.getDefaultValues()).toString() +
+                " DEF-VALUES: " + utils.valuesListToStringList(this.getDefValues()).toString() +
                 " COMMENTS: " + this.getComments().toString());
 
         // add side comments
@@ -101,6 +101,46 @@ public class DYModule {
         }
         return s.toString();
     }
+
+
+    // REMOVE METHODS:
+
+
+    /**
+     * Clears the {@link #keys} list.
+     */
+    public DYModule removeAllKeys() {
+        keys.clear();
+        return this;
+    }
+
+    /**
+     * Clears the {@link #values} list.
+     */
+    public DYModule removeAllValues() {
+        values.clear();
+        return this;
+    }
+
+    /**
+     * Clears the {@link #defaultValues} list.
+     */
+    public DYModule removeAllDefValues() {
+        defaultValues.clear();
+        return this;
+    }
+
+    /**
+     * Clears the {@link #comments} list.
+     */
+    public DYModule removeAllComments() {
+        comments.clear();
+        return this;
+    }
+
+
+    // ADD METHODS:
+
 
     /**
      * Adds a new key to the list. <br>
@@ -136,35 +176,12 @@ public class DYModule {
      * Checks for duplicate keys, if the value is a {@link DYModule}.
      */
     public DYModule addValues(List<DYValue> v) {
+        Objects.requireNonNull(v);
+        for (DYValue value :
+                v) {
+            Objects.requireNonNull(value);
+        }
         this.values.addAll(v);
-        return this;
-    }
-
-    /**
-     * See {@link #setDefValues(List)} for details.
-     */
-    public DYModule setDefValues(String... v) {
-        setDefValues(utils.stringArrayToValuesList(v));
-        return this;
-    }
-
-    /**
-     * See {@link #setDefValues(List)} for details.
-     */
-    public DYModule setDefValues(DYValue... v) {
-        setDefValues(Arrays.asList(v));
-        return this;
-    }
-
-    /**
-     * The default values are written to the yaml file, when there were no regular values set/added. <br>
-     * Further details: <br>
-     * {@link #isWriteDefaultWhenValuesListIsEmptyEnabled()} <br>
-     * {@link #isReturnDefaultWhenValueIsNullEnabled()} <br>
-     */
-    public DYModule setDefValues(List<DYValue> v) {
-        this.defaultValues.clear();
-        this.defaultValues.addAll(v);
         return this;
     }
 
@@ -193,18 +210,23 @@ public class DYModule {
      * {@link DYValue#asString()} may return null though.
      */
     public DYModule addDefValues(List<DYValue> v) {
-        if (v != null) {
-            this.defaultValues.addAll(v);
+        Objects.requireNonNull(v);
+        for (DYValue value :
+                v) {
+            Objects.requireNonNull(value);
         }
+        defaultValues.addAll(v);
         return this;
     }
-
 
     public DYModule addComments(String... c) {
         if (c != null)
             this.comments.addAll(Arrays.asList(c));
         return this;
     }
+
+
+    // SET METHODS:
 
     public UtilsDYModule getUtils() {
         return utils;
@@ -221,9 +243,8 @@ public class DYModule {
      * Returns the last key.
      */
     public String getLastKey() {
-        return getKeyByIndex(keys.size()-1);
+        return getKeyByIndex(keys.size() - 1);
     }
-
 
     /**
      * Returns the key by given index or
@@ -273,20 +294,19 @@ public class DYModule {
         return getValueByIndex(0);
     }
 
-
     /**
      * Returns the value by given index or
      * its default value, if the value is null/empty and {@link #isReturnDefaultWhenValueIsNullEnabled()} is set to true.
      */
     public DYValue getValueByIndex(int i) {
-        DYValue v = null;
+        DYValue v = new DYValue((String) null);
         try {
             v = values.get(i);
         } catch (Exception ignored) {
         }
 
-        if (v == null && isReturnDefaultWhenValueIsNullEnabled)
-            return getDefaultValueByIndex(i);
+        if (v.asString() == null && isReturnDefaultWhenValueIsNullEnabled)
+            return getDefValueByIndex(i);
         return v;
     }
 
@@ -303,6 +323,7 @@ public class DYModule {
     }
 
     /**
+     * Not allowed to contain null {@link DYValue}s. <br>
      * See {@link #setValues(List)} for details.
      */
     public DYModule setValues(DYValue... v) {
@@ -312,8 +333,9 @@ public class DYModule {
 
     /**
      * Clears the values list and adds the values from the provided list. <br>
-     * Note that the list cannot contain null {@link DYValue}s. <br>
-     * {@link DYValue#asString()} may return null though.
+     * Note that the list can NOT contain null {@link DYValue}s. <br>
+     * {@link DYValue#asString()} may return null though. <br>
+     * If you want to remove values, use {@link #removeAllValues()} instead.
      */
     public DYModule setValues(List<DYValue> v) {
         this.values.clear();
@@ -324,15 +346,15 @@ public class DYModule {
     /**
      * Returns the first {@link DYValue} in the default values list.
      */
-    public DYValue getDefaultValue() {
-        return getDefaultValueByIndex(0);
+    public DYValue getDefValue() {
+        return getDefValueByIndex(0);
     }
 
     /**
      * Returns the {@link DYValue} at index i in the default values list.
      */
-    public DYValue getDefaultValueByIndex(int i) {
-        DYValue v = null;
+    public DYValue getDefValueByIndex(int i) {
+        DYValue v = new DYValue((String) null);
         try {
             v = defaultValues.get(i);
         } catch (Exception ignored) {
@@ -340,8 +362,36 @@ public class DYModule {
         return v;
     }
 
-    public List<DYValue> getDefaultValues() {
+    public List<DYValue> getDefValues() {
         return defaultValues;
+    }
+
+    /**
+     * See {@link #setDefValues(List)} for details.
+     */
+    public DYModule setDefValues(String... v) {
+        setDefValues(utils.stringArrayToValuesList(v));
+        return this;
+    }
+
+    /**
+     * See {@link #setDefValues(List)} for details.
+     */
+    public DYModule setDefValues(DYValue... v) {
+        setDefValues(Arrays.asList(v));
+        return this;
+    }
+
+    /**
+     * The default values are written to the yaml file, when there were no regular values set/added. <br>
+     * Further details: <br>
+     * {@link #isWriteDefaultWhenValuesListIsEmptyEnabled()} <br>
+     * {@link #isReturnDefaultWhenValueIsNullEnabled()} <br>
+     */
+    public DYModule setDefValues(List<DYValue> v) {
+        this.defaultValues.clear();
+        addDefValues(v);
+        return this;
     }
 
     /**
@@ -378,6 +428,9 @@ public class DYModule {
         }
         return this;
     }
+
+
+    // AS METHODS:
 
     /**
      * Shortcut for retrieving this {@link DYModule}s first {@link DYValue} as string.
@@ -495,6 +548,10 @@ public class DYModule {
     public Double asDouble(int i) {
         return getValueByIndex(i).asDouble();
     }
+
+
+    // OTHER METHODS:
+
 
     /**
      * <p style="color:red;">Do not modify this list directly, unless you know what you are doing!</p>

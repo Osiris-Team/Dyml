@@ -151,9 +151,9 @@ class DYWriter {
                             }
                         }
                     } else if (module.isWriteDefaultWhenValuesListIsEmptyEnabled()) {
-                        if (module.getDefaultValues() != null && !module.getDefaultValues().isEmpty()) {
-                            if (module.getDefaultValues().size() == 1) {
-                                DYValue defValue = module.getDefaultValue();
+                        if (module.getDefValues() != null && !module.getDefValues().isEmpty()) {
+                            if (module.getDefValues().size() == 1) {
+                                DYValue defValue = module.getDefValue();
                                 if (defValue != null) {
                                     if (defValue.asString() != null) writer.write(defValue.asString());
                                     if (defValue.hasComment())
@@ -164,8 +164,8 @@ class DYWriter {
                                 writer.flush();
                             } else {
                                 writer.newLine();
-                                for (int j = 0; j < module.getDefaultValues().size(); j++) {
-                                    DYValue value = module.getDefaultValueByIndex(j);
+                                for (int j = 0; j < module.getDefValues().size(); j++) {
+                                    DYValue value = module.getDefValueByIndex(j);
                                     if (value != null) {
                                         writer.write(spaces + "  - ");
                                         if (value.asString() != null)
