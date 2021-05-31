@@ -19,8 +19,8 @@ the-show-off-list:
   - completely written from scratch without any extra dependency
   - fastest YAML reader and writer currently available (see benchmarks below)
   - not a single static method and very memory efficient
-supports-hyphen-separation: awesome! # side-comments supported!
-or separation by spaces: great!
+supports-hyphen-separation: awesome! 
+or separation by spaces: great! # side-comments supported!
 and.dots.like.this: wow!
 
 # Complex hierarchies supported.
