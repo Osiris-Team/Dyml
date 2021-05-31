@@ -8,13 +8,14 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 class DYModuleTest {
 
     @Test
-    void nullValuesTest() throws Exception {
+    void nullAndFallbackTests() throws Exception {
         DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/null-values-test.yml");
         yaml.reset(); // Make sure the file is empty
         DYModule nullValueModule = yaml.add("i have no value")
                 .setValues((String) null)
                 .setDefValues((String) null);
         yaml.saveAndLoad();
+
         assertNotNull(nullValueModule.getValue());
         assertNotNull(nullValueModule.getDefValue());
         assertNull(nullValueModule.getValue().asString());
