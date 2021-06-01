@@ -219,6 +219,7 @@ public class DreamYaml {
                 } catch (NotLoadedException | IllegalKeyException e) {
                     throw e;
                 } catch (DuplicateKeyException ignored) {
+                    ignored.printStackTrace();
                 }
         }
         return module;

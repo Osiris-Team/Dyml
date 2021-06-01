@@ -14,6 +14,7 @@ import com.osiris.dyml.DYValue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class UtilsDYModule {
@@ -177,7 +178,8 @@ public class UtilsDYModule {
         List<DYModule> copyInEditModules = new CopyOnWriteArrayList<>(inEditModules);
         List<DYModule> unifiedList = new ArrayList<>();
         // Go through the loadedModules list
-        //System.out.println("");
+        System.out.println();
+        System.out.println("Creating unified list:");
         //System.out.println("Go through the loadedModules list: ");
         for (DYModule m :
                 loadedModules) {
@@ -205,78 +207,29 @@ public class UtilsDYModule {
                 copyInEditModules) {
             //System.out.println("copyInEditModules: KEY" + m.getKeys());
         }
-        // Now the unified list, has its structure from the 'loaded modules'
-        // and its latest module values from the 'added modules'.
-        // The only missing thing, is that there could be NEW modules in the 'added modules' list.
-        // Since we want to keep the loaded modules structure, we insert these new modules to their respective parents end.
-        // The 'added modules list' now only contains the NEW modules (modules that didn't match any loaded modules keys).
-        // In the following we go through these NEW modules and determine their future positions in the unified list.
-        List<Integer> lastModulesPositions = new ArrayList<>();
+
+        // The copyInEditModules, now only contains completely new modules.
+        // Go through that list, add G0 modules to the end of the unifiedModules list and
+        // other generations to their respective parents, as first module.
         for (DYModule m :
                 copyInEditModules) {
 
-            int size = m.getKeys().size();
-            int position = 0; // The current lists position.
-            int highestKeyMatches = 0; // The amount of equal keys (when comparing a 'unified lists module' with the NEW module.
-
-            // This is what we are looking for. The last module before a different parent and its position:
-            int lastModulePos = 0;
-
-            for (DYModule uM :
-                    unifiedList) {
-                if (uM.getKeys().size() <= size) {
-                    // Compare each key
-                    int keyMatches = 0;
-                    for (int i = 0; i < uM.getKeys().size(); i++) {
-                        if (uM.getKeys().get(i).equals(m.getKeys().get(i)))
-                            keyMatches++;
-                        else
-                            break;
+            if (m.getKeys().size() > 1) {
+                DYModule parent = new UtilsDYModule().getExisting(m.getKeys().subList(0, m.getKeys().size() - 1), loadedModules);
+                Objects.requireNonNull(parent);
+                int parentIndex = 0;
+                for (DYModule uM :
+                        unifiedList) {
+                    if (uM.getKeys().equals(parent.getKeys())) { // Do this to find the parents position in the unified list
+                        unifiedList.add(parentIndex + 1, m);
+                        break;
                     }
-                    // If this has more matches than the highest matches count, overwrite it and set the lastModule
-                    if (keyMatches >= highestKeyMatches) {
-                        highestKeyMatches = keyMatches;
-                        lastModulePos = position;
-                        //System.out.println("New high-score: "+highestKeyMatches+" at pos: "+lastModulePos);
-                    }
+                    parentIndex++;
                 }
-
-                position++;
+            } else {
+                unifiedList.add(m); // G0 modules get added to the end of the file
             }
-
-            // After going through the whole list, we now have the information we need and may add it to the hashmap
-            lastModulesPositions.add(lastModulePos);
         }
-
-        if (lastModulesPositions.isEmpty())
-            return unifiedList;
-        else {
-            // Since we now have the last modules positions we create a new unifiedList and add the NEW modules AFTER the last module
-            List<DYModule> fullUnifiedList = new ArrayList<>();
-
-            // We create a new List for each interval. At the end of each list we add the NEW module and add the list to the fullUnifiedList.
-            // Example 0-3: will contain all modules from index 0 to 3 PLUS the NEW module at index 4
-            // Next example 3-9: 3 gets incremented to 4, so the last module isn't duplicated, so this list contains 4-9 and the new Module at the last index 10
-            int lastPos = 0;
-            int cycle = 0;
-            for (Integer pos : // The last modules index position in the unifiedList
-                    lastModulesPositions) {
-                //System.out.println("Cycle: "+cycle+" with pos: "+pos);
-                List<DYModule> modules = new ArrayList<>();
-                // Increment lastPos, so that the last module doesn't get duplicated.
-                // Only don't do this for the first cycle, so index 0 doesn't get skipped.
-                if (cycle != 0) lastPos++;
-                for (int i = lastPos; i <= pos; i++) {
-                    modules.add(unifiedList.get(i));
-                    //System.out.println("modules added: KEY"+unifiedList.get(i).getKeys());
-                }
-                modules.add(copyInEditModules.get(cycle));
-                //System.out.println("modules added: KEY"+copyInEditModules.get(cycle).getKeys());
-                fullUnifiedList.addAll(modules);
-                lastPos = pos;
-                cycle++;
-            }
-            return fullUnifiedList;
-        }
+        return unifiedList;
     }
 }

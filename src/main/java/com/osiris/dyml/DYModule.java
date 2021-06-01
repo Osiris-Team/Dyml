@@ -30,7 +30,7 @@ public class DYModule {
     private List<String> comments;
     private List<String> defaultComments;
 
-    private List<DYModule> parentModules = new ArrayList<>();
+    private DYModule parentModule = null;
     private List<DYModule> childModules = new ArrayList<>();
 
     /**
@@ -589,29 +589,21 @@ public class DYModule {
 
 
     /**
-     * <p style="color:red;">Do not modify this list directly, unless you know what you are doing!</p>
-     * A list containing this modules parent modules, aka the generation before. <br>
-     * Note that this list does NOT contain generations beyond that. <br>
+     * <p style="color:red;">Do not modify this directly, unless you know what you are doing!</p>
+     * The parent {@link DYModule} of this {@link DYModule}, aka the last {@link DYModule} in the generation before. <br>
      * More about generations here: {@link DYReader#parseLine(DreamYaml, DYLine)}.
      */
-    public List<DYModule> getParentModules() {
-        return parentModules;
+    public DYModule getParentModule() {
+        return parentModule;
     }
 
     /**
-     * <p style="color:red;">Do not modify this list directly, unless you know what you are doing!</p>
-     * A list containing this modules parent modules, aka the generation before. <br>
-     * Note that this list does NOT contain generations beyond that. <br>
+     * <p style="color:red;">Do not modify this directly, unless you know what you are doing!</p>
+     * The parent {@link DYModule} of this {@link DYModule}, aka the last {@link DYModule} in the generation before. <br>
      * More about generations here: {@link DYReader#parseLine(DreamYaml, DYLine)}.
      */
-    public DYModule setParentModules(List<DYModule> parentModules) {
-        this.parentModules = parentModules;
-        return this;
-    }
-
-    public DYModule addParentModules(DYModule... pModules) {
-        Objects.requireNonNull(pModules);
-        parentModules.addAll(Arrays.asList(pModules));
+    public DYModule setParentModule(DYModule parentModule) {
+        this.parentModule = parentModule;
         return this;
     }
 

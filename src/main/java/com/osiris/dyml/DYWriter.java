@@ -69,13 +69,10 @@ class DYWriter {
 
                 System.out.println();
                 System.out.println("---> " + loadedModule.getModuleInformationAsString());
-                for (DYModule parentModule :
-                        loadedModule.getParentModules()) {
-                    if (parentModule != null)
-                        System.out.println("PARENT -> " + parentModule.getModuleInformationAsString());
-                    else
-                        System.out.println("PARENT -> NULL");
-                }
+                if (loadedModule.getParentModule() != null)
+                    System.out.println("PARENT -> " + loadedModule.getParentModule().getModuleInformationAsString());
+                else
+                    System.out.println("PARENT -> NULL");
 
                 for (DYModule childModule :
                         loadedModule.getChildModules()) {

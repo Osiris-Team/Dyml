@@ -118,7 +118,7 @@ class DYReader {
                     yaml.getAllInEdit()) {
                 DYModule loadedM = utils.getExisting(inEditM, yaml.getAllLoaded());
                 inEditM.setValues(loadedM.getValues());
-                inEditM.setParentModules(loadedM.getParentModules());
+                inEditM.setParentModule(loadedM.getParentModule());
                 inEditM.setChildModules(loadedM.getChildModules());
             }
 
@@ -133,13 +133,10 @@ class DYReader {
 
                 System.out.println();
                 System.out.println("---> " + loadedModule.getModuleInformationAsString());
-                for (DYModule parentModule :
-                        loadedModule.getParentModules()) {
-                    if (parentModule != null)
-                        System.out.println("PARENT -> " + parentModule.getModuleInformationAsString());
-                    else
-                        System.out.println("PARENT -> NULL");
-                }
+                if (loadedModule.getParentModule() != null)
+                    System.out.println("PARENT -> " + loadedModule.getParentModule().getModuleInformationAsString());
+                else
+                    System.out.println("PARENT -> NULL");
 
                 for (DYModule childModule :
                         loadedModule.getChildModules()) {
@@ -320,7 +317,7 @@ class DYReader {
                             if ((currentLine.getCountSpaces() - oldLine.getCountSpaces()) == 2) {
                                 DYModule oldModule = allLoaded.get(i);
                                 module.getKeys().addAll(oldModule.getKeys());
-                                module.addParentModules(oldModule);
+                                module.setParentModule(oldModule);
                                 oldModule.addChildModules(module);
                                 break;
                             }
@@ -336,43 +333,32 @@ class DYReader {
                     //   - value # value-comment  <---
                     //   # value-comment of the value below, not a key-comment, bc inside of a list
                     //   - second value # value-comment <---
-                    boolean addedValue = false;
-                    for (int i = keyLinesList.size() - 1; i >= 0; i--) {
-                        DYLine oldLine = keyLinesList.get(i);
-                        if ((currentLine.getCountSpaces() - oldLine.getCountSpaces()) == 2) {
-                            DYModule oldModule = allLoaded.get(i);
-                            if (beforeLine.isCommentFound() && !beforeLine.isKeyFound() && !beforeLine.isHyphenFound()) { // In this special case, we put the comments from the last line/module together
-                                String c = currentLine.getRawComment();
-                                for (String comment :
-                                        beforeModule.getComments()) {
-                                    c = c + " # " + comment;
-                                }
-                                currentLine.setRawComment(c);
-                            }
-                            // Since the key has a null value we need to remove it. Example:
-                            // list: <--- This is the first null value
-                            //   - value <--- This is our current position
-
-                            // If we wouldn't remove it, the writer would write that value in form of a list. Example:
-                            // list:   <--- New null value
-                            //   -     <--- Old null value
-                            //   - value
-
-                            // If we would then read the read the above again, the same would happen.
-                            // Its basically a infinite loop of adding null values to a list.
-                            // That's why the code below is very important:
-                            if (!beforeLine.isHyphenFound() && oldModule.getValues().size() == 1 && oldModule.getValues().get(0).asString() == null)
-                                oldModule.getValues().remove(0);
-
-                            // Since the allLoaded lists and keyLinesList sizes are the same we can do the below:
-                            oldModule.addValues(new DYValue(currentLine.getRawValue(), currentLine.getRawComment()));
-                            addedValue = true;
-                            break;
+                    DYModule oldModule = yaml.getLastLoadedModule(); // The last added module, which has to contain a key, otherwise its not added
+                    if (beforeLine.isCommentFound() && !beforeLine.isKeyFound() && !beforeLine.isHyphenFound()) { // In this special case, we put the comments from the last line/module together
+                        String c = currentLine.getRawComment();
+                        for (String comment :
+                                beforeModule.getComments()) {
+                            c = c + " # " + comment;
                         }
+                        currentLine.setRawComment(c);
                     }
+                    // Since the key has a null value we need to remove it. Example:
+                    // list: <--- This is the first null value
+                    //   - value <--- This is our current position
 
-                    if (!addedValue)
-                        throw new IllegalListException(yaml.getFile().getName(), currentLine);
+                    // If we wouldn't remove it, the writer would write that value in form of a list. Example:
+                    // list:   <--- New null value
+                    //   -     <--- Old null value
+                    //   - value
+
+                    // If we would then read the read the above again, the same would happen.
+                    // Its basically a infinite loop of adding null values to a list.
+                    // That's why the code below is very important:
+                    if (!beforeLine.isHyphenFound() && oldModule.getValues().size() == 1 && oldModule.getValues().get(0).asString() == null)
+                        oldModule.getValues().remove(0);
+
+                    // Since the allLoaded lists and keyLinesList sizes are the same we can do the below:
+                    oldModule.addValues(new DYValue(currentLine.getRawValue(), currentLine.getRawComment()));
                 } else { // No side-comment, but regular comment
                     // If the current line and the last line are comments, add the current comment to the last comments object/module.
                     // In both cases, don't add the module to the list.
@@ -398,7 +384,7 @@ class DYReader {
                         if ((currentLine.getCountSpaces() - oldLine.getCountSpaces()) == 2) {
                             DYModule oldModule = allLoaded.get(i);
                             module.getKeys().addAll(oldModule.getKeys());
-                            module.addParentModules(oldModule);
+                            module.setParentModule(oldModule);
                             oldModule.addChildModules(module);
                             break;
                         }
@@ -414,33 +400,22 @@ class DYReader {
                 //   - value2 <---
 
                 // m1:
-                //   - m1-inside:
+                //   m1-inside:
                 //     - value1
                 //     - value2 <---
-                boolean addedValue = false;
-                for (int i = keyLinesList.size() - 1; i >= 0; i--) {
-                    DYLine oldLine = keyLinesList.get(i);
-                    if ((currentLine.getCountSpaces() - oldLine.getCountSpaces()) == 2) {
-                        DYModule oldModule = allLoaded.get(i);
-                        if (beforeLine.isCommentFound() && !beforeLine.isKeyFound() && !beforeLine.isHyphenFound()) { // In this special case, we put the comments from the last line/module together
-                            String c = currentLine.getRawComment();
-                            for (String comment :
-                                    beforeModule.getComments()) {
-                                c = c + " # " + comment;
-                            }
-                            currentLine.setRawComment(c);
-                        }
-                        if (!beforeLine.isHyphenFound() && oldModule.getValues().size() == 1 && oldModule.getValues().get(0).asString() == null) {
-                            oldModule.getValues().remove(0);
-                        }
-                        oldModule.addValues(currentLine.getRawValue()); // Now all we do is add the current value to the parent module.
-                        addedValue = true;
-                        break;
+                DYModule oldModule = yaml.getLastLoadedModule();
+                if (beforeLine.isCommentFound() && !beforeLine.isKeyFound() && !beforeLine.isHyphenFound()) { // In this special case, we put the comments from the last line/module together
+                    String c = currentLine.getRawComment();
+                    for (String comment :
+                            beforeModule.getComments()) {
+                        c = c + " # " + comment;
                     }
+                    currentLine.setRawComment(c);
                 }
-
-                if (!addedValue)
-                    throw new IllegalListException(yaml.getFile().getName(), currentLine);
+                if (!beforeLine.isHyphenFound() && oldModule.getValues().size() == 1 && oldModule.getValues().get(0).asString() == null) {
+                    oldModule.getValues().remove(0);
+                }
+                oldModule.addValues(currentLine.getRawValue()); // Now all we do is add the current value to the parent module.
             }
 
             beforeModule = module;
