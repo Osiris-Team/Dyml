@@ -178,8 +178,6 @@ public class UtilsDYModule {
         List<DYModule> copyInEditModules = new CopyOnWriteArrayList<>(inEditModules);
         List<DYModule> unifiedList = new ArrayList<>();
         // Go through the loadedModules list
-        System.out.println();
-        System.out.println("Creating unified list:");
         //System.out.println("Go through the loadedModules list: ");
         for (DYModule m :
                 loadedModules) {
