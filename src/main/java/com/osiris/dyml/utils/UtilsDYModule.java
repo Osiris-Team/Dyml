@@ -14,7 +14,6 @@ import com.osiris.dyml.DYValue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class UtilsDYModule {
@@ -213,16 +212,19 @@ public class UtilsDYModule {
                 copyInEditModules) {
 
             if (inEditModule.getKeys().size() > 1) {
-                DYModule parent = new UtilsDYModule().getExisting(inEditModule.getKeys().subList(0, inEditModule.getKeys().size() - 1), unifiedList);
-                Objects.requireNonNull(parent);
-                int parentIndex = 0;
-                for (DYModule uM :
-                        unifiedList) {
-                    if (uM.getKeys().equals(parent.getKeys())) { // Do this to find the parents position in the unified list
-                        unifiedList.add(parentIndex + 1, inEditModule);
-                        break;
+                DYModule parent = new UtilsDYModule().getExisting(inEditModule.getKeys().subList(0, inEditModule.getKeys().size() - 1), loadedModules);
+                if (parent!=null){
+                    int parentIndex = 0;
+                    for (DYModule uM :
+                            unifiedList) {
+                        if (uM.getKeys().equals(parent.getKeys())) { // Do this to find the parents position in the unified list
+                            unifiedList.add(parentIndex + 1, inEditModule);
+                            break;
+                        }
+                        parentIndex++;
                     }
-                    parentIndex++;
+                } else {
+                    unifiedList.add(inEditModule); // Can be a completely new >G0 module
                 }
             } else {
                 unifiedList.add(inEditModule); // G0 modules get added to the end of the file
