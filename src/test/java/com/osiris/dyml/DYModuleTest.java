@@ -29,7 +29,8 @@ class DYModuleTest {
         yaml.setReturnDefaultWhenValueIsNullEnabled(true); // Enable
         assertNotNull(nullValueModule.getValue().asString());
         assertNotNull(nullValueModule.getDefValue().asString());
-        DYModule secondModule = yaml.add("im also empty inside");
+
+        assertNull(yaml.get("skrrrrr")); // This module doesnt exist so it should be null
         yaml.save(true);
     }
 }

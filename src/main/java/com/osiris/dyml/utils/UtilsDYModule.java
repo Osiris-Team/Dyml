@@ -179,17 +179,17 @@ public class UtilsDYModule {
         List<DYModule> unifiedList = new ArrayList<>();
         // Go through the loadedModules list
         //System.out.println("Go through the loadedModules list: ");
-        for (DYModule m :
+        for (DYModule loadedModule :
                 loadedModules) {
             // Check if there is the same 'added module' available
-            DYModule existing = getExisting(m, copyInEditModules);
+            DYModule existing = getExisting(loadedModule, copyInEditModules);
             if (existing != null) {
                 unifiedList.add(existing);
                 // Also remove it from its own list, so at the end there are only 'new' modules in that list
                 copyInEditModules.remove(existing);
                 //System.out.println("Added an 'added module' to unified and removed from copyAdded.");
             } else {
-                unifiedList.add(m);
+                unifiedList.add(loadedModule);
                 //System.out.println("Added an 'loaded module' to unified.");
             }
         }
@@ -209,23 +209,23 @@ public class UtilsDYModule {
         // The copyInEditModules, now only contains completely new modules.
         // Go through that list, add G0 modules to the end of the unifiedModules list and
         // other generations to their respective parents, as first module.
-        for (DYModule m :
+        for (DYModule inEditModule :
                 copyInEditModules) {
 
-            if (m.getKeys().size() > 1) {
-                DYModule parent = new UtilsDYModule().getExisting(m.getKeys().subList(0, m.getKeys().size() - 1), loadedModules);
+            if (inEditModule.getKeys().size() > 1) {
+                DYModule parent = new UtilsDYModule().getExisting(inEditModule.getKeys().subList(0, inEditModule.getKeys().size() - 1), unifiedList);
                 Objects.requireNonNull(parent);
                 int parentIndex = 0;
                 for (DYModule uM :
                         unifiedList) {
                     if (uM.getKeys().equals(parent.getKeys())) { // Do this to find the parents position in the unified list
-                        unifiedList.add(parentIndex + 1, m);
+                        unifiedList.add(parentIndex + 1, inEditModule);
                         break;
                     }
                     parentIndex++;
                 }
             } else {
-                unifiedList.add(m); // G0 modules get added to the end of the file
+                unifiedList.add(inEditModule); // G0 modules get added to the end of the file
             }
         }
         return unifiedList;
