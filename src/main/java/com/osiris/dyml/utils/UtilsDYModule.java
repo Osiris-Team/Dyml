@@ -84,7 +84,7 @@ public class UtilsDYModule {
         List<String> stringList = new ArrayList<>();
         for (DYValue value :
                 list) {
-            stringList.add(value.getValueInformationAsString());
+            stringList.add(value.asString());
         }
         return stringList;
     }
