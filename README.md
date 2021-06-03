@@ -29,7 +29,7 @@ p1:
     c2-1: wow!
     c2-2: <3
   c1-2:
-    - v1 # side-coments in lists
+    - v1 # side-comments in lists
     # This is also a side-comment, for the value below
     - v2
 
