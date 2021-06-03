@@ -35,7 +35,6 @@ p1:
 
 not supported:
   - everything else that is not explicitly mentioned in this file
-  - side comments like -> # will not work :( use multiline comments instead
 ```
 Some extras:
  - **DYWatcher |** Yaml files watcher with recursive directory watching support.
