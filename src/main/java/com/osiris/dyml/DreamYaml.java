@@ -382,10 +382,10 @@ public class DreamYaml {
                 unifiedList.add(existing);
                 // Also remove it from its own list, so at the end there are only 'new' modules in that list
                 copyInEditModules.remove(existing);
-                debugLogger.log(this, "+ inEditModule " + existing.getKeys().toString() + " to unified.");
+                if (isDebugEnabled) debugLogger.log(this, "+ inEditModule " + existing.getKeys().toString() + " to unified.");
             } else {
                 unifiedList.add(loadedModule);
-                debugLogger.log(this, "+ loadedModule +" + loadedModule.getKeys().toString() + "+ to unified.");
+                if (isDebugEnabled) debugLogger.log(this, "+ loadedModule +" + loadedModule.getKeys().toString() + "+ to unified.");
             }
         }
 
