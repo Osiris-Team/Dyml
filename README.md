@@ -29,13 +29,12 @@ p1:
     c2-1: wow!
     c2-2: <3
   c1-2:
-    - v1 # side-coments in lists
+    - v1 # side-comments in lists
     # This is also a side-comment, for the value below
     - v2
 
 not supported:
   - everything else that is not explicitly mentioned in this file
-  - side comments like -> # will not work :( use multiline comments instead
 ```
 Some extras:
  - **DYWatcher |** Yaml files watcher with recursive directory watching support.
