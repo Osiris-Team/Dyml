@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
  * The in-memory representation of the full yaml file
@@ -56,6 +57,9 @@ public class DreamYaml {
     private boolean isReturnDefaultWhenValueIsNullEnabled = true;
     private boolean isWriteDefaultValuesWhenEmptyEnabled = true;
     private boolean isWriteDefaultCommentsWhenEmptyEnabled = true;
+
+    // Logging:
+    private DYDebugLogger debugLogger = new DYDebugLogger(System.out);
 
     /**
      * Initialises the {@link DreamYaml} object with useful features enabled. <br>
@@ -117,6 +121,7 @@ public class DreamYaml {
      * See {@link #isPostProcessingEnabled()} for details.
      */
     public DreamYaml load() throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
+        if (this.isDebugEnabled) System.out.println("Executing load()");
         file = new File(filePath);
         if (!file.exists()) file.createNewFile();
         new DYReader().parse(this);
@@ -130,6 +135,7 @@ public class DreamYaml {
      * The {@link #getAllInEdit()} list is not affected.
      */
     public DreamYaml reset() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException {
+        if (this.isDebugEnabled) debugLogger.log(this, "Executing reset()");
         if (file == null) this.load();
         new DYWriter().parse(this, true, true);
         this.load();
@@ -164,14 +170,15 @@ public class DreamYaml {
      * If the yaml file is missing some 'added modules', these get created using their values/default values.<br>
      * More info on this topic: <br>
      * {@link #isWriteDefaultValuesWhenEmptyEnabled()} <br>
+     * {@link #createUnifiedList(List, List)} <br>
      * {@link DYModule#setDefValues(List)} <br>
-     * {@link UtilsDYModule#createUnifiedList(List, List)} <br>
      *
      * @param overwrite false by default.
      *                  If true, the yaml file gets overwritten with only modules from the 'added modules list'.
      *                  That means that everything that wasn't added via {@link #add(String...)} (loaded modules) will not exist in the file.
      */
     public DreamYaml save(boolean overwrite) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException {
+        if (this.isDebugEnabled) debugLogger.log(this, "Executing save()");
         if (file == null) this.load();
         new DYWriter().parse(this, overwrite, false);
         return this;
@@ -188,6 +195,7 @@ public class DreamYaml {
      */
     public DYModule get(String... keys) {
         Objects.requireNonNull(keys);
+        if (this.isDebugEnabled) debugLogger.log(this, "Executing get(" + keys.toString() + ")");
         DYModule module = utilsDYModule.getExisting(Arrays.asList(keys), inEditModules);
         if (module == null) {
             module = utilsDYModule.getExisting(Arrays.asList(keys), loadedModules);
@@ -208,6 +216,7 @@ public class DreamYaml {
      */
     public DYModule put(String... keys) throws NotLoadedException, IllegalKeyException {
         Objects.requireNonNull(keys);
+        if (this.isDebugEnabled) debugLogger.log(this, "Executing add(" + keys.toString() + ")");
         DYModule module = utilsDYModule.getExisting(Arrays.asList(keys), inEditModules);
         if (module == null) {
             module = utilsDYModule.getExisting(Arrays.asList(keys), loadedModules);
@@ -260,6 +269,7 @@ public class DreamYaml {
     public DYModule add(DYModule module) throws IllegalKeyException, NotLoadedException, DuplicateKeyException {
         Objects.requireNonNull(module);
         Objects.requireNonNull(module.getKeys());
+        if (this.isDebugEnabled) debugLogger.log(this, "Executing add(" + module.getKeys().toString() + ")");
         if (module.getKeys().isEmpty()) throw new IllegalKeyException("Keys list of this module cannot be empty!");
         if (file == null) throw new NotLoadedException(); // load() should've been called at least once before
         if (module.getKeys().contains(null))
@@ -284,6 +294,7 @@ public class DreamYaml {
      * the replacement gets added to the {@link #inEditModules} list. <br>
      */
     public DYModule replace(DYModule moduleToReplace, DYModule newModule) {
+        if (this.isDebugEnabled) debugLogger.log(this, "Executing replace()");
         Objects.requireNonNull(moduleToReplace);
         Objects.requireNonNull(newModule);
         DYModule module = utilsDYModule.getExisting(moduleToReplace, inEditModules);
@@ -313,6 +324,7 @@ public class DreamYaml {
      * Removes the module from the yaml file once {@link #save()} was called. <br>
      */
     public DreamYaml remove(DYModule module) {
+        if (this.isDebugEnabled) debugLogger.log(this, "Executing remove()");
         DYModule addedM = utilsDYModule.getExisting(module, inEditModules);
         if (addedM != null)
             this.inEditModules.remove(addedM);
@@ -322,16 +334,116 @@ public class DreamYaml {
         return this;
     }
 
+    /**
+     * This method returns a new unified list containing the loaded and added modules merged together. <br>
+     * The loaded modules list is used as 'base' and is overwritten/extended by the added modules list. <br>
+     * This ensures, that the structure(hierarchies) of the loaded file stay the same <br>
+     * and that new modules are inserted in the correct position. <br>
+     * Logic: <br>
+     * 1. If the loaded modules list is empty, nothing needs to be done! Return added modules. <br>
+     * 2. Else go through the loaded modules and compare each module with the added modules list.
+     * If there is an added module with the same keys, add it to the unified list instead of the loaded module. <br>
+     * 3. If there are NEW modules in the added modules list, insert them into the right places of unified list. <br>
+     *
+     * @return a fresh unified list containing loaded modules extended by added modules.
+     */
+    public synchronized List<DYModule> createUnifiedList(List<DYModule> inEditModules, List<DYModule> loadedModules) {
+        if (loadedModules.isEmpty()) return inEditModules;
+
+        if (isDebugEnabled) {
+            debugLogger.log(this, "### CREATE UNIFIED LIST ###");
+            debugLogger.log(this, "This process creates a single list out of the 'inEditModules' and 'loadedModules' lists.");
+            debugLogger.log(this, "Printing contents of both lists:");
+            for (DYModule m :
+                    inEditModules) {
+                debugLogger.log(this, "inEditModules: KEY" + m.getKeys());
+            }
+
+            for (DYModule m :
+                    loadedModules) {
+                debugLogger.log(this, "loadedModules: KEY" + m.getKeys());
+            }
+        }
+
+        List<DYModule> copyInEditModules = new CopyOnWriteArrayList<>(inEditModules);
+        List<DYModule> unifiedList = new ArrayList<>();
+        // Go through the loadedModules list and take its structure.
+        if (isDebugEnabled) {
+            debugLogger.log(this, "Create the unified list: ");
+            debugLogger.log(this, "We go thorough the loadedModules list, to keep its structure and");
+            debugLogger.log(this, "add its modules to the unified list. If there is a inEditModule that has the");
+            debugLogger.log(this, "same keys as the loadedModule, it gets added instead.");
+        }
+        for (DYModule loadedModule :
+                loadedModules) {
+            // Check if there is the same 'added module' available
+            DYModule existing = utilsDYModule.getExisting(loadedModule, copyInEditModules);
+            if (existing != null) {
+                unifiedList.add(existing);
+                // Also remove it from its own list, so at the end there are only 'new' modules in that list
+                copyInEditModules.remove(existing);
+                debugLogger.log(this, "+ inEditModule " + existing.getKeys().toString() + " to unified.");
+            } else {
+                unifiedList.add(loadedModule);
+                debugLogger.log(this, "+ loadedModule +" + loadedModule.getKeys().toString() + "+ to unified.");
+            }
+        }
+
+        if (isDebugEnabled) {
+            debugLogger.log(this, "Now go through the copyInEditModules(" + copyInEditModules.size() + ") list, which");
+            debugLogger.log(this, "should now only contain new modules, that didn't exist in the loadedModules list.");
+            debugLogger.log(this, "Add those modules, to");
+        }
+        //System.out.println("");
+        //System.out.println("Go through the copyInEditModules("+copyInEditModules.size()+") list and add NEW ones to unified: ");
+
+
+        // The copyInEditModules, now only contains completely new modules.
+        // Go through that list, add G0 modules to the end of the unifiedModules list and
+        // other generations to their respective parents, as first module.
+        for (DYModule inEditModule :
+                copyInEditModules) {
+
+            if (inEditModule.getKeys().size() > 1) {
+                DYModule parent = new UtilsDYModule().getExisting(inEditModule.getKeys().subList(0, inEditModule.getKeys().size() - 1), loadedModules);
+                if (parent != null) {
+                    int parentIndex = 0;
+                    for (DYModule uM :
+                            unifiedList) {
+                        if (uM.getKeys().equals(parent.getKeys())) { // Do this to find the parents position in the unified list
+                            // Add the inEditModule, to the list.
+                            // Example:
+                            // g0:
+                            //   g1-1:
+                            //   g1-2: <--- Remember to count the child modules before too!
+                            if (!parent.getChildModules().isEmpty())
+                                parentIndex = parentIndex + parent.getChildModules().size() - 1;
+                            unifiedList.add(parentIndex + 1, inEditModule);
+                            parent.getChildModules().add(inEditModule);
+                            break;
+                        }
+                        parentIndex++;
+                    }
+                } else {
+                    unifiedList.add(inEditModule); // Can be a completely new >G0 module
+                }
+            } else {
+                unifiedList.add(inEditModule); // G0 modules get added to the end of the file
+            }
+        }
+        return unifiedList;
+    }
+
 
     /**
      * Returns a fresh unified, ordered list with {@link #loadedModules} and {@link #inEditModules} merged together. <br>
      * Note that this is not the original list, but a copy and thus any changes to it, won't have affect and changes to the original
      * won't be reflected in this copy. <br>
      * This list is the one, that gets written to the yaml file. <br>
-     * See {@link UtilsDYModule#createUnifiedList(List, List)} for details.
+     * See {@link #createUnifiedList(List, List)} for details.
      */
     public List<DYModule> getAll() {
-        return new UtilsDYModule().createUnifiedList(this.inEditModules, this.loadedModules);
+        return createUnifiedList(this.inEditModules, this.loadedModules);
     }
 
     /**
@@ -400,7 +512,7 @@ public class DreamYaml {
 
     /**
      * Prints out all modules in the unified list.
-     * For more info see {@link UtilsDYModule#createUnifiedList(List, List)} and {@link UtilsDreamYaml#printUnified(PrintStream)}}.
+     * For more info see {@link #createUnifiedList(List, List)} and {@link UtilsDreamYaml#printUnified(PrintStream)}}.
      */
     public DreamYaml printUnified() {
         utilsDreamYaml.printUnified(System.out);
@@ -646,6 +758,14 @@ public class DreamYaml {
      */
     public void setWriteDefaultCommentsWhenEmptyEnabled(boolean writeDefaultCommentsWhenEmptyEnabled) {
         isWriteDefaultCommentsWhenEmptyEnabled = writeDefaultCommentsWhenEmptyEnabled;
+    }
+
+    public DYDebugLogger getDebugLogger() {
+        return debugLogger;
+    }
+
+    public void setDebugLogger(DYDebugLogger debugLogger) {
+        this.debugLogger = debugLogger;
     }
 }
 

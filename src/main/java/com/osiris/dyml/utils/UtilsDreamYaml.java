@@ -97,7 +97,7 @@ public class UtilsDreamYaml {
      * formatted as {@link String}.
      */
     public String getUnifiedModulesInformationAsString() {
-        return "UNIFIED modules from '" + yaml.getFile().getName() + "' file:" + n + getModulesInformationFromListAsString(new UtilsDYModule().createUnifiedList(yaml.getAllInEdit(), yaml.getAllLoaded()));
+        return "UNIFIED modules from '" + yaml.getFile().getName() + "' file:" + n + getModulesInformationFromListAsString(yaml.createUnifiedList(yaml.getAllInEdit(), yaml.getAllLoaded()));
     }
 
     /**

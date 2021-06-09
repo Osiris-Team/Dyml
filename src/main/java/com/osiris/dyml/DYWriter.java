@@ -9,7 +9,6 @@
 package com.osiris.dyml;
 
 import com.osiris.dyml.exceptions.DYWriterException;
-import com.osiris.dyml.utils.UtilsDYModule;
 import com.osiris.dyml.utils.UtilsTimeStopper;
 
 import java.io.*;
@@ -46,7 +45,7 @@ class DYWriter {
             if (modulesToSave.isEmpty())
                 throw new DYWriterException("Failed to write modules to file: There are no modules in the 'inEditModules list' for file '" + file.getName() + "' ! Nothing to write!");
         } else {
-            modulesToSave = new UtilsDYModule().createUnifiedList(yaml.getAllInEdit(), yaml.getAllLoaded());
+            modulesToSave = yaml.createUnifiedList(yaml.getAllInEdit(), yaml.getAllLoaded());
             if (modulesToSave.isEmpty())
                 throw new DYWriterException("Failed to write modules to file: There are no modules in the list for file '" + file.getName() + "' ! Nothing to write!");
         }

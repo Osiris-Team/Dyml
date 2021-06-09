@@ -1,10 +1,99 @@
 package com.osiris.dyml;
 
+import com.osiris.dyml.exceptions.*;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class DreamYamlTest {
+
+    @Test
+    void add() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
+        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml", true);
+        yaml.reset();
+        DYModule m1 = yaml.add("test-put").setValues("value");
+        DYModule m2 = yaml.add("test-put", "c1").setValues("value");
+        yaml.saveAndLoad();
+
+        assertNotNull(m1);
+        assertNotNull(m2);
+
+        assertNotNull(m1.asString());
+        assertNotNull(m2.asString());
+
+        // Test putting/adding a new module to the file
+        yaml.add("test-put-new").setValues("wow!").setComments("This is a comment!");
+        yaml.saveAndLoad();
+        yaml.printFile();
+
+        // Test putting/adding a new module to the file (in a hierarchy)
+        yaml.add("test-put", "c1", "c2").setComments("This is a comment!").setValues("value!");
+        yaml.saveAndLoad();
+        yaml.printFile();
+
+        // Test putting/adding a new module to the file (in a hierarchy with multiple modules in the same generation)
+        yaml.add("test-put", "c1-1").setComments("This is a comment!").setValues("value!");
+        yaml.add("test-put", "c1-2").setComments("This is a comment!").setValues("value!");
+        yaml.add("test-put", "c1-3").setComments("This is a comment!").setValues("value!");
+        yaml.saveAndLoad();
+        yaml.add("test-put", "c1-4").setComments("This is a comment!").setValues("value!");
+        yaml.saveAndLoad();
+    }
+
+    @Test
+    void put() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
+        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml");
+        yaml.reset();
+        DYModule m1 = yaml.put("test-put").setValues("value");
+        DYModule m2 = yaml.put("test-put", "c1").setValues("value");
+        yaml.saveAndLoad();
+
+        assertNotNull(m1);
+        assertNotNull(m2);
+
+        assertNotNull(m1.asString());
+        assertNotNull(m2.asString());
+
+        // Test putting/adding a new module to the file
+        yaml.put("test-put-new").setValues("wow!").setComments("This is a comment!");
+        yaml.saveAndLoad();
+        yaml.printFile();
+
+        // Test putting/adding a new module to the file (in a hierarchy)
+        yaml.put("test-put", "c1", "c2").setComments("This is a comment!").setValues("value!");
+        yaml.saveAndLoad();
+        yaml.printFile();
+
+        // Test putting/adding a new module to the file (in a hierarchy with multiple modules in the same generation)
+        yaml.put("test-put", "c1-1").setComments("This is a comment!").setValues("value!");
+        yaml.put("test-put", "c1-2").setComments("This is a comment!").setValues("value!");
+        yaml.put("test-put", "c1-3").setComments("This is a comment!").setValues("value!");
+        yaml.saveAndLoad();
+        yaml.put("test-put", "c1-4").setComments("This is a comment!").setValues("value!");
+        yaml.saveAndLoad();
+        yaml.printAll();
+        yaml.printFile();
+    }
+
+    @Test
+    void get() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
+        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml");
+        yaml.put("test-get").setValues("value");
+        yaml.put("test-get", "c1").setValues("value");
+        yaml.saveAndLoad();
+
+        DYModule m1 = yaml.get("test-get");
+        DYModule m2 = yaml.get("test-get", "c1");
+
+        assertNotNull(m1);
+        assertNotNull(m2);
+
+        assertNotNull(m1.asString());
+        assertNotNull(m2.asString());
+    }
 
     @Test
     void getAddedModuleByKeys() throws Exception {
@@ -29,8 +118,8 @@ class DreamYamlTest {
     void reset() throws Exception {
         DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/reset-test.yml");
         yaml.load();
-        yaml.put("hello").setDefValues("world");
-        yaml.save(true);
+        yaml.put("key").setDefValues("value");
+        yaml.save();
         yaml.reset();
         assertEquals(0, yaml.getFile().length());
     }

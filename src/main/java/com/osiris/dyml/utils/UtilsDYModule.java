@@ -14,7 +14,6 @@ import com.osiris.dyml.DYValue;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class UtilsDYModule {
 
@@ -156,80 +155,5 @@ public class UtilsDYModule {
         for (int i = 0; i < copy.size(); i++) {
             if (copy.get(i).asString() == null) values.remove(i);
         }
-    }
-
-    /**
-     * This method returns a new unified list containing the loaded and added modules merged together. <br>
-     * The loaded modules list is used as 'base' and is overwritten/extended by the added modules list. <br>
-     * This ensures, that the structure(hierarchies) of the loaded file stay the same <br>
-     * and that new modules are inserted in the correct position. <br>
-     * Logic: <br>
-     * 1. If the loaded modules list is empty, nothing needs to be done! Return added modules. <br>
-     * 2. Else go through the loaded modules and compare each module with the added modules list.
-     * If there is an added module with the same keys, add it to the unified list instead of the loaded module. <br>
-     * 3. If there are NEW modules in the added modules list, insert them into the right places of unified list. <br>
-     *
-     * @return a fresh unified list containing loaded modules extended by added modules.
-     */
-    public synchronized List<DYModule> createUnifiedList(List<DYModule> inEditModules, List<DYModule> loadedModules) {
-        if (loadedModules.isEmpty()) return inEditModules;
-
-        List<DYModule> copyInEditModules = new CopyOnWriteArrayList<>(inEditModules);
-        List<DYModule> unifiedList = new ArrayList<>();
-        // Go through the loadedModules list
-        //System.out.println("Go through the loadedModules list: ");
-        for (DYModule loadedModule :
-                loadedModules) {
-            // Check if there is the same 'added module' available
-            DYModule existing = getExisting(loadedModule, copyInEditModules);
-            if (existing != null) {
-                unifiedList.add(existing);
-                // Also remove it from its own list, so at the end there are only 'new' modules in that list
-                copyInEditModules.remove(existing);
-                //System.out.println("Added an 'added module' to unified and removed from copyAdded.");
-            } else {
-                unifiedList.add(loadedModule);
-                //System.out.println("Added an 'loaded module' to unified.");
-            }
-        }
-
-        //System.out.println("");
-        //System.out.println("Go through the copyInEditModules("+copyInEditModules.size()+") list and add NEW ones to unified: ");
-        for (DYModule m :
-                unifiedList) {
-            //System.out.println("unifiedList: KEY" + m.getKeys());
-        }
-
-        for (DYModule m :
-                copyInEditModules) {
-            //System.out.println("copyInEditModules: KEY" + m.getKeys());
-        }
-
-        // The copyInEditModules, now only contains completely new modules.
-        // Go through that list, add G0 modules to the end of the unifiedModules list and
-        // other generations to their respective parents, as first module.
-        for (DYModule inEditModule :
-                copyInEditModules) {
-
-            if (inEditModule.getKeys().size() > 1) {
-                DYModule parent = new UtilsDYModule().getExisting(inEditModule.getKeys().subList(0, inEditModule.getKeys().size() - 1), loadedModules);
-                if (parent!=null){
-                    int parentIndex = 0;
-                    for (DYModule uM :
-                            unifiedList) {
-                        if (uM.getKeys().equals(parent.getKeys())) { // Do this to find the parents position in the unified list
-                            unifiedList.add(parentIndex + 1, inEditModule);
-                            break;
-                        }
-                        parentIndex++;
-                    }
-                } else {
-                    unifiedList.add(inEditModule); // Can be a completely new >G0 module
-                }
-            } else {
-                unifiedList.add(inEditModule); // G0 modules get added to the end of the file
-            }
-        }
-        return unifiedList;
     }
 }
