@@ -48,3 +48,4 @@ And you would get something like this:
 # key-comment
 key: value # value-comment
 ```
+If the value exists however, the default is not used.
