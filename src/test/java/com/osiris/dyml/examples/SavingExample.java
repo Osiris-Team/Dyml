@@ -26,10 +26,8 @@ public class SavingExample {
 
         // SCENARIO 1:
         // Lets imagine this file contains tons of information but we only want to modify/update that one section and keep the rest.
-        // For that we simply add that section into memory by:
-        DYModule work = yaml.put("work");
-        // Change it to what we want:
-        work.setValues("Developer");
+        // For that we simply add that section into memory and edit it: 
+        yaml.get("work").setValues("Developer");
         // And save the file:
         yaml.save(); // Note that stuff that isn't supported by DreamYaml wont be parsed and thus removed from the file after you save it!
         // Just as simple as that!
@@ -44,5 +42,6 @@ public class SavingExample {
         // Then save it with 'overwrite' true:
         yaml.save(true);
         // That's it!
+      
     }
 }
