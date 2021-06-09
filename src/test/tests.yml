@@ -1,14 +1,1 @@
-test-put: value
-  # This is a comment!
-  c1-1: value!
-  # This is a comment!
-  c1-2: value!
-  # This is a comment!
-  c1-3: value!
-  # This is a comment!
-  c1-4: value!
-  c1: value
-    # This is a comment!
-    c2: value!
-# This is a comment!
-test-put-new: wow!
+hello: world
