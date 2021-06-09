@@ -37,7 +37,7 @@ Example:
 key: 
 ```
 The module above has no values and no comments. If you want to have defaults though you can do something like this:
-```yaml
+```java
 yaml.get("key")
         .setDefValues(new DYValue("value", "value-comment"))
         .setDefComments("key-comment");
