@@ -38,8 +38,7 @@ not supported:
 ```
 Some extras:
  - **DYWatcher |** Yaml files watcher with recursive directory watching support.
-## Getting started
-Simple example:
+## Simple example
 ```java
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/simple-example.yml");
 
@@ -62,7 +61,8 @@ pending-tasks:
   - buy food
   - start working
 ```
-Advanced example (demonstrating some core features):
+## Advanced example
+(demonstrating some core features)
 ```java
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/advanced-example.yml");
 
