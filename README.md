@@ -39,6 +39,7 @@ not supported:
 Some extras:
  - **DYWatcher |** Yaml files watcher with recursive directory watching support.
 ## Getting started
+Simple example:
 ```java
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/simple-example.yml");
 
@@ -53,6 +54,35 @@ yaml.save();
 The code above generates the following YAML:
 ```yaml
 name: John
+last-name: Goldman
+age: 29
+work: Reporter
+pending-tasks: 
+  - do research
+  - buy food
+  - start working
+```
+Advanced example (demonstrating some core features):
+```java
+DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/advanced-example.yml");
+
+yaml.put("name")         .setDefValues(new DYValue("John", "Value-Comment")).setDefComments("Key-Comment");
+yaml.put("last-name")    .setDefValues("Goldman");
+yaml.put("age")          .setDefValues("29");
+yaml.put("work")         .setDefValues("Reporter");
+yaml.put("pending-tasks").setDefValues("do research", "buy food", "start working");
+
+yaml.saveAndLoad();
+
+DYModule getNameModule = yaml.get("name"); // Method for retrieving modules by their keys
+yaml.add("new-module"); // Adds a new module, with null value. Throws exception if the key already exists
+yaml.remove("new-module"); // Removes the module. Note that this also will remove it from the file.
+yaml.replace(getNameModule, new DYModule("first-name").setDefValues("JOHNY")) // First parameter should be the module to replace. Second the new module.
+```
+The code above generates the following YAML:
+```yaml
+# Key-Comment
+first-name: JOHNY # Value-Comment
 last-name: Goldman
 age: 29
 work: Reporter
