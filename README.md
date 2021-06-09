@@ -91,7 +91,7 @@ pending-tasks:
   - buy food
   - start working
 ```
-## Examples
+## More examples
 These examples build on top of each other, so make sure to follow the order.
 * [`SimpleExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/SimpleExample.java)
 * [`SavingExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/SavingExample.java)
