@@ -213,6 +213,8 @@ public class DreamYaml {
      * and the {@link #loadedModules} list and returns it if could find one. <br>
      * Otherwise, it creates a new {@link DYModule} from the <br>
      * provided keys, adds it to the {@link #inEditModules} list and returns it. <br>
+     * Note: <br>
+     * If you have a populated yaml file and add a completely new {@link DYModule}, it gets added to the top of the file.
      */
     public DYModule put(String... keys) throws NotLoadedException, IllegalKeyException {
         Objects.requireNonNull(keys);
@@ -228,7 +230,8 @@ public class DreamYaml {
                 } catch (NotLoadedException | IllegalKeyException e) {
                     throw e;
                 } catch (DuplicateKeyException ignored) {
-                    ignored.printStackTrace();
+                    if (isDebugEnabled)
+                        debugLogger.log(this, "This shouldn't happen! Error while adding " + keys.toString() + " Message: " + ignored.getMessage());
                 }
         }
         return module;
@@ -260,6 +263,8 @@ public class DreamYaml {
      * Searches for duplicates in the {@link #inEditModules}, and the {@link #loadedModules} list and throws
      * {@link DuplicateKeyException} if it could find one. Otherwise, it creates a new {@link DYModule} from the
      * provided keys, adds it to the {@link #inEditModules} list and returns it.
+     * Note: <br>
+     * If you have a populated yaml file and add a completely new {@link DYModule}, it gets added to the top of the file.
      *
      * @param module module to add.
      * @return the added module.
@@ -347,21 +352,22 @@ public class DreamYaml {
      *
      * @return a fresh unified list containing loaded modules extended by added modules.
      */
-    public synchronized List<DYModule> createUnifiedList(List<DYModule> inEditModules, List<DYModule> loadedModules) {
+    public List<DYModule> createUnifiedList(List<DYModule> inEditModules, List<DYModule> loadedModules) {
         if (loadedModules.isEmpty()) return inEditModules;
 
         if (isDebugEnabled) {
             debugLogger.log(this, "### CREATE UNIFIED LIST ###");
             debugLogger.log(this, "This process creates a single list out of the 'inEditModules' and 'loadedModules' lists.");
             debugLogger.log(this, "Printing contents of both lists:");
+            debugLogger.log(this, "EM: inEditModule, LM: loadedModule.");
             for (DYModule m :
                     inEditModules) {
-                debugLogger.log(this, "inEditModules: KEY" + m.getKeys());
+                debugLogger.log(this, "EM: " + m.getKeys());
             }
 
             for (DYModule m :
                     loadedModules) {
-                debugLogger.log(this, "loadedModules: KEY" + m.getKeys());
+                debugLogger.log(this, "LM: " + m.getKeys());
             }
         }
 
@@ -373,6 +379,7 @@ public class DreamYaml {
             debugLogger.log(this, "We go thorough the loadedModules list, to keep its structure and");
             debugLogger.log(this, "add its modules to the unified list. If there is a inEditModule that has the");
             debugLogger.log(this, "same keys as the loadedModule, it gets added instead.");
+            debugLogger.log(this, "EM: inEditModule, LM: loadedModule.");
         }
         for (DYModule loadedModule :
                 loadedModules) {
@@ -382,54 +389,114 @@ public class DreamYaml {
                 unifiedList.add(existing);
                 // Also remove it from its own list, so at the end there are only 'new' modules in that list
                 copyInEditModules.remove(existing);
-                if (isDebugEnabled) debugLogger.log(this, "+ inEditModule " + existing.getKeys().toString() + " to unified.");
+                if (isDebugEnabled) debugLogger.log(this, "+ EM " + existing.getKeys().toString() + " to unified.");
             } else {
                 unifiedList.add(loadedModule);
-                if (isDebugEnabled) debugLogger.log(this, "+ loadedModule +" + loadedModule.getKeys().toString() + "+ to unified.");
+                if (isDebugEnabled) debugLogger.log(this, "+ LM " + loadedModule.getKeys().toString() + " to unified.");
             }
         }
 
         if (isDebugEnabled) {
             debugLogger.log(this, "Now go through the copyInEditModules(" + copyInEditModules.size() + ") list, which");
             debugLogger.log(this, "should now only contain new modules, that didn't exist in the loadedModules list.");
-            debugLogger.log(this, "Add those modules, to");
+            debugLogger.log(this, "Insert those modules, into the unified list, at the right place:");
+            debugLogger.log(this, "NM: newModule.");
         }
-        //System.out.println("");
-        //System.out.println("Go through the copyInEditModules("+copyInEditModules.size()+") list and add NEW ones to unified: ");
 
 
         // The copyInEditModules, now only contains completely new modules.
         // Go through that list, add G0 modules to the end of the unifiedModules list and
-        // other generations to their respective parents, as first module.
-        for (DYModule inEditModule :
+        // other generations to their respective parents, also at the last position.
+        for (DYModule newModule :
                 copyInEditModules) {
 
-            if (inEditModule.getKeys().size() > 1) {
-                DYModule parent = new UtilsDYModule().getExisting(inEditModule.getKeys().subList(0, inEditModule.getKeys().size() - 1), loadedModules);
-                if (parent != null) {
-                    int parentIndex = 0;
-                    for (DYModule uM :
-                            unifiedList) {
-                        if (uM.getKeys().equals(parent.getKeys())) { // Do this to find the parents position in the unified list
-                            // Add the inEditModule, to the list.
-                            // Example:
+            if (newModule.getKeys().size() > 1) {
+                // Find the module with the most matching keys, to determine its position in the hierarchy
+                int currentIndex = 0; // The current index in the loop below
+                int bestMatchIndex = 0; // The index of the module, with the highest count of matching keys
+                int highestCountOfMatchingKeys = 0;
+                for (DYModule unifiedModule : // Compare each unified modules keys against the new modules keys
+                        unifiedList) {
+                    for (int j = 0; j < unifiedModule.getKeys().size(); j++) {
+                        if (unifiedModule.getKeys().get(j).equals(newModule.getKeys().get(j))) {
+                            // Not >= because we don't want to get child modules. In the example below we are searching for [g0, g1]:
                             // g0:
-                            //   g1-1:
-                            //   g1-2: <--- Remember to count the child modules before too!
-                            if (!parent.getChildModules().isEmpty())
-                                parentIndex = parentIndex + parent.getChildModules().size() - 1;
-                            unifiedList.add(parentIndex + 1, inEditModule);
-                            parent.getChildModules().add(inEditModule);
+                            //   g1: <--- Keys as list: [g0, g1]
+                            //     g2: <--- Keys as list: [g0, g1, g2]
+                            // As you can see above, both contain g0 and g1 in their keys list.
+                            // With > we ensure, that only the first module is picked as best match.
+                            if (j + 1 > highestCountOfMatchingKeys) { // Since j is the index, add +1 to get the actual count
+                                if (isDebugEnabled)
+                                    debugLogger.log(this, "Set bestMatchIndex to " + currentIndex + " because of " + (j + 1) + "x similar keys found in unifiedModule, while searching for " + newModule.getKeys().toString());
+                                bestMatchIndex = currentIndex;
+                                highestCountOfMatchingKeys = j + 1; // Since j is the index, add +1 to get the actual count
+                            }
+                        } else
                             break;
-                        }
-                        parentIndex++;
                     }
-                } else {
-                    unifiedList.add(inEditModule); // Can be a completely new >G0 module
+                    currentIndex++;
+                }
+
+
+                if (highestCountOfMatchingKeys != newModule.getKeys().size() - 1) { // -1 Because we want the parent module
+                    // This means that the 'parent' module has less matching keys and thus cannot be the direct parent.
+                    // Lets imagine we added a new module with these keys [g0, g1, g2, g3], but the loaded file looks like this:
+                    // g0:
+                    //   g1: <---
+                    // In this case the highest count of matching keys is 2: [g0, g1], but the parent should be [g0, g1, g2], aka
+                    // the highest count of matching keys should be 3.
+                    // Thus we need to create and add those missing modules in between, as fillers.
+                    DYModule beforeFillerModule = null;
+                    for (int i = highestCountOfMatchingKeys; i < newModule.getKeys().size() - 1; i++) { // -1 Because we want the parent module
+                        DYModule fillerModule = new DYModule(this, newModule.getKeys().subList(0, i), null, null, null);
+                        bestMatchIndex++; // So that the new filler module gets added in the right position
+                        unifiedList.add(bestMatchIndex, fillerModule);
+                        if (beforeFillerModule != null) {
+                            beforeFillerModule.addChildModules(fillerModule);
+                            fillerModule.setParentModule(beforeFillerModule);
+                        }
+                        if (isDebugEnabled)
+                            debugLogger.log(this, "+ Filler at index " + bestMatchIndex + " " + fillerModule.getKeys().toString());
+                        beforeFillerModule = fillerModule;
+                    }
+                }
+
+                try {
+                    DYModule parent = unifiedList.get(bestMatchIndex);
+                    // It may happen that
+                    // g0:
+                    //   g1-1:
+                    //   g1-2: <--- Remember to count the child modules before too!
+                    // Do not do this, because we want new modules to be displayed as first.
+                    // Also the below isn't working... That's another reason why Im not doing it...
+                    //if (!parent.getChildModules().isEmpty())
+                    //    bestMatchIndex = bestMatchIndex + parent.getChildModules().size() - 1;
+                    bestMatchIndex++; // +1 because we currently got the index for the parent, before this module.
+                    unifiedList.add(bestMatchIndex, newModule);
+                    parent.addChildModules(newModule);
+                    newModule.setParentModule(parent);
+                    if (isDebugEnabled)
+                        debugLogger.log(this, "> Insert at index " + bestMatchIndex + " " + newModule.getKeys().toString());
+                } catch (Exception e) {
+                    if (isDebugEnabled)
+                        debugLogger.log(this, "! Failed to find parent for: " + newModule.getKeys().toString() + " Probably a new module.");
+                    unifiedList.add(0, newModule); // Can be a completely new >G0 module
+                    if (isDebugEnabled) debugLogger.log(this, "+ NM " + newModule.getKeys().toString());
                 }
             } else {
-                unifiedList.add(inEditModule); // G0 modules get added to the end of the file
+                unifiedList.add(0, newModule); // G0 modules get added to the end of the file
+                if (isDebugEnabled) debugLogger.log(this, "+ NM at G0 " + newModule.getKeys().toString());
             }
+        }
+
+        if (isDebugEnabled) {
+            debugLogger.log(this, "Finished creation of unified list. Quick overview of the result:");
+            debugLogger.log(this, "UM: unifiedModule.");
+            for (DYModule m :
+                    unifiedList) {
+                debugLogger.log(this, "UM: " + m.getKeys().toString());
+            }
+            debugLogger.log(this, "### FINISHED CREATE UNIFIED LIST ###");
         }
         return unifiedList;
     }
