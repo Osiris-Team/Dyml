@@ -214,7 +214,20 @@ public class DreamYaml {
      * Otherwise, it creates a new {@link DYModule} from the <br>
      * provided keys, adds it to the {@link #inEditModules} list and returns it. <br>
      * Note: <br>
-     * If you have a populated yaml file and add a completely new {@link DYModule}, it gets added to the top of the file.
+     * If you have a populated yaml file and add a completely new {@link DYModule}, it gets added to the bottom of the hierarchy. <br>
+     * Example yaml file before adding the new {@link DYModule} with keys [g0, g1-new]:
+     * <pre>
+     * g0:
+     *   g1-m1:
+     *   g1-m2:
+     * </pre>
+     * Example yaml file after adding the new {@link DYModule} with keys [g0, g1-new]:
+     * <pre>
+     * g0:
+     *   g1-m1:
+     *   g1-m2:
+     *   g1-new:
+     * </pre>
      */
     public DYModule put(String... keys) throws NotLoadedException, IllegalKeyException {
         Objects.requireNonNull(keys);
@@ -262,9 +275,22 @@ public class DreamYaml {
      * Details: <br>
      * Searches for duplicates in the {@link #inEditModules}, and the {@link #loadedModules} list and throws
      * {@link DuplicateKeyException} if it could find one. Otherwise, it creates a new {@link DYModule} from the
-     * provided keys, adds it to the {@link #inEditModules} list and returns it.
+     * provided keys, adds it to the {@link #inEditModules} list and returns it. <br>
      * Note: <br>
-     * If you have a populated yaml file and add a completely new {@link DYModule}, it gets added to the top of the file.
+     * If you have a populated yaml file and add a completely new {@link DYModule}, it gets added to the bottom of the hierarchy. <br>
+     * Example yaml file before adding the new {@link DYModule} with keys [g0, g1-new]:
+     * <pre>
+     * g0:
+     *   g1-m1:
+     *   g1-m2:
+     * </pre>
+     * Example yaml file after adding the new {@link DYModule} with keys [g0, g1-new]:
+     * <pre>
+     * g0:
+     *   g1-m1:
+     *   g1-m2:
+     *   g1-new:
+     * </pre>
      *
      * @param module module to add.
      * @return the added module.
@@ -424,8 +450,13 @@ public class DreamYaml {
                             //   g1: <--- Keys as list: [g0, g1]
                             //     g2: <--- Keys as list: [g0, g1, g2]
                             // As you can see above, both contain g0 and g1 in their keys list.
-                            // With > we ensure, that only the first module is picked as best match.
-                            if (j + 1 > highestCountOfMatchingKeys) { // Since j is the index, add +1 to get the actual count
+                            // With >= we ensure, that NOT only the first module is picked as best match, but
+                            // we get to the last child modules position.
+                            // This ensures, that the new module is added to the end of that generation.
+                            // g0:
+                            //   g1-1:
+                            //   g1-2: <---
+                            if (j + 1 >= highestCountOfMatchingKeys) { // Since j is the index, add +1 to get the actual count
                                 if (isDebugEnabled)
                                     debugLogger.log(this, "Set bestMatchIndex to " + currentIndex + " because of " + (j + 1) + "x similar keys found in unifiedModule, while searching for " + newModule.getKeys().toString());
                                 bestMatchIndex = currentIndex;
@@ -463,14 +494,6 @@ public class DreamYaml {
 
                 try {
                     DYModule parent = unifiedList.get(bestMatchIndex);
-                    // It may happen that
-                    // g0:
-                    //   g1-1:
-                    //   g1-2: <--- Remember to count the child modules before too!
-                    // Do not do this, because we want new modules to be displayed as first.
-                    // Also the below isn't working... That's another reason why Im not doing it...
-                    //if (!parent.getChildModules().isEmpty())
-                    //    bestMatchIndex = bestMatchIndex + parent.getChildModules().size() - 1;
                     bestMatchIndex++; // +1 because we currently got the index for the parent, before this module.
                     unifiedList.add(bestMatchIndex, newModule);
                     parent.addChildModules(newModule);
