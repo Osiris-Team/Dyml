@@ -5,10 +5,20 @@ import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 class DreamYamlTest {
+
+    @Test
+    void remove() throws DYWriterException, IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException {
+        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml", true);
+        yaml.reset();
+        yaml.add("test");
+        yaml.saveAndLoad();
+        yaml.remove("test");
+        yaml.saveAndLoad();
+        assertNull(yaml.get("test"));
+    }
 
     @Test
     void add() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {

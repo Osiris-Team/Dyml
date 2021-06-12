@@ -20,15 +20,17 @@ import java.util.List;
  */
 class DYWriter {
     private DreamYaml yaml;
+    private DYDebugLogger logger;
 
     public void parse(DreamYaml yaml, boolean overwrite, boolean reset) throws DYWriterException, IOException {
         this.yaml = yaml;
+        this.logger = yaml.getDebugLogger();
+
         UtilsTimeStopper timer = new UtilsTimeStopper();
         timer.start();
-        if (yaml.isDebugEnabled()) {
-            System.out.println();
-            System.out.println("Started writing yaml file: " + yaml.getFile().getName() + " at " + new Date() + " with overwrite: " + overwrite + " and reset: " + reset);
-        }
+        if (yaml.isDebugEnabled())
+            logger.log(this, "Started writing yaml file: " + yaml.getFile().getName() + " at " + new Date() + " with overwrite: " + overwrite + " and reset: " + reset);
+
 
         File file = yaml.getFile();
         if (file == null) throw new DYWriterException("File is null! Make sure to load it at least once!");
@@ -42,13 +44,12 @@ class DYWriter {
         List<DYModule> modulesToSave;
         if (overwrite) {
             modulesToSave = yaml.getAllInEdit();
-            if (modulesToSave.isEmpty())
-                throw new DYWriterException("Failed to write modules to file: There are no modules in the 'inEditModules list' for file '" + file.getName() + "' ! Nothing to write!");
-        } else {
+
+        } else
             modulesToSave = yaml.createUnifiedList(yaml.getAllInEdit(), yaml.getAllLoaded());
-            if (modulesToSave.isEmpty())
-                throw new DYWriterException("Failed to write modules to file: There are no modules in the list for file '" + file.getName() + "' ! Nothing to write!");
-        }
+
+        if (modulesToSave.isEmpty() && yaml.isDebugEnabled())
+            yaml.getDebugLogger().log(this, "The modules list is empty. Written an empty file.");
 
 
         DYModule lastModule = new DYModule(yaml); // Create an empty module as start point
@@ -60,32 +61,31 @@ class DYWriter {
 
         timer.stop();
         if (yaml.isDebugEnabled()) {
-            System.out.println();
-            System.out.println("Finished writing of " + yaml.getFile().getName() + " at " + new Date());
-            System.out.println("Written unified modules details:");
+            logger.log(this,"Finished writing of " + yaml.getFile().getName() + " at " + new Date());
+            logger.log(this,"Written unified modules details:");
             for (DYModule loadedModule :
                     modulesToSave) {
 
-                System.out.println();
-                System.out.println("---> " + loadedModule.getModuleInformationAsString());
+                logger.log(this,"");
+                logger.log(this,"---> " + loadedModule.getModuleInformationAsString());
                 if (loadedModule.getParentModule() != null)
-                    System.out.println("PARENT -> " + loadedModule.getParentModule().getModuleInformationAsString());
+                    logger.log(this,"PARENT -> " + loadedModule.getParentModule().getModuleInformationAsString());
                 else
-                    System.out.println("PARENT -> NULL");
+                    logger.log(this,"PARENT -> NULL");
 
                 for (DYModule childModule :
                         loadedModule.getChildModules()) {
                     if (childModule != null)
-                        System.out.println("CHILD -> " + childModule.getModuleInformationAsString());
+                        logger.log(this,"CHILD -> " + childModule.getModuleInformationAsString());
                     else
-                        System.out.println("CHILD -> NULL");
+                        logger.log(this,"CHILD -> NULL");
                 }
             }
         }
         if (yaml.isDebugEnabled()) {
-            System.out.println("Finished writing of " + yaml.getFile().getName() + " at " + new Date());
-            System.out.println("Operation took " + timer.getFormattedMillis() + "ms or " + timer.getFormattedSeconds() + "s");
-            System.out.println();
+            logger.log(this,"Finished writing of " + yaml.getFile().getName() + " at " + new Date());
+            logger.log(this,"Operation took " + timer.getFormattedMillis() + "ms or " + timer.getFormattedSeconds() + "s");
+            logger.log(this,"");
         }
     }
 
