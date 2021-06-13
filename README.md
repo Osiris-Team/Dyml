@@ -272,55 +272,137 @@ p3:
 </details>
  
  <details>
-  <summary>Open/Close parent- and child-modules example</summary>
+  <summary>Open/Close coding style recommendation example</summary>
 <pre lang="java">
-DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/parent-example.yml");
+/**
+ * Recommendation how to use the DreamYaml api.
+ */
+public class CodingStyleExample {
 
-DYModule p1 = yaml.put("p1").setComments("Create a more complex yaml file", "with multiple parents and children.");
-DYModule p1C1 = yaml.put("p1", "c1").setDefValues("You can arrange your");
-DYModule p1C2 = yaml.put("p1", "c2").setDefValues("keys and values");
-DYModule p1C3 = yaml.put("p1", "c3").setDefValues("as you like!");
-DYModule p2C3 = yaml.put("p2", "c1", "c2", "c3").setDefValues("awesome!"); // Always order objects from parent to child, otherwise you will get errors!
-// DYModule notAllowed = yaml.addDef("p2", "c1", "c2"); <- ERROR because you try to access c2 even though c3 already was added
-// If you want to access the child's values you need to pass them one after another like this:
-DYModule p3C1 = yaml.put("p3", "c1").setDefValues("v1");
-DYModule p3C2 = yaml.put("p3", "c1", "c2").setDefValues("v2");
-DYModule p3C3 = yaml.put("p3", "c1", "c2", "c3").setDefValues("v3");
+    // If you only got a few modules and you want quick access across your code, you can add them as static fields and load your yaml file once at startup
+    // If you also want to keep this values up to date you can add a DYWatcher with an DYAction which does that.
+    public static DYModule FIRST_NAME;
+    public static DYModule LAST_NAME;
+    public static DYModule AGE;
+    public static DYModule PROFESSION;
 
-yaml.saveAndLoad();
-// You can get a parents child modules easily through:
-p1.getChildModules();
-// Return a childs parent is also easy:
-p1C1.getParentModule();
+    // If you prefer encapsulating the modules you can do so, but remember that you will have to load your yaml file every time you create this class
+    // This will ensure you always are using the latest values.
+    private DYModule firstName;
+    private DYModule lastName;
+    private DYModule age;
+    private DYModule work;
+
+    public CodingStyleExample() throws Exception {
+        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/coding-style-example.yml");
+        //yaml.load(); // We don't need to call this, since autoLoad is enabled by default.
+        yaml.reset(); // DO NOT CALL THIS IN PRODUCTION, IT WILL REMOVE ALL THE INFORMATION FROM YOUR YAML FILE!
+        // I am doing this only for the sake of testing!
+
+        FIRST_NAME = yaml.put("name").setDefValues("John");
+        LAST_NAME = yaml.put("last-name").setDefValues("Goldman");
+        AGE = yaml.put("age").setDefValues("29");
+        PROFESSION = yaml.put("work").setDefValues("Reporter");
+
+        firstName = yaml.put("encapsulated", "name").setDefValues("John");
+        lastName = yaml.put("encapsulated", "last-name").setDefValues("Goldman");
+        age = yaml.put("encapsulated", "age").setDefValues("29");
+        work = yaml.put("encapsulated", "work").setDefValues("Reporter");
+
+        yaml.save(true);
+    }
+
+    // Getters for encapsulated modules:
+
+    public DYModule getFirstName() {
+        return firstName;
+    }
+
+    public DYModule getLastName() {
+        return lastName;
+    }
+
+    public DYModule getAge() {
+        return age;
+    }
+
+    public DYModule getWork() {
+        return work;
+    }
+}
 </pre>
 <pre lang="yaml">
-# Create a more complex yaml file
-# with multiple parents and children.
-p1:
-  c1: You can arrange your
-  c2: keys and values
-  c3: as you like!
-p2:
-  c1:
-    c2:
-      c3: awesome!
-p3:
-  c1: v1
-    c2: v2
-      c3: v3
+name: John
+last-name: Goldman
+age: 29
+work: Reporter
+encapsulated:
+  name: John
+  last-name: Goldman
+  age: 29
+  work: Reporter
 </pre>
 </details>
 
-## More examples
+ <details>
+  <summary>Open/Close watching yaml files example</summary>
+<pre lang="java">
+// First we create two yaml files with some data
+DreamYaml yaml1 = new DreamYaml(System.getProperty("user.dir") + "/src/test/watcher-1-example.yml");
+yaml1.load();
+DYModule firstName1 = yaml1.put("name").setDefValues("John");
+yaml1.save(true);
 
-* [`SimpleExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/SimpleExample.java)
-* [`SavingExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/SavingExample.java)
-* [`CommentsExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/CommentsExample.java)
-* [`GettingValuesExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/GettingValuesExample.java)
-* [`ValueValidationExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/ValueValidationExample.java)
-* [`ParentExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/ParentExample.java)
-* [`CodingStyleExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/CodingStyleExample.java)
-* [`WatcherExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/DYWatcherExample.java)
+DreamYaml yaml2 = new DreamYaml(System.getProperty("user.dir") + "/src/test/watcher-2-example.yml");
+yaml2.load();
+DYModule firstName2 = yaml2.put("name").setDefValues("John");
+yaml2.save(true);
+
+
+// Create a watcher. Note that by default it will watch the complete, user directory in which this jar is located and its subdirectories.
+DYWatcher watcher = new DYWatcher();  // You can specify a custom directory to watch by: DYWatcher watcher = new DYWatcher("C:your/custom/directory/path/here");
+watcher.start(); // Starts the watcher in its own new thread.
+
+// Add the files we want to watch
+watcher.addYaml(yaml1);
+watcher.addYaml(yaml2);
+
+// Create the action we want to perform when these files change
+DYAction action1 = new DYAction();
+action1.setRunnable(() -> {
+// This action will reload every config watched by the watcher when its changed
+try {
+        action1.getYaml().load();
+        System.out.println("The " + action1.getYaml().getFile().getName() + " file was modified! Event kind: " + action1.getEventKind());
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+   });
+
+// Besides, you can create an action for a specific yaml file, by simply adding that file to the actions constructor
+DYAction action2 = new DYAction(yaml2);
+action2.setRunnable(() -> {
+   // Displays a message when the file gets modified. For more events see StandardWatchEventKinds.
+    if (action2.getEventKind().equals(StandardWatchEventKinds.ENTRY_MODIFY))
+        System.out.println("This is a specific message for the file yaml2(" + action2.getYaml().getFile().getName() + "), that it was modified!");
+});
+
+// Add the actions to the watcher
+watcher.addAction(action1);
+watcher.addAction(action2);
+
+// That's it. Now we run some test to see if it works:
+System.out.println("\nUser modifies yaml1:");
+firstName1.setValues("Pete"); // Imagine that this change is done by a person
+yaml1.save(); // In this moment the file gets modified
+
+System.out.println("\nUser modifies yaml2:");
+firstName2.setValues("Pete"); // Imagine that this change is done by a person
+yaml2.save(); // In this moment the file gets modified
+</pre>
+</details>
+All the above examples can be found as tests [here](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples).
+
 ## Benchmarks
 Dream-Yaml seems to be about 9x faster than [SnakeYAML](https://bitbucket.org/asomov/snakeyaml/src/master/)
 , 8x faster than [YamlBeans](https://github.com/EsotericSoftware/yamlbeans)
