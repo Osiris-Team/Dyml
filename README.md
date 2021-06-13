@@ -63,6 +63,8 @@ pending-tasks:
 ```
 ## Advanced example
 (demonstrating some core features)
+<details>
+  <summary>For what does DY stand for?</summary>
 ```java
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/advanced-example.yml");
 
@@ -91,6 +93,8 @@ pending-tasks:
   - buy food
   - start working
 ```
+</details>
+
 ## More examples
 These examples build on top of each other, so make sure to follow the order.
 * [`SimpleExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/SimpleExample.java)
