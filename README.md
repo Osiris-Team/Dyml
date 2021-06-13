@@ -63,8 +63,8 @@ pending-tasks:
 ```
 ## More examples
 These examples build on top of each other, so make sure to follow the order.
-<details style="margin-bottom: 0px;">
-  <summary>Core features</summary>
+<details>
+  <summary>Open/Close core features example</summary>
 <pre lang="java">
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/advanced-example.yml");
 
@@ -95,7 +95,7 @@ pending-tasks:
 </details>
 
 <details>
-  <summary>Saving example</summary>
+  <summary>Open/Close saving example</summary>
 <pre lang="java">
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/saving-example.yml");
 
@@ -117,6 +117,197 @@ DYModule age = yaml.add("age").setDefValues("29");
 // Then save it with 'overwrite' true:
 yaml.save(true);
 // That's it!
+</pre>
+</details>
+
+<details>
+  <summary>Open/Close comments example</summary>
+<pre lang="java">
+DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/comments-example.yml");
+
+DYModule firstName = yaml.put("name").setDefValues("John").setComments("You can insert your", "multiline comments like this.");
+DYModule lastName = yaml.put("last-name").setDefValues("Goldman").setComments(
+        "This is a multiline comment \n" +
+                "separated by javas \n" +
+                "next line character!");
+DYModule age = yaml.put("age").setDefValues(new DYValue(29).setComment("This is a side-comment/value-comment"))
+        .setComments("This is a single line comment.");
+DYModule work = yaml.put("work").setDefValues("Reporter");
+DYModule parent = yaml.put("p1", "c2", "c3").setComments("Comments in", "a hierarchy.");
+
+yaml.saveAndLoad();
+
+// How to get comments?
+firstName.getComments(); // Returns this modules key/top-comments
+age.getValue().getComment(); // Returns this modules, values/side-comment
+</pre>
+<pre lang="yaml">
+# You can insert your
+# multiline comments like this.
+name: John
+# This is a multiline comment
+# separated by javas
+# next line character!
+last-name: Goldman
+# This is a single line comment.
+age: 29 # This is a side-comment/value-comment
+work: Reporter
+p1:
+  c2:
+      # Comments in
+      # a hierarchy.
+      c3:
+</pre>
+</details>
+
+<details>
+  <summary>Open/Close getting values example</summary>
+<pre lang="java">
+DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/getting-values-example.yml");
+
+DYModule firstName = yaml.put("name").setDefValues("John").setComments("Everything about getting values.");
+DYModule lastName = yaml.put("last-name").setDefValues("Goldman");
+DYModule age = yaml.put("age").setDefValues("29");
+DYModule work = yaml.put("work").setDefValues("Reporter");
+DYModule pendingTasks = yaml.put("pending-tasks").setDefValues("research", "1234", "start working");
+
+yaml.saveAndLoad(); // Since the file got reset, we need to reload it after saving it
+
+// Getting module details
+String key = firstName.getFirstKey(); // name // Returns the first key.
+String keyI = firstName.getKeyByIndex(0); // name // Returns the key by given index. More on this in later examples.
+Object value = firstName.getValue(); // John // Returns the 'real' value from the yaml file at the time when load() was called.
+Object valueI = firstName.getValueByIndex(0); // John // Returns the value by given index.
+Object defaultValue = firstName.getDefValue(); // John // Returns the default value
+Object defaultValueI = firstName.getDefValueByIndex(0); // John // Returns the default value
+String comment = firstName.getComment(); // Everything about... // Returns the first comment.
+String commentI = firstName.getCommentByIndex(0); // Everything about... // Returns the comment by given index.
+
+// All the methods below return the 'real' values at the time when load() was called.
+DYValue firstNameValue = firstName.getValue(); // This is never null, and acts as a container for the actual string value
+String firstNameAsString = firstName.asString(); // Can be null if there is no actual string value
+int ageAsInt = age.asInt();
+List<DYValue> pendingTasksValues = pendingTasks.getValues();
+List<String> pendingTasksStrings = pendingTasks.asStringList();
+// You can also get each value from the list as an independent object
+String listIndex0 = pendingTasks.asString(0);
+int listIndex1 = pendingTasks.asInt(1);
+char[] listIndex2 = pendingTasks.asCharArray(2);
+
+// Finding and getting a module by its keys
+DYModule firstNameModuleByKeys = yaml.get("name"); // Returns the module from the permanent added modules list
+DYModule firstNameLoadedModuleByKeys = yaml.get("name"); // Returns the module from the temporary loaded modules list, at the time load() was called
+</pre>
+<pre lang="yaml">
+# Everything about getting values.
+name: John
+last-name: Goldman
+age: 29
+work: Reporter
+pending-tasks:
+  - research
+  - 1234
+  - start working
+</pre>
+</details>
+
+<details>
+  <summary>Open/Close value validation example</summary>
+<pre lang="java">
+DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/value-validation-example.yml");
+DYModule module = yaml.put("is-valid").setDefValues("false");
+yaml.saveAndLoad(); // It could be that the file is empty and the default value doesn't exist yet.
+
+if (!module.asBoolean())
+    System.err.println("Invalid value '" + module.getValue().asBoolean() + "' at " + module.getKeys() + " Corrected to -> '" + module.setValues("true").getValue().asBoolean() + "'");
+
+yaml.save(true); // Remember to save and update the file, after doing the correction.
+</pre>
+<pre lang="yaml">
+# BEFORE CORRECTION:
+is-valid: false
+# AFTER CORRECTION:
+is-valid: true
+</pre>
+</details>
+
+<details>
+  <summary>Open/Close parent- and child-modules example</summary>
+<pre lang="java">
+DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/parent-example.yml");
+
+DYModule p1 = yaml.put("p1").setComments("Create a more complex yaml file", "with multiple parents and children.");
+DYModule p1C1 = yaml.put("p1", "c1").setDefValues("You can arrange your");
+DYModule p1C2 = yaml.put("p1", "c2").setDefValues("keys and values");
+DYModule p1C3 = yaml.put("p1", "c3").setDefValues("as you like!");
+DYModule p2C3 = yaml.put("p2", "c1", "c2", "c3").setDefValues("awesome!"); // Always order objects from parent to child, otherwise you will get errors!
+// DYModule notAllowed = yaml.addDef("p2", "c1", "c2"); <- ERROR because you try to access c2 even though c3 already was added
+// If you want to access the child's values you need to pass them one after another like this:
+DYModule p3C1 = yaml.put("p3", "c1").setDefValues("v1");
+DYModule p3C2 = yaml.put("p3", "c1", "c2").setDefValues("v2");
+DYModule p3C3 = yaml.put("p3", "c1", "c2", "c3").setDefValues("v3");
+
+yaml.saveAndLoad();
+// You can get a parents child modules easily through:
+p1.getChildModules();
+// Return a childs parent is also easy:
+p1C1.getParentModule();
+</pre>
+<pre lang="yaml">
+# Create a more complex yaml file
+# with multiple parents and children.
+p1:
+  c1: You can arrange your
+  c2: keys and values
+  c3: as you like!
+p2:
+  c1:
+    c2:
+      c3: awesome!
+p3:
+  c1: v1
+    c2: v2
+      c3: v3
+</pre>
+</details>
+ 
+ <details>
+  <summary>Open/Close parent- and child-modules example</summary>
+<pre lang="java">
+DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/parent-example.yml");
+
+DYModule p1 = yaml.put("p1").setComments("Create a more complex yaml file", "with multiple parents and children.");
+DYModule p1C1 = yaml.put("p1", "c1").setDefValues("You can arrange your");
+DYModule p1C2 = yaml.put("p1", "c2").setDefValues("keys and values");
+DYModule p1C3 = yaml.put("p1", "c3").setDefValues("as you like!");
+DYModule p2C3 = yaml.put("p2", "c1", "c2", "c3").setDefValues("awesome!"); // Always order objects from parent to child, otherwise you will get errors!
+// DYModule notAllowed = yaml.addDef("p2", "c1", "c2"); <- ERROR because you try to access c2 even though c3 already was added
+// If you want to access the child's values you need to pass them one after another like this:
+DYModule p3C1 = yaml.put("p3", "c1").setDefValues("v1");
+DYModule p3C2 = yaml.put("p3", "c1", "c2").setDefValues("v2");
+DYModule p3C3 = yaml.put("p3", "c1", "c2", "c3").setDefValues("v3");
+
+yaml.saveAndLoad();
+// You can get a parents child modules easily through:
+p1.getChildModules();
+// Return a childs parent is also easy:
+p1C1.getParentModule();
+</pre>
+<pre lang="yaml">
+# Create a more complex yaml file
+# with multiple parents and children.
+p1:
+  c1: You can arrange your
+  c2: keys and values
+  c3: as you like!
+p2:
+  c1:
+    c2:
+      c3: awesome!
+p3:
+  c1: v1
+    c2: v2
+      c3: v3
 </pre>
 </details>
 
