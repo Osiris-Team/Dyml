@@ -63,20 +63,10 @@ pending-tasks:
 ```
 ## Advanced example
 (demonstrating some core features)
+
 <details>
   <summary>For what does DY stand for?</summary>
- <div class="highlight highlight-source-java position-relative">
-  # Key-Comment
-first-name: JOHNY # Value-Comment
-last-name: Goldman
-age: 29
-work: Reporter
-pending-tasks: 
-  - do research
-  - buy food
-  - start working
- </div>
-```java
+<pre class="highlight highlight-source-java position-relative">
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/advanced-example.yml");
 
 yaml.put("name")         .setDefValues(new DYValue("John", "Value-Comment")).setDefComments("Key-Comment");
@@ -91,11 +81,19 @@ DYModule getNameModule = yaml.get("name"); // Method for retrieving modules by t
 yaml.add("new-module"); // Adds a new module, with null value. Throws exception if the key already exists
 yaml.remove("new-module"); // Removes the module. Note that this also will remove it from the file.
 yaml.replace(getNameModule, new DYModule("first-name").setDefValues("JOHNY")) // First parameter should be the module to replace. Second the new module.
-```
+</pre>
 The code above generates the following YAML:
-```yaml
-
-```
+<pre class="highlight highlight-source-java position-relative">
+  # Key-Comment
+first-name: JOHNY # Value-Comment
+last-name: Goldman
+age: 29
+work: Reporter
+pending-tasks: 
+  - do research
+  - buy food
+  - start working
+</pre>
 </details>
 
 ## More examples
