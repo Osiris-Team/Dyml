@@ -401,7 +401,7 @@ firstName2.setValues("Pete"); // Imagine that this change is done by a person
 yaml2.save(); // In this moment the file gets modified
 </pre>
 </details>
-All the above examples can be found as tests [here](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples).
+All the above examples can be found as tests here: https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples
 
 ## Benchmarks
 Dream-Yaml seems to be about 9x faster than [SnakeYAML](https://bitbucket.org/asomov/snakeyaml/src/master/)
