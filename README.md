@@ -61,11 +61,10 @@ pending-tasks:
   - buy food
   - start working
 ```
-## Advanced example
-(demonstrating some core features)
-
+## More examples
+These examples build on top of each other, so make sure to follow the order.
 <details>
-  <summary>Open/Close example</summary>
+  <summary>Core features example</summary>
 <pre lang="java">
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/advanced-example.yml");
 
@@ -82,7 +81,6 @@ yaml.add("new-module"); // Adds a new module, with null value. Throws exception 
 yaml.remove("new-module"); // Removes the module. Note that this also will remove it from the file.
 yaml.replace(getNameModule, new DYModule("first-name").setDefValues("JOHNY")) // First parameter should be the module to replace. Second the new module.
 </pre>
-The code above generates the following YAML:
 <pre lang="yaml">
   # Key-Comment
 first-name: JOHNY # Value-Comment
@@ -96,8 +94,37 @@ pending-tasks:
 </pre>
 </details>
 
+<details>
+  <summary>Saving example</summary>
+<pre lang="java">
+        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/saving-example.yml");
+        //yaml.load(); // Not needed because of autoLoad
+        yaml.reset(); // Ignore this!
+        yaml.add("work").setDefValues("Reporter"); // Ignore this!
+
+        // SCENARIO 1:
+        // Lets imagine this file contains tons of information but we only want to modify/update that one section and keep the rest.
+        // For that we simply add that section into memory and edit it: 
+        yaml.get("work").setValues("Developer");
+        // And save the file:
+        yaml.save(); // Note that stuff that isn't supported by DreamYaml wont be parsed and thus removed from the file after you save it!
+        // Just as simple as that!
+
+        // SCENARIO 2:
+        // Lets imagine another scenario where this file contains a lot of unnecessary stuff we want to get rid of
+        // and add other data instead.
+        // For that we (again) add the modules first:
+        DYModule firstName = yaml.add("name").setDefValues("John");
+        DYModule lastName = yaml.add("last-name").setDefValues("Goldman");
+        DYModule age = yaml.add("age").setDefValues("29");
+        // Then save it with 'overwrite' true:
+        yaml.save(true);
+        // That's it!
+</pre>
+</details>
+
 ## More examples
-These examples build on top of each other, so make sure to follow the order.
+
 * [`SimpleExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/SimpleExample.java)
 * [`SavingExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/SavingExample.java)
 * [`CommentsExample`](https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples/CommentsExample.java)
