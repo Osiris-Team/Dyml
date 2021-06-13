@@ -1,4 +1,4 @@
-# Dream-Yaml [![](https://jitpack.io/v/Osiris-Team/Dream-Yaml.svg)](https://jitpack.io/#Osiris-Team/Dream-Yaml)
+# Dream-Yaml [dyml] [![](https://jitpack.io/v/Osiris-Team/Dream-Yaml.svg)](https://jitpack.io/#Osiris-Team/Dream-Yaml)
 The Java-API for processing YAML files you've always dreamed of.
 ## Links
  - [API-Design](DESIGN.md)
