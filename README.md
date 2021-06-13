@@ -83,7 +83,7 @@ yaml.remove("new-module"); // Removes the module. Note that this also will remov
 yaml.replace(getNameModule, new DYModule("first-name").setDefValues("JOHNY")) // First parameter should be the module to replace. Second the new module.
 </pre>
 <pre lang="yaml">
-  # Key-Comment
+# Key-Comment
 first-name: JOHNY # Value-Comment
 last-name: Goldman
 age: 29
