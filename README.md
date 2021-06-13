@@ -94,6 +94,17 @@ pending-tasks:
   - buy food
   - start working
 </pre>
+ <div class="highlight highlight-source-java position-relative">
+  DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/advanced-example.yml");
+
+yaml.put("name")         .setDefValues(new DYValue("John", "Value-Comment")).setDefComments("Key-Comment");
+yaml.put("last-name")    .setDefValues("Goldman");
+yaml.put("age")          .setDefValues("29");
+yaml.put("work")         .setDefValues("Reporter");
+yaml.put("pending-tasks").setDefValues("do research", "buy food", "start working");
+
+yaml.saveAndLoad();
+ </div>
 </details>
 
 ## More examples
