@@ -65,6 +65,17 @@ pending-tasks:
 (demonstrating some core features)
 <details>
   <summary>For what does DY stand for?</summary>
+ <div class="highlight highlight-source-java position-relative">
+  # Key-Comment
+first-name: JOHNY # Value-Comment
+last-name: Goldman
+age: 29
+work: Reporter
+pending-tasks: 
+  - do research
+  - buy food
+  - start working
+ </div>
 ```java
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/advanced-example.yml");
 
@@ -83,15 +94,7 @@ yaml.replace(getNameModule, new DYModule("first-name").setDefValues("JOHNY")) //
 ```
 The code above generates the following YAML:
 ```yaml
-# Key-Comment
-first-name: JOHNY # Value-Comment
-last-name: Goldman
-age: 29
-work: Reporter
-pending-tasks: 
-  - do research
-  - buy food
-  - start working
+
 ```
 </details>
 
