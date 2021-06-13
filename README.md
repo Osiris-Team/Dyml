@@ -65,8 +65,8 @@ pending-tasks:
 (demonstrating some core features)
 
 <details>
-  <summary>For what does DY stand for?</summary>
-<pre class="highlight highlight-source-java position-relative">
+  <summary>Open/Close example</summary>
+<pre lang="java">
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/advanced-example.yml");
 
 yaml.put("name")         .setDefValues(new DYValue("John", "Value-Comment")).setDefComments("Key-Comment");
@@ -83,7 +83,7 @@ yaml.remove("new-module"); // Removes the module. Note that this also will remov
 yaml.replace(getNameModule, new DYModule("first-name").setDefValues("JOHNY")) // First parameter should be the module to replace. Second the new module.
 </pre>
 The code above generates the following YAML:
-<pre class="highlight highlight-source-java position-relative">
+<pre lang="yaml">
   # Key-Comment
 first-name: JOHNY # Value-Comment
 last-name: Goldman
@@ -94,17 +94,6 @@ pending-tasks:
   - buy food
   - start working
 </pre>
- <div class="highlight highlight-source-java position-relative">
-  DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/advanced-example.yml");
-
-yaml.put("name")         .setDefValues(new DYValue("John", "Value-Comment")).setDefComments("Key-Comment");
-yaml.put("last-name")    .setDefValues("Goldman");
-yaml.put("age")          .setDefValues("29");
-yaml.put("work")         .setDefValues("Reporter");
-yaml.put("pending-tasks").setDefValues("do research", "buy food", "start working");
-
-yaml.saveAndLoad();
- </div>
 </details>
 
 ## More examples
