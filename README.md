@@ -67,6 +67,7 @@ These examples build on top of each other, so make sure to follow the order.
   <summary>Open/Close core features example</summary>
 <pre lang="java">
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/advanced-example.yml");
+// yaml.load() is not needed, because autoLoad is true by default and loads your file automatically in the constructor above
 
 yaml.put("name")         .setDefValues(new DYValue("John", "Value-Comment")).setDefComments("Key-Comment");
 yaml.put("last-name")    .setDefValues("Goldman");
