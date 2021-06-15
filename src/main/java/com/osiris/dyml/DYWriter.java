@@ -61,31 +61,31 @@ class DYWriter {
 
         timer.stop();
         if (yaml.isDebugEnabled()) {
-            logger.log(this,"Finished writing of " + yaml.getFile().getName() + " at " + new Date());
-            logger.log(this,"Written unified modules details:");
+            logger.log(this, "Finished writing of " + yaml.getFile().getName() + " at " + new Date());
+            logger.log(this, "Written unified modules details:");
             for (DYModule loadedModule :
                     modulesToSave) {
 
-                logger.log(this,"");
-                logger.log(this,"---> " + loadedModule.getModuleInformationAsString());
+                logger.log(this, "");
+                logger.log(this, "---> " + loadedModule.getModuleInformationAsString());
                 if (loadedModule.getParentModule() != null)
-                    logger.log(this,"PARENT -> " + loadedModule.getParentModule().getModuleInformationAsString());
+                    logger.log(this, "PARENT -> " + loadedModule.getParentModule().getModuleInformationAsString());
                 else
-                    logger.log(this,"PARENT -> NULL");
+                    logger.log(this, "PARENT -> NULL");
 
                 for (DYModule childModule :
                         loadedModule.getChildModules()) {
                     if (childModule != null)
-                        logger.log(this,"CHILD -> " + childModule.getModuleInformationAsString());
+                        logger.log(this, "CHILD -> " + childModule.getModuleInformationAsString());
                     else
-                        logger.log(this,"CHILD -> NULL");
+                        logger.log(this, "CHILD -> NULL");
                 }
             }
         }
         if (yaml.isDebugEnabled()) {
-            logger.log(this,"Finished writing of " + yaml.getFile().getName() + " at " + new Date());
-            logger.log(this,"Operation took " + timer.getFormattedMillis() + "ms or " + timer.getFormattedSeconds() + "s");
-            logger.log(this,"");
+            logger.log(this, "Finished writing of " + yaml.getFile().getName() + " at " + new Date());
+            logger.log(this, "Operation took " + timer.getFormattedMillis() + "ms or " + timer.getFormattedSeconds() + "s");
+            logger.log(this, "");
         }
     }
 

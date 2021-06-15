@@ -28,24 +28,32 @@ import java.util.concurrent.CopyOnWriteArrayList;
  * that contains all of the default and loaded modules.
  */
 public class DreamYaml {
-    private final UtilsDreamYaml utilsDreamYaml = new UtilsDreamYaml(this);
-    private final UtilsDYModule utilsDYModule = new UtilsDYModule();
-    private final UtilsFile utilsFile = new UtilsFile();
 
+    // Yaml-Content:
     private InputStream inputStream;
     private File file;
     private String filePath;
+
     /**
-     * A final list, that contains {@link DYModule}s that. <br>
+     * A final list, that contains {@link DYModule}s that are in editing. <br>
      * In contrary to the {@link #loadedModules} list, this list doesn't get cleared <br>
      * and its {@link DYModule}s stay the same, no matter how often you call {@link #load()}. <br>
+     * {@link DYModule}s get added to the list, by {@link #get(String...)}, {@link #put(String...)}, {@link #add(String...)} or {@link #replace(DYModule, DYModule)}.
      */
     private final List<DYModule> inEditModules = new ArrayList<>();
+
     /**
      * A final list, that contains loaded {@link DYModule}s. <br>
      * It gets cleared and refilled with new {@link DYModule}s in {@link #load()}. <br>
      */
     private final List<DYModule> loadedModules = new ArrayList<>();
+
+    // Utils:
+    private final UtilsDreamYaml utilsDreamYaml = new UtilsDreamYaml(this);
+    private final UtilsDYModule utilsDYModule = new UtilsDYModule();
+    private final UtilsFile utilsFile = new UtilsFile();
+
+    // General:
     private boolean isDebugEnabled;
     private boolean isAutoLoadEnabled;
     private boolean isLoaded = false;
@@ -922,6 +930,13 @@ public class DreamYaml {
 
     public void setDebugLogger(DYDebugLogger debugLogger) {
         this.debugLogger = debugLogger;
+    }
+
+    /**
+     * True if {@link #load()} was called successfully once.
+     */
+    public boolean isLoaded() {
+        return isLoaded;
     }
 }
 

@@ -14,7 +14,7 @@
 
     <groupId>com.osiris.dyml</groupId>
     <artifactId>dyml</artifactId>
-    <version>4.4</version>
+    <version>4.5</version>
     <packaging>jar</packaging>
 
     <name>Dream-Yaml</name>
@@ -29,7 +29,7 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
-            <version>RELEASE</version>
+            <version>5.7.2</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -38,6 +38,12 @@
         <finalName>${project.name}</finalName>
         <defaultGoal>clean package</defaultGoal>
         <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.0.0-M5</version>
+            </plugin>
 
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -90,6 +96,9 @@
                         <goals>
                             <goal>jar</goal>
                         </goals>
+                        <configuration>
+                            <doclint>none</doclint>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
