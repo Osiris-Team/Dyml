@@ -15,6 +15,7 @@ import com.osiris.dyml.utils.UtilsFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -30,7 +31,10 @@ public class DreamYaml {
     private final UtilsDreamYaml utilsDreamYaml = new UtilsDreamYaml(this);
     private final UtilsDYModule utilsDYModule = new UtilsDYModule();
     private final UtilsFile utilsFile = new UtilsFile();
-    private final String filePath;
+
+    private InputStream inputStream;
+    private File file;
+    private String filePath;
     /**
      * A final list, that contains {@link DYModule}s that. <br>
      * In contrary to the {@link #loadedModules} list, this list doesn't get cleared <br>
@@ -42,9 +46,9 @@ public class DreamYaml {
      * It gets cleared and refilled with new {@link DYModule}s in {@link #load()}. <br>
      */
     private final List<DYModule> loadedModules = new ArrayList<>();
-    private File file;
     private boolean isDebugEnabled;
     private boolean isAutoLoadEnabled;
+    private boolean isLoaded = false;
 
     // Post-Processing:
     private boolean isPostProcessingEnabled;
@@ -63,18 +67,34 @@ public class DreamYaml {
 
     /**
      * Initialises the {@link DreamYaml} object with useful features enabled. <br>
-     * See {@link #DreamYaml(String, boolean, boolean, boolean)} for details.
+     * See {@link #DreamYaml(InputStream, boolean, boolean, boolean)} for details.
      */
-    public DreamYaml(File file) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
-        this(file.getAbsolutePath());
+    public DreamYaml(InputStream inputStream) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
+        this(inputStream, true, false, true);
     }
 
     /**
      * Initialises the {@link DreamYaml} object with useful features enabled. <br>
-     * See {@link #DreamYaml(String, boolean, boolean, boolean)} for details.
+     * See {@link #DreamYaml(InputStream, boolean, boolean, boolean)} for details.
+     */
+    public DreamYaml(InputStream inputStream, boolean isDebugEnabled) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
+        this(inputStream, true, isDebugEnabled, true);
+    }
+
+    /**
+     * Initialises the {@link DreamYaml} object with useful features enabled. <br>
+     * See {@link #DreamYaml(File, boolean, boolean, boolean)} for details.
+     */
+    public DreamYaml(File file) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
+        this(file, true, false, true);
+    }
+
+    /**
+     * Initialises the {@link DreamYaml} object with useful features enabled. <br>
+     * See {@link #DreamYaml(File, boolean, boolean, boolean)} for details.
      */
     public DreamYaml(File file, boolean isDebugEnabled) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
-        this(file.getAbsolutePath(), true, isDebugEnabled, true);
+        this(file, true, isDebugEnabled, true);
     }
 
     /**
@@ -96,6 +116,36 @@ public class DreamYaml {
     /**
      * Initialises the {@link DreamYaml} object.
      *
+     * @param inputStream             InputStream of yaml content.
+     * @param isPostProcessingEnabled Enabled by default. <br>
+     *                                You can also enable/disable specific post-processing options individually: <br>
+     *                                See {@link #isPostProcessingEnabled()} for details.
+     * @param isDebugEnabled          Disabled by default. Shows debugging stuff.
+     * @param isAutoLoadEnabled       Enabled by default. Calls {@link #load()} inside of the constructor.
+     */
+    public DreamYaml(InputStream inputStream, boolean isPostProcessingEnabled, boolean isDebugEnabled, boolean isAutoLoadEnabled) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
+        this.inputStream = inputStream;
+        init(isPostProcessingEnabled, isDebugEnabled, isAutoLoadEnabled);
+    }
+
+    /**
+     * Initialises the {@link DreamYaml} object.
+     *
+     * @param file                    Your yaml file.
+     * @param isPostProcessingEnabled Enabled by default. <br>
+     *                                You can also enable/disable specific post-processing options individually: <br>
+     *                                See {@link #isPostProcessingEnabled()} for details.
+     * @param isDebugEnabled          Disabled by default. Shows debugging stuff.
+     * @param isAutoLoadEnabled       Enabled by default. Calls {@link #load()} inside of the constructor.
+     */
+    public DreamYaml(File file, boolean isPostProcessingEnabled, boolean isDebugEnabled, boolean isAutoLoadEnabled) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
+        this.file = file;
+        init(isPostProcessingEnabled, isDebugEnabled, isAutoLoadEnabled);
+    }
+
+    /**
+     * Initialises the {@link DreamYaml} object.
+     *
      * @param filePath                Your yaml files path.
      * @param isPostProcessingEnabled Enabled by default. <br>
      *                                You can also enable/disable specific post-processing options individually: <br>
@@ -105,6 +155,10 @@ public class DreamYaml {
      */
     public DreamYaml(String filePath, boolean isPostProcessingEnabled, boolean isDebugEnabled, boolean isAutoLoadEnabled) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
         this.filePath = filePath;
+        init(isPostProcessingEnabled, isDebugEnabled, isAutoLoadEnabled);
+    }
+
+    private void init(boolean isPostProcessingEnabled, boolean isDebugEnabled, boolean isAutoLoadEnabled) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
         this.isPostProcessingEnabled = isPostProcessingEnabled;
         this.isDebugEnabled = isDebugEnabled;
         this.isAutoLoadEnabled = isAutoLoadEnabled;
@@ -122,9 +176,12 @@ public class DreamYaml {
      */
     public DreamYaml load() throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
         if (this.isDebugEnabled) System.out.println("Executing load()");
-        file = new File(filePath);
-        if (!file.exists()) file.createNewFile();
+        if (file == null && filePath != null) {
+            file = new File(filePath);
+        }
+        if (file != null && !file.exists()) file.createNewFile();
         new DYReader().parse(this);
+        isLoaded = true;
         return this;
     }
 
@@ -136,9 +193,11 @@ public class DreamYaml {
      */
     public DreamYaml reset() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException {
         if (this.isDebugEnabled) debugLogger.log(this, "Executing reset()");
-        if (file == null) this.load();
-        new DYWriter().parse(this, true, true);
-        this.load();
+        if (inputStream == null) {
+            if (!isLoaded) this.load();
+            new DYWriter().parse(this, true, true);
+            this.load();
+        }
         return this;
     }
 
@@ -147,7 +206,7 @@ public class DreamYaml {
      * See {@link #save(boolean)} and {@link #load()} for details.
      */
     public DreamYaml saveAndLoad() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException {
-        if (file == null) this.load();
+        if (!isLoaded) this.load();
         this.save();
         this.load();
         return this;
@@ -179,8 +238,10 @@ public class DreamYaml {
      */
     public DreamYaml save(boolean overwrite) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException {
         if (this.isDebugEnabled) debugLogger.log(this, "Executing save()");
-        if (file == null) this.load();
-        new DYWriter().parse(this, overwrite, false);
+        if (inputStream == null) {
+            if (!isLoaded) this.load();
+            new DYWriter().parse(this, overwrite, false);
+        }
         return this;
     }
 
@@ -302,15 +363,15 @@ public class DreamYaml {
         Objects.requireNonNull(module.getKeys());
         if (this.isDebugEnabled) debugLogger.log(this, "Executing add(" + module.getKeys().toString() + ")");
         if (module.getKeys().isEmpty()) throw new IllegalKeyException("Keys list of this module cannot be empty!");
-        if (file == null) throw new NotLoadedException(); // load() should've been called at least once before
+        if (!isLoaded) throw new NotLoadedException(); // load() should've been called at least once before
         if (module.getKeys().contains(null))
             throw new IllegalKeyException("The provided keys list contains null key(s)! This is not allowed!");
 
         if (utilsDYModule.getExisting(module, this.inEditModules) != null)
-            throw new DuplicateKeyException(file.getName(), module.getKeys().toString());
+            throw new DuplicateKeyException((inputStream == null ? file.getName() : "<InputStream>"), module.getKeys().toString());
 
         if (utilsDYModule.getExisting(module, this.loadedModules) != null)
-            throw new DuplicateKeyException(file.getName(), module.getKeys().toString());
+            throw new DuplicateKeyException((inputStream == null ? file.getName() : "<InputStream>"), module.getKeys().toString());
 
         this.inEditModules.add(module);
         return module;
@@ -619,11 +680,15 @@ public class DreamYaml {
     }
 
     public String getFilePath() {
-        return filePath;
+        return (filePath != null ? filePath : (file != null ? file.getAbsolutePath() : ""));
     }
 
     public File getFile() {
         return file;
+    }
+
+    public InputStream getInputStream() {
+        return inputStream;
     }
 
     public UtilsDreamYaml getUtilsDreamYaml() {
@@ -634,7 +699,8 @@ public class DreamYaml {
      * Returns the yml files name without its extension.
      */
     public String getFileNameWithoutExt() throws NotLoadedException {
-        if (file == null) throw new NotLoadedException();
+        if (inputStream != null) return "<InputStream>";
+        if (!isLoaded) throw new NotLoadedException();
         return file.getName().replaceFirst("[.][^.]+$", ""); // Removes the file extension
     }
 
