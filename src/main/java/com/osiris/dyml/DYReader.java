@@ -15,10 +15,7 @@ import com.osiris.dyml.exceptions.IllegalListException;
 import com.osiris.dyml.utils.UtilsDYModule;
 import com.osiris.dyml.utils.UtilsTimeStopper;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -44,14 +41,18 @@ class DYReader {
         timer.start();
         if (yaml.isDebugEnabled()) {
             System.out.println();
-            System.out.println("Started reading yaml file: " + yaml.getFile().getName() + " at " + new Date());
+            System.out.println("Started reading yaml " + (yaml.getInputStream() == null ? "file: " + yaml.getFile().getName() : "InputStream") + " at " + new Date());
         }
 
-        File file = yaml.getFile();
-        if (file == null) throw new DYReaderException("File is null! Make sure to load it at least once!");
-        if (!file.exists()) throw new DYReaderException("File '" + file.getName() + "' doesn't exist!");
+        if (yaml.getInputStream() == null) {
+            File file = yaml.getFile();
+            if (file == null) throw new DYReaderException("File is null! Make sure to load it at least once!");
+            if (!file.exists()) throw new DYReaderException("File '" + file.getName() + "' doesn't exist!");
 
-        reader = new BufferedReader(new FileReader(file));
+            reader = new BufferedReader(new FileReader(file));
+        } else {
+            reader = new BufferedReader(new InputStreamReader(yaml.getInputStream()));
+        }
         yaml.getAllLoaded().clear();
 
 
@@ -125,7 +126,7 @@ class DYReader {
         timer.stop();
         if (yaml.isDebugEnabled()) {
             System.out.println();
-            System.out.println("Finished reading of " + yaml.getFile().getName() + " at " + new Date());
+            System.out.println("Finished reading of " + (yaml.getInputStream() == null ? yaml.getFile().getName() : "InputStream") + " at " + new Date());
             System.out.println("Operation took " + timer.getFormattedMillis() + "ms or " + timer.getFormattedSeconds() + "s");
             System.out.println("Loaded modules details:");
             for (DYModule loadedModule :
@@ -247,7 +248,7 @@ class DYReader {
                             .setValues(new DYValue(currentLine.getRawValue(), currentLine.getRawComment()));
                     yaml.getAllLoaded().add(module);
                 } else if (currentLine.isHyphenFound()) { // Its a side comment, so we add of a value in a list
-                    throw new IllegalListException(yaml.getFile().getName(), currentLine);
+                    throw new IllegalListException((yaml.getInputStream() == null ? yaml.getFile().getName() : "<InputStream>"), currentLine);
                 } else { // Regular comment, so add it to the module
                     module.addComments(currentLine.getRawComment());
                     // DOES NOT get added to the loaded list, until a key was found
@@ -257,7 +258,7 @@ class DYReader {
                         .setValues(currentLine.getRawValue());
                 yaml.getAllLoaded().add(module);
             } else if (currentLine.isHyphenFound()) {
-                throw new IllegalListException(yaml.getFile().getName(), currentLine);
+                throw new IllegalListException((yaml.getInputStream() == null ? yaml.getFile().getName() : "<InputStream>"), currentLine);
             }
 
             beforeModule = module;
