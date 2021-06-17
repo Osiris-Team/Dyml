@@ -66,7 +66,7 @@ pending-tasks:
 ## More examples
 These examples build on top of each other, so make sure to follow the order.
 <details>
-  <summary>Open/Close core features example</summary>
+  <summary>CORE features example</summary>
 <pre lang="java">
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/advanced-example.yml");
 // yaml.load() is not needed, because autoLoad is true by default and loads your file automatically in the constructor above
@@ -98,7 +98,7 @@ pending-tasks:
 </details>
 
 <details>
-  <summary>Open/Close saving example</summary>
+  <summary>SAVING example</summary>
 <pre lang="java">
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/saving-example.yml");
 
@@ -124,7 +124,7 @@ yaml.save(true);
 </details>
 
 <details>
-  <summary>Open/Close comments example</summary>
+  <summary>COMMENTS example</summary>
 <pre lang="java">
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/comments-example.yml");
 
@@ -164,7 +164,7 @@ p1:
 </details>
 
 <details>
-  <summary>Open/Close getting values example</summary>
+  <summary>Getting VALUES example</summary>
 <pre lang="java">
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/getting-values-example.yml");
 
@@ -215,7 +215,7 @@ pending-tasks:
 </details>
 
 <details>
-  <summary>Open/Close value validation example</summary>
+  <summary>Value VALIDATION example</summary>
 <pre lang="java">
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/value-validation-example.yml");
 DYModule module = yaml.put("is-valid").setDefValues("false");
@@ -235,7 +235,7 @@ is-valid: true
 </details>
 
 <details>
-  <summary>Open/Close parent- and child-modules example</summary>
+  <summary>PARENT- and CHILD-modules example</summary>
 <pre lang="java">
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/parent-example.yml");
 
@@ -275,7 +275,7 @@ p3:
 </details>
  
  <details>
-  <summary>Open/Close coding style recommendation example</summary>
+  <summary>Coding STYLE example</summary>
 <pre lang="java">
 /**
  * Recommendation how to use the DreamYaml api.
@@ -348,7 +348,7 @@ encapsulated:
 </details>
 
  <details>
-  <summary>Open/Close watching yaml files example</summary>
+  <summary>WATCHING yaml files example</summary>
 <pre lang="java">
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/watcher-example.yml");
 yaml.addFileEventListener(event -> {
