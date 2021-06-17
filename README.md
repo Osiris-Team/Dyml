@@ -18,7 +18,8 @@ Currently, only the most essential parts of YAML are implemented.
 the-show-off-list: 
   - completely written from scratch without any extra dependency
   - fastest YAML reader and writer currently available (see benchmarks below)
-  - not a single static method and very memory efficient
+  - very memory efficient
+  - useful watcher for listening to file events
 supports-hyphen-separation: awesome! 
 or separation by spaces: great! # side-comments supported!
 and.dots.like.this: wow!
@@ -348,58 +349,19 @@ encapsulated:
  <details>
   <summary>Open/Close watching yaml files example</summary>
 <pre lang="java">
-// First we create two yaml files with some data
-DreamYaml yaml1 = new DreamYaml(System.getProperty("user.dir") + "/src/test/watcher-1-example.yml");
-yaml1.load();
-DYModule firstName1 = yaml1.put("name").setDefValues("John");
-yaml1.save(true);
-
-DreamYaml yaml2 = new DreamYaml(System.getProperty("user.dir") + "/src/test/watcher-2-example.yml");
-yaml2.load();
-DYModule firstName2 = yaml2.put("name").setDefValues("John");
-yaml2.save(true);
-
-
-// Create a watcher. Note that by default it will watch the complete, user directory in which this jar is located and its subdirectories.
-DYWatcher watcher = new DYWatcher();  // You can specify a custom directory to watch by: DYWatcher watcher = new DYWatcher("C:your/custom/directory/path/here");
-watcher.start(); // Starts the watcher in its own new thread.
-
-// Add the files we want to watch
-watcher.addYaml(yaml1);
-watcher.addYaml(yaml2);
-
-// Create the action we want to perform when these files change
-DYAction action1 = new DYAction();
-action1.setRunnable(() -> {
-// This action will reload every config watched by the watcher when its changed
-try {
-        action1.getYaml().load();
-        System.out.println("The " + action1.getYaml().getFile().getName() + " file was modified! Event kind: " + action1.getEventKind());
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-   });
-
-// Besides, you can create an action for a specific yaml file, by simply adding that file to the actions constructor
-DYAction action2 = new DYAction(yaml2);
-action2.setRunnable(() -> {
-   // Displays a message when the file gets modified. For more events see StandardWatchEventKinds.
-    if (action2.getEventKind().equals(StandardWatchEventKinds.ENTRY_MODIFY))
-        System.out.println("This is a specific message for the file yaml2(" + action2.getYaml().getFile().getName() + "), that it was modified!");
-});
-
-// Add the actions to the watcher
-watcher.addAction(action1);
-watcher.addAction(action2);
-
-// That's it. Now we run some test to see if it works:
-System.out.println("\nUser modifies yaml1:");
-firstName1.setValues("Pete"); // Imagine that this change is done by a person
-yaml1.save(); // In this moment the file gets modified
-
-System.out.println("\nUser modifies yaml2:");
-firstName2.setValues("Pete"); // Imagine that this change is done by a person
-yaml2.save(); // In this moment the file gets modified
+DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/watcher-example.yml");
+yaml.addFileEventListener(event -> {
+            try { // This will reload the yaml object and update its values,
+                  // if there is a entry modify event
+                if (event.getWatchEventKind().equals(StandardWatchEventKinds.ENTRY_MODIFY)){
+                    event.getYaml().load();
+                    System.out.println("Reloaded yaml file '" + event.getFile().getName() +
+                            "' because of '" + event.getWatchEventKind()+"' event.");
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
 </pre>
 </details>
 All the above examples can be found as tests here: https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples

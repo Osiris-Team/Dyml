@@ -12,15 +12,15 @@ import com.osiris.dyml.exceptions.*;
 import com.osiris.dyml.utils.UtilsDYModule;
 import com.osiris.dyml.utils.UtilsDreamYaml;
 import com.osiris.dyml.utils.UtilsFile;
+import com.osiris.dyml.watcher.DYFileEvent;
+import com.osiris.dyml.watcher.DYFileEventListener;
+import com.osiris.dyml.watcher.DYWatcher;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 /**
@@ -69,6 +69,9 @@ public class DreamYaml {
     private boolean isReturnDefaultWhenValueIsNullEnabled = true;
     private boolean isWriteDefaultValuesWhenEmptyEnabled = true;
     private boolean isWriteDefaultCommentsWhenEmptyEnabled = true;
+
+    // Watcher:
+    private DYWatcher watcher = null;
 
     // Logging:
     private DYDebugLogger debugLogger = new DYDebugLogger(System.out);
@@ -431,6 +434,32 @@ public class DreamYaml {
         DYModule loadedM = utilsDYModule.getExisting(module, loadedModules);
         if (loadedM != null)
             this.loadedModules.remove(loadedM);
+        return this;
+    }
+
+
+    // WATCHER:
+
+
+    /**
+     * Registers this {@link #file} and adds the provided {@link DYFileEventListener} to the list. <br>
+     * Once a file event happens, the listeners <br>
+     * {@link DYFileEventListener#runOnEvent(DYFileEvent)} method gets executed. <br>
+     * Details: <br>
+     * If {@link #watcher} is null, this method creates and starts a new {@link DYWatcher}.
+     *
+     * @param listener
+     * @return
+     */
+    public DreamYaml addFileEventListener(DYFileEventListener<DYFileEvent> listener) throws IOException {
+        if (watcher == null) watcher = DYWatcher.getForFile(file);
+        watcher.addFileAndListeners(file, Collections.singletonList(listener), false, this);
+        return this;
+    }
+
+    public DreamYaml removeFileEventListener(DYFileEventListener<DYFileEvent> listener) {
+        Objects.requireNonNull(watcher);
+        watcher.removeFileAndListeners(file);
         return this;
     }
 

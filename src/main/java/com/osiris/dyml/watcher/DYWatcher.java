@@ -14,141 +14,96 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import static java.nio.file.StandardWatchEventKinds.*;
 
 
 /**
- * Detects changes to the given yaml files and performs actions
- * on their corresponding in-memory representations ({@link DreamYaml}).
+ * A {@link DYWatcher} is able to watch multiple files/directories <br>
+ * (as well as subdirectories) and notify <br>
+ * their listeners if an event happens.
  */
 public class DYWatcher extends Thread {
-    private final boolean trace = false;
-    private List<DreamYaml> dyList = new CopyOnWriteArrayList<>();
-    private List<DYAction> actions = new CopyOnWriteArrayList<>();
-    private File dir;
-    private boolean registerSubDirs = true;
-    private int subDirCount;
-    private WatchService watchService;
-    private Map<WatchKey, Path> keys;
+    public static List<DYWatcher> activeWatchers = new CopyOnWriteArrayList<>();
 
     /**
-     * See {@link #DYWatcher(List, String, boolean)} for details.
+     * See {@link #getForPath(Path)} for details.
      */
-    public DYWatcher() {
-        this("");
+    public static synchronized DYWatcher getForFile(File file) throws IOException {
+        return getForPath(file.toPath());
     }
 
     /**
-     * See {@link #DYWatcher(List, String, boolean)} for details.
+     * Checks if there is an existing {@link DYWatcher} for <br>
+     * the provided path and returns it. If the path is a file, it checks for the parent directory. <br>
+     * Otherwise creates a new {@link DYWatcher} for the provided path and returns it. <br>
      */
-    public DYWatcher(boolean registerSubDirs) {
-        this(null, null, registerSubDirs);
+    public static synchronized DYWatcher getForPath(Path path) throws IOException {
+        Path dirPath = path;
+        if (path.toFile().isFile()) dirPath = path.getParent();
+        for (DYWatcher watcher :
+                activeWatchers) {
+            for (File file :
+                    watcher.registeredFiles) {
+                if (file.isDirectory())
+                    if (file.toPath().equals(dirPath))
+                        return watcher;
+            }
+        }
+        return new DYWatcher(path);
     }
 
     /**
-     * See {@link #DYWatcher(List, String, boolean)} for details.
+     * A list containing files, that notify their listeners when an event happens. <br>
+     * Note that this list also contains the files parent directories.
      */
-    public DYWatcher(String dir, boolean registerSubDirs) {
-        this(null, dir, registerSubDirs);
+    private final List<DYRegisteredFile> registeredFiles = new CopyOnWriteArrayList<>();
+    private final Map<Path, WatchKey> directoriesAndWatchKeys = new HashMap<>();
+    private final WatchService watchService;
+    private boolean isWatchSubDirs = false;
+
+    /**
+     * <p style="color:red">Its recommended to use the static method {@link DYWatcher#getForPath(Path)} to get a {@link DYWatcher} instead!</p>
+     * See {@link #DYWatcher(Path)} for details.
+     */
+    public DYWatcher() throws IOException {
+        this(null);
     }
 
     /**
-     * See {@link #DYWatcher(List, String, boolean)} for details.
-     */
-    public DYWatcher(List<DreamYaml> dyList) {
-        this(dyList, null, true);
-    }
-
-    /**
-     * See {@link #DYWatcher(List, String, boolean)} for details.
-     */
-    public DYWatcher(DreamYaml... dy) throws Exception {
-        if (dy == null)
-            throw new Exception("Yaml files list cannot be null!");
-        init(Arrays.asList(dy), null, true);
-    }
-
-
-    /**
-     * See {@link #DYWatcher(List, String, boolean)} for details.
-     */
-    public DYWatcher(String dir) {
-        init(null, dir, true);
-    }
-
-    /**
-     * Create a new DreamYamlWatcher/YamlFilesWatcher. Start this watcher by its {@link #start()} method.
+     * <p style="color:red">Its recommended to use the static method {@link DYWatcher#getForPath(Path)} to get a {@link DYWatcher} instead!</p>
+     * <p style="color:red">The reason for that is performance.</p>
+     * Initialises a new {@link DYWatcher} and watches the provided path. <br>
+     * Note that this method will also call {@link #start()} to start its thread. <br>
+     * You can register more files to it via {@link #addFileAndListeners(File, List)}.
      *
-     * @param dyList          a list containing the yaml files to be watched
-     * @param dir             the directory path where to listen for changes. If null/empty the user-dir will be used.
-     * @param registerSubDirs Register all sub directories. Default is true.
+     * @param path Can be a file or a directory.
      */
-    public DYWatcher(List<DreamYaml> dyList, String dir, boolean registerSubDirs) {
-        init(dyList, dir, registerSubDirs);
-    }
-
-    private void init(List<DreamYaml> dyList, String dir, boolean registerSubDirs) {
-        if (dir == null) dir = System.getProperty("user.dir");
-        if (dir != null && dir.isEmpty()) dir = System.getProperty("user.dir");
-        this.dir = new File(dir);
-        if (dyList != null && !dyList.isEmpty()) this.dyList.addAll(dyList);
-        this.registerSubDirs = registerSubDirs;
-        this.keys = new HashMap<>();
-    }
-
-    public void printDetails() {
-        System.out.println("Watcher: " + this);
-        System.out.println("Dir: " + dir.getAbsolutePath());
-        System.out.println("SubDirs: " + registerSubDirs + " (" + subDirCount + ") ");
-        System.out.println("Watching: (" + dyList.size() + ") " + dyList);
-        System.out.println("Actions: (" + actions.size() + ") " + actions);
+    public DYWatcher(Path path) throws IOException {
+        this.watchService = FileSystems.getDefault().newWatchService();
+        if (path != null)
+            addFileAndListeners(path.toFile(), null);
+        start();
     }
 
     @Override
     public void run() {
         super.run();
         try {
-            if (dir == null)
-                throw new Exception("Dir cannot be null!");
-            if (dir.getPath().isEmpty())
-                throw new Exception("Dir cannot be empty!");
-
-            watchService
-                    = FileSystems.getDefault().newWatchService();
-
-            if (registerSubDirs)
-                registerAll(dir.toPath());
-            else
-                register(dir.toPath());
-
             WatchKey key;
             while ((key = watchService.take()) != null) {
-                for (WatchEvent<?> event : key.pollEvents()) {
-
-                    final String file_name = event.context().toString();
-                    for (DreamYaml yaml :
-                            dyList) {
-                        // Check if the event is for one of our given yaml files
-                        if (yaml.getFile().getName().equals(file_name)) {
-                            // Perform the actions according to their settings
-                            for (DYAction action :
-                                    actions) {
-                                action.setEventKind(event.kind());
-                                if (action.isAffectAll()) {
-                                    action.setYaml(yaml);
-                                    action.run();
-                                } else if (action.getYaml().getFile().getName().equals(file_name))
-                                    action.run();
-                                // Otherwise do nothing
+                List<DYRegisteredFile> registeredFiles = getRegisteredFilesByParentWatchKey(key);
+                for (WatchEvent<?> event :
+                        key.pollEvents()) {
+                    for (DYRegisteredFile file :
+                            registeredFiles) {
+                        if (file.getName().equals(event.context().toString())) // event.context() returns the file name for its event
+                            for (DYFileEventListener<DYFileEvent> listener :
+                                    file.getListeners()) {
+                                listener.runOnEvent(new DYFileEvent(file, event));
                             }
-                        }
-
                     }
                 }
                 key.reset();
@@ -160,84 +115,240 @@ public class DYWatcher extends Thread {
     }
 
     /**
-     * Register the given directory, and all its sub-directories, with the
-     * WatchService.
+     * Stops this watchers thread and its service.
      */
-    private void registerAll(final Path start) throws IOException {
-        // register directory and sub-directories
-        Files.walkFileTree(start, new SimpleFileVisitor<Path>() {
-            @Override
-            public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs)
-                    throws IOException {
-                register(dir);
-                return FileVisitResult.CONTINUE;
-            }
-        });
+    public void terminate() throws IOException {
+        if (!this.isInterrupted()) this.interrupt();
+        watchService.close();
+        activeWatchers.remove(this);
     }
 
-    /**
-     * Register the given directory with the WatchService
-     */
-    private void register(Path dir) throws IOException {
-        WatchKey key = dir.register(watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
-        if (trace) {
-            Path prev = keys.get(key);
-            if (prev == null) {
-                //System.out.format("register: %s\n", dir);
-                subDirCount++;
-            } else {
-                if (!dir.equals(prev)) {
-                    //System.out.format("update: %s -> %s\n", prev, dir);
-                }
+    public void watchDir(Path dirPath, boolean watchSubdirectories) throws IOException {
+        // Check if the dir already exists
+        Path existingDir = null;
+        for (Path dir :
+                directoriesAndWatchKeys.keySet()) { // Check for existing registered file
+            if (dir.equals(dirPath)) {
+                existingDir = dir;
+                break;
             }
         }
-        keys.put(key, dir);
+
+        if (existingDir == null) {
+            WatchKey watchKey = dirPath.register(watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY, OVERFLOW);
+            directoriesAndWatchKeys.put(dirPath, watchKey);
+            if (watchSubdirectories) { // Add subdirectories if enabled
+                Files.walkFileTree(dirPath, new SimpleFileVisitor<Path>() {
+                    @Override
+                    public FileVisitResult preVisitDirectory(Path path, BasicFileAttributes attrs)
+                            throws IOException {
+                        watchDir(path, true);
+                        return FileVisitResult.CONTINUE;
+                    }
+                });
+            }
+        }
     }
 
     /**
-     * Lazy method for adding yaml objects.
+     * Note that currently there is no way be the provided <br>
+     * underlying files API to unwatch a directory. <br>
+     * There could be workarounds to achieve this though. <br>
      */
-    public void addYaml(DreamYaml yaml) {
-        this.dyList.add(yaml);
+    private void unwatchDir() {
+        // TODO
     }
 
     /**
-     * Lazy method for adding actions.
+     * Register the provided {@link Path} to this {@link DYWatcher}. <br>
+     * Now the {@link DYWatcher} is able to listen for events on that path. <br>
+     * If the provided filePath is a file, its parent directory gets registered. <br>
+     * Also checks if the provided path already exists in the {@link #registeredFiles} list. <br>
+     * If it does, that path will be used and the provided listeners will get added to the already existing listeners list <br>
+     * and then the already existing {@link DYRegisteredFile} gets returned. <br>
+     * Otherwise we register the provided path, add the newly created {@link DYRegisteredFile} object to the <br>
+     * {@link #registeredFiles} list and return it. <br>
+     *
+     * @param filePath Can be a file or a directory.
+     * @return Null if the filePath is a directory, otherwise a {@link DYRegisteredFile}.
      */
-    public void addAction(DYAction action) {
-        this.actions.add(action);
+    private DYRegisteredFile registerFilePath(Path filePath,
+                                              List<DYFileEventListener<DYFileEvent>> listeners,
+                                              boolean watchSubdirectories,
+                                              DreamYaml yaml) throws IOException {
+        Objects.requireNonNull(filePath);
+        Objects.requireNonNull(listeners);
+
+        WatchKey watchKey;
+        if (filePath.toFile().isDirectory()) {
+            watchDir(filePath, watchSubdirectories);
+            return null;
+        } else {
+            watchDir(filePath.getParent(), watchSubdirectories);
+            WatchKey parentWatchKey = directoriesAndWatchKeys.get(filePath.getParent());
+            DYRegisteredFile existingRegisteredFile = getRegisteredFileByPath(filePath);
+            if (existingRegisteredFile != null) { // This means the path already was registered and we don't have to do it again
+                // instead we only add the provided listeners to it.
+                existingRegisteredFile.getListeners().addAll(listeners);
+                existingRegisteredFile.setYaml(yaml); // However update the yaml
+                return existingRegisteredFile;
+            } else {
+                // This means there is no file registered yet. Do that.
+                DYRegisteredFile registeredFile = new DYRegisteredFile(
+                        filePath.toString(),
+                        this,
+                        parentWatchKey,
+                        listeners);
+                registeredFile.setYaml(yaml); // Can be null
+                registeredFiles.add(registeredFile);
+                return registeredFile;
+            }
+        }
     }
 
-    public List<DreamYaml> getDyList() {
-        return dyList;
-    }
-
-    public void setDyList(List<DreamYaml> dyList) {
-        this.dyList = dyList;
+    private void unregisterPath(Path path) {
+        DYRegisteredFile file = getRegisteredFileByPath(path);
+        if (file != null) {
+            file.getParentWatchKey().cancel();
+            registeredFiles.remove(file);
+        }
     }
 
     /**
-     * Returns a list containing all actions ({@link DYAction}),
-     * that run when a FileChangeEvent happens for the given
-     * yaml files({@link #getDyList()}).
+     * Null when no {@link DYRegisteredFile} was found with the provided path, <br>
+     * in the {@link #registeredFiles} list.
      */
-    public List<DYAction> getActions() {
-        return actions;
+    private DYRegisteredFile getRegisteredFileByPath(Path path) {
+        for (DYRegisteredFile registeredFileFromList :
+                registeredFiles) { // Check for existing registered file
+            if (registeredFileFromList.toPath().equals(path)) {
+                return registeredFileFromList;
+            }
+        }
+        return null;
     }
 
-    public void setActions(List<DYAction> actions) {
-        this.actions = actions;
-    }
-
-    public boolean isRegisterSubDirs() {
-        return registerSubDirs;
+    private List<DYRegisteredFile> getRegisteredFilesByParentWatchKey(WatchKey watchKey) {
+        List<DYRegisteredFile> files = new ArrayList<>();
+        for (DYRegisteredFile registeredFileFromList :
+                registeredFiles) { // Check for existing registered file
+            if (registeredFileFromList.getParentWatchKey().equals(watchKey)) {
+                files.add(registeredFileFromList);
+            }
+        }
+        return files;
     }
 
     /**
-     * Watch all sub-directories or not. Default is true.
-     * Note: This must be called before start() was called to take effect.
+     * See {@link #addFileAndListeners(File, List, boolean)} for details.
      */
-    public void setRegisterSubDirs(boolean registerSubDirs) {
-        this.registerSubDirs = registerSubDirs;
+    public void addYamlAndListeners(DreamYaml yaml,
+                                    List<DYFileEventListener<DYFileEvent>> listeners,
+                                    boolean watchSubdirectories) throws IOException {
+        addFileAndListeners(yaml.getFile(), listeners, watchSubdirectories);
+
+    }
+
+    /**
+     * Uses the boolean value of {@link #isWatchSubDirs}. Its true by default. <br>
+     * See {@link #addFileAndListeners(File, List, boolean, DreamYaml)} for details. <br>
+     */
+    public void addFileAndListeners(File fileToWatch,
+                                    List<DYFileEventListener<DYFileEvent>> listeners) throws IOException {
+        addFileAndListeners(fileToWatch, listeners, isWatchSubDirs);
+    }
+
+    /**
+     * See {@link #addFileAndListeners(File, List, boolean, DreamYaml)} for details. <br>
+     */
+    public void addFileAndListeners(File fileToWatch,
+                                    List<DYFileEventListener<DYFileEvent>> listeners,
+                                    boolean watchSub) throws IOException {
+        addFileAndListeners(fileToWatch, listeners, watchSub, null);
+    }
+
+    /**
+     * Creates a {@link DYRegisteredFile} object out of the provided information, and adds it to the {@link #registeredFiles} list. <br>
+     * After that your listeners will be able to receive {@link DYFileEvent}s. <br>
+     * Note that if the provided file/path already exists in that list, <br>
+     * we wont register it, but add the provided listeners to the existing file. <br>
+     * See {@link #registerFilePath(Path, List, boolean, DreamYaml)} for details. <br>
+     * The event kinds, that trigger an event: <br>
+     * {@link StandardWatchEventKinds#ENTRY_CREATE} <br>
+     * {@link StandardWatchEventKinds#ENTRY_DELETE} <br>
+     * {@link StandardWatchEventKinds#ENTRY_MODIFY} <br>
+     * {@link StandardWatchEventKinds#OVERFLOW} <br>
+     *
+     * @param fileToWatch Can be a file or directory.
+     * @param listeners   A list containing listeners, that receive this files events.
+     *                    If null we create an empty {@link ArrayList}.
+     * @param watchSub    Disabled by default. <br>
+     *                    If enabled however, automatically registers this files parent directories, subdirectories.
+     *                    Note that the boolean value of {@link #isWatchSubDirs} is ignored.
+     * @param yaml        If this is a file is a yaml file, you should pass over its {@link DreamYaml} object.
+     *                    Can be null, if its not.
+     */
+    public void addFileAndListeners(File fileToWatch,
+                                    List<DYFileEventListener<DYFileEvent>> listeners,
+                                    boolean watchSub,
+                                    DreamYaml yaml) throws IOException {
+        Objects.requireNonNull(fileToWatch);
+        if (listeners == null) {
+            registerFilePath(fileToWatch.toPath(), new ArrayList<>(0), watchSub, yaml);
+        } else {
+            registerFilePath(fileToWatch.toPath(), listeners, watchSub, yaml);
+        }
+    }
+
+    public void removeFileAndListeners(File fileToRemove) {
+        unregisterPath(fileToRemove.toPath());
+    }
+
+    public boolean isWatchSubDirs() {
+        return isWatchSubDirs;
+    }
+
+    /**
+     * Watch all subdirectories or not. Default is true.
+     */
+    public void setWatchSubDirs(boolean watchSubDirs) {
+        this.isWatchSubDirs = watchSubDirs;
+    }
+
+    public WatchService getWatchService() {
+        return watchService;
+    }
+
+    public void printDetails() {
+        System.out.println("Watcher: " + this);
+        StringBuilder dirs = new StringBuilder("Dirs:");
+        for (DYRegisteredFile file :
+                registeredFiles) {
+            if (file.isDirectory())
+                dirs.append(" \"" + file.getName() + "\"");
+        }
+        System.out.println(dirs);
+        StringBuilder dirsWithPath = new StringBuilder("Dirs-Paths:");
+        for (DYRegisteredFile file :
+                registeredFiles) {
+            if (file.isDirectory())
+                dirsWithPath.append(" \"" + file.getAbsolutePath() + "\"");
+        }
+        System.out.println(dirsWithPath);
+        StringBuilder files = new StringBuilder("Files:");
+        for (DYRegisteredFile file :
+                registeredFiles) {
+            if (file.isFile())
+                files.append(" \"" + file.getName() + "\"");
+        }
+        System.out.println(files);
+        StringBuilder filesWithPath = new StringBuilder("Files-Paths:");
+        for (DYRegisteredFile file :
+                registeredFiles) {
+            if (file.isFile())
+                filesWithPath.append(" \"" + file.getAbsolutePath() + "\"");
+        }
+        System.out.println(filesWithPath);
+
     }
 }
