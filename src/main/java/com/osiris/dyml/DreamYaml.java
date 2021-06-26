@@ -32,7 +32,6 @@ public class DreamYaml {
     // Yaml-Content:
     private InputStream inputStream;
     private File file;
-    private String filePath;
 
     /**
      * A final list, that contains {@link DYModule}s that are in editing. <br>
@@ -165,7 +164,7 @@ public class DreamYaml {
      * @param isAutoLoadEnabled       Enabled by default. Calls {@link #load()} inside of the constructor.
      */
     public DreamYaml(String filePath, boolean isPostProcessingEnabled, boolean isDebugEnabled, boolean isAutoLoadEnabled) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
-        this.filePath = filePath;
+        this.file = new File(filePath);
         init(isPostProcessingEnabled, isDebugEnabled, isAutoLoadEnabled);
     }
 
@@ -187,9 +186,6 @@ public class DreamYaml {
      */
     public DreamYaml load() throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
         if (this.isDebugEnabled) System.out.println("Executing load()");
-        if (file == null && filePath != null) {
-            file = new File(filePath);
-        }
         if (file != null && !file.exists()) file.createNewFile();
         new DYReader().parse(this);
         isLoaded = true;
@@ -717,7 +713,7 @@ public class DreamYaml {
     }
 
     public String getFilePath() {
-        return (filePath != null ? filePath : (file != null ? file.getAbsolutePath() : ""));
+        return file != null ? file.getAbsolutePath() : "";
     }
 
     public File getFile() {
