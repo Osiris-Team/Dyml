@@ -22,6 +22,7 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * The in-memory representation of the full yaml file
@@ -74,6 +75,9 @@ public class DreamYaml {
 
     // Logging:
     private DYDebugLogger debugLogger = new DYDebugLogger(System.out);
+
+    // Thread safety:
+    private static final ReentrantLock lock = new ReentrantLock();
 
     /**
      * Initialises the {@link DreamYaml} object with useful features enabled. <br>
@@ -246,8 +250,17 @@ public class DreamYaml {
     public DreamYaml save(boolean overwrite) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException {
         if (this.isDebugEnabled) debugLogger.log(this, "Executing save()");
         if (inputStream == null) {
-            if (!isLoaded) this.load();
-            new DYWriter().parse(this, overwrite, false);
+            synchronized (lock){
+                try{
+                    lock.lock();
+                    if (!isLoaded) this.load();
+                    new DYWriter().parse(this, overwrite, false);
+                    lock.unlock();
+                } catch (Exception e) {
+                    lock.unlock();
+                    throw e;
+                }
+            }
         }
         return this;
     }
