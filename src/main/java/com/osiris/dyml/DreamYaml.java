@@ -30,10 +30,8 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 public class DreamYaml {
 
-    // Yaml-Content:
-    private InputStream inputStream;
-    private File file;
-
+    // Thread safety:
+    private static final Map<String, ReentrantLock> pathsAndLocks = new HashMap<>();
     /**
      * A final list, that contains {@link DYModule}s that are in editing. <br>
      * In contrary to the {@link #loadedModules} list, this list doesn't get cleared <br>
@@ -41,90 +39,83 @@ public class DreamYaml {
      * {@link DYModule}s get added to the list, by {@link #get(String...)}, {@link #put(String...)}, {@link #add(String...)} or {@link #replace(DYModule, DYModule)}.
      */
     private final List<DYModule> inEditModules = new ArrayList<>();
-
     /**
      * A final list, that contains loaded {@link DYModule}s. <br>
      * It gets cleared and refilled with new {@link DYModule}s in {@link #load()}. <br>
      */
     private final List<DYModule> loadedModules = new ArrayList<>();
-
     // Utils:
     private final UtilsDreamYaml utilsDreamYaml = new UtilsDreamYaml(this);
     private final UtilsDYModule utilsDYModule = new UtilsDYModule();
     private final UtilsFile utilsFile = new UtilsFile();
-
+    // Yaml-Content:
+    private InputStream inputStream;
+    private File file;
     // General:
     private boolean isDebugEnabled;
-    private boolean isAutoLoadEnabled;
     private boolean isLoaded = false;
-
     // Post-Processing:
     private boolean isPostProcessingEnabled;
     private boolean isTrimLoadedValuesEnabled = true;
     private boolean isRemoveQuotesFromLoadedValuesEnabled = true;
     private boolean isRemoveLoadedNullValuesEnabled = true;
     private boolean isTrimCommentsEnabled = true;
-
     // Modules:
     private boolean isReturnDefaultWhenValueIsNullEnabled = true;
     private boolean isWriteDefaultValuesWhenEmptyEnabled = true;
     private boolean isWriteDefaultCommentsWhenEmptyEnabled = true;
-
     // Watcher:
     private DYWatcher watcher = null;
-
     // Logging:
     private DYDebugLogger debugLogger = new DYDebugLogger(System.out);
 
-    // Thread safety:
-    private static final ReentrantLock lock = new ReentrantLock();
 
     /**
      * Initialises the {@link DreamYaml} object with useful features enabled. <br>
-     * See {@link #DreamYaml(InputStream, boolean, boolean, boolean)} for details.
+     * See {@link #DreamYaml(InputStream, boolean, boolean)} for details.
      */
     public DreamYaml(InputStream inputStream) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
-        this(inputStream, true, false, true);
+        this(inputStream, true, false);
     }
 
     /**
      * Initialises the {@link DreamYaml} object with useful features enabled. <br>
-     * See {@link #DreamYaml(InputStream, boolean, boolean, boolean)} for details.
+     * See {@link #DreamYaml(InputStream, boolean, boolean)} for details.
      */
     public DreamYaml(InputStream inputStream, boolean isDebugEnabled) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
-        this(inputStream, true, isDebugEnabled, true);
+        this(inputStream, true, isDebugEnabled);
     }
 
     /**
      * Initialises the {@link DreamYaml} object with useful features enabled. <br>
-     * See {@link #DreamYaml(File, boolean, boolean, boolean)} for details.
+     * See {@link #DreamYaml(File, boolean, boolean)} for details.
      */
     public DreamYaml(File file) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
-        this(file, true, false, true);
+        this(file, true, false);
     }
 
     /**
      * Initialises the {@link DreamYaml} object with useful features enabled. <br>
-     * See {@link #DreamYaml(File, boolean, boolean, boolean)} for details.
+     * See {@link #DreamYaml(File, boolean, boolean)} for details.
      */
     public DreamYaml(File file, boolean isDebugEnabled) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
-        this(file, true, isDebugEnabled, true);
+        this(file, true, isDebugEnabled);
     }
 
     /**
      * Initialises the {@link DreamYaml} object with useful features enabled. <br>
-     * See {@link #DreamYaml(String, boolean, boolean, boolean)} for details.
+     * See {@link #DreamYaml(String, boolean, boolean)} for details.
      */
     public DreamYaml(String filePath) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
-        this(filePath, true, false, true);
+        this(filePath, true, false);
     }
 
     /**
      * Initialises the {@link DreamYaml} object with useful features enabled. <br>
-     * See {@link #DreamYaml(String, boolean, boolean, boolean)} for details.
+     * See {@link #DreamYaml(String, boolean, boolean)} for details.
      */
     public DreamYaml(String filePath, boolean isDebugEnabled) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
-        this(filePath, true, isDebugEnabled, true);
+        this(filePath, true, isDebugEnabled);
     }
 
     /**
@@ -135,11 +126,10 @@ public class DreamYaml {
      *                                You can also enable/disable specific post-processing options individually: <br>
      *                                See {@link #isPostProcessingEnabled()} for details.
      * @param isDebugEnabled          Disabled by default. Shows debugging stuff.
-     * @param isAutoLoadEnabled       Enabled by default. Calls {@link #load()} inside of the constructor.
      */
-    public DreamYaml(InputStream inputStream, boolean isPostProcessingEnabled, boolean isDebugEnabled, boolean isAutoLoadEnabled) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
+    public DreamYaml(InputStream inputStream, boolean isPostProcessingEnabled, boolean isDebugEnabled) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
         this.inputStream = inputStream;
-        init(isPostProcessingEnabled, isDebugEnabled, isAutoLoadEnabled);
+        init(isPostProcessingEnabled, isDebugEnabled);
     }
 
     /**
@@ -150,11 +140,10 @@ public class DreamYaml {
      *                                You can also enable/disable specific post-processing options individually: <br>
      *                                See {@link #isPostProcessingEnabled()} for details.
      * @param isDebugEnabled          Disabled by default. Shows debugging stuff.
-     * @param isAutoLoadEnabled       Enabled by default. Calls {@link #load()} inside of the constructor.
      */
-    public DreamYaml(File file, boolean isPostProcessingEnabled, boolean isDebugEnabled, boolean isAutoLoadEnabled) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
+    public DreamYaml(File file, boolean isPostProcessingEnabled, boolean isDebugEnabled) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
         this.file = file;
-        init(isPostProcessingEnabled, isDebugEnabled, isAutoLoadEnabled);
+        init(isPostProcessingEnabled, isDebugEnabled);
     }
 
     /**
@@ -165,18 +154,15 @@ public class DreamYaml {
      *                                You can also enable/disable specific post-processing options individually: <br>
      *                                See {@link #isPostProcessingEnabled()} for details.
      * @param isDebugEnabled          Disabled by default. Shows debugging stuff.
-     * @param isAutoLoadEnabled       Enabled by default. Calls {@link #load()} inside of the constructor.
      */
-    public DreamYaml(String filePath, boolean isPostProcessingEnabled, boolean isDebugEnabled, boolean isAutoLoadEnabled) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
+    public DreamYaml(String filePath, boolean isPostProcessingEnabled, boolean isDebugEnabled) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
         this.file = new File(filePath);
-        init(isPostProcessingEnabled, isDebugEnabled, isAutoLoadEnabled);
+        init(isPostProcessingEnabled, isDebugEnabled);
     }
 
-    private void init(boolean isPostProcessingEnabled, boolean isDebugEnabled, boolean isAutoLoadEnabled) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
+    private void init(boolean isPostProcessingEnabled, boolean isDebugEnabled) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
         this.isPostProcessingEnabled = isPostProcessingEnabled;
         this.isDebugEnabled = isDebugEnabled;
-        this.isAutoLoadEnabled = isAutoLoadEnabled;
-        if (isAutoLoadEnabled) load();
     }
 
     /**
@@ -194,6 +180,63 @@ public class DreamYaml {
         new DYReader().parse(this);
         isLoaded = true;
         return this;
+    }
+
+    /**
+     * If you access the same yaml file from multiple threads, its recommended to lock the file before loading it. <br>
+     * Remember to {@link #unlockFile()} so that other threads can work with the file too. <br>
+     * If you don't do that, other threads will stay stuck at {@link #lockFile()} forever. <br>
+     * Example: <br>
+     * <pre>
+     *     DreamYaml yaml = new DreamYaml("example.yml");
+     *     yaml.lockFile();
+     *     yaml.load();
+     *     // Do changes to file here
+     *     yaml.save();
+     *     yaml.unlockFile();
+     * </pre>
+     */
+    public synchronized void lockFile() {
+        if (file != null) {
+            ReentrantLock lock = null;
+            synchronized (pathsAndLocks) {
+                if (pathsAndLocks.containsKey(file.getAbsolutePath()))
+                    lock = pathsAndLocks.get(file.getAbsolutePath());
+                else {
+                    lock = new ReentrantLock();
+                    pathsAndLocks.put(file.getAbsolutePath(), lock);
+                }
+            }
+            lock.lock(); // If another thread has already the locked, the current thread will wait at this position until it gets unlocked
+        }
+    }
+
+    /**
+     * If you access the same yaml file from multiple threads, its recommended to lock the file before loading it. <br>
+     * Remember to {@link #unlockFile()} so that other threads can work with the file too. <br>
+     * If you don't do that, other threads will stay stuck at {@link #lockFile()} forever. <br>
+     * Example: <br>
+     * <pre>
+     *     DreamYaml yaml = new DreamYaml("example.yml");
+     *     yaml.lockFile();
+     *     yaml.load();
+     *     // Do changes to file here
+     *     yaml.save();
+     *     yaml.unlockFile();
+     * </pre>
+     */
+    public synchronized void unlockFile() {
+        if (file != null) {
+            ReentrantLock lock = null;
+            synchronized (pathsAndLocks) {
+                if (pathsAndLocks.containsKey(file.getAbsolutePath())) {
+                    lock = pathsAndLocks.get(file.getAbsolutePath()); // If another thread has already the locked, the current thread will wait until it gets unlocked
+                    lock.unlock();
+                    if (!lock.hasQueuedThreads())
+                        pathsAndLocks.remove(file.getAbsolutePath());
+                }
+            }
+        }
     }
 
     /**
@@ -250,17 +293,8 @@ public class DreamYaml {
     public DreamYaml save(boolean overwrite) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException {
         if (this.isDebugEnabled) debugLogger.log(this, "Executing save()");
         if (inputStream == null) {
-            synchronized (lock){
-                try{
-                    lock.lock();
-                    if (!isLoaded) this.load();
-                    new DYWriter().parse(this, overwrite, false);
-                    lock.unlock();
-                } catch (Exception e) {
-                    lock.unlock();
-                    throw e;
-                }
-            }
+            if (!isLoaded) this.load();
+            new DYWriter().parse(this, overwrite, false);
         }
         return this;
     }
@@ -762,9 +796,7 @@ public class DreamYaml {
     /**
      * Enabled by default. Convenience method for toggling post-processing.<br>
      * When disabled none of the post-processing options gets run, no matter if they are enabled/disabled. <br>
-     * Post-Processing happens inside {@link #load()}. If you want to change them, <br>
-     * its recommended to disable autoLoad ({@link #isAutoLoadEnabled}) in the constructor,
-     * so you don't have to load the file twice.
+     * Post-Processing happens inside {@link #load()}. <br>
      * All available options are: <br>
      * {@link #setTrimLoadedValuesEnabled(boolean)} <br>
      * {@link #setRemoveQuotesFromLoadedValuesEnabled(boolean)} <br>
@@ -777,9 +809,7 @@ public class DreamYaml {
     /**
      * Enabled by default.<br>
      * Convenience method for enabling/disabling all post-processing options. <br>
-     * Post-Processing happens inside {@link #load()}. If you want to change them, <br>
-     * its recommended to disable autoLoad ({@link #isAutoLoadEnabled}) in the constructor,
-     * so you don't have to load the file twice.
+     * Post-Processing happens inside {@link #load()}. <br>
      * All available options are: <br>
      * {@link #setTrimLoadedValuesEnabled(boolean)} <br>
      * {@link #setRemoveQuotesFromLoadedValuesEnabled(boolean)} <br>
@@ -787,21 +817,6 @@ public class DreamYaml {
      */
     public DreamYaml setPostProcessingEnabled(boolean postProcessingEnabled) {
         this.isPostProcessingEnabled = postProcessingEnabled;
-        return this;
-    }
-
-    /**
-     * Calls {@link #load()} inside the constructor.
-     */
-    public boolean isAutoLoadEnabled() {
-        return isAutoLoadEnabled;
-    }
-
-    /**
-     * Calls {@link #load()} inside the constructor.
-     */
-    public DreamYaml setAutoLoadEnabled(boolean autoLoadEnabled) {
-        this.isAutoLoadEnabled = autoLoadEnabled;
         return this;
     }
 

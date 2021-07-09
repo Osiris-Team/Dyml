@@ -4,10 +4,56 @@ import com.osiris.dyml.exceptions.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class DreamYamlTest {
+
+    @Test
+    void randomValueResetTest() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException, InterruptedException {
+        // TODO achieve thread-safety and remove this test
+        Thread t1 = new Thread(() -> {
+            try{
+                for (int i = 0; i < 10; i++) {
+                    Thread.sleep(new Random().nextInt(500));
+                    DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml", true, true);
+                    yaml.put("m1").setDefValues("hello");
+                    yaml.put("m2").setDefValues("hello");
+                    yaml.save();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+        });
+        t1.start();
+
+        Thread t2 = new Thread(() -> {
+            try{
+                for (int i = 0; i < 10; i++) {
+                    Thread.sleep(new Random().nextInt(500));
+                    DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml", true, true);
+                    yaml.put("m1").setDefValues("hello");
+                    yaml.put("m2").setDefValues("hello");
+                    yaml.save();
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        t2.start();
+
+        while(t1.isAlive() || t2.isAlive())
+            Thread.sleep(250);
+    }
+
+    @Test
+    void runLoadTwice() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
+        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml", true, true);
+        yaml.load();
+        yaml.load();
+    }
 
     @Test
     void remove() throws DYWriterException, IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException {

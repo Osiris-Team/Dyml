@@ -27,6 +27,36 @@ import static java.nio.file.StandardWatchEventKinds.*;
  */
 public class DYWatcher extends Thread {
     public static List<DYWatcher> activeWatchers = new CopyOnWriteArrayList<>();
+    /**
+     * A list containing files, that notify their listeners when an event happens. <br>
+     * Note that this list also contains the files parent directories.
+     */
+    private final List<DYRegisteredFile> registeredFiles = new CopyOnWriteArrayList<>();
+    private final Map<Path, WatchKey> directoriesAndWatchKeys = new HashMap<>();
+    private final WatchService watchService;
+    private boolean isWatchSubDirs = false;
+    /**
+     * <p style="color:red">Its recommended to use the static method {@link DYWatcher#getForPath(Path)} to get a {@link DYWatcher} instead!</p>
+     * See {@link #DYWatcher(Path)} for details.
+     */
+    public DYWatcher() throws IOException {
+        this(null);
+    }
+    /**
+     * <p style="color:red">Its recommended to use the static method {@link DYWatcher#getForPath(Path)} to get a {@link DYWatcher} instead!</p>
+     * <p style="color:red">The reason for that is performance.</p>
+     * Initialises a new {@link DYWatcher} and watches the provided path. <br>
+     * Note that this method will also call {@link #start()} to start its thread. <br>
+     * You can register more files to it via {@link #addFileAndListeners(File, List)}.
+     *
+     * @param path Can be a file or a directory.
+     */
+    public DYWatcher(Path path) throws IOException {
+        this.watchService = FileSystems.getDefault().newWatchService();
+        if (path != null)
+            addFileAndListeners(path.toFile(), null);
+        start();
+    }
 
     /**
      * See {@link #getForPath(Path)} for details.
@@ -53,39 +83,6 @@ public class DYWatcher extends Thread {
             }
         }
         return new DYWatcher(path);
-    }
-
-    /**
-     * A list containing files, that notify their listeners when an event happens. <br>
-     * Note that this list also contains the files parent directories.
-     */
-    private final List<DYRegisteredFile> registeredFiles = new CopyOnWriteArrayList<>();
-    private final Map<Path, WatchKey> directoriesAndWatchKeys = new HashMap<>();
-    private final WatchService watchService;
-    private boolean isWatchSubDirs = false;
-
-    /**
-     * <p style="color:red">Its recommended to use the static method {@link DYWatcher#getForPath(Path)} to get a {@link DYWatcher} instead!</p>
-     * See {@link #DYWatcher(Path)} for details.
-     */
-    public DYWatcher() throws IOException {
-        this(null);
-    }
-
-    /**
-     * <p style="color:red">Its recommended to use the static method {@link DYWatcher#getForPath(Path)} to get a {@link DYWatcher} instead!</p>
-     * <p style="color:red">The reason for that is performance.</p>
-     * Initialises a new {@link DYWatcher} and watches the provided path. <br>
-     * Note that this method will also call {@link #start()} to start its thread. <br>
-     * You can register more files to it via {@link #addFileAndListeners(File, List)}.
-     *
-     * @param path Can be a file or a directory.
-     */
-    public DYWatcher(Path path) throws IOException {
-        this.watchService = FileSystems.getDefault().newWatchService();
-        if (path != null)
-            addFileAndListeners(path.toFile(), null);
-        start();
     }
 
     @Override
