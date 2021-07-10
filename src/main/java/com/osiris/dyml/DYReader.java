@@ -29,7 +29,6 @@ class DYReader {
      * Is used when working with regular modules <br>
      */
     private final List<DYLine> keyLinesList = new ArrayList<>();
-    private BufferedReader reader;
     private DYLine beforeLine;
     /**
      * Gets set at the end of {@link #parseFirstLine(DreamYaml, DYLine)} and {@link #parseLine(DreamYaml, DYLine)}.
@@ -44,6 +43,7 @@ class DYReader {
             System.out.println("Started reading yaml " + (yaml.getInputStream() == null ? "file: " + yaml.getFile().getName() : "InputStream") + " at " + new Date());
         }
 
+        BufferedReader reader;
         if (yaml.getInputStream() == null) {
             File file = yaml.getFile();
             if (file == null) throw new DYReaderException("File is null! Make sure to load it at least once!");
@@ -232,7 +232,7 @@ class DYReader {
             if (yaml.isDebugEnabled())
                 System.out.println("Reading first line '" + currentLine.getLineNumber() + "' with content: '" + currentLine.getFullLine() + "'");
             // Go thorough each character of the string, until a special one is found
-            int charCode = 0;
+            int charCode;
             for (int i = 0; i < currentLine.getFullLine().length(); i++) {
                 charCode = currentLine.getFullLine().codePointAt(i);
                 checkChar(currentLine, charCode, i);
@@ -279,7 +279,7 @@ class DYReader {
      *   key2: value   # G1 | Child of key1 | Count of spaces: 2
      * </pre>
      */
-    public void parseLine(DreamYaml yaml, DYLine currentLine) throws IllegalListException, DuplicateKeyException {
+    public void parseLine(DreamYaml yaml, DYLine currentLine) throws DuplicateKeyException {
 
         if (!currentLine.getFullLine().isEmpty()) {
             if (yaml.isDebugEnabled())
@@ -289,7 +289,7 @@ class DYReader {
             List<DYModule> allLoaded = yaml.getAllLoaded();
             DYModule module = new DYModule(yaml);
             // Go thorough each character of the string, until a special one is found
-            int charCode = 0;
+            int charCode;
             String fullLine = currentLine.getFullLine();
             for (int i = 0; i < fullLine.length(); i++) {
                 charCode = fullLine.codePointAt(i);

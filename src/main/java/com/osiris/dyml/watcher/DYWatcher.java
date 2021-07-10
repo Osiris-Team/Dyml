@@ -25,8 +25,9 @@ import static java.nio.file.StandardWatchEventKinds.*;
  * (as well as subdirectories) and notify <br>
  * their listeners if an event happens.
  */
+@SuppressWarnings("ALL")
 public class DYWatcher extends Thread {
-    public static List<DYWatcher> activeWatchers = new CopyOnWriteArrayList<>();
+    public static final List<DYWatcher> activeWatchers = new CopyOnWriteArrayList<>();
     /**
      * A list containing files, that notify their listeners when an event happens. <br>
      * Note that this list also contains the files parent directories.

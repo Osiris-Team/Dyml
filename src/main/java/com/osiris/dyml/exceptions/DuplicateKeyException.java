@@ -9,8 +9,6 @@
 package com.osiris.dyml.exceptions;
 
 public class DuplicateKeyException extends Exception {
-    private final String fileName;
-    private final String key;
     private final String message;
 
     public DuplicateKeyException(String message) {
@@ -23,8 +21,6 @@ public class DuplicateKeyException extends Exception {
 
     public DuplicateKeyException(String message, String fileName, String key) {
         super();
-        this.fileName = fileName;
-        this.key = key;
         if (message == null)
             this.message = "Duplicate key '" + key + "' found in '" + fileName + "' file.";
         else

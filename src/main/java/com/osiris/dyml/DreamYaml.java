@@ -28,6 +28,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * The in-memory representation of the full yaml file
  * that contains all of the default and loaded modules.
  */
+@SuppressWarnings("ALL")
 public class DreamYaml {
 
     // Thread safety:
@@ -160,7 +161,7 @@ public class DreamYaml {
         init(isPostProcessingEnabled, isDebugEnabled);
     }
 
-    private void init(boolean isPostProcessingEnabled, boolean isDebugEnabled) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
+    private void init(boolean isPostProcessingEnabled, boolean isDebugEnabled) {
         this.isPostProcessingEnabled = isPostProcessingEnabled;
         this.isDebugEnabled = isDebugEnabled;
     }
@@ -198,7 +199,7 @@ public class DreamYaml {
      */
     public synchronized void lockFile() {
         if (file != null) {
-            ReentrantLock lock = null;
+            ReentrantLock lock;
             synchronized (pathsAndLocks) {
                 if (pathsAndLocks.containsKey(file.getAbsolutePath()))
                     lock = pathsAndLocks.get(file.getAbsolutePath());
@@ -236,7 +237,7 @@ public class DreamYaml {
      */
     public synchronized void unlockFile() {
         if (file != null) {
-            ReentrantLock lock = null;
+            ReentrantLock lock;
             synchronized (pathsAndLocks) {
                 if (pathsAndLocks.containsKey(file.getAbsolutePath())) {
                     lock = pathsAndLocks.get(file.getAbsolutePath()); // If another thread has already the locked, the current thread will wait until it gets unlocked
@@ -478,7 +479,7 @@ public class DreamYaml {
     /**
      * Removes the module from the yaml file once {@link #save()} was called. <br>
      */
-    public DreamYaml remove(String... keys) throws NotLoadedException, IllegalKeyException, DuplicateKeyException {
+    public DreamYaml remove(String... keys) {
         Objects.requireNonNull(keys);
         remove(new DYModule(this, keys));
         return this;
@@ -509,8 +510,6 @@ public class DreamYaml {
      * Details: <br>
      * If {@link #watcher} is null, this method creates and starts a new {@link DYWatcher}.
      *
-     * @param listener
-     * @return
      */
     public DreamYaml addFileEventListener(DYFileEventListener<DYFileEvent> listener) throws IOException {
         if (watcher == null) watcher = DYWatcher.getForFile(file);

@@ -9,7 +9,6 @@
 package com.osiris.dyml;
 
 
-import com.osiris.dyml.exceptions.DuplicateKeyException;
 import com.osiris.dyml.utils.UtilsDYModule;
 
 import java.util.ArrayList;
@@ -21,6 +20,7 @@ import java.util.Objects;
  * The in-memory representation of a yaml section.
  * Contains information about its keys, values and comments.
  */
+@SuppressWarnings("ALL")
 public class DYModule {
     private final UtilsDYModule utils = new UtilsDYModule();
     private DreamYaml yaml;
@@ -89,11 +89,11 @@ public class DYModule {
      * Formats this module into a {@link String}.
      */
     public String getModuleInformationAsString() {
-        StringBuilder s = new StringBuilder("KEYS: " + this.getKeys().toString() +
+        String s = "KEYS: " + this.getKeys().toString() +
                 " VALUES: " + utils.valuesListToStringList(this.getValues()).toString() +
                 " DEF-VALUES: " + utils.valuesListToStringList(this.getDefValues()).toString() +
-                " COMMENTS: " + this.getComments().toString());
-        return s.toString();
+                " COMMENTS: " + this.getComments().toString();
+        return s;
     }
 
 
@@ -152,7 +152,7 @@ public class DYModule {
     /**
      * See {@link #addValues(List)} for details.
      */
-    public DYModule addValues(String... v) throws DuplicateKeyException {
+    public DYModule addValues(String... v) {
         addValues(utils.stringArrayToValuesList(v));
         return this;
     }
@@ -160,7 +160,7 @@ public class DYModule {
     /**
      * See {@link #addValues(List)} for details.
      */
-    public DYModule addValues(DYValue... v) throws DuplicateKeyException {
+    public DYModule addValues(DYValue... v) {
         addValues(Arrays.asList(v));
         return this;
     }

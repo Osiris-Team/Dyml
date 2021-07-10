@@ -20,11 +20,10 @@ import java.util.List;
  */
 class DYWriter {
     private DreamYaml yaml;
-    private DYDebugLogger logger;
 
     public void parse(DreamYaml yaml, boolean overwrite, boolean reset) throws DYWriterException, IOException {
         this.yaml = yaml;
-        this.logger = yaml.getDebugLogger();
+        DYDebugLogger logger = yaml.getDebugLogger();
 
         UtilsTimeStopper timer = new UtilsTimeStopper();
         timer.start();
@@ -129,7 +128,7 @@ class DYWriter {
                                 module.getComments()) {
                             // Adds support for Strings containing \n to split up comments
                             BufferedReader bufReader = new BufferedReader(new StringReader(comment));
-                            String commentLine = null;
+                            String commentLine;
                             boolean isMultiline = false;
                             while ((commentLine = bufReader.readLine()) != null) {
                                 isMultiline = true;
@@ -149,7 +148,7 @@ class DYWriter {
                                 module.getComments()) {
                             // Adds support for Strings containing \n to split up comments
                             BufferedReader bufReader = new BufferedReader(new StringReader(comment));
-                            String commentLine = null;
+                            String commentLine;
                             boolean isMultiline = false;
                             while ((commentLine = bufReader.readLine()) != null) {
                                 isMultiline = true;

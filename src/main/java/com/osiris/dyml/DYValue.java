@@ -6,6 +6,7 @@ package com.osiris.dyml;
  * the actual value as a string. <br>
  * This value may have a comment (side comment).
  */
+@SuppressWarnings("ALL")
 public class DYValue {
     private String valueAsString;
     private String comment;
