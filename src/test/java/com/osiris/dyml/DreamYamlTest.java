@@ -11,41 +11,45 @@ import static org.junit.jupiter.api.Assertions.*;
 class DreamYamlTest {
 
     @Test
-    void randomValueResetTest() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException, InterruptedException {
-        // TODO achieve thread-safety and remove this test
+    void threadSafetyTest() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException, InterruptedException {
         Thread t1 = new Thread(() -> {
             try{
                 for (int i = 0; i < 10; i++) {
                     Thread.sleep(new Random().nextInt(500));
-                    DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml", true, true);
+                    DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml");
+                    yaml.lockAndLoad();
                     yaml.put("m1").setDefValues("hello");
                     yaml.put("m2").setDefValues("hello");
                     yaml.save();
+                    yaml.saveAndUnlock();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
         });
-        t1.start();
+
 
         Thread t2 = new Thread(() -> {
             try{
                 for (int i = 0; i < 10; i++) {
                     Thread.sleep(new Random().nextInt(500));
-                    DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml", true, true);
+                    DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml");
+                    yaml.lockAndLoad();
                     yaml.put("m1").setDefValues("hello");
                     yaml.put("m2").setDefValues("hello");
-                    yaml.save();
+                    yaml.saveAndUnlock();
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
         });
+
+        t1.start();
         t2.start();
 
-        while(t1.isAlive() || t2.isAlive())
-            Thread.sleep(250);
+        t1.join();
+        t2.join();
     }
 
     @Test
@@ -58,6 +62,7 @@ class DreamYamlTest {
     @Test
     void remove() throws DYWriterException, IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException {
         DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml", true);
+        yaml.load();
         yaml.reset();
         yaml.add("test");
         yaml.saveAndLoad();
@@ -69,6 +74,7 @@ class DreamYamlTest {
     @Test
     void add() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
         DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml", true);
+        yaml.load();
         yaml.reset();
         DYModule m1 = yaml.add("test-put").setValues("value");
         DYModule m2 = yaml.add("test-put", "c1").setValues("value");
@@ -102,6 +108,7 @@ class DreamYamlTest {
     @Test
     void put() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
         DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml");
+        yaml.load();
         yaml.reset();
         DYModule m1 = yaml.put("test-put").setValues("value");
         DYModule m2 = yaml.put("test-put", "c1").setValues("value");
@@ -137,6 +144,7 @@ class DreamYamlTest {
     @Test
     void get() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
         DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml");
+        yaml.load();
         yaml.put("test-get").setValues("value");
         yaml.put("test-get", "c1").setValues("value");
         yaml.saveAndLoad();
@@ -183,6 +191,7 @@ class DreamYamlTest {
     @Test
     void save() throws Exception {
         DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/save-test.yml");
+        yaml.load();
         yaml.reset();
         yaml.put("p1");
         yaml.put("p2");

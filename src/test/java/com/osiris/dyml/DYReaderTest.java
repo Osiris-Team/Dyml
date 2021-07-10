@@ -24,6 +24,7 @@ class DYReaderTest {
     void testFileReading() throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
         File file = new File(System.getProperty("user.dir") + "/src/test/features.yml");
         DreamYaml yaml = new DreamYaml(file);
+        yaml.load();
         System.out.println("Parsing '" + file.getName() + "' from path '" + file.getAbsolutePath() + "'");
         try {
             UtilsTimeStopper time = new UtilsTimeStopper();

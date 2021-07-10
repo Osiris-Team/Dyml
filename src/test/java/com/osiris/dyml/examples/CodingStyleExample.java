@@ -34,7 +34,7 @@ public class CodingStyleExample {
     @Test
     void test() throws Exception {
         DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/coding-style-example.yml");
-        //yaml.load(); // We don't need to call this, since autoLoad is enabled by default.
+        yaml.load();
         yaml.reset(); // DO NOT CALL THIS IN PRODUCTION, IT WILL REMOVE ALL THE INFORMATION FROM YOUR YAML FILE!
         // I am doing this only for the sake of testing!
 

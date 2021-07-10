@@ -35,6 +35,7 @@ public class DYWatcher extends Thread {
     private final Map<Path, WatchKey> directoriesAndWatchKeys = new HashMap<>();
     private final WatchService watchService;
     private boolean isWatchSubDirs = false;
+
     /**
      * <p style="color:red">Its recommended to use the static method {@link DYWatcher#getForPath(Path)} to get a {@link DYWatcher} instead!</p>
      * See {@link #DYWatcher(Path)} for details.
@@ -42,6 +43,7 @@ public class DYWatcher extends Thread {
     public DYWatcher() throws IOException {
         this(null);
     }
+
     /**
      * <p style="color:red">Its recommended to use the static method {@link DYWatcher#getForPath(Path)} to get a {@link DYWatcher} instead!</p>
      * <p style="color:red">The reason for that is performance.</p>

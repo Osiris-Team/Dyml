@@ -1,8 +1,8 @@
 # Design
 Dream-Yaml is designed to allow an easy, but also powerful way of editing a yaml file.
 
-The DreamYaml object, represents a single yaml file. It will automatically
-`load()` the file (can be disabled) and parse its contents into DYModules, at initialisation .
+The DreamYaml object, represents a single yaml file. The first thing you should do is to 
+`load()` the file and parse its contents into DYModules .
 Those modules are then inside of the DreamYamls 'loadedModules' list.
 
 A DYModule is nothing more than the in-memory representation of a single yaml section like this:

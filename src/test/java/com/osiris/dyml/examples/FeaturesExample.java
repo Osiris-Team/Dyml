@@ -12,6 +12,7 @@ public class FeaturesExample {
     @Test
     void test() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
         DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/features.yml", true);
+        yaml.load();
 
         yaml.put("the-show-off-list").setDefValues("completely written from scratch without any extra dependency", "fastest YAML reader and writer currently available (see benchmarks below)", "not a single static method and very memory efficient");
         yaml.put("supports-hyphen-separation").setDefValues("awesome!");

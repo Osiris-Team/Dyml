@@ -20,7 +20,7 @@ public class SavingExample {
     @Test
     void test() throws Exception {
         DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/saving-example.yml");
-        //yaml.load(); // Not needed because of autoLoad
+        yaml.load();
         yaml.reset(); // Ignore this!
         yaml.add("work").setDefValues("Reporter"); // Ignore this!
 

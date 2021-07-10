@@ -43,6 +43,7 @@ Some extras:
 ## Simple example
 ```java
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/simple-example.yml");
+yaml.load();
 
 yaml.put("name")         .setDefValues("John");
 yaml.put("last-name")    .setDefValues("Goldman");
@@ -69,7 +70,7 @@ These examples build on top of each other, so make sure to follow the order.
   <summary>CORE features example</summary>
 <pre lang="java">
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/advanced-example.yml");
-// yaml.load() is not needed, because autoLoad is true by default and loads your file automatically in the constructor above
+yaml.load();
 
 yaml.put("name")         .setDefValues(new DYValue("John", "Value-Comment")).setDefComments("Key-Comment");
 yaml.put("last-name")    .setDefValues("Goldman");
@@ -96,11 +97,28 @@ pending-tasks:
   - start working
 </pre>
 </details>
+<details>
+  <summary>Achieve THREAD-SAFETY example</summary>
+<pre lang="java">
+// If you access a single file from multiple threads at the same time, you should lock it
+// while you are working with it, so that no unexpected stuff happens.
+DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/advanced-example.yml");
+yaml.lockAndLoad(); // Ensures that no other thread can load the file until the lock is released 
 
+yaml.put("name")         .setDefValues(new DYValue("John", "Value-Comment")).setDefComments("Key-Comment");
+yaml.put("last-name")    .setDefValues("Goldman");
+yaml.put("age")          .setDefValues("29");
+yaml.put("work")         .setDefValues("Reporter");
+yaml.put("pending-tasks").setDefValues("do research", "buy food", "start working");
+
+yaml.saveAndUnlock(); // Unlocks the file so that the next thread can access it
+</pre>
+</details>
 <details>
   <summary>SAVING example</summary>
 <pre lang="java">
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/saving-example.yml");
+yaml.load();
 
 // SCENARIO 1:
 // Lets imagine this file contains tons of information but we only want to modify/update that one section and keep the rest.
@@ -127,6 +145,7 @@ yaml.save(true);
   <summary>COMMENTS example</summary>
 <pre lang="java">
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/comments-example.yml");
+yaml.load();
 
 DYModule firstName = yaml.put("name").setDefValues("John").setComments("You can insert your", "multiline comments like this.");
 DYModule lastName = yaml.put("last-name").setDefValues("Goldman").setComments(
@@ -167,6 +186,7 @@ p1:
   <summary>Getting VALUES example</summary>
 <pre lang="java">
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/getting-values-example.yml");
+yaml.load();
 
 DYModule firstName = yaml.put("name").setDefValues("John").setComments("Everything about getting values.");
 DYModule lastName = yaml.put("last-name").setDefValues("Goldman");
@@ -198,7 +218,7 @@ int listIndex1 = pendingTasks.asInt(1);
 char[] listIndex2 = pendingTasks.asCharArray(2);
 
 // Finding and getting a module by its keys
-DYModule firstNameModuleByKeys = yaml.get("name"); // Returns the module from the permanent added modules list
+DYModule firstNameModuleByKeys = yaml.get("name"); // Returns the module from the permanent in-edit modules list
 DYModule firstNameLoadedModuleByKeys = yaml.get("name"); // Returns the module from the temporary loaded modules list, at the time load() was called
 </pre>
 <pre lang="yaml">
@@ -218,6 +238,7 @@ pending-tasks:
   <summary>Value VALIDATION example</summary>
 <pre lang="java">
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/value-validation-example.yml");
+yaml.load();
 DYModule module = yaml.put("is-valid").setDefValues("false");
 yaml.saveAndLoad(); // It could be that the file is empty and the default value doesn't exist yet.
 
@@ -238,6 +259,7 @@ is-valid: true
   <summary>PARENT- and CHILD-modules example</summary>
 <pre lang="java">
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/parent-example.yml");
+yaml.load();
 
 DYModule p1 = yaml.put("p1").setComments("Create a more complex yaml file", "with multiple parents and children.");
 DYModule p1C1 = yaml.put("p1", "c1").setDefValues("You can arrange your");
@@ -298,9 +320,7 @@ public class CodingStyleExample {
 
     public CodingStyleExample() throws Exception {
         DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/coding-style-example.yml");
-        //yaml.load(); // We don't need to call this, since autoLoad is enabled by default.
-        yaml.reset(); // DO NOT CALL THIS IN PRODUCTION, IT WILL REMOVE ALL THE INFORMATION FROM YOUR YAML FILE!
-        // I am doing this only for the sake of testing!
+        yaml.load();
 
         FIRST_NAME = yaml.put("name").setDefValues("John");
         LAST_NAME = yaml.put("last-name").setDefValues("Goldman");
@@ -351,6 +371,7 @@ encapsulated:
   <summary>WATCHING yaml files example</summary>
 <pre lang="java">
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/watcher-example.yml");
+yaml.load();
 yaml.addFileEventListener(event -> {
             try { // This will reload the yaml object and update its values,
                   // if there is a entry modify event
@@ -402,7 +423,7 @@ These are named 'loaded modules' by the way.
 <details>
   <summary>Difference between 'loaded' and 'added' modules?</summary>
 The only difference, is that loaded modules cannot have default values set.
-They are basically the raw output from your yaml file. Added modules get created when you call the add() method. Their initial value is taken from the  
+They are basically the raw output from your yaml file. In-Edit modules get created when you call the add() method. Their initial value is taken from the  
 loaded module with the same keys.
 </details>
 <details>

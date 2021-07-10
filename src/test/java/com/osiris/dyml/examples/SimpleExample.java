@@ -21,7 +21,7 @@ public class SimpleExample {
     @Test
     void test() throws Exception {
         DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/simple-example.yml"); // You can find every examples yaml file here https://github.com/Osiris-Team/Dream-Yaml/tree/main/src/test
-        // yaml.load(); // Not needed, because of autoLoad. You can disable it in the constructor.
+       yaml.load();
 
         // Your file must have been loaded at least once before adding any modules.
         DYModule firstName = yaml.put("name")         .setDefValues("John");

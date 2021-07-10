@@ -212,6 +212,15 @@ public class DreamYaml {
     }
 
     /**
+     * Convenience method for locking and then loading the file. <br>
+     * See {@link #lockFile()} and {@link #load()} for details.
+     */
+    public void lockAndLoad() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
+        lockFile();
+        load();
+    }
+
+    /**
      * If you access the same yaml file from multiple threads, its recommended to lock the file before loading it. <br>
      * Remember to {@link #unlockFile()} so that other threads can work with the file too. <br>
      * If you don't do that, other threads will stay stuck at {@link #lockFile()} forever. <br>
@@ -237,6 +246,15 @@ public class DreamYaml {
                 }
             }
         }
+    }
+
+    /**
+     * Convenience method for saving and then unlocking the file. <br>
+     * See {@link #lockFile()} and {@link #load()} for details.
+     */
+    public void saveAndUnlock() throws DYWriterException, IOException, DuplicateKeyException, DYReaderException, IllegalListException {
+        save();
+        unlockFile();
     }
 
     /**
