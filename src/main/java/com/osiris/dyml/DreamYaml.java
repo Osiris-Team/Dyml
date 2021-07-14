@@ -168,7 +168,7 @@ public class DreamYaml {
 
     /**
      * Loads the file into memory by parsing it into modules({@link DYModule}). <br>
-     * Creates a new file if it didn't exist already. <br>
+     * Creates a new file and its parent directories if they didn't exist already. <br>
      * You can return the list of modules with {@link #getAllLoaded()}. <br>
      * Remember, that this updates your added modules values. <br>
      * Also note that it post-processes the 'loaded modules'. <br>
@@ -177,7 +177,10 @@ public class DreamYaml {
      */
     public DreamYaml load() throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
         if (this.isDebugEnabled) System.out.println("Executing load()");
-        if (file != null && !file.exists()) file.createNewFile();
+        if (file != null && !file.exists()) {
+            file.getParentFile().mkdirs();
+            file.createNewFile();
+        }
         new DYReader().parse(this);
         isLoaded = true;
         return this;

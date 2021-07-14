@@ -24,7 +24,9 @@ class DYWatcherExample {
         yaml.addFileEventListener(event -> {
             try {
                 if (event.getWatchEventKind().equals(StandardWatchEventKinds.ENTRY_MODIFY)){
+                    event.getYaml().lockFile();
                     event.getYaml().load();
+                    event.getYaml().unlockFile();
                     System.out.println("Reloaded yaml file '" + event.getFile().getName() +
                             "' because of '" + event.getWatchEventKind()+"' event.");
                 }
