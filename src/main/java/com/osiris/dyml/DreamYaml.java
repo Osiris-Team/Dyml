@@ -178,7 +178,7 @@ public class DreamYaml {
     public DreamYaml load() throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
         if (this.isDebugEnabled) System.out.println("Executing load()");
         if (file != null && !file.exists()) {
-            file.getParentFile().mkdirs();
+            if(file.getParentFile()!=null) file.getParentFile().mkdirs();
             file.createNewFile();
         }
         new DYReader().parse(this);
