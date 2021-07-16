@@ -636,10 +636,39 @@ public class DYModule {
     }
 
 
+    /**
+     * The count of line breaks before this {@link DYModule}. <br>
+     * Example yaml file:
+     * <pre>
+     *     m1: value
+     *
+     *
+     *
+     *     m2: value
+     * </pre>
+     * For 'm2' this method would return 3, because there are 3 line breaks before it. <br>
+     * For 'm1' this method returns 0.
+     */
     public int getCountTopSpaces() {
         return countTopSpaces;
     }
 
+    /**
+     * Set the count of line breaks before this {@link DYModule}. <br>
+     * Example yaml file before:
+     * <pre>
+     *     m1: value
+     *     m2: value
+     * </pre>
+     * Example yaml file after m2's count of spaces was set to 3 via this method:
+     * <pre>
+     *     m1: value
+     *
+     *
+     *
+     *     m2: value
+     * </pre>
+     */
     public DYModule setCountTopSpaces(int countTopSpaces) {
         this.countTopSpaces = countTopSpaces;
         return this;
