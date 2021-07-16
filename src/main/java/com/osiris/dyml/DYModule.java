@@ -29,6 +29,7 @@ public class DYModule {
     private List<DYValue> defaultValues;
     private List<String> comments;
     private List<String> defaultComments;
+    private int countTopSpaces;
 
     private DYModule parentModule = null;
     private List<DYModule> childModules = new ArrayList<>();
@@ -635,4 +636,12 @@ public class DYModule {
     }
 
 
+    public int getCountTopSpaces() {
+        return countTopSpaces;
+    }
+
+    public DYModule setCountTopSpaces(int countTopSpaces) {
+        this.countTopSpaces = countTopSpaces;
+        return this;
+    }
 }

@@ -178,7 +178,7 @@ public class DreamYaml {
     public DreamYaml load() throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
         if (this.isDebugEnabled) System.out.println("Executing load()");
         if (file != null && !file.exists()) {
-            if(file.getParentFile()!=null) file.getParentFile().mkdirs();
+            if (file.getParentFile() != null) file.getParentFile().mkdirs();
             file.createNewFile();
         }
         new DYReader().parse(this);
@@ -512,7 +512,6 @@ public class DreamYaml {
      * {@link DYFileEventListener#runOnEvent(DYFileEvent)} method gets executed. <br>
      * Details: <br>
      * If {@link #watcher} is null, this method creates and starts a new {@link DYWatcher}.
-     *
      */
     public DreamYaml addFileEventListener(DYFileEventListener<DYFileEvent> listener) throws IOException {
         if (watcher == null) watcher = DYWatcher.getForFile(file);

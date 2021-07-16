@@ -30,6 +30,7 @@ class DYReader {
      */
     private final List<DYLine> keyLinesList = new ArrayList<>();
     private DYLine beforeLine;
+    private int countEmptyBeforeLines = 0;
     /**
      * Gets set at the end of {@link #parseFirstLine(DreamYaml, DYLine)} and {@link #parseLine(DreamYaml, DYLine)}.
      */
@@ -279,103 +280,44 @@ class DYReader {
      *   key2: value   # G1 | Child of key1 | Count of spaces: 2
      * </pre>
      */
-    public void parseLine(DreamYaml yaml, DYLine currentLine) throws DuplicateKeyException {
+    public void parseLine(DreamYaml yaml, DYLine currentLine) {
 
-        if (!currentLine.getFullLine().isEmpty()) {
-            if (yaml.isDebugEnabled())
-                System.out.println("Reading line '" + currentLine.getLineNumber() + "' with content: '" + currentLine.getFullLine() + "'");
+        if (currentLine.getFullLine().trim().isEmpty()) {
+            countEmptyBeforeLines++;
+            return;
+        }
 
-            // Add the module to the yaml loaded modules list, but only under certain circumstances (logic below)
-            List<DYModule> allLoaded = yaml.getAllLoaded();
-            DYModule module = new DYModule(yaml);
-            // Go thorough each character of the string, until a special one is found
-            int charCode;
-            String fullLine = currentLine.getFullLine();
-            for (int i = 0; i < fullLine.length(); i++) {
-                charCode = fullLine.codePointAt(i);
-                checkChar(currentLine, charCode, i);
-                if (currentLine.isCommentFound()) // Not at currentLine.isColonFound() or currentLine.isHyphenFound() because of side-comments
-                    break;
-            }
+        if (yaml.isDebugEnabled())
+            System.out.println("Reading line '" + currentLine.getLineNumber() + "' with content: '" + currentLine.getFullLine() + "'");
 
-            // The code below does all the magic, of reading the keys, values and comments, and putting them together into modules.
-            // "<---" in the examples, shows that this could be the current line
-            if (currentLine.isCommentFound()) {
-                if (currentLine.isKeyFound()) {
-                    // This line does NOT contain a HYPHEN, but HAS a KEY. Example:
-                    // m1:
-                    //   # Key-Comment
-                    //   m2: value # Side-Comment <---
+        // Add the module to the yaml loaded modules list, but only under certain circumstances (logic below)
+        List<DYModule> allLoaded = yaml.getAllLoaded();
+        DYModule module = new DYModule(yaml);
+        // Go thorough each character of the string, until a special one is found
+        int charCode;
+        String fullLine = currentLine.getFullLine();
+        for (int i = 0; i < fullLine.length(); i++) {
+            charCode = fullLine.codePointAt(i);
+            checkChar(currentLine, charCode, i);
+            if (currentLine.isCommentFound()) // Not at currentLine.isColonFound() or currentLine.isHyphenFound() because of side-comments
+                break;
+        }
 
-                    if (beforeLine.isCommentFound() && !beforeLine.isKeyFound() && !beforeLine.isHyphenFound()) // If the current line is a key, but the last line was a comment, add the key to the last comments module.
-                        module = beforeModule;
-
-                    // Go reversely through the lines list, search for the parent and copy its keys.
-                    // It can be that this is a G0 module. In that case we don't need to search for a parent.
-                    if (currentLine.getCountSpaces() > 0) {
-                        for (int i = keyLinesList.size() - 1; i >= 0; i--) {
-                            DYLine oldLine = keyLinesList.get(i);
-                            if ((currentLine.getCountSpaces() - oldLine.getCountSpaces()) == 2) {
-                                DYModule oldModule = allLoaded.get(i);
-                                module.getKeys().addAll(oldModule.getKeys());
-                                module.setParentModule(oldModule);
-                                oldModule.addChildModules(module);
-                                break;
-                            }
-                        }
-                    }
-
-                    module.addKeys(currentLine.getRawKey());
-                    module.setValues(new DYValue(currentLine.getRawValue(), currentLine.getRawComment()));
-                    allLoaded.add(module);
-                } else if (currentLine.isHyphenFound()) { // Comment + Hyphen found without a key
-                    // Its a side comment from a value in a list. Also add support for value top comments inside a list. Example:
-                    // list:
-                    //   - value # value-comment  <---
-                    //   # value-comment of the value below, not a key-comment, bc inside of a list
-                    //   - second value # value-comment <---
-                    DYModule oldModule = yaml.getLastLoadedModule(); // The last added module, which has to contain a key, otherwise its not added
-                    if (beforeLine.isCommentFound() && !beforeLine.isKeyFound() && !beforeLine.isHyphenFound()) { // In this special case, we put the comments from the last line/module together
-                        String c = currentLine.getRawComment();
-                        for (String comment :
-                                beforeModule.getComments()) {
-                            c = c + " # " + comment;
-                        }
-                        currentLine.setRawComment(c);
-                    }
-                    // Since the key has a null value we need to remove it. Example:
-                    // list: <--- This is the first null value
-                    //   - value <--- This is our current position
-
-                    // If we wouldn't remove it, the writer would write that value in form of a list. Example:
-                    // list:   <--- New null value
-                    //   -     <--- Old null value
-                    //   - value
-
-                    // If we would then read the read the above again, the same would happen.
-                    // Its basically a infinite loop of adding null values to a list.
-                    // That's why the code below is very important:
-                    if (!beforeLine.isHyphenFound() && oldModule.getValues().size() == 1 && oldModule.getValues().get(0).asString() == null)
-                        oldModule.getValues().remove(0);
-
-                    // Since the allLoaded lists and keyLinesList sizes are the same we can do the below:
-                    oldModule.addValues(new DYValue(currentLine.getRawValue(), currentLine.getRawComment()));
-                } else { // No side-comment, but regular comment
-                    // If the current line and the last line are comments, add the current comment to the last comments object/module.
-                    // In both cases, don't add the module to the list.
-                    // The module gets added to the list, once a key was found in the next lines.
-                    if (beforeLine.isCommentFound() && !beforeLine.isKeyFound() && !beforeLine.isHyphenFound()) // To make sure its not a side-comment
-                        module = beforeModule;
-                    module.addComments(currentLine.getRawComment());
-                }
-            } else if (currentLine.isKeyFound()) { // CURRENT LINE DOES NOT CONTAIN A COMMENT!
+        // The code below does all the magic, of reading the keys, values and comments, and putting them together into modules.
+        // "<---" in the examples, shows that this could be the current line
+        if (currentLine.isCommentFound()) {
+            if (currentLine.isKeyFound()) {
                 // This line does NOT contain a HYPHEN, but HAS a KEY. Example:
                 // m1:
-                //   # BeforeLine comment
-                //   m2: value <---
+                //   # Key-Comment
+                //   m2: value # Side-Comment <---
 
                 if (beforeLine.isCommentFound() && !beforeLine.isKeyFound() && !beforeLine.isHyphenFound()) // If the current line is a key, but the last line was a comment, add the key to the last comments module.
                     module = beforeModule;
+                else {
+                    module.setCountTopSpaces(countEmptyBeforeLines);
+                    countEmptyBeforeLines = 0;
+                }
 
                 // Go reversely through the lines list, search for the parent and copy its keys.
                 // It can be that this is a G0 module. In that case we don't need to search for a parent.
@@ -393,18 +335,15 @@ class DYReader {
                 }
 
                 module.addKeys(currentLine.getRawKey());
-                module.setValues(currentLine.getRawValue());
+                module.setValues(new DYValue(currentLine.getRawValue(), currentLine.getRawComment()));
                 allLoaded.add(module);
-            } else if (currentLine.isHyphenFound()) { // CURRENT LINE DOES NOT CONTAIN A COMMENT OR A KEY! Multiple examples:
-                // m1:
-                //   - value1
-                //   - value2 <---
-
-                // m1:
-                //   m1-inside:
-                //     - value1
-                //     - value2 <---
-                DYModule oldModule = yaml.getLastLoadedModule();
+            } else if (currentLine.isHyphenFound()) { // Comment + Hyphen found without a key
+                // Its a side comment from a value in a list. Also add support for value top comments inside a list. Example:
+                // list:
+                //   - value # value-comment  <---
+                //   # value-comment of the value below, not a key-comment, bc inside of a list
+                //   - second value # value-comment <---
+                DYModule oldModule = yaml.getLastLoadedModule(); // The last added module, which has to contain a key, otherwise its not added
                 if (beforeLine.isCommentFound() && !beforeLine.isKeyFound() && !beforeLine.isHyphenFound()) { // In this special case, we put the comments from the last line/module together
                     String c = currentLine.getRawComment();
                     for (String comment :
@@ -413,14 +352,91 @@ class DYReader {
                     }
                     currentLine.setRawComment(c);
                 }
-                if (!beforeLine.isHyphenFound() && oldModule.getValues().size() == 1 && oldModule.getValues().get(0).asString() == null) {
+                // Since the key has a null value we need to remove it. Example:
+                // list: <--- This is the first null value
+                //   - value <--- This is our current position
+
+                // If we wouldn't remove it, the writer would write that value in form of a list. Example:
+                // list:   <--- New null value
+                //   -     <--- Old null value
+                //   - value
+
+                // If we would then read the read the above again, the same would happen.
+                // Its basically a infinite loop of adding null values to a list.
+                // That's why the code below is very important:
+                if (!beforeLine.isHyphenFound() && oldModule.getValues().size() == 1 && oldModule.getValues().get(0).asString() == null)
                     oldModule.getValues().remove(0);
+
+                // Since the allLoaded lists and keyLinesList sizes are the same we can do the below:
+                oldModule.addValues(new DYValue(currentLine.getRawValue(), currentLine.getRawComment()));
+            } else { // No side-comment, but regular comment
+                // If the current line and the last line are comments, add the current comment to the last comments object/module.
+                // In both cases, don't add the module to the list.
+                // The module gets added to the list, once a key was found in the next lines.
+                if (beforeLine.isCommentFound() && !beforeLine.isKeyFound() && !beforeLine.isHyphenFound()) // To make sure its not a side-comment
+                    module = beforeModule;
+                else {
+                    module.setCountTopSpaces(countEmptyBeforeLines);
+                    countEmptyBeforeLines = 0;
                 }
-                oldModule.addValues(currentLine.getRawValue()); // Now all we do is add the current value to the parent module.
+                module.addComments(currentLine.getRawComment());
+            }
+        } else if (currentLine.isKeyFound()) { // CURRENT LINE DOES NOT CONTAIN A COMMENT!
+            // This line does NOT contain a HYPHEN, but HAS a KEY. Example:
+            // m1:
+            //   # BeforeLine comment
+            //   m2: value <---
+
+            if (beforeLine.isCommentFound() && !beforeLine.isKeyFound() && !beforeLine.isHyphenFound()) // If the current line is a key, but the last line was a comment, add the key to the last comments module.
+                module = beforeModule;
+            else {
+                module.setCountTopSpaces(countEmptyBeforeLines);
+                countEmptyBeforeLines = 0;
             }
 
-            beforeModule = module;
+            // Go reversely through the lines list, search for the parent and copy its keys.
+            // It can be that this is a G0 module. In that case we don't need to search for a parent.
+            if (currentLine.getCountSpaces() > 0) {
+                for (int i = keyLinesList.size() - 1; i >= 0; i--) {
+                    DYLine oldLine = keyLinesList.get(i);
+                    if ((currentLine.getCountSpaces() - oldLine.getCountSpaces()) == 2) {
+                        DYModule oldModule = allLoaded.get(i);
+                        module.getKeys().addAll(oldModule.getKeys());
+                        module.setParentModule(oldModule);
+                        oldModule.addChildModules(module);
+                        break;
+                    }
+                }
+            }
+
+            module.addKeys(currentLine.getRawKey());
+            module.setValues(currentLine.getRawValue());
+            allLoaded.add(module);
+        } else if (currentLine.isHyphenFound()) { // CURRENT LINE DOES NOT CONTAIN A COMMENT OR A KEY! Multiple examples:
+            // m1:
+            //   - value1
+            //   - value2 <---
+
+            // m1:
+            //   m1-inside:
+            //     - value1
+            //     - value2 <---
+            DYModule oldModule = yaml.getLastLoadedModule();
+            if (beforeLine.isCommentFound() && !beforeLine.isKeyFound() && !beforeLine.isHyphenFound()) { // In this special case, we put the comments from the last line/module together
+                String c = currentLine.getRawComment();
+                for (String comment :
+                        beforeModule.getComments()) {
+                    c = c + " # " + comment;
+                }
+                currentLine.setRawComment(c);
+            }
+            if (!beforeLine.isHyphenFound() && oldModule.getValues().size() == 1 && oldModule.getValues().get(0).asString() == null) {
+                oldModule.getValues().remove(0);
+            }
+            oldModule.addValues(currentLine.getRawValue()); // Now all we do is add the current value to the parent module.
         }
+
+        beforeModule = module;
     }
 
     /**

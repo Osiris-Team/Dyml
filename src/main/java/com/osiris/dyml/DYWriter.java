@@ -122,6 +122,11 @@ class DYWriter {
                     spaces = spaces + "  ";
                 }
 
+                for (int j = 0; j < module.getCountTopSpaces(); j++) {
+                    writer.newLine();
+                    writer.flush();
+                }
+
                 if (module.getComments() != null && i == (keysSize - 1)) // Only write comments to the last key in the list
                     if (!module.getComments().isEmpty()) {
                         for (String comment :
