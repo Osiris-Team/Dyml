@@ -14,7 +14,6 @@ import java.util.Random;
 public class DreamYamlDB {
     private File yamlFile;
     private DreamYaml yaml;
-    private List<DYTable> tables;
 
     class DYTable{
         private String name;
@@ -49,7 +48,19 @@ public class DreamYamlDB {
     }
 
     class DYColumn{
+        String name;
 
+        public DYColumn(String name) {
+            this.name = name;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
     /**
@@ -98,7 +109,6 @@ public class DreamYamlDB {
         Objects.requireNonNull(table);
         yaml.put("tables", table.getName());
         yaml.saveAndLoad();
-        tables.add(table);
         return this;
     }
 
@@ -106,8 +116,36 @@ public class DreamYamlDB {
         Objects.requireNonNull(table);
         yaml.remove("tables", table.getName());
         yaml.saveAndLoad();
-        tables.remove(table);
         return this;
+    }
+
+    public DYTable getTableByName(String name){
+        List<DYTable> tables = getTables();
+        for (DYTable t :
+                tables) {
+            if (t.getName().equals(name))
+                return t;
+        }
+        return null;
+    }
+
+    public DYTable getTableByIndex(int index){
+        return getTables().get(index);
+    }
+
+    public List<DYTable> getTables(){
+        List<DYTable> tables = new ArrayList<>();
+        for (DYModule tableModule :
+                yaml.get("tables").getChildModules()) {
+            String name = tableModule.getLastKey();
+            List<DYColumn> columns = new ArrayList<>();
+            for (DYModule columnModule :
+                 tableModule.getChildModules()) {
+                columns.add(new DYColumn(columnModule.getLastKey()));
+            }
+            tables.add(new DYTable(name, columns));
+        }
+        return tables;
     }
 
     /*
