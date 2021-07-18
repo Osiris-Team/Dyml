@@ -40,6 +40,7 @@ not supported:
 ```
 Some extras:
  - **DYWatcher |** Yaml files watcher with recursive directory watching support.
+ - **DreamYamlDB |** Yaml based, lightning fast database.
 ## Simple example
 ```java
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/simple-example.yml");
@@ -367,6 +368,7 @@ encapsulated:
 </pre>
 </details>
 
+DYWatcher:
  <details>
   <summary>WATCHING yaml files example</summary>
 <pre lang="java">
@@ -386,6 +388,9 @@ yaml.addFileEventListener(event -> {
         });
 </pre>
 </details>
+
+DreamYamlDB:
+
 All the above examples can be found as tests here: https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples
 
 ## Benchmarks

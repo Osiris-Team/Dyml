@@ -12,8 +12,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Random;
 
-// TODO
-
 /**
  * A single DreamYamlDB (DreamYamlDatabase) object, represents a single database. <br>
  * To be more exact, its just a single yaml file with a structure like this: <br>
@@ -43,7 +41,7 @@ public class DreamYamlDB {
     private DreamYaml yaml;
 
     /**
-     * Creates a new yml file in the current working directory, with a random, unused name.
+     * Creates a new yaml file in the current working directory, with a random, unused name.
      */
     public DreamYamlDB() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
         String name = "DreamYaml-DB-" + new Random().nextInt(10000000);
@@ -79,6 +77,10 @@ public class DreamYamlDB {
         init(yamlFile);
     }
 
+    public DreamYamlDB(DreamYaml yaml) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
+        init(yaml);
+    }
+
     private void init(File yamlFile) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
         init(new DreamYaml(yamlFile));
     }
@@ -87,6 +89,10 @@ public class DreamYamlDB {
         Objects.requireNonNull(yaml);
         this.yaml = yaml;
         yaml.setRemoveLoadedNullValuesEnabled(false);
+    }
+
+    public DreamYaml getYaml() {
+        return yaml;
     }
 
     /**
