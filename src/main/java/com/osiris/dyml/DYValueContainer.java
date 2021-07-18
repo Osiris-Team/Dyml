@@ -3,76 +3,77 @@ package com.osiris.dyml;
 /**
  * The in-memory representation of a single value. <br>
  * Note that this class acts as some sort of 'container' that holds
- * the actual value as a string. <br>
+ * the actual String value and thus can never be null, but the value can (see {@link #get()} for details). <br>
+ * This class also provides methods for working with the value as different data-types. <br>
  * This value may have a comment (side comment).
  */
 @SuppressWarnings("ALL")
-public class DYValue {
-    private String valueAsString;
+public class DYValueContainer {
+    private String value;
     private String comment;
     private String defaultComment;
 
-    public DYValue(String valueAsString) {
-        this(valueAsString, null);
+    public DYValueContainer(String value) {
+        this(value, null);
     }
 
-    public DYValue(char[] value) {
+    public DYValueContainer(char[] value) {
         this(String.valueOf(value), null);
     }
 
-    public DYValue(boolean value) {
+    public DYValueContainer(boolean value) {
         this(String.valueOf(value), null);
     }
 
-    public DYValue(Boolean value) {
+    public DYValueContainer(Boolean value) {
         this(value.toString(), null);
     }
 
-    public DYValue(byte value) {
+    public DYValueContainer(byte value) {
         this(String.valueOf(value), null);
     }
 
-    public DYValue(Byte value) {
+    public DYValueContainer(Byte value) {
         this(value.toString(), null);
     }
 
-    public DYValue(short value) {
+    public DYValueContainer(short value) {
         this(String.valueOf(value), null);
     }
 
-    public DYValue(Short value) {
+    public DYValueContainer(Short value) {
         this(value.toString(), null);
     }
 
-    public DYValue(int value) {
+    public DYValueContainer(int value) {
         this(String.valueOf(value), null);
     }
 
-    public DYValue(Integer value) {
+    public DYValueContainer(Integer value) {
         this(value.toString(), null);
     }
 
-    public DYValue(long value) {
+    public DYValueContainer(long value) {
         this(String.valueOf(value), null);
     }
 
-    public DYValue(Long value) {
+    public DYValueContainer(Long value) {
         this(value.toString(), null);
     }
 
-    public DYValue(float value) {
+    public DYValueContainer(float value) {
         this(String.valueOf(value), null);
     }
 
-    public DYValue(Float value) {
+    public DYValueContainer(Float value) {
         this(value.toString(), null);
     }
 
-    public DYValue(double value) {
+    public DYValueContainer(double value) {
         this(String.valueOf(value), null);
     }
 
-    public DYValue(Double value) {
+    public DYValueContainer(Double value) {
         this(value.toString(), null);
     }
 
@@ -82,11 +83,11 @@ public class DYValue {
      * Note that multi lined side comments do not exist. <br>
      * For that sake line-separators get removed from the comment string.
      *
-     * @param valueAsString Can be null.
+     * @param value Can be null.
      * @param comment       Can be null.
      */
-    public DYValue(String valueAsString, String comment) {
-        this(valueAsString, comment, null);
+    public DYValueContainer(String value, String comment) {
+        this(value, comment, null);
     }
 
     /**
@@ -95,18 +96,18 @@ public class DYValue {
      * Note that multi lined side comments do not exist. <br>
      * For that sake line-separators get removed from the comment string.
      *
-     * @param valueAsString Can be null.
+     * @param value Can be null.
      * @param comment       Can be null.
      * @param defComment    Can be null.
      */
-    public DYValue(String valueAsString, String comment, String defComment) {
-        this.valueAsString = valueAsString;
+    public DYValueContainer(String value, String comment, String defComment) {
+        this.value = value;
         setComment(comment);
         setDefComment(defComment);
     }
 
     public String getValueInformationAsString() {
-        return "VALUE: " + valueAsString + " COMMENT: " + comment + " DEF-COMMENT: " + defaultComment;
+        return "VALUE: " + value + " COMMENT: " + comment + " DEF-COMMENT: " + defaultComment;
     }
 
 
@@ -134,7 +135,7 @@ public class DYValue {
      * Line separators get removed.
      * See {@link #getComment()} for details.
      */
-    public DYValue setComment(String comment) {
+    public DYValueContainer setComment(String comment) {
         if (comment != null)
             comment = comment.replace(System.lineSeparator(), "");
         this.comment = comment;
@@ -145,7 +146,7 @@ public class DYValue {
      * Line separators get removed.
      * See {@link #getComment()} for details.
      */
-    public DYValue setDefComment(String defComment) {
+    public DYValueContainer setDefComment(String defComment) {
         if (defComment != null)
             defComment = defComment.replace(System.lineSeparator(), "");
         this.defaultComment = defComment;
@@ -155,152 +156,171 @@ public class DYValue {
 
     // GETTERS:
 
+
+    /**
+     * Same as {@link #asString()}. <br>
+     * Returns the value like its in the yaml file. If its empty there or null, this returns null. <br>
+     * Note that this value got post-processed (if enabled). <br>
+     * Also note that this is the lowest level you can get to the original yaml value. <br>
+     * The lowest level is at {@link DYLine}, but thats only accessible for the {@link DYReader} and the {@link DYWriter}. <br>
+     */
+    public String get(){
+        return value;
+    }
+
+    /**
+     * Same as {@link #get()}. <br>
+     * Returns the value like its in the yaml file. If its empty there or null, this returns null. <br>
+     * Note that this value got post-processed (if enabled). <br>
+     * Also note that this is the lowest level you can get to the original yaml value. <br>
+     * The lowest level is at {@link DYLine}, but thats only accessible for the {@link DYReader} and the {@link DYWriter}. <br>
+     */
     public String asString() {
-        return valueAsString;
+        return value;
     }
 
     public char[] asCharArray() {
-        return valueAsString.toCharArray();
+        return value.toCharArray();
     }
 
     public boolean asBoolean() {
-        return Boolean.parseBoolean(valueAsString);
+        return Boolean.parseBoolean(value);
     }
 
     public byte asByte() {
-        return Byte.parseByte(valueAsString);
+        return Byte.parseByte(value);
     }
 
     public short asShort() {
-        return Short.parseShort(valueAsString);
+        return Short.parseShort(value);
     }
 
     public int asInt() {
-        return Integer.parseInt(valueAsString);
+        return Integer.parseInt(value);
     }
 
     public long asLong() {
-        return Long.parseLong(valueAsString);
+        return Long.parseLong(value);
     }
 
     public float asFloat() {
-        return Float.parseFloat(valueAsString);
+        return Float.parseFloat(value);
     }
 
     public Double asDouble() {
-        return Double.parseDouble(valueAsString);
+        return Double.parseDouble(value);
     }
 
 
     // SETTERS:
 
 
-    public DYValue set(String value) {
-        this.valueAsString = value;
+    public DYValueContainer set(String value) {
+        this.value = value;
         return this;
     }
 
-    public DYValue set(char[] value) {
-        this.valueAsString = String.valueOf(value);
+    public DYValueContainer set(char[] value) {
+        this.value = String.valueOf(value);
         return this;
     }
 
-    public DYValue set(boolean value) {
-        this.valueAsString = String.valueOf(value);
+    public DYValueContainer set(boolean value) {
+        this.value = String.valueOf(value);
         return this;
     }
 
-    public DYValue set(Boolean value) {
+    public DYValueContainer set(Boolean value) {
         if (value == null) {
-            this.valueAsString = null;
+            this.value = null;
             return this;
         }
-        this.valueAsString = value.toString();
+        this.value = value.toString();
         return this;
     }
 
-    public DYValue set(byte value) {
-        this.valueAsString = String.valueOf(value);
+    public DYValueContainer set(byte value) {
+        this.value = String.valueOf(value);
         return this;
     }
 
-    public DYValue set(Byte value) {
+    public DYValueContainer set(Byte value) {
         if (value == null) {
-            this.valueAsString = null;
+            this.value = null;
             return this;
         }
-        this.valueAsString = value.toString();
+        this.value = value.toString();
         return this;
     }
 
-    public DYValue set(short value) {
-        this.valueAsString = String.valueOf(value);
+    public DYValueContainer set(short value) {
+        this.value = String.valueOf(value);
         return this;
     }
 
-    public DYValue set(Short value) {
+    public DYValueContainer set(Short value) {
         if (value == null) {
-            this.valueAsString = null;
+            this.value = null;
             return this;
         }
-        this.valueAsString = value.toString();
+        this.value = value.toString();
         return this;
     }
 
-    public DYValue set(int value) {
-        this.valueAsString = String.valueOf(value);
+    public DYValueContainer set(int value) {
+        this.value = String.valueOf(value);
 
         return this;
     }
 
-    public DYValue set(Integer value) {
+    public DYValueContainer set(Integer value) {
         if (value == null) {
-            this.valueAsString = null;
+            this.value = null;
             return this;
         }
-        this.valueAsString = value.toString();
+        this.value = value.toString();
         return this;
     }
 
-    public DYValue set(long value) {
-        this.valueAsString = String.valueOf(value);
+    public DYValueContainer set(long value) {
+        this.value = String.valueOf(value);
         return this;
     }
 
-    public DYValue set(Long value) {
+    public DYValueContainer set(Long value) {
         if (value == null) {
-            this.valueAsString = null;
+            this.value = null;
             return this;
         }
-        this.valueAsString = value.toString();
+        this.value = value.toString();
         return this;
     }
 
-    public DYValue set(float value) {
-        this.valueAsString = String.valueOf(value);
+    public DYValueContainer set(float value) {
+        this.value = String.valueOf(value);
         return this;
     }
 
-    public DYValue set(Float value) {
+    public DYValueContainer set(Float value) {
         if (value == null) {
-            this.valueAsString = null;
+            this.value = null;
             return this;
         }
-        this.valueAsString = value.toString();
+        this.value = value.toString();
         return this;
     }
 
-    public DYValue set(double value) {
-        this.valueAsString = String.valueOf(value);
+    public DYValueContainer set(double value) {
+        this.value = String.valueOf(value);
         return this;
     }
 
-    public DYValue set(Double value) {
+    public DYValueContainer set(Double value) {
         if (value == null) {
-            this.valueAsString = null;
+            this.value = null;
             return this;
         }
-        this.valueAsString = value.toString();
+        this.value = value.toString();
         return this;
     }
 
@@ -309,7 +329,7 @@ public class DYValue {
 
 
     public boolean isBoolean() {
-        return valueAsString.equalsIgnoreCase("true") || valueAsString.equalsIgnoreCase("false");
+        return value.equalsIgnoreCase("true") || value.equalsIgnoreCase("false");
     }
 
     public boolean isByte() {

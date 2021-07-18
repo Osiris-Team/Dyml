@@ -1,76 +1,52 @@
 package com.osiris.dyml.db;
 
+import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.exceptions.DuplicateKeyException;
+import com.osiris.dyml.exceptions.IllegalKeyException;
+import com.osiris.dyml.exceptions.NotLoadedException;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 public class DYTable{
-    private DreamYaml yaml;
-    private String name;
-    private List<DYColumn> columns;
+    private DYModule tableModule;
 
-    public DYTable(DreamYaml yaml, String name){
-        this(yaml, name, null);
+
+    public DYTable(DYModule tableModule) {
+        Objects.requireNonNull(tableModule);
+        this.tableModule = tableModule;
     }
-
-    public DYTable(DreamYaml yaml, String name, List<DYColumn> columns) {
-        Objects.requireNonNull(yaml);
-        Objects.requireNonNull(name);
-        this.yaml = yaml;
-        this.name = name;
-        if (columns==null) columns = new ArrayList<>();
-        this.columns = columns;
-    }
-            /*
-    // standard methods:
-    load()
-    save();
-    // add/remove methods:
-    addTable(table)
-    addColumn(table, column)
-    addRow(table, values...)
-
-    // specific set/remove methods:
-    setTableAtIndex(table, index)
-    setColumnAtIndex(table, column, index)
-    setRowAtIndex(table, row, index)
-    setValueAtIndex(column, value, index)
-
-    // getters/setters:
-    getTables()
-    getTableAtIndex(index)
-    getColumns(table)
-    getColumnAtIndex(table, index)
-    getValues(column)
-    getValueAtIndex(column, index)
-
-    // specific value getters:
-    getValuesBiggerThan(value)
-    getValuesSmallerThan(value)
-    getValuesEqualTo(value)
-    getValuesSimilarTo(value, minSimilarityInPercent)
-
-     */
 
 
     public String getName() {
-        return name;
+        return tableModule.getLastKey();
     }
 
-    public void setName(String name) {
-        this.name = name;
+    /**
+     * See {@link DreamYaml#add(String...)} for details.
+     */
+    public DYColumn addColumn(String name) throws NotLoadedException, IllegalKeyException, DuplicateKeyException {
+        return new DYColumn(tableModule.getYaml().add("tables", getName(), name), name);
     }
 
-    public DYTable addColumn(DYColumn column){
-        columns.add(column);
+    /**
+     * See {@link DreamYaml#put(String...)} for details.
+     */
+    public DYColumn putColumn(String name) throws NotLoadedException, IllegalKeyException {
+        return new DYColumn(tableModule.getYaml().put("tables", getName(), name), name);
+    }
+
+    public DYTable removeColumn(DYColumn column){
+        Objects.requireNonNull(column);
+        tableModule.getYaml().remove("tables", getName(), column.getName());
         return this;
     }
 
-    public DYColumn getColumnByName(String name){
+    public DYColumn getColumn(String name){
         for (DYColumn c :
-                columns) {
+                getColumns()) {
             if (c.getName().equals(name))
                 return c;
         }
@@ -78,14 +54,15 @@ public class DYTable{
     }
 
     public DYColumn getColumnAtIndex(int index){
-        return columns.get(index);
+        return getColumns().get(index);
     }
 
     public List<DYColumn> getColumns() {
+        List<DYColumn> columns = new ArrayList<>();
+        for (DYModule columnModule :
+                tableModule.getChildModules()) {
+            columns.add(new DYColumn(columnModule, columnModule.getLastKey()));
+        }
         return columns;
-    }
-
-    public void setColumns(List<DYColumn> columns) {
-        this.columns = columns;
     }
 }

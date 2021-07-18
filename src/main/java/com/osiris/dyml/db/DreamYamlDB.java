@@ -13,6 +13,32 @@ import java.util.Objects;
 import java.util.Random;
 
 // TODO
+
+/**
+ * A single DreamYamlDB (DreamYamlDatabase) object, represents a single database. <br>
+ * To be more exact, its just a single yaml file with a structure like this: <br>
+ * <pre>
+ * tables:
+ *   table_potatoes:
+ *     column1_potato_names:
+ *       - Russet                     # First row
+ *       - Jewel Yam                  # Second row
+ *       -                            # Third row
+ *     column2_potato_description:
+ *       - Most people know this one as the "classic potato".
+ *       -    # This means there is no value, thus it returns null
+ *       - "" # Note that this also returns null, there are no empty values
+ *   another_table:
+ *     column1:
+ *       - ....
+ * </pre>
+ * This class provides several database related methods, that don't exist
+ * in the regular {@link DreamYaml} class. <br>
+ * Note that this database is persistent, but you will have to call {@link #save()} manually to achieve this. <br>
+ * Also note that the database (yaml file) gets loaded into memory, thus changing/retrieving/deleting and generally working
+ * with values is a lot faster compared to regular databases, but this also means that its more memory intensive. <br>
+ * That's why DreamYamlDB is perfect for working with small to medium amounts of data.
+ */
 public class DreamYamlDB {
     private File yamlFile;
     private DreamYaml yaml;
@@ -21,7 +47,7 @@ public class DreamYamlDB {
      * Creates a new yml file in the current working directory, with a random, unused name.
      */
     public DreamYamlDB() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
-        String name = "DB-"+new Random().nextInt(10000000);
+        String name = "DreamYaml-DB-"+new Random().nextInt(10000000);
         File yamlFile = null;
         for (int i = 1; i < 11; i++) {
             try{
@@ -29,7 +55,7 @@ public class DreamYamlDB {
                 if (!yamlFile.exists())
                     break;
                 else
-                    name = "DB-"+new Random().nextInt(10000000);
+                    name = "DreamYaml-DB-"+new Random().nextInt(10000000);
             } catch (Exception ignored) { }
         }
         init(yamlFile);
@@ -67,27 +93,26 @@ public class DreamYamlDB {
         return this;
     }
 
+    /**
+     * See {@link DreamYaml#save()} for details.
+     */
     public DreamYamlDB save() throws DYWriterException, IOException, DuplicateKeyException, DYReaderException, IllegalListException {
         yaml.save();
         return this;
     }
 
     /**
-     * Note that duplicate names in the same database are not allowed.
+     * See {@link DreamYaml#add(String...)} for details.
      */
-    public DYTable addTable(String name) throws NotLoadedException, IllegalKeyException {
-        DYTable table = new DYTable(yaml, name);
-        addTable(table);
-        return table;
+    public DYTable addTable(String name) throws NotLoadedException, IllegalKeyException, DuplicateKeyException {
+        return new DYTable(yaml.add("tables", name));
     }
 
     /**
-     * Note that duplicate names in the same database are not allowed.
+     * See {@link DreamYaml#put(String...)} for details.
      */
-    public DreamYamlDB addTable(DYTable table) throws NotLoadedException, IllegalKeyException {
-        Objects.requireNonNull(table);
-        yaml.put("tables", table.getName());
-        return this;
+    public DYTable putTable(String name) throws NotLoadedException, IllegalKeyException {
+        return new DYTable(yaml.put("tables", name));
     }
 
     public DreamYamlDB removeTable(DYTable table) {
@@ -96,7 +121,12 @@ public class DreamYamlDB {
         return this;
     }
 
-    public DYTable getTableByName(String name){
+    /**
+     * Note that the returned {@link DYTable} object is not persistent. <br>
+     * That means that when you call this method for the same table again,
+     * another {@link DYTable} object is returned. <br>
+     */
+    public DYTable getTable(String name){
         List<DYTable> tables = getTables();
         for (DYTable t :
                 tables) {
@@ -114,13 +144,7 @@ public class DreamYamlDB {
         List<DYTable> tables = new ArrayList<>();
         for (DYModule tableModule :
                 yaml.get("tables").getChildModules()) {
-            String name = tableModule.getLastKey();
-            List<DYColumn> columns = new ArrayList<>();
-            for (DYModule columnModule :
-                 tableModule.getChildModules()) {
-                columns.add(new DYColumn(yaml, columnModule.getLastKey()));
-            }
-            tables.add(new DYTable(yaml, name, columns));
+            tables.add(new DYTable(tableModule));
         }
         return tables;
     }

@@ -402,7 +402,7 @@ public class DreamYaml {
      * Creates a new {@link DYModule}, with the provided keys, adds it and returns it. <br>
      * See {@link #add(DYModule)} for details.
      */
-    public DYModule add(List<String> keys, List<DYValue> defaultValues, List<DYValue> values, List<String> comments) throws NotLoadedException, IllegalKeyException, DuplicateKeyException {
+    public DYModule add(List<String> keys, List<DYValueContainer> defaultValues, List<DYValueContainer> values, List<String> comments) throws NotLoadedException, IllegalKeyException, DuplicateKeyException {
         return add(new DYModule(this, keys, defaultValues, values, comments));
     }
 
@@ -841,7 +841,7 @@ public class DreamYaml {
 
     /**
      * Enabled by default. Part of post-processing.<br>
-     * Trims the loaded {@link DYValue}. Example: <br>
+     * Trims the loaded {@link DYValueContainer}. Example: <br>
      * <pre>
      * String before: '  hello there  '
      * String after: 'hello there'
@@ -854,7 +854,7 @@ public class DreamYaml {
 
     /**
      * Enabled by default. Part of post-processing. <br>
-     * Trims the loaded {@link DYValue}. Example: <br>
+     * Trims the loaded {@link DYValueContainer}. Example: <br>
      * <pre>
      * String before: '  hello there  '
      * String after: 'hello there'
@@ -868,7 +868,7 @@ public class DreamYaml {
 
     /**
      * Enabled by default. Part of post-processing. <br>
-     * Removes quotation marks ("" or '') from the loaded {@link DYValue}. Example: <br>
+     * Removes quotation marks ("" or '') from the loaded {@link DYValueContainer}. Example: <br>
      * <pre>
      * String before: "hello there"
      * String after: hello there
@@ -881,7 +881,7 @@ public class DreamYaml {
 
     /**
      * Enabled by default. Part of post-processing. <br>
-     * Removes quotation marks ("" or '') from the loaded {@link DYValue}. Example: <br>
+     * Removes quotation marks ("" or '') from the loaded {@link DYValueContainer}. Example: <br>
      * <pre>
      * String before: "hello there"
      * String after: hello there
@@ -895,7 +895,7 @@ public class DreamYaml {
 
     /**
      * Enabled by default. Part of post-processing. <br>
-     * If {@link DYValue#asString()} returns null, the whole {@link DYValue} gets removed from the modules values list. <br>
+     * If {@link DYValueContainer#asString()} returns null, the whole {@link DYValueContainer} gets removed from the modules values list. <br>
      */
     public boolean isRemoveLoadedNullValuesEnabled() {
         return isRemoveLoadedNullValuesEnabled;
@@ -903,7 +903,7 @@ public class DreamYaml {
 
     /**
      * Enabled by default. Part of post-processing. <br>
-     * If {@link DYValue#asString()} returns null, the whole {@link DYValue} gets removed from the modules values list. <br>
+     * If {@link DYValueContainer#asString()} returns null, the whole {@link DYValueContainer} gets removed from the modules values list. <br>
      */
     public DreamYaml setRemoveLoadedNullValuesEnabled(boolean removeLoadedNullValuesEnabled) {
         isRemoveLoadedNullValuesEnabled = removeLoadedNullValuesEnabled;

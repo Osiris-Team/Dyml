@@ -1,13 +1,13 @@
 package com.osiris.dyml.db;
 
-import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.DYModule;
 
 public class DYColumn{
-    DreamYaml yaml;
+    private DYModule columnModule;
     String name;
 
-    public DYColumn(DreamYaml yaml, String name) {
-        this.yaml = yaml;
+    public DYColumn(DYModule columnModule, String name) {
+        this.columnModule = columnModule;
         this.name = name;
     }
 

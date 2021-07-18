@@ -16,7 +16,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Responsible for parsing and writing the provided modules to file.
+ * Responsible for parsing and writing the provided modules.
  */
 class DYWriter {
     private DreamYaml yaml;
@@ -175,7 +175,7 @@ class DYWriter {
                 if (module.getValues() != null && i == (keysSize - 1)) { // Only write values to the last key in the list
                     if (!module.getValues().isEmpty()) { // Write values if they exist, else write defaults, else write nothing
                         if (module.getValues().size() == 1) { // Even if we only got one DYModule, it written as a list
-                            DYValue value = module.getValue();
+                            DYValueContainer value = module.getValue();
                             if (value != null) { // Only write if its not null
                                 if (value.asString() != null) writer.write(value.asString());
                                 if (value.hasComment())
@@ -187,7 +187,7 @@ class DYWriter {
                         } else { // This means we got multiple values, aka a list
                             writer.newLine();
                             for (int j = 0; j < module.getValues().size(); j++) {
-                                DYValue value = module.getValueByIndex(j);
+                                DYValueContainer value = module.getValueByIndex(j);
                                 if (value != null) {
                                     writer.write(spaces + "  - ");
                                     if (value.asString() != null) writer.write(value.asString()); // Append the value
@@ -202,7 +202,7 @@ class DYWriter {
                     } else if (yaml.isWriteDefaultValuesWhenEmptyEnabled()) {
                         if (module.getDefValues() != null && !module.getDefValues().isEmpty()) {
                             if (module.getDefValues().size() == 1) {
-                                DYValue defValue = module.getDefValue();
+                                DYValueContainer defValue = module.getDefValue();
                                 if (defValue != null) {
                                     if (defValue.asString() != null) writer.write(defValue.asString());
                                     if (defValue.hasComment())
@@ -214,7 +214,7 @@ class DYWriter {
                             } else {
                                 writer.newLine();
                                 for (int j = 0; j < module.getDefValues().size(); j++) {
-                                    DYValue value = module.getDefValueByIndex(j);
+                                    DYValueContainer value = module.getDefValueByIndex(j);
                                     if (value != null) {
                                         writer.write(spaces + "  - ");
                                         if (value.asString() != null)

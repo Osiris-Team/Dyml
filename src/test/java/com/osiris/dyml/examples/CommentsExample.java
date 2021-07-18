@@ -9,7 +9,7 @@
 package com.osiris.dyml.examples;
 
 import com.osiris.dyml.DYModule;
-import com.osiris.dyml.DYValue;
+import com.osiris.dyml.DYValueContainer;
 import com.osiris.dyml.DreamYaml;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +31,7 @@ public class CommentsExample {
                 "This is a multiline comment \n" +
                         "separated by javas \n" +
                         "next line character!");
-        DYModule age = yaml.put("age").setDefValues(new DYValue(29).setComment("This is a side-comment/value-comment"))
+        DYModule age = yaml.put("age").setDefValues(new DYValueContainer(29).setComment("This is a side-comment/value-comment"))
                 .setComments("This is a single line comment.");
         DYModule work = yaml.put("work").setDefValues("Reporter");
         DYModule parent = yaml.put("p1", "c2", "c3").setComments("Comments in", "a hierarchy.");

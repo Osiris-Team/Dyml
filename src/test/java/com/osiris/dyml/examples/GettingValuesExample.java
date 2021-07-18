@@ -9,7 +9,7 @@
 package com.osiris.dyml.examples;
 
 import com.osiris.dyml.DYModule;
-import com.osiris.dyml.DYValue;
+import com.osiris.dyml.DYValueContainer;
 import com.osiris.dyml.DreamYaml;
 import org.junit.jupiter.api.Test;
 
@@ -47,10 +47,10 @@ public class GettingValuesExample {
         String commentI = firstName.getCommentByIndex(0); // Everything about... // Returns the comment by given index.
 
         // All the methods below return the 'real' values at the time when load() was called.
-        DYValue firstNameValue = firstName.getValue(); // This is never null, and acts as a container for the actual string value
+        DYValueContainer firstNameValue = firstName.getValue(); // This is never null, and acts as a container for the actual string value
         String firstNameAsString = firstName.asString(); // Can be null if there is no actual string value
         int ageAsInt = age.asInt();
-        List<DYValue> pendingTasksValues = pendingTasks.getValues();
+        List<DYValueContainer> pendingTasksValues = pendingTasks.getValues();
         List<String> pendingTasksStrings = pendingTasks.asStringList();
         // You can also get each value from the list as an independent object
         String listIndex0 = pendingTasks.asString(0);

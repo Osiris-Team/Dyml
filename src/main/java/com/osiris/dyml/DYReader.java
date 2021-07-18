@@ -21,7 +21,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * Responsible for reading the provided file and parsing it into modules.
+ * Responsible for reading the provided file/stream and parsing it into modules.
  */
 class DYReader {
     /**
@@ -246,7 +246,7 @@ class DYReader {
             if (currentLine.isCommentFound()) {
                 if (currentLine.isKeyFound()) { // Its a side comment, so we add the comment to the value
                     module.setKeys(currentLine.getRawKey())
-                            .setValues(new DYValue(currentLine.getRawValue(), currentLine.getRawComment()));
+                            .setValues(new DYValueContainer(currentLine.getRawValue(), currentLine.getRawComment()));
                     yaml.getAllLoaded().add(module);
                 } else if (currentLine.isHyphenFound()) { // Its a side comment, so we add of a value in a list
                     throw new IllegalListException((yaml.getInputStream() == null ? yaml.getFile().getName() : "<InputStream>"), currentLine);
@@ -335,7 +335,7 @@ class DYReader {
                 }
 
                 module.addKeys(currentLine.getRawKey());
-                module.setValues(new DYValue(currentLine.getRawValue(), currentLine.getRawComment()));
+                module.setValues(new DYValueContainer(currentLine.getRawValue(), currentLine.getRawComment()));
                 allLoaded.add(module);
             } else if (currentLine.isHyphenFound()) { // Comment + Hyphen found without a key
                 // Its a side comment from a value in a list. Also add support for value top comments inside a list. Example:
@@ -368,7 +368,7 @@ class DYReader {
                     oldModule.getValues().remove(0);
 
                 // Since the allLoaded lists and keyLinesList sizes are the same we can do the below:
-                oldModule.addValues(new DYValue(currentLine.getRawValue(), currentLine.getRawComment()));
+                oldModule.addValues(new DYValueContainer(currentLine.getRawValue(), currentLine.getRawComment()));
             } else { // No side-comment, but regular comment
                 // If the current line and the last line are comments, add the current comment to the last comments object/module.
                 // In both cases, don't add the module to the list.
