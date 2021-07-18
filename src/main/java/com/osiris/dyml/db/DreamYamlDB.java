@@ -1,5 +1,7 @@
-package com.osiris.dyml;
+package com.osiris.dyml.db;
 
+import com.osiris.dyml.DYModule;
+import com.osiris.dyml.DreamYaml;
 import com.osiris.dyml.exceptions.*;
 
 import java.io.File;
@@ -14,54 +16,6 @@ import java.util.Random;
 public class DreamYamlDB {
     private File yamlFile;
     private DreamYaml yaml;
-
-    class DYTable{
-        private String name;
-        private List<DYColumn> columns;
-
-        public DYTable(String name){
-            this(name, null);
-        }
-
-        public DYTable(String name, List<DYColumn> columns) {
-            Objects.requireNonNull(name);
-            this.name = name;
-            if (columns==null) columns = new ArrayList<>();
-            this.columns = columns;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-
-        public List<DYColumn> getColumns() {
-            return columns;
-        }
-
-        public void setColumns(List<DYColumn> columns) {
-            this.columns = columns;
-        }
-    }
-
-    class DYColumn{
-        String name;
-
-        public DYColumn(String name) {
-            this.name = name;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public void setName(String name) {
-            this.name = name;
-        }
-    }
 
     /**
      * Creates a new yml file in the current working directory, with a random, unused name.
@@ -102,20 +56,43 @@ public class DreamYamlDB {
         Objects.requireNonNull(yamlFile);
         this.yamlFile = yamlFile;
         this.yaml = new DreamYaml(yamlFile);
-        yaml.load();
     }
 
-    public DreamYamlDB addTable(DYTable table) throws NotLoadedException, IllegalKeyException, DYWriterException, IOException, DuplicateKeyException, DYReaderException, IllegalListException {
-        Objects.requireNonNull(table);
-        yaml.put("tables", table.getName());
-        yaml.saveAndLoad();
+    /**
+     * This is the first thing you should do after initialising. <br>
+     * See {@link DreamYaml#load()} for details.
+     */
+    public DreamYamlDB load() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
+        yaml.load();
         return this;
     }
 
-    public DreamYamlDB removeTable(DYTable table) throws DYWriterException, IOException, DuplicateKeyException, DYReaderException, IllegalListException {
+    public DreamYamlDB save() throws DYWriterException, IOException, DuplicateKeyException, DYReaderException, IllegalListException {
+        yaml.save();
+        return this;
+    }
+
+    /**
+     * Note that duplicate names in the same database are not allowed.
+     */
+    public DYTable addTable(String name) throws NotLoadedException, IllegalKeyException {
+        DYTable table = new DYTable(yaml, name);
+        addTable(table);
+        return table;
+    }
+
+    /**
+     * Note that duplicate names in the same database are not allowed.
+     */
+    public DreamYamlDB addTable(DYTable table) throws NotLoadedException, IllegalKeyException {
+        Objects.requireNonNull(table);
+        yaml.put("tables", table.getName());
+        return this;
+    }
+
+    public DreamYamlDB removeTable(DYTable table) {
         Objects.requireNonNull(table);
         yaml.remove("tables", table.getName());
-        yaml.saveAndLoad();
         return this;
     }
 
@@ -129,7 +106,7 @@ public class DreamYamlDB {
         return null;
     }
 
-    public DYTable getTableByIndex(int index){
+    public DYTable getTableAtIndex(int index){
         return getTables().get(index);
     }
 
@@ -141,42 +118,11 @@ public class DreamYamlDB {
             List<DYColumn> columns = new ArrayList<>();
             for (DYModule columnModule :
                  tableModule.getChildModules()) {
-                columns.add(new DYColumn(columnModule.getLastKey()));
+                columns.add(new DYColumn(yaml, columnModule.getLastKey()));
             }
-            tables.add(new DYTable(name, columns));
+            tables.add(new DYTable(yaml, name, columns));
         }
         return tables;
     }
-
-    /*
-    // standard methods:
-    load()
-    save();
-    // add/remove methods:
-    addTable(table)
-    addColumn(table, column)
-    addRow(table, values...)
-
-    // specific set/remove methods:
-    setTableAtIndex(table, index)
-    setColumnAtIndex(table, column, index)
-    setRowAtIndex(table, row, index)
-    setValueAtIndex(column, value, index)
-
-    // getters/setters:
-    getTables()
-    getTableAtIndex(index)
-    getColumns(table)
-    getColumnAtIndex(table, index)
-    getValues(column)
-    getValueAtIndex(column, index)
-
-    // specific value getters:
-    getValuesBiggerThan(value)
-    getValuesSmallerThan(value)
-    getValuesEqualTo(value)
-    getValuesSimilarTo(value, minSimilarityInPercent)
-
-     */
 
 }
