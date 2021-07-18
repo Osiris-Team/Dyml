@@ -391,7 +391,7 @@ yaml.addFileEventListener(event -> {
 
 DreamYamlDB:
   <details>
-  <summary>WATCHING yaml files example</summary>
+  <summary>DreamYamlDB example</summary>
 <pre lang="java">
         DreamYamlDB db = new DreamYamlDB("my-database")); 
         db.load();
