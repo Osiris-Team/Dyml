@@ -40,7 +40,6 @@ import java.util.Random;
  * That's why DreamYamlDB is perfect for working with small to medium amounts of data.
  */
 public class DreamYamlDB {
-    private File yamlFile;
     private DreamYaml yaml;
 
     /**
@@ -81,9 +80,13 @@ public class DreamYamlDB {
     }
 
     private void init(File yamlFile) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
-        Objects.requireNonNull(yamlFile);
-        this.yamlFile = yamlFile;
-        this.yaml = new DreamYaml(yamlFile);
+        init(new DreamYaml(yamlFile));
+    }
+
+    private void init(DreamYaml yaml) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
+        Objects.requireNonNull(yaml);
+        this.yaml = yaml;
+        yaml.setRemoveLoadedNullValuesEnabled(false);
     }
 
     /**

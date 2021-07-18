@@ -161,7 +161,10 @@ public class DYModule {
      * See {@link #addValues(List)} for details.
      */
     public DYModule addValues(String... v) {
-        addValues(utils.stringArrayToValuesList(v));
+        if (v != null)
+            addValues(utils.stringArrayToValuesList(v));
+        else
+            addValues((List<DYValueContainer>) null);
         return this;
     }
 
@@ -169,7 +172,10 @@ public class DYModule {
      * See {@link #addValues(List)} for details.
      */
     public DYModule addValues(DYValueContainer... v) {
-        addValues(Arrays.asList(v));
+        if (v != null)
+            addValues(Arrays.asList(v));
+        else
+            addValues((DYValueContainer) null);
         return this;
     }
 
@@ -178,12 +184,15 @@ public class DYModule {
      * Checks for duplicate keys, if the value is a {@link DYModule}.
      */
     public DYModule addValues(List<DYValueContainer> v) {
-        Objects.requireNonNull(v);
-        for (DYValueContainer value :
-                v) {
-            Objects.requireNonNull(value);
-        }
-        this.values.addAll(v);
+        if (v != null) {
+            for (DYValueContainer value :
+                    v) {
+                Objects.requireNonNull(value);
+            }
+            this.values.addAll(v);
+        } else
+            this.values.add(new DYValueContainer((String) null));
+
         return this;
     }
 
@@ -194,6 +203,8 @@ public class DYModule {
     public DYModule addDefValues(String... v) {
         if (v != null)
             addDefValues(utils.stringArrayToValuesList(v));
+        else
+            addDefValues((List<DYValueContainer>) null);
         return this;
     }
 
@@ -203,21 +214,26 @@ public class DYModule {
     public DYModule addDefValues(DYValueContainer... v) {
         if (v != null)
             addDefValues(Arrays.asList(v));
+        else
+            addDefValues((List<DYValueContainer>) null);
         return this;
     }
 
     /**
      * Adds new default {@link DYValueContainer}s to the list. <br>
-     * Note that the list cannot contain null {@link DYValueContainer}s. <br>
-     * {@link DYValueContainer#asString()} may return null though.
+     * Note that the list cannot contain null {@link DYValueContainer}s, thus <br>
+     * if null is passed as parameter a new {@link DYValueContainer} gets created with a null value. <br>
+     * That means that {@link DYValueContainer#asString()} will return null.
      */
     public DYModule addDefValues(List<DYValueContainer> v) {
-        Objects.requireNonNull(v);
-        for (DYValueContainer value :
-                v) {
-            Objects.requireNonNull(value);
-        }
-        defaultValues.addAll(v);
+        if (v != null) {
+            for (DYValueContainer value :
+                    v) {
+                Objects.requireNonNull(value);
+            }
+            defaultValues.addAll(v);
+        } else
+            defaultValues.add(new DYValueContainer((String) null));
         return this;
     }
 

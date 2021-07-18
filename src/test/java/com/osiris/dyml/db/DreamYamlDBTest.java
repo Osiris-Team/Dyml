@@ -1,6 +1,7 @@
 package com.osiris.dyml.db;
 
 import com.osiris.dyml.exceptions.*;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -19,10 +20,11 @@ class DreamYamlDBTest {
 
         // Fill columns with mock data
         name.addDef("John").addDef("Samantha").addDef("Peter");
-        age.addDef("31").addDef("19").addDef("22");
+        age.addDef("31").addDef((String) null).addDef("22");
         db.save();
 
         // Retrieve information
-        name.get(1);
+        Assertions.assertEquals("John", name.get(0).asString());
+        Assertions.assertEquals("31", age.get(0).asString());
     }
 }

@@ -1,6 +1,4 @@
 tables: 
-  first-table: 
-  second-table: 
   users: 
     name: 
       - John
@@ -8,5 +6,5 @@ tables:
       - Peter
     age: 
       - 31
-      - 19
+      - 
       - 22

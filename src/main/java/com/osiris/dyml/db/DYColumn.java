@@ -21,20 +21,11 @@ public class DYColumn {
         return columnModule.getLastKey();
     }
 
-    public DYColumn add(String value) {
-        columnModule.addValues(value);
-        return this;
-    }
-
     public DYColumn add(String... values) {
         columnModule.addValues(values);
         return this;
     }
 
-    public DYColumn addDef(String value) {
-        columnModule.addDefValues(value);
-        return this;
-    }
 
     public DYColumn addDef(String... values) {
         columnModule.addDefValues(values);
