@@ -1,21 +1,122 @@
 package com.osiris.dyml.db;
 
 import com.osiris.dyml.DYModule;
+import com.osiris.dyml.DYValueContainer;
 
-public class DYColumn{
-    private DYModule columnModule;
-    String name;
+import java.util.ArrayList;
+import java.util.List;
 
-    public DYColumn(DYModule columnModule, String name) {
+public class DYColumn {
+    private final DYModule columnModule;
+
+    public DYColumn(DYModule columnModule) {
         this.columnModule = columnModule;
-        this.name = name;
+    }
+
+    public DYModule getColumnModule() {
+        return columnModule;
     }
 
     public String getName() {
-        return name;
+        return columnModule.getLastKey();
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public DYColumn add(String value) {
+        columnModule.addValues(value);
+        return this;
     }
+
+    public DYColumn add(String... values) {
+        columnModule.addValues(values);
+        return this;
+    }
+
+    public DYColumn addDef(String value) {
+        columnModule.addDefValues(value);
+        return this;
+    }
+
+    public DYColumn addDef(String... values) {
+        columnModule.addDefValues(values);
+        return this;
+    }
+
+
+    // GETTERS
+
+
+    public DYValueContainer get(int index) {
+        return columnModule.getValueByIndex(index);
+    }
+
+    public DYValueContainer getDef(int index) {
+        return columnModule.getDefValueByIndex(index);
+    }
+
+
+    // QUERIES (currently not available for def values)
+    // TODO getValuesSimilarTo(value, minSimilarityInPercent)
+
+
+    public List<DYValueContainer> getEqualTo(String value) {
+        List<DYValueContainer> results = new ArrayList<>();
+        for (DYValueContainer v :
+                columnModule.getValues()) {
+            if (v.asString() != null && v.asString().equals(value))
+                results.add(v);
+        }
+        return results;
+    }
+
+    public List<DYValueContainer> getEqualTo(DYValueContainer value) {
+        List<DYValueContainer> results = new ArrayList<>();
+        for (DYValueContainer v :
+                columnModule.getValues()) {
+            if (v.equals(value))
+                results.add(v);
+        }
+        return results;
+    }
+
+
+    public List<DYValueContainer> getBiggerThan(long value) {
+        List<DYValueContainer> results = new ArrayList<>();
+        for (DYValueContainer v :
+                columnModule.getValues()) {
+            if (v.asLong() > value)
+                results.add(v);
+        }
+        return results;
+    }
+
+    public List<DYValueContainer> getBiggerThan(double value) {
+        List<DYValueContainer> results = new ArrayList<>();
+        for (DYValueContainer v :
+                columnModule.getValues()) {
+            if (v.asDouble() > value)
+                results.add(v);
+        }
+        return results;
+    }
+
+    public List<DYValueContainer> getSmallerThan(long value) {
+        List<DYValueContainer> results = new ArrayList<>();
+        for (DYValueContainer v :
+                columnModule.getValues()) {
+            if (v.asLong() < value)
+                results.add(v);
+        }
+        return results;
+    }
+
+    public List<DYValueContainer> getSmallerThan(double value) {
+        List<DYValueContainer> results = new ArrayList<>();
+        for (DYValueContainer v :
+                columnModule.getValues()) {
+            if (v.asDouble() < value)
+                results.add(v);
+        }
+        return results;
+    }
+
 }

@@ -47,16 +47,17 @@ public class DreamYamlDB {
      * Creates a new yml file in the current working directory, with a random, unused name.
      */
     public DreamYamlDB() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
-        String name = "DreamYaml-DB-"+new Random().nextInt(10000000);
+        String name = "DreamYaml-DB-" + new Random().nextInt(10000000);
         File yamlFile = null;
         for (int i = 1; i < 11; i++) {
-            try{
-                yamlFile = new File(System.getProperty("user.dir")+"/"+name+".yml");
+            try {
+                yamlFile = new File(System.getProperty("user.dir") + "/" + name + ".yml");
                 if (!yamlFile.exists())
                     break;
                 else
-                    name = "DreamYaml-DB-"+new Random().nextInt(10000000);
-            } catch (Exception ignored) { }
+                    name = "DreamYaml-DB-" + new Random().nextInt(10000000);
+            } catch (Exception ignored) {
+            }
         }
         init(yamlFile);
     }
@@ -64,10 +65,11 @@ public class DreamYamlDB {
     /**
      * Creates a yml file in the current working directory with the provided name
      * and uses that as the database. <br>
+     *
      * @param name of the database.
      */
     public DreamYamlDB(String name) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
-        init(new File(System.getProperty("user.dir")+"/"+name+".yml"));
+        init(new File(System.getProperty("user.dir") + "/" + name + ".yml"));
     }
 
     public DreamYamlDB(Path yamlFilePath) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
@@ -126,7 +128,7 @@ public class DreamYamlDB {
      * That means that when you call this method for the same table again,
      * another {@link DYTable} object is returned. <br>
      */
-    public DYTable getTable(String name){
+    public DYTable getTable(String name) {
         List<DYTable> tables = getTables();
         for (DYTable t :
                 tables) {
@@ -136,11 +138,11 @@ public class DreamYamlDB {
         return null;
     }
 
-    public DYTable getTableAtIndex(int index){
+    public DYTable getTableAtIndex(int index) {
         return getTables().get(index);
     }
 
-    public List<DYTable> getTables(){
+    public List<DYTable> getTables() {
         List<DYTable> tables = new ArrayList<>();
         for (DYModule tableModule :
                 yaml.get("tables").getChildModules()) {

@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 public class RegularTests {
@@ -13,22 +12,22 @@ public class RegularTests {
     void nullInList() {
         List<String> list = new ArrayList<>();
         list.add(null);
-        System.out.println(list.toString());
+        System.out.println(list);
         list.remove(null);
-        System.out.println(list.toString());
+        System.out.println(list);
     }
 
     @Test
     void nullInArrays() {
         String[] arr = returnArray(null, null);
-        List<String> list = Arrays.asList(arr);
+        String[] list = arr;
         for (String s :
                 list) {
             Assertions.assertNull(s);
         }
     }
 
-    private String[] returnArray(String... arr){
+    private String[] returnArray(String... arr) {
         return arr;
     }
 }

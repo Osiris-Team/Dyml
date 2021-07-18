@@ -42,6 +42,6 @@ public class SavingExample {
         // Then save it with 'overwrite' true:
         yaml.save(true);
         // That's it!
-      
+
     }
 }

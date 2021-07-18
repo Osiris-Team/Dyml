@@ -23,12 +23,12 @@ class DYWatcherExample {
         Thread.sleep(1000); // So that the above save doesn't trigger an event
         yaml.addFileEventListener(event -> {
             try {
-                if (event.getWatchEventKind().equals(StandardWatchEventKinds.ENTRY_MODIFY)){
+                if (event.getWatchEventKind().equals(StandardWatchEventKinds.ENTRY_MODIFY)) {
                     event.getYaml().lockFile();
                     event.getYaml().load();
                     event.getYaml().unlockFile();
                     System.out.println("Reloaded yaml file '" + event.getFile().getName() +
-                            "' because of '" + event.getWatchEventKind()+"' event.");
+                            "' because of '" + event.getWatchEventKind() + "' event.");
                 }
             } catch (Exception e) {
                 e.printStackTrace();

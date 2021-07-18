@@ -1,0 +1,12 @@
+tables: 
+  first-table: 
+  second-table: 
+  users: 
+    name: 
+      - John
+      - Samantha
+      - Peter
+    age: 
+      - 31
+      - 19
+      - 22

@@ -83,8 +83,8 @@ public class DYValueContainer {
      * Note that multi lined side comments do not exist. <br>
      * For that sake line-separators get removed from the comment string.
      *
-     * @param value Can be null.
-     * @param comment       Can be null.
+     * @param value   Can be null.
+     * @param comment Can be null.
      */
     public DYValueContainer(String value, String comment) {
         this(value, comment, null);
@@ -96,9 +96,9 @@ public class DYValueContainer {
      * Note that multi lined side comments do not exist. <br>
      * For that sake line-separators get removed from the comment string.
      *
-     * @param value Can be null.
-     * @param comment       Can be null.
-     * @param defComment    Can be null.
+     * @param value      Can be null.
+     * @param comment    Can be null.
+     * @param defComment Can be null.
      */
     public DYValueContainer(String value, String comment, String defComment) {
         this.value = value;
@@ -164,7 +164,7 @@ public class DYValueContainer {
      * Also note that this is the lowest level you can get to the original yaml value. <br>
      * The lowest level is at {@link DYLine}, but thats only accessible for the {@link DYReader} and the {@link DYWriter}. <br>
      */
-    public String get(){
+    public String get() {
         return value;
     }
 

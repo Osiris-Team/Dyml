@@ -13,7 +13,7 @@ class DreamYamlTest {
     @Test
     void threadSafetyTest() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException, InterruptedException {
         Thread t1 = new Thread(() -> {
-            try{
+            try {
                 for (int i = 0; i < 10; i++) {
                     Thread.sleep(new Random().nextInt(500));
                     DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml");
@@ -31,7 +31,7 @@ class DreamYamlTest {
 
 
         Thread t2 = new Thread(() -> {
-            try{
+            try {
                 for (int i = 0; i < 10; i++) {
                     Thread.sleep(new Random().nextInt(500));
                     DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml");
