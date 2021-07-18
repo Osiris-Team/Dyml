@@ -67,7 +67,8 @@ pending-tasks:
 ```
 ## More examples
 These examples build on top of each other, so make sure to follow the order.
-### BASICS:
+
+## Basics:
 <details>
   <summary>CORE features example</summary>
 <pre lang="java">
@@ -369,7 +370,7 @@ encapsulated:
 </pre>
 </details>
 
-### DREAM YAML WATCHER:
+## DreamYaml-Watcher:
  <details>
   <summary>WATCHING yaml files example</summary>
 <pre lang="java">
@@ -390,7 +391,7 @@ yaml.addFileEventListener(event -> {
 </pre>
 </details>
 
-### DREAM YAML DATABASE:
+## DreamYaml-Database:
   <details>
   <summary>DreamYamlDB example</summary>
 <pre lang="java">
