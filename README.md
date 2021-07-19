@@ -67,6 +67,8 @@ pending-tasks:
 ```
 ## More examples
 These examples build on top of each other, so make sure to follow the order.
+
+## Basics:
 <details>
   <summary>CORE features example</summary>
 <pre lang="java">
@@ -368,7 +370,7 @@ encapsulated:
 </pre>
 </details>
 
-DYWatcher:
+## DreamYaml-Watcher:
  <details>
   <summary>WATCHING yaml files example</summary>
 <pre lang="java">
@@ -389,7 +391,27 @@ yaml.addFileEventListener(event -> {
 </pre>
 </details>
 
-DreamYamlDB:
+## DreamYaml-Database:
+  <details>
+  <summary>DreamYamlDB example</summary>
+<pre lang="java">
+        DreamYamlDB db = new DreamYamlDB("my-database")); 
+        db.load();
+        DYTable tableUsers = db.putTable("users");
+        DYColumn name = tableUsers.putColumn("name");
+        DYColumn age = tableUsers.putColumn("age");
+        db.save();
+
+        // Fill columns with mock data
+        name.addDef("John").addDef("Samantha").addDef("Peter");
+        age.addDef("31").addDef((String) null).addDef("22");
+        db.save();
+
+        // Retrieve information
+        Assertions.assertEquals("John", name.get(0).asString());
+        Assertions.assertEquals("31", age.get(0).asString());
+</pre>
+</details>
 
 All the above examples can be found as tests here: https://github.com/Osiris-Team/Dream-Yaml/blob/main/src/test/java/com/osiris/dyml/examples
 
