@@ -70,12 +70,12 @@ public class DYRow {
      */
     public DYValueContainer getValueFromColumn(DYColumn column){
         Objects.requireNonNull(column);
-        DYValueContainer[] values = (DYValueContainer[]) valuesAndColumns.keySet().toArray();
+        DYValueContainer[] values = valuesAndColumns.keySet().toArray(new DYValueContainer[0]);
         int index = 0;
         DYValueContainer val = null;
         for (DYColumn col :
                 valuesAndColumns.values()) {
-            if (col.equals(column))
+            if (col.getName().equals(column.getName()))
                 val = values[index];
             index++;
         }

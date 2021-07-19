@@ -35,6 +35,9 @@ class DreamYamlDBTest {
         // The DYTable class also got some methods:
         Assertions.assertEquals("John", tableUsers.getRowAsList(0).get(0).asString()); // Returns the row at index 0, with the value from the column at index 1
         Assertions.assertEquals("31", tableUsers.getRowAsList(0).get(1).asString()); // Returns the row at index 0, with the value from the column at index 1
+        // It can also be retrieved like this:
+        Assertions.assertEquals("John", tableUsers.getRow(0).getValueFromColumn(colName).asString());
+        Assertions.assertEquals("31", tableUsers.getRow(0).getValueFromColumn(colAge).asString());
 
     }
 }
