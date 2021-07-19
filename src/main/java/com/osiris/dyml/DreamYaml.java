@@ -75,7 +75,7 @@ public class DreamYaml {
      * Initialises the {@link DreamYaml} object with useful features enabled. <br>
      * See {@link #DreamYaml(InputStream, boolean, boolean)} for details.
      */
-    public DreamYaml(InputStream inputStream) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
+    public DreamYaml(InputStream inputStream) {
         this(inputStream, true, false);
     }
 
@@ -83,7 +83,7 @@ public class DreamYaml {
      * Initialises the {@link DreamYaml} object with useful features enabled. <br>
      * See {@link #DreamYaml(InputStream, boolean, boolean)} for details.
      */
-    public DreamYaml(InputStream inputStream, boolean isDebugEnabled) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
+    public DreamYaml(InputStream inputStream, boolean isDebugEnabled) {
         this(inputStream, true, isDebugEnabled);
     }
 
@@ -91,7 +91,7 @@ public class DreamYaml {
      * Initialises the {@link DreamYaml} object with useful features enabled. <br>
      * See {@link #DreamYaml(File, boolean, boolean)} for details.
      */
-    public DreamYaml(File file) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
+    public DreamYaml(File file) {
         this(file, true, false);
     }
 
@@ -99,7 +99,7 @@ public class DreamYaml {
      * Initialises the {@link DreamYaml} object with useful features enabled. <br>
      * See {@link #DreamYaml(File, boolean, boolean)} for details.
      */
-    public DreamYaml(File file, boolean isDebugEnabled) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
+    public DreamYaml(File file, boolean isDebugEnabled) {
         this(file, true, isDebugEnabled);
     }
 
@@ -107,7 +107,7 @@ public class DreamYaml {
      * Initialises the {@link DreamYaml} object with useful features enabled. <br>
      * See {@link #DreamYaml(String, boolean, boolean)} for details.
      */
-    public DreamYaml(String filePath) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
+    public DreamYaml(String filePath) {
         this(filePath, true, false);
     }
 
@@ -115,7 +115,7 @@ public class DreamYaml {
      * Initialises the {@link DreamYaml} object with useful features enabled. <br>
      * See {@link #DreamYaml(String, boolean, boolean)} for details.
      */
-    public DreamYaml(String filePath, boolean isDebugEnabled) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
+    public DreamYaml(String filePath, boolean isDebugEnabled) {
         this(filePath, true, isDebugEnabled);
     }
 
@@ -128,7 +128,7 @@ public class DreamYaml {
      *                                See {@link #isPostProcessingEnabled()} for details.
      * @param isDebugEnabled          Disabled by default. Shows debugging stuff.
      */
-    public DreamYaml(InputStream inputStream, boolean isPostProcessingEnabled, boolean isDebugEnabled) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
+    public DreamYaml(InputStream inputStream, boolean isPostProcessingEnabled, boolean isDebugEnabled) {
         this.inputStream = inputStream;
         init(isPostProcessingEnabled, isDebugEnabled);
     }
@@ -142,7 +142,7 @@ public class DreamYaml {
      *                                See {@link #isPostProcessingEnabled()} for details.
      * @param isDebugEnabled          Disabled by default. Shows debugging stuff.
      */
-    public DreamYaml(File file, boolean isPostProcessingEnabled, boolean isDebugEnabled) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
+    public DreamYaml(File file, boolean isPostProcessingEnabled, boolean isDebugEnabled)  {
         this.file = file;
         init(isPostProcessingEnabled, isDebugEnabled);
     }
@@ -156,7 +156,7 @@ public class DreamYaml {
      *                                See {@link #isPostProcessingEnabled()} for details.
      * @param isDebugEnabled          Disabled by default. Shows debugging stuff.
      */
-    public DreamYaml(String filePath, boolean isPostProcessingEnabled, boolean isDebugEnabled) throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
+    public DreamYaml(String filePath, boolean isPostProcessingEnabled, boolean isDebugEnabled) {
         this.file = new File(filePath);
         init(isPostProcessingEnabled, isDebugEnabled);
     }

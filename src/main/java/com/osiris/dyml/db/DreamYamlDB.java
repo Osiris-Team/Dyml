@@ -43,7 +43,7 @@ public class DreamYamlDB {
     /**
      * Creates a new yaml file in the current working directory, with a random, unused name.
      */
-    public DreamYamlDB() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
+    public DreamYamlDB() {
         String name = "DreamYaml-DB-" + new Random().nextInt(10000000);
         File yamlFile = null;
         for (int i = 1; i < 11; i++) {
@@ -65,27 +65,27 @@ public class DreamYamlDB {
      *
      * @param name of the database.
      */
-    public DreamYamlDB(String name) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
+    public DreamYamlDB(String name) {
         init(new File(System.getProperty("user.dir") + "/" + name + ".yml"));
     }
 
-    public DreamYamlDB(Path yamlFilePath) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
+    public DreamYamlDB(Path yamlFilePath) {
         init(yamlFilePath.toFile());
     }
 
-    public DreamYamlDB(File yamlFile) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
+    public DreamYamlDB(File yamlFile) {
         init(yamlFile);
     }
 
-    public DreamYamlDB(DreamYaml yaml) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
+    public DreamYamlDB(DreamYaml yaml) {
         init(yaml);
     }
 
-    private void init(File yamlFile) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
+    private void init(File yamlFile) {
         init(new DreamYaml(yamlFile));
     }
 
-    private void init(DreamYaml yaml) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
+    private void init(DreamYaml yaml) {
         Objects.requireNonNull(yaml);
         this.yaml = yaml;
         yaml.setRemoveLoadedNullValuesEnabled(false);

@@ -26,8 +26,18 @@ public class DYColumn {
         return this;
     }
 
+    public DYColumn add(DYValueContainer... values) {
+        columnModule.addValues(values);
+        return this;
+    }
+
 
     public DYColumn addDef(String... values) {
+        columnModule.addDefValues(values);
+        return this;
+    }
+
+    public DYColumn addDef(DYValueContainer... values) {
         columnModule.addDefValues(values);
         return this;
     }

@@ -10,7 +10,6 @@ package com.osiris.dyml;
 
 
 import com.osiris.dyml.exceptions.DYReaderException;
-import com.osiris.dyml.exceptions.DuplicateKeyException;
 import com.osiris.dyml.exceptions.IllegalListException;
 import com.osiris.dyml.utils.UtilsDYModule;
 import com.osiris.dyml.utils.UtilsTimeStopper;
@@ -36,7 +35,7 @@ class DYReader {
      */
     private DYModule beforeModule;
 
-    public void parse(DreamYaml yaml) throws DYReaderException, IOException, IllegalListException, DuplicateKeyException {
+    public void parse(DreamYaml yaml) throws DYReaderException, IOException, IllegalListException {
         UtilsTimeStopper timer = new UtilsTimeStopper();
         timer.start();
         if (yaml.isDebugEnabled()) {
@@ -174,7 +173,7 @@ class DYReader {
                 try {
                     charCodeBefore = line.getFullLine().codePointAt(charCodePos - 1);
                     // This may fail if we are at the last/first char.
-                } catch (Exception e) {
+                } catch (Exception ignored) {
                 } // Don't use an if statement to avoid, bc this is more efficient.
                 if (charCodeBefore == 0 || charCodeBefore == 32) {
                     line.setCommentFound(true);
