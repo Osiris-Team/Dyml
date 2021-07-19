@@ -147,6 +147,9 @@ public class DYTable {
         return getColumns().get(index);
     }
 
+    /**
+     * Columns are ordered in this list the same way they are in the yaml file.
+     */
     public List<DYColumn> getColumns() {
         List<DYColumn> columns = new ArrayList<>();
         for (DYModule columnModule :
@@ -155,4 +158,135 @@ public class DYTable {
         }
         return columns;
     }
+
+
+    // QUERIES:
+    // TODO getValuesSimilarTo(value, minSimilarityInPercent)
+
+
+    /**
+     * Compares all values inside the provided column, with the provided value. <br>
+     * Matches get added to the list and returned. <br>
+     * @param column the column to execute the query in.
+     * @param value the value to search for.
+     */
+    public List<DYRow> getValuesEqualTo(DYColumn column, String value) {
+        List<DYRow> results = new ArrayList<>();
+        int index = 0;
+        for (DYValueContainer v :
+                column.getValues()) {
+            if (v.asString() != null && v.asString().equals(value)){
+                // Get the other columns values at the current index position
+                Map<DYValueContainer, DYColumn> map = new HashMap<>();
+                for (DYColumn col :
+                        getColumns()) {
+                    map.put(col.get(index), col);
+                }
+                results.add(new DYRow(index, map));
+            }
+            index++;
+        }
+        return results;
+    }
+
+    /**
+     * Compares all values inside the provided column, with the provided value. <br>
+     * Matches get added to the list and returned. <br>
+     * @param column the column to execute the query in.
+     * @param value the value to search for.
+     */
+    public List<DYRow> getValuesBiggerThan(DYColumn column, long value) {
+        List<DYRow> results = new ArrayList<>();
+        int index = 0;
+        for (DYValueContainer v :
+                column.getValues()) {
+            if (v.asLong() > value){
+                // Get the other columns values at the current index position
+                Map<DYValueContainer, DYColumn> map = new HashMap<>();
+                for (DYColumn col :
+                        getColumns()) {
+                    map.put(col.get(index), col);
+                }
+                results.add(new DYRow(index, map));
+            }
+            index++;
+        }
+        return results;
+    }
+
+    /**
+     * Compares all values inside the provided column, with the provided value. <br>
+     * Matches get added to the list and returned. <br>
+     * @param column the column to execute the query in.
+     * @param value the value to search for.
+     */
+    public List<DYRow> getValuesBiggerThan(DYColumn column, double value) {
+        List<DYRow> results = new ArrayList<>();
+        int index = 0;
+        for (DYValueContainer v :
+                column.getValues()) {
+            if (v.asDouble() > value){
+                // Get the other columns values at the current index position
+                Map<DYValueContainer, DYColumn> map = new HashMap<>();
+                for (DYColumn col :
+                        getColumns()) {
+                    map.put(col.get(index), col);
+                }
+                results.add(new DYRow(index, map));
+            }
+            index++;
+        }
+        return results;
+    }
+
+    /**
+     * Compares all values inside the provided column, with the provided value. <br>
+     * Matches get added to the list and returned. <br>
+     * @param column the column to execute the query in.
+     * @param value the value to search for.
+     */
+    public List<DYRow> getValuesSmallerThan(DYColumn column, long value) {
+        List<DYRow> results = new ArrayList<>();
+        int index = 0;
+        for (DYValueContainer v :
+                column.getValues()) {
+            if (v.asLong() < value){
+                // Get the other columns values at the current index position
+                Map<DYValueContainer, DYColumn> map = new HashMap<>();
+                for (DYColumn col :
+                        getColumns()) {
+                    map.put(col.get(index), col);
+                }
+                results.add(new DYRow(index, map));
+            }
+            index++;
+        }
+        return results;
+    }
+
+    /**
+     * Compares all values inside the provided column, with the provided value. <br>
+     * Matches get added to the list and returned. <br>
+     * @param column the column to execute the query in.
+     * @param value the value to search for.
+     */
+    public List<DYRow> getValuesSmallerThan(DYColumn column, double value) {
+        List<DYRow> results = new ArrayList<>();
+        int index = 0;
+        for (DYValueContainer v :
+                column.getValues()) {
+            if (v.asDouble() < value){
+                // Get the other columns values at the current index position
+                Map<DYValueContainer, DYColumn> map = new HashMap<>();
+                for (DYColumn col :
+                        getColumns()) {
+                    map.put(col.get(index), col);
+                }
+                results.add(new DYRow(index, map));
+            }
+            index++;
+        }
+        return results;
+    }
+
 }

@@ -181,7 +181,6 @@ public class DYModule {
 
     /**
      * Adds new values to the list. <br>
-     * Checks for duplicate keys, if the value is a {@link DYModule}.
      */
     public DYModule addValues(List<DYValueContainer> v) {
         if (v != null) {

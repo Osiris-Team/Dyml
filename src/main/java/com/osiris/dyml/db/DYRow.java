@@ -33,8 +33,8 @@ public class DYRow {
      *     =================
      *     rock    | paper
      * </pre>
-     * The returned list has two {@link DYValueContainer}s. <br>
-     * The first one contains 'rock' and the second one 'paper' and so on... <br>
+     * The examples, returned list has two {@link DYValueContainer}s. <br>
+     * The first one contains 'rock' and the second one 'paper'. <br>
      */
     public List<DYValueContainer> getValues(){
         return new ArrayList<>(valuesAndColumns.keySet());
