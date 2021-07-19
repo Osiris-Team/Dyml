@@ -6,6 +6,16 @@ import com.osiris.dyml.DYValueContainer;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Represents the column of a {@link DYTable}. Example:
+ * <pre>
+ * column1 (index 0) | column2 (index 1)
+ * =====================================
+ * rock              | paper
+ * tree              | grass
+ * </pre>
+ * @see DYRow
+ */
 public class DYColumn {
     private final DYModule columnModule;
 
@@ -42,14 +52,28 @@ public class DYColumn {
         return this;
     }
 
+    public int size(){
+        return columnModule.getValues().size();
+    }
+
+    public int defSize(){
+        return columnModule.getDefValues().size();
+    }
+
 
     // GETTERS
 
 
+    /**
+     * Returns the {@link DYValueContainer} at the provided index.
+     */
     public DYValueContainer get(int index) {
         return columnModule.getValueByIndex(index);
     }
 
+    /**
+     * Returns the default {@link DYValueContainer} at the provided index.
+     */
     public DYValueContainer getDef(int index) {
         return columnModule.getDefValueByIndex(index);
     }
@@ -59,7 +83,7 @@ public class DYColumn {
     // TODO getValuesSimilarTo(value, minSimilarityInPercent)
 
 
-    public List<DYValueContainer> getEqualTo(String value) {
+    public List<DYValueContainer> getValuesEqualTo(String value) {
         List<DYValueContainer> results = new ArrayList<>();
         for (DYValueContainer v :
                 columnModule.getValues()) {
@@ -69,7 +93,28 @@ public class DYColumn {
         return results;
     }
 
-    public List<DYValueContainer> getEqualTo(DYValueContainer value) {
+    public List<DYValueContainer> getValuesEqualTo(DYValueContainer value) {
+        List<DYValueContainer> results = new ArrayList<>();
+        for (DYValueContainer v :
+                columnModule.getValues()) {
+            if (v.equals(value))
+                results.add(v);
+        }
+        return results;
+    }
+
+    public List<DYValueContainer> getRowsEqualTo(String value) {
+        List<DYValueContainer> results = new ArrayList<>();
+        for (DYValueContainer v :
+                columnModule.getValues()) {
+            if (v.asString() != null && v.asString().equals(value))
+                results.add(v);
+        }
+        return results;
+    }
+
+
+    public List<DYValueContainer> getRowsEqualTo(DYValueContainer value) {
         List<DYValueContainer> results = new ArrayList<>();
         for (DYValueContainer v :
                 columnModule.getValues()) {
@@ -80,7 +125,7 @@ public class DYColumn {
     }
 
 
-    public List<DYValueContainer> getBiggerThan(long value) {
+    public List<DYValueContainer> getValuesBiggerThan(long value) {
         List<DYValueContainer> results = new ArrayList<>();
         for (DYValueContainer v :
                 columnModule.getValues()) {
@@ -90,7 +135,7 @@ public class DYColumn {
         return results;
     }
 
-    public List<DYValueContainer> getBiggerThan(double value) {
+    public List<DYValueContainer> getValuesBiggerThan(double value) {
         List<DYValueContainer> results = new ArrayList<>();
         for (DYValueContainer v :
                 columnModule.getValues()) {

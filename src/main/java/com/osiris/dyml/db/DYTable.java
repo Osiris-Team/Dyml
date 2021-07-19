@@ -3,13 +3,12 @@ package com.osiris.dyml.db;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DYValueContainer;
 import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.exceptions.BrokenColumnsException;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
 import com.osiris.dyml.exceptions.IllegalKeyException;
 import com.osiris.dyml.exceptions.NotLoadedException;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class DYTable {
     private final DYModule tableModule;
@@ -28,11 +27,23 @@ public class DYTable {
     }
 
     /**
-     * Returns the row at the provided index. <br>
-     * Values are read from left to right. <br>
+     * Returns the {@link DYRow} at the provided index.
      * @throws IndexOutOfBoundsException when the row at the provided index does not exist.
      */
-    public List<DYValueContainer> getRow(int index){
+    public DYRow getRow(int index){
+        Map<DYValueContainer, DYColumn> valuesAndColumns = new HashMap<>();
+        for (DYColumn col :
+                getColumns()) {
+            valuesAndColumns.put(col.get(index), col);
+        }
+        return new DYRow(index, valuesAndColumns);
+    }
+
+    /**
+     * Returns the {@link DYRow} at the provided index, as a list of {@link DYValueContainer}s. <br>
+     * @throws IndexOutOfBoundsException when the row at the provided index does not exist.
+     */
+    public List<DYValueContainer> getRowAsList(int index){
         List<DYValueContainer> row = new ArrayList<>();
         for (DYColumn col :
                 getColumns()) {
@@ -42,13 +53,30 @@ public class DYTable {
     }
 
     /**
-     * Tries to add a complete row. <br>
-     * Values are read from left to right. <br>
+     * Tries to add a {@link DYRow} to the table. <br>
      * If there are missing values to fill the row, null values get added. <br>
+     * Note that all columns must have the same length. <br>
      * @throws IndexOutOfBoundsException if there are more values than columns available.
+     * @throws BrokenColumnsException if the columns have different sizes/lengths.
      */
     public DYTable addRow(DYValueContainer... values){
         List<DYColumn> columns = getColumns();
+        List<DYColumn> columnsCopy = new ArrayList<>(columns);
+
+        // Check for different column lengths
+        for (DYColumn col :
+                columns) {
+            for (DYColumn col1 :
+                    columnsCopy) {
+                if (!col.equals(col1) && col.size() != col1.size())
+                    throw new BrokenColumnsException("All columns should have the same length." +
+                        " Column '"+col.getName()+"' has a size of '"+col.size()+"' but column "+col1.getName()+" has a size of '"+col1.size()+"'.");
+            }
+        }
+
+        if (values.length > columns.size())
+            throw new IndexOutOfBoundsException("Failed to addRow(), because there are more values("+values.length+") than columns("+columns.size()+") available!");
+
         for (int i = 0; i < values.length; i++) {
             columns.get(i).add(values[i]);
         }
