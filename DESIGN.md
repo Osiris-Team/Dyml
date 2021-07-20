@@ -2,23 +2,24 @@
 Dream-Yaml is designed to allow an easy, but also powerful way of editing a yaml file.
 
 The DreamYaml object, represents a single yaml file. The first thing you should do is to 
-`load()` the file and parse its contents into DYModules .
-Those modules are then inside of the DreamYamls 'loadedModules' list.
+`load()` the file and parse its contents into DYModules.
+Those DYModules are then inside of the'loadedModules' list.
+If you edit/get or add anything, those DYModules get added to the 'inEditModules' list.
 
 A DYModule is nothing more than the in-memory representation of a single yaml section like this:
 ```yaml
 # Key-Comment
 key: value # Value-Comment
 ```
-It has methods for retrieving and altering all the stuff shown above.
-
-A DYValue is, like the name almost says, the value of a DYModule.
-A DYModule can contain multiple values.
+All aspects of the above section can be altered with the methods of a DYModule. Like the 'Key-Comment' or even the 'Value-Comment'. 
+The 'value' gets put into a DYValueContainer, and then that gets added to the DYModule.
+This is done, so you can retrieve the value as different data-types.
 For the example above the value returned by `asString()` would be 'value'.
 You could retrieve it `asCharArray()`, or as another data type if you'd like.
 
-To sum it up, a DreamYaml object consists of multiple DYModules and a DYModule consists of multiple DYValues.
-You can edit DYModules through various methods like:
+To sum it up, a DreamYaml object consists of multiple DYModules and a DYModule can consist of multiple DYValueContainers.
+
+DreamYaml provides methods to edit the order, retrieve or even delete sections/DYModules:
  - `get()`: Returns module with matching keys or null.
  - `replace()`: Replaces module with matching keys, with the provided module.
  - `add()`: Adds new module or throws exception if it already exists.
@@ -31,7 +32,7 @@ You can for example keep editing the same DYModule, no matter how often you call
 since the DYModules objects in the 'inEditModules' list stay the same, and only their values (and parent-/child-modules) get updated on `load()`.
 
 The idea of 'defaults' is strongly represented in this project. 
-Defaults are used, when the yaml-file does not contain the default.
+Defaults are used, when the actual value is null.
 Example:
 ```yaml
 key: 
