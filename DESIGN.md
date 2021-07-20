@@ -32,7 +32,7 @@ You can for example keep editing the same DYModule, no matter how often you call
 since the DYModules objects in the 'inEditModules' list stay the same, and only their values (and parent-/child-modules) get updated on `load()`.
 
 The idea of 'defaults' is strongly represented in this project. 
-Defaults are used, when the yaml-file does not contain the default.
+Defaults are used, when the actual value is null.
 Example:
 ```yaml
 key: 
