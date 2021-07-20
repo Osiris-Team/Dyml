@@ -18,6 +18,7 @@ For the example above the value returned by `asString()` would be 'value'.
 You could retrieve it `asCharArray()`, or as another data type if you'd like.
 
 To sum it up, a DreamYaml object consists of multiple DYModules and a DYModule can consist of multiple DYValueContainers.
+
 DreamYaml provides methods to edit the order, retrieve or even delete sections/DYModules:
  - `get()`: Returns module with matching keys or null.
  - `replace()`: Replaces module with matching keys, with the provided module.
