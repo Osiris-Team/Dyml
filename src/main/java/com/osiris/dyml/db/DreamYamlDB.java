@@ -113,19 +113,40 @@ public class DreamYamlDB {
     }
 
     /**
-     * See {@link DreamYaml#add(String...)} for details.
+     * See {@link DreamYaml#saveAndLoad()} for details.
      */
-    public DYTable addTable(String name) throws NotLoadedException, IllegalKeyException, DuplicateKeyException {
-        return new DYTable(yaml.add("tables", name));
+    public DreamYamlDB saveAndLoad() throws DYWriterException, IOException, DuplicateKeyException, DYReaderException, IllegalListException {
+        yaml.saveAndLoad();
+        return this;
     }
 
     /**
-     * See {@link DreamYaml#put(String...)} for details.
+     * Note that this triggers {@link #saveAndLoad()}, to ensure the database/yaml-file, <br>
+     * as well as the parent/child modules of this {@link DreamYamlDB} object are up-to-date. <br>
+     * See {@link DreamYaml#add(String...)} for details.
      */
-    public DYTable putTable(String name) throws NotLoadedException, IllegalKeyException {
-        return new DYTable(yaml.put("tables", name));
+    public DYTable addTable(String name) throws NotLoadedException, IllegalKeyException, DuplicateKeyException, DYWriterException, IOException, DYReaderException, IllegalListException {
+        DYTable table = new DYTable(yaml.add("tables", name));
+        yaml.saveAndLoad();
+        return table;
     }
 
+    /**
+     * Note that this triggers {@link #saveAndLoad()}, to ensure the database/yaml-file, <br>
+     * as well as the parent/child modules of this {@link DreamYamlDB} object are up-to-date. <br>
+     * See {@link DreamYaml#put(String...)} for details.
+     */
+    public DYTable putTable(String name) throws NotLoadedException, IllegalKeyException, DYWriterException, IOException, DuplicateKeyException, DYReaderException, IllegalListException {
+        DYTable table = new DYTable(yaml.put("tables", name));
+        yaml.saveAndLoad();
+        return table;
+    }
+
+    /**
+     * Note that this triggers {@link #saveAndLoad()}, to ensure the database/yaml-file, <br>
+     * as well as the parent/child modules of this {@link DreamYamlDB} object are up-to-date. <br>
+     * See {@link DreamYaml#remove(DYModule)} for details. <br>
+     */
     public DreamYamlDB removeTable(DYTable table) {
         Objects.requireNonNull(table);
         yaml.remove("tables", table.getName());

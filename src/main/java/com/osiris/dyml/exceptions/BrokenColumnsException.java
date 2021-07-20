@@ -4,7 +4,7 @@ package com.osiris.dyml.exceptions;
  * Usually thrown when there is something wrong
  * with a {@link com.osiris.dyml.db.DYColumn}s length.
  */
-public class BrokenColumnsException extends RuntimeException{
+public class BrokenColumnsException extends RuntimeException {
     public BrokenColumnsException() {
     }
 

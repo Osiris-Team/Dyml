@@ -125,9 +125,6 @@ class DYReader {
 
         timer.stop();
         if (yaml.isDebugEnabled()) {
-            System.out.println();
-            System.out.println("Finished reading of " + (yaml.getInputStream() == null ? yaml.getFile().getName() : "InputStream") + " at " + new Date());
-            System.out.println("Operation took " + timer.getFormattedMillis() + "ms or " + timer.getFormattedSeconds() + "s");
             System.out.println("Loaded modules details:");
             for (DYModule loadedModule :
                     yaml.getAllLoaded()) {
@@ -147,6 +144,9 @@ class DYReader {
                         System.out.println("CHILD -> NULL");
                 }
             }
+            System.out.println();
+            System.out.println("Finished reading of " + (yaml.getInputStream() == null ? yaml.getFile().getName() : "InputStream") + " at " + new Date());
+            System.out.println("Operation took " + timer.getFormattedMillis() + "ms or " + timer.getFormattedSeconds() + "s");
         }
 
     }
@@ -230,7 +230,7 @@ class DYReader {
     public void parseFirstLine(DreamYaml yaml, DYLine currentLine) throws IllegalListException {
         if (!currentLine.getFullLine().isEmpty()) {
             if (yaml.isDebugEnabled())
-                System.out.println("Reading first line '" + currentLine.getLineNumber() + "' with content: '" + currentLine.getFullLine() + "'");
+                System.out.println("Reading line '" + currentLine.getLineNumber() + "' with content: '" + currentLine.getFullLine() + "'");
             // Go thorough each character of the string, until a special one is found
             int charCode;
             for (int i = 0; i < currentLine.getFullLine().length(); i++) {

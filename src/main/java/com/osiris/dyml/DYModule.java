@@ -175,7 +175,7 @@ public class DYModule {
         if (v != null)
             addValues(Arrays.asList(v));
         else
-            addValues((DYValueContainer) null);
+            addValues((List<DYValueContainer>) null);
         return this;
     }
 
@@ -635,6 +635,8 @@ public class DYModule {
      * <p style="color:red;">Do not modify this list directly, unless you know what you are doing!</p>
      * A list containing this modules child modules, aka the next generation. <br>
      * Note that this list does NOT contain generations beyond that. <br>
+     * This methods ensures that these modules get added to the 'inEditModules' list, and thus <br>
+     * modifying them has also affect to the actual yaml file. <br>
      * More about generations here: {@link DYReader#parseLine(DreamYaml, DYLine)}.
      */
     public List<DYModule> getChildModules() {

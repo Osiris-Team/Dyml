@@ -3,11 +3,9 @@ package com.osiris.dyml.db;
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DYValueContainer;
 import com.osiris.dyml.DreamYaml;
-import com.osiris.dyml.exceptions.BrokenColumnsException;
-import com.osiris.dyml.exceptions.DuplicateKeyException;
-import com.osiris.dyml.exceptions.IllegalKeyException;
-import com.osiris.dyml.exceptions.NotLoadedException;
+import com.osiris.dyml.exceptions.*;
 
+import java.io.IOException;
 import java.util.*;
 
 public class DYTable {
@@ -28,9 +26,10 @@ public class DYTable {
 
     /**
      * Returns the {@link DYRow} at the provided index.
+     *
      * @throws IndexOutOfBoundsException when the row at the provided index does not exist.
      */
-    public DYRow getRow(int index){
+    public DYRow getRow(int index) {
         Map<DYValueContainer, DYColumn> valuesAndColumns = new HashMap<>();
         for (DYColumn col :
                 getColumns()) {
@@ -41,9 +40,10 @@ public class DYTable {
 
     /**
      * Returns the {@link DYRow} at the provided index, as a list of {@link DYValueContainer}s. <br>
+     *
      * @throws IndexOutOfBoundsException when the row at the provided index does not exist.
      */
-    public List<DYValueContainer> getRowAsList(int index){
+    public List<DYValueContainer> getRowAsList(int index) {
         List<DYValueContainer> row = new ArrayList<>();
         for (DYColumn col :
                 getColumns()) {
@@ -56,10 +56,11 @@ public class DYTable {
      * Tries to add a {@link DYRow} to the table. <br>
      * If there are missing values to fill the row, null values get added. <br>
      * Note that all columns must have the same length. <br>
+     *
      * @throws IndexOutOfBoundsException if there are more values than columns available.
-     * @throws BrokenColumnsException if the columns have different sizes/lengths.
+     * @throws BrokenColumnsException    if the columns have different sizes/lengths.
      */
-    public DYTable addRow(DYValueContainer... values){
+    public DYTable addRow(String... values) {
         List<DYColumn> columns = getColumns();
         List<DYColumn> columnsCopy = new ArrayList<>(columns);
 
@@ -70,19 +71,59 @@ public class DYTable {
                     columnsCopy) {
                 if (!col.equals(col1) && col.size() != col1.size())
                     throw new BrokenColumnsException("All columns should have the same length." +
-                        " Column '"+col.getName()+"' has a size of '"+col.size()+"' but column "+col1.getName()+" has a size of '"+col1.size()+"'.");
+                            " Column '" + col.getName() + "' has a size of '" + col.size() + "' but column " + col1.getName() + " has a size of '" + col1.size() + "'.");
             }
         }
 
         if (values.length > columns.size())
-            throw new IndexOutOfBoundsException("Failed to addRow(), because there are more values("+values.length+") than columns("+columns.size()+") available!");
+            throw new IndexOutOfBoundsException("Failed to addRow(), because there are more values(" + values.length + ") than columns(" + columns.size() + ") available!");
 
-        for (int i = 0; i < values.length; i++) {
-            columns.get(i).add(values[i]);
+        for (int i = 0; i < columns.size(); i++) {
+            String val = null;
+            try {
+                val = values[i];
+            } catch (Exception ignored) {
+            }
+
+            columns.get(i).add(val); // Adds null values to complete the row
         }
 
-        for (int i = values.length-1; i < columns.size() - values.length; i++) {
-            columns.get(i).add((String) null); // Adds null values to complete the row
+        return this;
+    }
+
+    /**
+     * Tries to add a {@link DYRow} to the table. <br>
+     * If there are missing values to fill the row, null values get added. <br>
+     * Note that all columns must have the same length. <br>
+     *
+     * @throws IndexOutOfBoundsException if there are more values than columns available.
+     * @throws BrokenColumnsException    if the columns have different sizes/lengths.
+     */
+    public DYTable addDefRow(String... values) {
+        List<DYColumn> allColumns = getColumns();
+        List<DYColumn> columnsCopy = new ArrayList<>(allColumns);
+
+        // Check for different column lengths
+        for (DYColumn col :
+                allColumns) {
+            for (DYColumn col1 :
+                    columnsCopy) {
+                if (!col.equals(col1) && col.size() != col1.size())
+                    throw new BrokenColumnsException("All columns should have the same size/length." +
+                            " Column '" + col.getName() + "' has a size of '" + col.size() + "' but column '" + col1.getName() + "' has a size of '" + col1.size() + "'.");
+            }
+        }
+
+        if (values.length > allColumns.size())
+            throw new IndexOutOfBoundsException("Failed to addDefRow(), because there are more values(" + values.length + ") than columns(" + allColumns.size() + ") available!");
+
+        for (int i = 0; i < values.length; i++) {
+            allColumns.get(i).addDef(values[i]);
+            System.out.println("ADDED");
+        }
+
+        for (int i = values.length - 1; i < allColumns.size() - values.length; i++) {
+            allColumns.get(i).addDef((String) null); // Adds null values to complete the row
         }
         return this;
     }
@@ -92,23 +133,24 @@ public class DYTable {
      * Sets the row at the provided index. <br>
      * Values are read from left to right. <br>
      * Note that if there are more columns than you provided values, the values for those columns get set to null. <br>
+     *
      * @throws IndexOutOfBoundsException if the row at the provided index does not exist.
      */
-    public DYTable setRow(int index, DYValueContainer... values){
+    public DYTable setRow(int index, DYValueContainer... values) {
         List<DYColumn> columns = getColumns();
         for (DYColumn col :
                 columns) {
-            try{
+            try {
                 col.get(index);
             } catch (Exception e) {
-                throw new IndexOutOfBoundsException("Row '"+index+"' does not exist for column '"+col.getName()+"' in table '"+getName()+"'.");
+                throw new IndexOutOfBoundsException("Row '" + index + "' does not exist for column '" + col.getName() + "' in table '" + getName() + "'.");
             }
         }
         for (int i = 0; i < values.length; i++) {
             columns.get(i).get(index).set(values[i].get());
         }
 
-        for (int i = values.length-1; i < columns.size() - values.length; i++) {
+        for (int i = values.length - 1; i < columns.size() - values.length; i++) {
             columns.get(i).get(index).set((String) null); // Adds null values to complete the row
         }
         return this;
@@ -117,20 +159,32 @@ public class DYTable {
     /**
      * See {@link DreamYaml#add(String...)} for details.
      */
-    public DYColumn addColumn(String name) throws NotLoadedException, IllegalKeyException, DuplicateKeyException {
-        return new DYColumn(tableModule.getYaml().add("tables", getName(), name));
+    public DYColumn addColumn(String name) throws NotLoadedException, IllegalKeyException, DuplicateKeyException, DYWriterException, IOException, DYReaderException, IllegalListException {
+        DYColumn column = new DYColumn(tableModule.getYaml().add("tables", getName(), name));
+        tableModule.getYaml().saveAndLoad();
+        return column;
     }
 
     /**
+     * Note that this triggers {@link DreamYaml#saveAndLoad()}, to ensure the database/yaml-file, <br>
+     * as well as the parent/child modules of this {@link DreamYamlDB} object are up-to-date. <br>
      * See {@link DreamYaml#put(String...)} for details.
      */
-    public DYColumn putColumn(String name) throws NotLoadedException, IllegalKeyException {
-        return new DYColumn(tableModule.getYaml().put("tables", getName(), name));
+    public DYColumn putColumn(String name) throws NotLoadedException, IllegalKeyException, DYWriterException, IOException, DuplicateKeyException, DYReaderException, IllegalListException {
+        DYColumn column = new DYColumn(tableModule.getYaml().put("tables", getName(), name));
+        tableModule.getYaml().saveAndLoad();
+        return column;
     }
 
-    public DYTable removeColumn(DYColumn column) {
+    /**
+     * Note that this triggers {@link DreamYaml#saveAndLoad()}, to ensure the database/yaml-file, <br>
+     * as well as the parent/child modules of this {@link DreamYamlDB} object are up-to-date. <br>
+     * See {@link DreamYaml#remove(DYModule)} for details.
+     */
+    public DYTable removeColumn(DYColumn column) throws DYWriterException, IOException, DuplicateKeyException, DYReaderException, IllegalListException {
         Objects.requireNonNull(column);
         tableModule.getYaml().remove("tables", getName(), column.getName());
+        tableModule.getYaml().saveAndLoad();
         return this;
     }
 
@@ -148,13 +202,16 @@ public class DYTable {
     }
 
     /**
-     * Columns are ordered in this list the same way they are in the yaml file.
+     * Columns are ordered in this list the same way they are in the database/yaml-file.
      */
     public List<DYColumn> getColumns() {
+        // TODO idk if this is the best way
         List<DYColumn> columns = new ArrayList<>();
         for (DYModule columnModule :
                 tableModule.getChildModules()) {
-            columns.add(new DYColumn(columnModule));
+            // Note that these modules must have been already added to the
+            // inEditModules list, that's why we do the below (to ensure that):
+            columns.add(new DYColumn(tableModule.getYaml().get(columnModule.getKeys())));
         }
         return columns;
     }
@@ -164,18 +221,25 @@ public class DYTable {
     // TODO getValuesSimilarTo(value, minSimilarityInPercent)
 
 
+    public List<DYRow> getValuesEqualTo(String colName, String value) {
+        DYColumn column = getColumn(colName);
+        Objects.requireNonNull(column);
+        return getValuesEqualTo(column, value);
+    }
+
     /**
      * Compares all values inside the provided column, with the provided value. <br>
      * Matches get added to the list and returned. <br>
+     *
      * @param column the column to execute the query in.
-     * @param value the value to search for.
+     * @param value  the value to search for.
      */
     public List<DYRow> getValuesEqualTo(DYColumn column, String value) {
         List<DYRow> results = new ArrayList<>();
         int index = 0;
         for (DYValueContainer v :
                 column.getValues()) {
-            if (v.asString() != null && v.asString().equals(value)){
+            if (v.asString() != null && v.asString().equals(value)) {
                 // Get the other columns values at the current index position
                 Map<DYValueContainer, DYColumn> map = new HashMap<>();
                 for (DYColumn col :
@@ -192,15 +256,16 @@ public class DYTable {
     /**
      * Compares all values inside the provided column, with the provided value. <br>
      * Matches get added to the list and returned. <br>
+     *
      * @param column the column to execute the query in.
-     * @param value the value to search for.
+     * @param value  the value to search for.
      */
     public List<DYRow> getValuesBiggerThan(DYColumn column, long value) {
         List<DYRow> results = new ArrayList<>();
         int index = 0;
         for (DYValueContainer v :
                 column.getValues()) {
-            if (v.asLong() > value){
+            if (v.asLong() > value) {
                 // Get the other columns values at the current index position
                 Map<DYValueContainer, DYColumn> map = new HashMap<>();
                 for (DYColumn col :
@@ -217,15 +282,16 @@ public class DYTable {
     /**
      * Compares all values inside the provided column, with the provided value. <br>
      * Matches get added to the list and returned. <br>
+     *
      * @param column the column to execute the query in.
-     * @param value the value to search for.
+     * @param value  the value to search for.
      */
     public List<DYRow> getValuesBiggerThan(DYColumn column, double value) {
         List<DYRow> results = new ArrayList<>();
         int index = 0;
         for (DYValueContainer v :
                 column.getValues()) {
-            if (v.asDouble() > value){
+            if (v.asDouble() > value) {
                 // Get the other columns values at the current index position
                 Map<DYValueContainer, DYColumn> map = new HashMap<>();
                 for (DYColumn col :
@@ -242,15 +308,16 @@ public class DYTable {
     /**
      * Compares all values inside the provided column, with the provided value. <br>
      * Matches get added to the list and returned. <br>
+     *
      * @param column the column to execute the query in.
-     * @param value the value to search for.
+     * @param value  the value to search for.
      */
     public List<DYRow> getValuesSmallerThan(DYColumn column, long value) {
         List<DYRow> results = new ArrayList<>();
         int index = 0;
         for (DYValueContainer v :
                 column.getValues()) {
-            if (v.asLong() < value){
+            if (v.asLong() < value) {
                 // Get the other columns values at the current index position
                 Map<DYValueContainer, DYColumn> map = new HashMap<>();
                 for (DYColumn col :
@@ -267,15 +334,16 @@ public class DYTable {
     /**
      * Compares all values inside the provided column, with the provided value. <br>
      * Matches get added to the list and returned. <br>
+     *
      * @param column the column to execute the query in.
-     * @param value the value to search for.
+     * @param value  the value to search for.
      */
     public List<DYRow> getValuesSmallerThan(DYColumn column, double value) {
         List<DYRow> results = new ArrayList<>();
         int index = 0;
         for (DYValueContainer v :
                 column.getValues()) {
-            if (v.asDouble() < value){
+            if (v.asDouble() < value) {
                 // Get the other columns values at the current index position
                 Map<DYValueContainer, DYColumn> map = new HashMap<>();
                 for (DYColumn col :
@@ -288,5 +356,4 @@ public class DYTable {
         }
         return results;
     }
-
 }

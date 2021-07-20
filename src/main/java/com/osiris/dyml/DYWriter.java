@@ -173,7 +173,7 @@ class DYWriter {
                 writer.write(spaces + currentKey + ": ");
 
                 if (module.getValues() != null && i == (keysSize - 1)) { // Only write values to the last key in the list
-                    if (!module.getValues().isEmpty()) { // Write values if they exist, else write defaults, else write nothing
+                    if (!module.getValues().isEmpty() && !isOnlyNullsList(module.getValues())) { // Write values if they exist, else write defaults, else write nothing
                         if (module.getValues().size() == 1) { // Even if we only got one DYModule, it written as a list
                             DYValueContainer value = module.getValue();
                             if (value != null) { // Only write if its not null
@@ -239,5 +239,17 @@ class DYWriter {
                 }
             }
         }
+    }
+
+    private boolean isOnlyNullsList(List<DYValueContainer> values) {
+        boolean hasValue = false;
+        for (DYValueContainer val :
+                values) {
+            if (val.get() != null) {
+                hasValue = true;
+                break;
+            }
+        }
+        return !hasValue;
     }
 }

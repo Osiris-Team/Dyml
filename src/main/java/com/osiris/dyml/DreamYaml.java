@@ -142,7 +142,7 @@ public class DreamYaml {
      *                                See {@link #isPostProcessingEnabled()} for details.
      * @param isDebugEnabled          Disabled by default. Shows debugging stuff.
      */
-    public DreamYaml(File file, boolean isPostProcessingEnabled, boolean isDebugEnabled)  {
+    public DreamYaml(File file, boolean isPostProcessingEnabled, boolean isDebugEnabled) {
         this.file = file;
         init(isPostProcessingEnabled, isDebugEnabled);
     }
@@ -200,7 +200,7 @@ public class DreamYaml {
      *     yaml.unlockFile();
      * </pre>
      */
-    public synchronized void lockFile() {
+    public void lockFile() {
         if (file != null) {
             ReentrantLock lock;
             synchronized (pathsAndLocks) {
@@ -238,7 +238,7 @@ public class DreamYaml {
      *     yaml.unlockFile();
      * </pre>
      */
-    public synchronized void unlockFile() {
+    public void unlockFile() {
         if (file != null) {
             ReentrantLock lock;
             synchronized (pathsAndLocks) {
@@ -332,10 +332,24 @@ public class DreamYaml {
      */
     public DYModule get(String... keys) {
         Objects.requireNonNull(keys);
+        return get(Arrays.asList(keys));
+    }
+
+    /**
+     * Returns the {@link DYModule} with matching keys or null. <br>
+     * Details: <br>
+     * Searches the {@link #inEditModules} list, and the {@link #loadedModules} list for
+     * the matching {@link DYModule}
+     * and returns it. Null if no matching {@link DYModule} for the provided keys could be found. <br>
+     * If the {@link DYModule} was found in the {@link #loadedModules} list, it gets removed from there and
+     * added to the {@link #inEditModules} list. <br>
+     */
+    public DYModule get(List<String> keys) {
+        Objects.requireNonNull(keys);
         if (this.isDebugEnabled) debugLogger.log(this, "Executing get(" + keys.toString() + ")");
-        DYModule module = utilsDYModule.getExisting(Arrays.asList(keys), inEditModules);
+        DYModule module = utilsDYModule.getExisting(keys, inEditModules);
         if (module == null) {
-            module = utilsDYModule.getExisting(Arrays.asList(keys), loadedModules);
+            module = utilsDYModule.getExisting(keys, loadedModules);
             if (module != null) {
                 inEditModules.add(module);
             }

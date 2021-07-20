@@ -13,6 +13,7 @@ import java.util.List;
  * rock              | paper
  * tree              | grass
  * </pre>
+ *
  * @see DYRow
  */
 public class DYColumn {
@@ -71,7 +72,7 @@ public class DYColumn {
      * aka the amount of rows for this column, <br>
      * aka the amount of {@link DYValueContainer}s. <br>
      */
-    public int size(){
+    public int size() {
         return columnModule.getValues().size();
     }
 
@@ -81,15 +82,15 @@ public class DYColumn {
      * aka the amount of default rows for this column, <br>
      * aka the amount of default {@link DYValueContainer}s. <br>
      */
-    public int defSize(){
+    public int defSize() {
         return columnModule.getDefValues().size();
     }
 
-    public List<DYValueContainer> getValues(){
+    public List<DYValueContainer> getValues() {
         return columnModule.getValues();
     }
 
-    public List<DYValueContainer> getDefValues(){
+    public List<DYValueContainer> getDefValues() {
         return columnModule.getDefValues();
     }
 

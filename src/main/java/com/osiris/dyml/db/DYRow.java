@@ -15,14 +15,15 @@ import java.util.Objects;
  * rock    | paper   <--- This is the row at index 0
  * tree    | grass   <--- This is the row at index 1
  * </pre>
+ *
  * @see DYColumn
  */
 public class DYRow {
-    private int index;
-    private Map<DYValueContainer, DYColumn> valuesAndColumns;
+    private final int rowIndex;
+    private final Map<DYValueContainer, DYColumn> valuesAndColumns;
 
-    public DYRow(int index, Map<DYValueContainer, DYColumn> valuesAndColumns) {
-        this.index = index;
+    public DYRow(int rowIndex, Map<DYValueContainer, DYColumn> valuesAndColumns) {
+        this.rowIndex = rowIndex;
         this.valuesAndColumns = valuesAndColumns;
     }
 
@@ -36,7 +37,7 @@ public class DYRow {
      * The examples, returned list has two {@link DYValueContainer}s. <br>
      * The first one contains 'rock' and the second one 'paper'. <br>
      */
-    public List<DYValueContainer> getValues(){
+    public List<DYValueContainer> getValues() {
         return new ArrayList<>(valuesAndColumns.keySet());
     }
 
@@ -49,9 +50,10 @@ public class DYRow {
      *     tree    | grass   <--- Index: 1
      * </pre>
      */
-    public int getIndex() {
-        return index;
+    public int getRowIndex() {
+        return rowIndex;
     }
+
 
     /**
      * Returns a map with values mapped to their columns.
@@ -60,15 +62,16 @@ public class DYRow {
         return valuesAndColumns;
     }
 
-    public DYColumn getColumnFromValue(DYValueContainer value){
+    public DYColumn getColumnFromValue(DYValueContainer value) {
         return valuesAndColumns.get(value);
     }
 
     /**
      * Returns the linked {@link DYValueContainer} for the provided {@link DYColumn}.
+     *
      * @throws NullPointerException if the provided column is null, or couldn't be found in the map.
      */
-    public DYValueContainer getValueFromColumn(DYColumn column){
+    public DYValueContainer getValueFromColumn(DYColumn column) {
         Objects.requireNonNull(column);
         DYValueContainer[] values = valuesAndColumns.keySet().toArray(new DYValueContainer[0]);
         int index = 0;
@@ -79,8 +82,8 @@ public class DYRow {
                 val = values[index];
             index++;
         }
-        if (val==null)
-            throw new NullPointerException("Column '"+column.getName()+"' couldn't be found in: "+ values);
+        if (val == null)
+            throw new NullPointerException("Column '" + column.getName() + "' couldn't be found in: " + values);
         else
             return val;
     }

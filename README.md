@@ -393,23 +393,25 @@ yaml.addFileEventListener(event -> {
 
 ## DreamYaml-Database:
   <details>
-  <summary>DreamYamlDB example</summary>
+  <summary>Simple DreamYamlDB example</summary>
 <pre lang="java">
+        // Create/Get the database:
         DreamYamlDB db = new DreamYamlDB("my-database")); 
         db.load();
+
+        // Create/Get the table:
         DYTable tableUsers = db.putTable("users");
-        DYColumn name = tableUsers.putColumn("name");
-        DYColumn age = tableUsers.putColumn("age");
-        db.save();
 
-        // Fill columns with mock data
-        name.addDef("John").addDef("Samantha").addDef("Peter");
-        age.addDef("31").addDef((String) null).addDef("22");
-        db.save();
+        // Create/Get the columns:
+        tableUsers.putColumn("name");
+        tableUsers.putColumn("age");
+        // db.save() // Already called inside the putColumn() method above.
 
-        // Retrieve information
-        Assertions.assertEquals("John", name.get(0).asString());
-        Assertions.assertEquals("31", age.get(0).asString());
+        // Fill columns with mock data:
+        tableUsers.addDefRow("John", "31");
+        tableUsers.addDefRow("Samantha", null);
+        tableUsers.addDefRow("Peter", "22");
+        db.save();
 </pre>
 </details>
 
