@@ -110,6 +110,7 @@ class DYReader {
                     utils.trimComments(m.getComments());
                     utils.trimValuesComments(m.getValues());
                 }
+
         }
 
         // Update the inEditModules values and their parent/child modules.

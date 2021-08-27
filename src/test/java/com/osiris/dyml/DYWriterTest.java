@@ -8,6 +8,16 @@
 
 package com.osiris.dyml;
 
+import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 class DYWriterTest {
 
+    @Test
+    void testWritingWithoutLineBreaks() {
+        String actual = "hello\nthere\n";
+        String expected = "hello there ";
+        actual = actual.replace("\n", " ");
+        Assertions.assertEquals(expected, actual);
+    }
 }

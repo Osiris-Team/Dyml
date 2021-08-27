@@ -177,7 +177,7 @@ class DYWriter {
                         if (module.getValues().size() == 1) { // Even if we only got one DYModule, it written as a list
                             DYValueContainer value = module.getValue();
                             if (value != null) { // Only write if its not null
-                                if (value.asString() != null) writer.write(value.asString());
+                                if (value.asString() != null) writeValueWithoutLineBreaks(writer, value.asString());
                                 if (value.hasComment())
                                     writer.write(" # " + value.getComment()); // Append side comment to value
                             }
@@ -190,7 +190,7 @@ class DYWriter {
                                 DYValueContainer value = module.getValueByIndex(j);
                                 if (value != null) {
                                     writer.write(spaces + "  - ");
-                                    if (value.asString() != null) writer.write(value.asString()); // Append the value
+                                    if (value.asString() != null) writeValueWithoutLineBreaks(writer, value.asString()); // Append the value
                                     if (value.hasComment())
                                         writer.write(" # " + value.getComment()); // Append side comment to value
                                 }
@@ -204,7 +204,7 @@ class DYWriter {
                             if (module.getDefValues().size() == 1) {
                                 DYValueContainer defValue = module.getDefValue();
                                 if (defValue != null) {
-                                    if (defValue.asString() != null) writer.write(defValue.asString());
+                                    if (defValue.asString() != null) writeValueWithoutLineBreaks(writer, defValue.asString());
                                     if (defValue.hasComment())
                                         writer.write(" # " + defValue.getComment()); // Append side comment to value
                                 }
@@ -218,7 +218,7 @@ class DYWriter {
                                     if (value != null) {
                                         writer.write(spaces + "  - ");
                                         if (value.asString() != null)
-                                            writer.write(value.asString()); // Append the value
+                                            writeValueWithoutLineBreaks(writer, value.asString()); // Append the value
                                         if (value.hasComment())
                                             writer.write(" # " + value.getComment()); // Append side comment to value
                                     }
@@ -239,6 +239,11 @@ class DYWriter {
                 }
             }
         }
+    }
+
+    private void writeValueWithoutLineBreaks(BufferedWriter writer, String value) throws IOException {
+        value = value.replace("\n", " ");
+        writer.write(value);
     }
 
     private boolean isOnlyNullsList(List<DYValueContainer> values) {
