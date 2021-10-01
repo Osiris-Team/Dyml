@@ -69,8 +69,6 @@ public class DreamYaml {
     private DYWatcher watcher = null;
     // Logging:
     private DYDebugLogger debugLogger = new DYDebugLogger(System.out);
-
-
     /**
      * Initialises the {@link DreamYaml} object with useful features enabled. <br>
      * See {@link #DreamYaml(InputStream, boolean, boolean)} for details.
@@ -78,7 +76,6 @@ public class DreamYaml {
     public DreamYaml(InputStream inputStream) {
         this(inputStream, true, false);
     }
-
     /**
      * Initialises the {@link DreamYaml} object with useful features enabled. <br>
      * See {@link #DreamYaml(InputStream, boolean, boolean)} for details.
@@ -86,6 +83,7 @@ public class DreamYaml {
     public DreamYaml(InputStream inputStream, boolean isDebugEnabled) {
         this(inputStream, true, isDebugEnabled);
     }
+
 
     /**
      * Initialises the {@link DreamYaml} object with useful features enabled. <br>
@@ -161,6 +159,40 @@ public class DreamYaml {
         init(isPostProcessingEnabled, isDebugEnabled);
     }
 
+    /**
+     * See {@link DreamYaml#lockFile()} for details. <br>
+     * Dev notes: <br>
+     * Must be synchronized to ensure thread-safety. <br>
+     */
+    public static synchronized void lockAFile(File file) {
+        Objects.requireNonNull(file);
+        ReentrantLock reentrantLock;
+        if (pathsAndLocks.containsKey(file.getAbsolutePath()))
+            reentrantLock = pathsAndLocks.get(file.getAbsolutePath());
+        else {
+            reentrantLock = new ReentrantLock();
+            pathsAndLocks.put(file.getAbsolutePath(), reentrantLock);
+        }
+        reentrantLock.lock(); // If another thread has already the locked, the current thread will wait at this position until it gets unlocked
+    }
+
+    /**
+     * See {@link DreamYaml#unlockFile()} for details. <br>
+     * Dev notes: <br>
+     * Cannot be a synchronized method, because that results in a deadlock! <br>
+     * I have no clue why though :/ <br>
+     * Seems to work fine nevertheless. <br>
+     */
+    public static void unlockAFile(File file) {
+        ReentrantLock lock;
+        if (pathsAndLocks.containsKey(file.getAbsolutePath())) {
+            lock = pathsAndLocks.get(file.getAbsolutePath()); // If another thread has already the locked, the current thread will wait until it gets unlocked
+            if (!lock.hasQueuedThreads())
+                pathsAndLocks.remove(file.getAbsolutePath());
+            lock.unlock();
+        }
+    }
+
     private void init(boolean isPostProcessingEnabled, boolean isDebugEnabled) {
         this.isPostProcessingEnabled = isPostProcessingEnabled;
         this.isDebugEnabled = isDebugEnabled;
@@ -201,28 +233,9 @@ public class DreamYaml {
      * </pre>
      */
     public void lockFile() {
-        if (file != null) {
-            synchronized (pathsAndLocks) {
-                ReentrantLock lock;
-                if (pathsAndLocks.containsKey(file.getAbsolutePath()))
-                    lock = pathsAndLocks.get(file.getAbsolutePath());
-                else {
-                    lock = new ReentrantLock();
-                    pathsAndLocks.put(file.getAbsolutePath(), lock);
-                }
-                lock.lock(); // If another thread has already the locked, the current thread will wait at this position until it gets unlocked
-            }
-        }
+        lockAFile(file);
     }
 
-    /**
-     * Convenience method for locking and then loading the file. <br>
-     * See {@link #lockFile()} and {@link #load()} for details.
-     */
-    public void lockAndLoad() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
-        lockFile();
-        load();
-    }
 
     /**
      * If you access the same yaml file from multiple threads, its recommended to lock the file before loading it. <br>
@@ -239,26 +252,7 @@ public class DreamYaml {
      * </pre>
      */
     public void unlockFile() {
-        if (file != null) {
-            synchronized (pathsAndLocks) {
-                ReentrantLock lock;
-                if (pathsAndLocks.containsKey(file.getAbsolutePath())) {
-                    lock = pathsAndLocks.get(file.getAbsolutePath()); // If another thread has already the locked, the current thread will wait until it gets unlocked
-                    lock.unlock();
-                    if (!lock.hasQueuedThreads())
-                        pathsAndLocks.remove(file.getAbsolutePath());
-                }
-            }
-        }
-    }
-
-    /**
-     * Convenience method for saving and then unlocking the file. <br>
-     * See {@link #lockFile()} and {@link #load()} for details.
-     */
-    public void saveAndUnlock() throws DYWriterException, IOException, DuplicateKeyException, DYReaderException, IllegalListException {
-        save();
-        unlockFile();
+        unlockAFile(file);
     }
 
     /**
