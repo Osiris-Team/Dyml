@@ -2,8 +2,10 @@ package com.osiris.dyml.examples;
 
 import com.osiris.dyml.DYModule;
 import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.watcher.DYWatcher;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.nio.file.StandardWatchEventKinds;
 
 class DYWatcherExample {
@@ -52,6 +54,13 @@ class DYWatcherExample {
         // It could happen that it misses one or two of them, because the save methods are so close to each other (timely)
 
         Thread.sleep(1000); // Wait 1 sec for watcher to receive event
+
+        // Example for other files:
+        File readmeFile = new File(System.getProperty("user.dir")+"/README.md");
+        DYWatcher.getForFile(readmeFile).addFileAndListener(readmeFile, fileChangeEvent -> {
+            fileChangeEvent.getWatchEventKind();
+            // ...
+        });
     }
 
 }

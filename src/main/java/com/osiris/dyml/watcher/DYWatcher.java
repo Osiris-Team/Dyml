@@ -41,7 +41,7 @@ public class DYWatcher extends Thread {
      * <p style="color:red">Its recommended to use the static method {@link DYWatcher#getForPath(Path)} to get a {@link DYWatcher} instead!</p>
      * See {@link #DYWatcher(Path)} for details.
      */
-    public DYWatcher() throws IOException {
+    private DYWatcher() throws IOException {
         this(null);
     }
 
@@ -54,7 +54,7 @@ public class DYWatcher extends Thread {
      *
      * @param path Can be a file or a directory.
      */
-    public DYWatcher(Path path) throws IOException {
+    private DYWatcher(Path path) throws IOException {
         this.watchService = FileSystems.getDefault().newWatchService();
         if (path != null)
             addFileAndListeners(path.toFile(), null);
@@ -124,6 +124,9 @@ public class DYWatcher extends Thread {
     }
 
     public void watchDir(Path dirPath, boolean watchSubdirectories) throws IOException {
+        if (!dirPath.toFile().exists())
+            throw new IOException("File '"+dirPath.getFileName()+"' does not exist! Full path: "+dirPath);
+
         // Check if the dir already exists
         Path existingDir = null;
         for (Path dir :
@@ -237,6 +240,13 @@ public class DYWatcher extends Thread {
             }
         }
         return files;
+    }
+
+    /**
+     * See {@link #addFileAndListeners(File, List, boolean)} for details.
+     */
+    public void addFileAndListener(File fileToWatch, DYFileEventListener<DYFileEvent> listener) throws IOException {
+        addFileAndListeners(fileToWatch, Arrays.asList(listener));
     }
 
     /**

@@ -100,23 +100,7 @@ pending-tasks:
   - start working
 </pre>
 </details>
-<details>
-  <summary>Achieve THREAD-SAFETY example</summary>
-<pre lang="java">
-// If you access a single file from multiple threads at the same time, you should lock it
-// while you are working with it, so that no unexpected stuff happens.
-DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/advanced-example.yml");
-yaml.lockAndLoad(); // Ensures that no other thread can load the file until the lock is released 
 
-yaml.put("name")         .setDefValues(new DYValue("John", "Value-Comment")).setDefComments("Key-Comment");
-yaml.put("last-name")    .setDefValues("Goldman");
-yaml.put("age")          .setDefValues("29");
-yaml.put("work")         .setDefValues("Reporter");
-yaml.put("pending-tasks").setDefValues("do research", "buy food", "start working");
-
-yaml.saveAndUnlock(); // Unlocks the file so that the next thread can access it
-</pre>
-</details>
 <details>
   <summary>SAVING example</summary>
 <pre lang="java">
@@ -369,6 +353,29 @@ encapsulated:
   work: Reporter
 </pre>
 </details>
+<details>
+  <summary>Achieve THREAD-SAFETY example</summary>
+<pre lang="java">
+// If you access a single file from multiple threads at the same time, you should lock it
+// while you are working with it, so that no unexpected stuff happens.
+DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/advanced-example.yml");
+yaml.lockFile(); // Ensures that no other thread can load the file until the lock is released 
+try{
+  yaml.load();
+  yaml.put("name")         .setDefValues(new DYValue("John", "Value-Comment")).setDefComments("Key-Comment");
+  yaml.put("last-name")    .setDefValues("Goldman");
+  yaml.put("age")          .setDefValues("29");
+  yaml.put("work")         .setDefValues("Reporter");
+  yaml.put("pending-tasks").setDefValues("do research", "buy food", "start working");
+  yaml.save();
+}catch(Exception e){
+  // Handle exception
+} finally{
+  yaml.unlockFile();
+}
+
+</pre>
+</details>
 
 ## DreamYaml-Watcher:
  <details>
@@ -388,6 +395,16 @@ yaml.addFileEventListener(event -> {
                 e.printStackTrace();
             }
         });
+</pre>
+</details>
+ <details>
+  <summary>WATCHING other files example</summary>
+<pre lang="java">
+File readmeFile = new File("README.md");
+DYWatcher.getForFile(readmeFile).addFileAndListener(readmeFile, fileChangeEvent -> {
+    fileChangeEvent.getWatchEventKind();
+    // ...
+});
 </pre>
 </details>
 
