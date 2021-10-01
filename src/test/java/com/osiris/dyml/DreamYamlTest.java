@@ -11,13 +11,22 @@ import static org.junit.jupiter.api.Assertions.*;
 class DreamYamlTest {
 
     @Test
+    void codingStyle() {
+
+    }
+
+    @Test
     void threadSafetyTest() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException, InterruptedException {
+
+
         Thread t1 = new Thread(() -> {
             try {
                 for (int i = 0; i < 10; i++) {
                     Thread.sleep(new Random().nextInt(500));
                     DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml");
+                    System.out.println("t1 is waiting...");
                     yaml.lockAndLoad();
+                    System.out.println("t1 is WRITE");
                     yaml.put("m1").setDefValues("hello");
                     yaml.put("m2").setDefValues("hello");
                     yaml.save();
@@ -35,7 +44,9 @@ class DreamYamlTest {
                 for (int i = 0; i < 10; i++) {
                     Thread.sleep(new Random().nextInt(500));
                     DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml");
+                    System.out.println("t2 is waiting...");
                     yaml.lockAndLoad();
+                    System.out.println("t2 is WRITE");
                     yaml.put("m1").setDefValues("hello");
                     yaml.put("m2").setDefValues("hello");
                     yaml.saveAndUnlock();

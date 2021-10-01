@@ -202,16 +202,16 @@ public class DreamYaml {
      */
     public void lockFile() {
         if (file != null) {
-            ReentrantLock lock;
             synchronized (pathsAndLocks) {
+                ReentrantLock lock;
                 if (pathsAndLocks.containsKey(file.getAbsolutePath()))
                     lock = pathsAndLocks.get(file.getAbsolutePath());
                 else {
                     lock = new ReentrantLock();
                     pathsAndLocks.put(file.getAbsolutePath(), lock);
                 }
+                lock.lock(); // If another thread has already the locked, the current thread will wait at this position until it gets unlocked
             }
-            lock.lock(); // If another thread has already the locked, the current thread will wait at this position until it gets unlocked
         }
     }
 
@@ -240,8 +240,8 @@ public class DreamYaml {
      */
     public void unlockFile() {
         if (file != null) {
-            ReentrantLock lock;
             synchronized (pathsAndLocks) {
+                ReentrantLock lock;
                 if (pathsAndLocks.containsKey(file.getAbsolutePath())) {
                     lock = pathsAndLocks.get(file.getAbsolutePath()); // If another thread has already the locked, the current thread will wait until it gets unlocked
                     lock.unlock();

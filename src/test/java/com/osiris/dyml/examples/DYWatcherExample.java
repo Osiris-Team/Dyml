@@ -41,13 +41,11 @@ class DYWatcherExample {
         // That's it. Now we run some test to see if it works:
         System.out.println("User modifies yaml");
         firstName1.setValues("Pete"); // Imagine that this change is done by a person
-        yaml.lockFile();
         yaml.save(); // In this moment the file gets modified;
         yaml.save(); // In this moment the file gets modified
         yaml.save(); // In this moment the file gets modified
         yaml.save(); // In this moment the file gets modified
         yaml.save(); // In this moment the file gets modified
-        yaml.unlockFile();
         // This should trigger 5 events.
         // It could happen that it misses one or two of them, because the save methods are so close to each other (timely)
 
