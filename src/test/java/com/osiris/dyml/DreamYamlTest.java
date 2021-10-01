@@ -4,52 +4,58 @@ import com.osiris.dyml.exceptions.*;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.util.Random;
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class DreamYamlTest {
 
     @Test
+    void codingStyle() {
+
+    }
+
+    @Test
     void threadSafetyTest() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException, InterruptedException {
-        Thread t1 = new Thread(() -> {
-            try {
-                for (int i = 0; i < 10; i++) {
-                    Thread.sleep(new Random().nextInt(500));
+
+        List<Thread> threads = new ArrayList<>();
+        for (int i = 0; i < 1000; i++) {
+            threads.add(new Thread(() -> {
+                for (int f = 0; f < 10; f++) {
                     DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml");
-                    yaml.lockAndLoad();
-                    yaml.put("m1").setDefValues("hello");
-                    yaml.put("m2").setDefValues("hello");
-                    yaml.save();
-                    yaml.saveAndUnlock();
+                    yaml.lockFile();
+                    try {
+                        System.out.println(Thread.currentThread().getName() + " is waiting...");
+                        yaml.load();
+                        System.out.println(Thread.currentThread().getName() + " is WRITE");
+                        yaml.put("m1").setDefValues("hello");
+                        yaml.put("m2").setDefValues("hello");
+                        yaml.save();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        yaml.unlockFile();
+                    }
+
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+                try {
 
-        });
-
-
-        Thread t2 = new Thread(() -> {
-            try {
-                for (int i = 0; i < 10; i++) {
-                    Thread.sleep(new Random().nextInt(500));
-                    DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml");
-                    yaml.lockAndLoad();
-                    yaml.put("m1").setDefValues("hello");
-                    yaml.put("m2").setDefValues("hello");
-                    yaml.saveAndUnlock();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+            }));
+        }
 
-        t1.start();
-        t2.start();
+        for (Thread t :
+                threads) {
+            t.start();
+        }
 
-        t1.join();
-        t2.join();
+        for (Thread t :
+                threads) {
+            t.join();
+        }
     }
 
     @Test

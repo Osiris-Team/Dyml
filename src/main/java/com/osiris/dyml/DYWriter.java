@@ -190,7 +190,8 @@ class DYWriter {
                                 DYValueContainer value = module.getValueByIndex(j);
                                 if (value != null) {
                                     writer.write(spaces + "  - ");
-                                    if (value.asString() != null) writeValueWithoutLineBreaks(writer, value.asString()); // Append the value
+                                    if (value.asString() != null)
+                                        writeValueWithoutLineBreaks(writer, value.asString()); // Append the value
                                     if (value.hasComment())
                                         writer.write(" # " + value.getComment()); // Append side comment to value
                                 }
@@ -204,7 +205,8 @@ class DYWriter {
                             if (module.getDefValues().size() == 1) {
                                 DYValueContainer defValue = module.getDefValue();
                                 if (defValue != null) {
-                                    if (defValue.asString() != null) writeValueWithoutLineBreaks(writer, defValue.asString());
+                                    if (defValue.asString() != null)
+                                        writeValueWithoutLineBreaks(writer, defValue.asString());
                                     if (defValue.hasComment())
                                         writer.write(" # " + defValue.getComment()); // Append side comment to value
                                 }
