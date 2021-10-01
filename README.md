@@ -360,11 +360,13 @@ encapsulated:
 DreamYaml yaml = new DreamYaml(System.getProperty("user.dir")+"/src/test/advanced-example.yml");
 yaml.lockFile(); // Ensures that no other thread can load the file until the lock is released 
 try{
+  yaml.load();
   yaml.put("name")         .setDefValues(new DYValue("John", "Value-Comment")).setDefComments("Key-Comment");
   yaml.put("last-name")    .setDefValues("Goldman");
   yaml.put("age")          .setDefValues("29");
   yaml.put("work")         .setDefValues("Reporter");
   yaml.put("pending-tasks").setDefValues("do research", "buy food", "start working");
+  yaml.save();
 }catch(Exception e){
   // Handle exception
 } finally{
