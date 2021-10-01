@@ -159,39 +159,6 @@ public class DreamYaml {
         init(isPostProcessingEnabled, isDebugEnabled);
     }
 
-    /**
-     * See {@link DreamYaml#lockFile()} for details. <br>
-     * Dev notes: <br>
-     * Must be synchronized to ensure thread-safety. <br>
-     */
-    public static synchronized void lockAFile(File file) {
-        Objects.requireNonNull(file);
-        ReentrantLock reentrantLock;
-        if (pathsAndLocks.containsKey(file.getAbsolutePath()))
-            reentrantLock = pathsAndLocks.get(file.getAbsolutePath());
-        else {
-            reentrantLock = new ReentrantLock();
-            pathsAndLocks.put(file.getAbsolutePath(), reentrantLock);
-        }
-        reentrantLock.lock(); // If another thread has already the locked, the current thread will wait at this position until it gets unlocked
-    }
-
-    /**
-     * See {@link DreamYaml#unlockFile()} for details. <br>
-     * Dev notes: <br>
-     * Cannot be a synchronized method, because that results in a deadlock! <br>
-     * I have no clue why though :/ <br>
-     * Seems to work fine nevertheless. <br>
-     */
-    public static void unlockAFile(File file) {
-        ReentrantLock lock;
-        if (pathsAndLocks.containsKey(file.getAbsolutePath())) {
-            lock = pathsAndLocks.get(file.getAbsolutePath()); // If another thread has already the locked, the current thread will wait until it gets unlocked
-            if (!lock.hasQueuedThreads())
-                pathsAndLocks.remove(file.getAbsolutePath());
-            lock.unlock();
-        }
-    }
 
     private void init(boolean isPostProcessingEnabled, boolean isDebugEnabled) {
         this.isPostProcessingEnabled = isPostProcessingEnabled;
@@ -233,7 +200,18 @@ public class DreamYaml {
      * </pre>
      */
     public void lockFile() {
-        lockAFile(file);
+        if (file != null) {
+            ReentrantLock lock;
+            synchronized (pathsAndLocks) {
+                if (pathsAndLocks.containsKey(file.getAbsolutePath()))
+                    lock = pathsAndLocks.get(file.getAbsolutePath());
+                else {
+                    lock = new ReentrantLock();
+                    pathsAndLocks.put(file.getAbsolutePath(), lock);
+                }
+            }
+            lock.lock(); // If another thread has already the locked, the current thread will wait at this position until it gets unlocked
+        }
     }
 
 
@@ -252,7 +230,17 @@ public class DreamYaml {
      * </pre>
      */
     public void unlockFile() {
-        unlockAFile(file);
+        if (file != null) {
+            ReentrantLock lock;
+            synchronized (pathsAndLocks) {
+                if (pathsAndLocks.containsKey(file.getAbsolutePath())) {
+                    lock = pathsAndLocks.get(file.getAbsolutePath()); // If another thread has already the locked, the current thread will wait until it gets unlocked
+                    lock.unlock();
+                    if (!lock.hasQueuedThreads())
+                        pathsAndLocks.remove(file.getAbsolutePath());
+                }
+            }
+        }
     }
 
     /**
