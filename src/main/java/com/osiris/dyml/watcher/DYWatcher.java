@@ -75,7 +75,7 @@ public class DYWatcher extends Thread {
      */
     public static synchronized DYWatcher getForPath(Path path) throws IOException {
         Path dirPath = path;
-        if (path.toFile().isFile()) dirPath = path.getParent();
+        if (!path.toFile().isDirectory()) dirPath = path.getParent();
         for (DYWatcher watcher :
                 activeWatchers) {
             for (File file :
@@ -360,5 +360,13 @@ public class DYWatcher extends Thread {
         }
         System.out.println(filesWithPath);
 
+    }
+
+    public List<DYRegisteredFile> getRegisteredFiles() {
+        return registeredFiles;
+    }
+
+    public Map<Path, WatchKey> getDirectoriesAndWatchKeys() {
+        return directoriesAndWatchKeys;
     }
 }

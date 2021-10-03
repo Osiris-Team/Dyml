@@ -158,6 +158,21 @@ public class DYModule {
     }
 
     /**
+     * Adds a value with a side-comment. <br>
+     * Example output in YAML: <br>
+     * <pre>
+     *     key: value # comment
+     * </pre>
+     * See {@link DYValueContainer#DYValueContainer(String, String)} for details.
+     * @param v value
+     * @param c comment
+     */
+    public DYModule addValueWithComment(String v, String c){
+        addValues(new DYValueContainer(v, c));
+        return this;
+    }
+
+    /**
      * See {@link #addValues(List)} for details.
      */
     public DYModule addValues(String... v) {
@@ -192,6 +207,21 @@ public class DYModule {
         } else
             this.values.add(new DYValueContainer((String) null));
 
+        return this;
+    }
+
+    /**
+     * Adds a default value with a side-comment. <br>
+     * Example output in YAML: <br>
+     * <pre>
+     *     key: value # comment
+     * </pre>
+     * See {@link DYValueContainer#DYValueContainer(String, String)} for details.
+     * @param v default value
+     * @param c comment
+     */
+    public DYModule addDefValueWithComment(String v, String c){
+        addDefValues(new DYValueContainer(v, c));
         return this;
     }
 
