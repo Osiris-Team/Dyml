@@ -124,7 +124,7 @@ public class DYWatcher extends Thread implements AutoCloseable {
 
     @Override
     public void close() throws Exception {
-        watchKey.cancel();
+        if (watchKey!=null) watchKey.cancel();
         watchService.close();
         activeWatchers.remove(this);
     }
