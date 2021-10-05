@@ -18,7 +18,7 @@ public class DYFileEvent {
 
     /**
      * Note that this will return null, if you did pass over null for 'yaml' at <br>
-     * {@link DYWatcher#addFileAndListeners(File, List, boolean, DreamYaml)}.
+     * {@link DYWatcher#addListeners(File, List, boolean, DreamYaml)}.
      */
     public DreamYaml getYaml() {
         return file.getYaml();

@@ -511,13 +511,13 @@ public class DreamYaml {
      */
     public DreamYaml addFileEventListener(DYFileEventListener<DYFileEvent> listener) throws IOException {
         if (watcher == null) watcher = DYWatcher.getForFile(file);
-        watcher.addFileAndListeners(file, Collections.singletonList(listener), false, this);
+        watcher.addListeners(listener);
         return this;
     }
 
-    public DreamYaml removeFileEventListener(DYFileEventListener<DYFileEvent> listener) {
+    public DreamYaml removeFileEventListener(DYFileEventListener<DYFileEvent> listener) throws Exception {
         Objects.requireNonNull(watcher);
-        watcher.removeFileAndListeners(file);
+        watcher.removeListeners(listener);
         return this;
     }
 

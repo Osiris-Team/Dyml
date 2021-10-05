@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.nio.file.StandardWatchEventKinds;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 class DYWatcherExample {
 
@@ -54,11 +55,17 @@ class DYWatcherExample {
         Thread.sleep(1000); // Wait 1 sec for watcher to receive event
 
         // Example for other files:
-        File readmeFile = new File(System.getProperty("user.dir")+"/README.md");
-        DYWatcher.getForFile(readmeFile).addFileAndListener(readmeFile, fileChangeEvent -> {
-            fileChangeEvent.getWatchEventKind();
-            // ...
+        AtomicBoolean changed = new AtomicBoolean(false);
+        File example2 = new File(System.getProperty("user.dir") + "/src/test/watcher-example2.txt");
+        if (!example2.exists()) example2.createNewFile();
+        DYWatcher.getForFile(example2).addListeners(fileChangeEvent -> {
+            System.out.println("Event'" + fileChangeEvent.getFile().getName() +
+                    "' because of '" + fileChangeEvent.getWatchEventKind() + "' event.");
+            changed.set(true);
         });
+        example2.delete();
+        while(!changed.get())
+            Thread.sleep(100);
     }
 
 }

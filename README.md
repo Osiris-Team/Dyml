@@ -401,10 +401,13 @@ yaml.addFileEventListener(event -> {
   <summary>WATCHING other files example</summary>
 <pre lang="java">
 File readmeFile = new File("README.md");
-DYWatcher.getForFile(readmeFile).addFileAndListener(readmeFile, fileChangeEvent -> {
+DYWatcher.getForFile(readmeFile).addListener(fileChangeEvent -> {
     fileChangeEvent.getWatchEventKind();
     // ...
-});
+});// Note that the listener will run until your application exits.
+// If you do the below however, the listener will close upon leaving the try/catch block.
+try(DYWatcher watcher = DYWatcher.getForFile(readmeFile)){
+}
 </pre>
 </details>
 
