@@ -175,13 +175,13 @@ public class DYWatcher extends Thread implements AutoCloseable {
     }
 
     public DYWatcher addListeners(DYFileEventListener<DYFileEvent>... listeners) throws IOException {
-        Objects.requireNonNull(listeners);
-        return addListeners(Arrays.asList(listeners));
+        if (listeners!=null) addListeners(Arrays.asList(listeners));
+        return this;
     }
 
     public DYWatcher addListeners(List<DYFileEventListener<DYFileEvent>> listeners) throws IOException {
         if (this.listeners==null) this.listeners = new ArrayList<>();
-        this.listeners.addAll(listeners);
+        if (listeners!=null) this.listeners.addAll(listeners);
         for (DYWatcher watcher :
                 subDirectoriesWatchers) {
             watcher.addListeners(listeners);
