@@ -41,6 +41,7 @@ public class DYWatcher extends Thread implements AutoCloseable {
     private WatchKey watchKey;
     private DreamYaml yaml;
     private List<DYFileEventListener<DYFileEvent>> listeners;
+    private List<DYWatcher> subDirectoriesWatchers = new ArrayList<>();
 
     private DYWatcher(DreamYaml yaml, boolean isWatchSubDirs) throws IOException {
         this.yaml = yaml;
@@ -111,7 +112,7 @@ public class DYWatcher extends Thread implements AutoCloseable {
                 watchKey = key;
                 for (WatchEvent<?> event :
                         key.pollEvents()) {
-                    if (this.listeners!=null)
+                    if (this.listeners!=null && !((Path) event.context()).toFile().isDirectory()) // Sub-directories have their own watchers
                         for (DYFileEventListener<DYFileEvent> listener :
                                 listeners) {
                             listener.runOnEvent(new DYFileEvent(registeredFile, event));
@@ -144,7 +145,11 @@ public class DYWatcher extends Thread implements AutoCloseable {
                 public FileVisitResult preVisitDirectory(Path path, BasicFileAttributes attrs)
                         throws IOException {
                     if (pos!=0) // First directory visit is always the current directory that is already beeing watched
-                        watchFile(path, true);
+                    {
+                        subDirectoriesWatchers.add(DYWatcher.getForPath(path, true)
+                                .addListeners(listeners)); // Remember to add the listeners
+                    }
+
                     pos++;
                     return FileVisitResult.CONTINUE;
                 }
@@ -160,29 +165,45 @@ public class DYWatcher extends Thread implements AutoCloseable {
     /**
      * See {@link #addListeners(File, List, boolean, DreamYaml)} for details. <br>
      */
-    public void setListeners(List<DYFileEventListener<DYFileEvent>> listeners) throws IOException {
+    public DYWatcher setListeners(List<DYFileEventListener<DYFileEvent>> listeners) throws IOException {
         this.listeners = listeners;
+        for (DYWatcher watcher :
+                subDirectoriesWatchers) {
+            watcher.setListeners(listeners);
+        }
+        return this;
     }
 
-    public void addListeners(DYFileEventListener<DYFileEvent>... listeners) throws IOException {
+    public DYWatcher addListeners(DYFileEventListener<DYFileEvent>... listeners) throws IOException {
         Objects.requireNonNull(listeners);
-        addListeners(Arrays.asList(listeners));
+        return addListeners(Arrays.asList(listeners));
     }
 
-    public void addListeners(List<DYFileEventListener<DYFileEvent>> listeners) throws IOException {
+    public DYWatcher addListeners(List<DYFileEventListener<DYFileEvent>> listeners) throws IOException {
         if (this.listeners==null) this.listeners = new ArrayList<>();
         this.listeners.addAll(listeners);
+        for (DYWatcher watcher :
+                subDirectoriesWatchers) {
+            watcher.addListeners(listeners);
+        }
+        return this;
     }
 
-    public void removeListeners(DYFileEventListener<DYFileEvent>... listeners) throws Exception {
+    public DYWatcher removeListeners(DYFileEventListener<DYFileEvent>... listeners) throws Exception {
         Objects.requireNonNull(listeners);
         removeListeners(Arrays.asList(listeners));
+        return this;
     }
 
-    public void removeListeners(List<DYFileEventListener<DYFileEvent>> listeners) throws Exception {
+    public DYWatcher removeListeners(List<DYFileEventListener<DYFileEvent>> listeners) throws Exception {
         this.listeners.removeAll(listeners);
         if (this.listeners.isEmpty())
             close();
+        for (DYWatcher watcher :
+                subDirectoriesWatchers) {
+            watcher.removeListeners(listeners);
+        }
+        return this;
     }
 
     public boolean isWatchSubDirs() {
