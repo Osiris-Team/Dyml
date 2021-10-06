@@ -61,13 +61,15 @@ public class DYWatcher extends Thread implements AutoCloseable {
     }
 
     private void init(Path path, boolean watchSubdirectories) throws IOException {
+        Objects.requireNonNull(path);
         this.watchService = FileSystems.getDefault().newWatchService();
         this.isWatchSubDirs = isWatchSubDirs();
-        if (path != null){
-            if (this.yaml==null) this.yaml = isYamlFile(path);
-            this.registeredFile = new DYRegisteredFile(path.toString(), this);
+        if (this.yaml==null) this.yaml = isYamlFile(path);
+        this.registeredFile = new DYRegisteredFile(path.toString(), this);
+        if (!path.toFile().isDirectory())
             watchFile(path.getParent(), watchSubdirectories);
-        }
+        else
+            watchFile(path, watchSubdirectories);
         start();
     }
 
@@ -80,8 +82,8 @@ public class DYWatcher extends Thread implements AutoCloseable {
     /**
      * See {@link #getForPath(Path)} for details.
      */
-    public static synchronized DYWatcher getForFile(File file) throws IOException {
-        return getForPath(file.toPath());
+    public static synchronized DYWatcher getForFile(File file, boolean isWatchSubDirs) throws IOException {
+        return getForPath(file.toPath(), isWatchSubDirs);
     }
 
     /**
@@ -89,7 +91,7 @@ public class DYWatcher extends Thread implements AutoCloseable {
      * the provided path and returns it. If the path is a file, it checks for the parent directory. <br>
      * Otherwise creates a new {@link DYWatcher} for the provided path and returns it. <br>
      */
-    public static synchronized DYWatcher getForPath(Path path) throws IOException {
+    public static synchronized DYWatcher getForPath(Path path, boolean isWatchSubDirs) throws IOException {
         Path dirPath = path;
         if (!path.toFile().isDirectory()) dirPath = path.getParent();
         for (DYWatcher watcher :
@@ -97,7 +99,7 @@ public class DYWatcher extends Thread implements AutoCloseable {
             if (watcher.getRegisteredFile().toPath().equals(path))
                 return watcher;
         }
-        return new DYWatcher(path, false);
+        return new DYWatcher(path, isWatchSubDirs);
     }
 
     @Override
@@ -132,13 +134,6 @@ public class DYWatcher extends Thread implements AutoCloseable {
     private void watchFile(Path path, boolean watchSubdirectories) throws IOException {
         if (!path.toFile().exists())
             throw new IOException("File '"+path.getFileName()+"' does not exist! Full path: "+path);
-
-        for (DYWatcher watcher :
-                activeWatchers) { // Check for existing registered file
-            if (watcher.getRegisteredFile().getParentFile().toPath().equals(path)) {
-                throw new IOException("Another DYWatcher object already exists for this path! Path: "+path.toString()+" Existing DYWatcher: "+watcher);
-            }
-        }
 
         WatchKey watchKey = path.register(watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY, OVERFLOW);
         if (watchSubdirectories) { // Add subdirectories if enabled

@@ -58,7 +58,7 @@ class DYWatcherExample {
         AtomicBoolean changed = new AtomicBoolean(false);
         File example2 = new File(System.getProperty("user.dir") + "/src/test/watcher-example2.txt");
         if (!example2.exists()) example2.createNewFile();
-        DYWatcher.getForFile(example2).addListeners(fileChangeEvent -> {
+        DYWatcher.getForFile(example2, false).addListeners(fileChangeEvent -> {
             System.out.println("Event'" + fileChangeEvent.getFile().getName() +
                     "' because of '" + fileChangeEvent.getWatchEventKind() + "' event.");
             changed.set(true);

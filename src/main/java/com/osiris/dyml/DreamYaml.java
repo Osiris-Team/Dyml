@@ -510,7 +510,7 @@ public class DreamYaml {
      * If {@link #watcher} is null, this method creates and starts a new {@link DYWatcher}.
      */
     public DreamYaml addFileEventListener(DYFileEventListener<DYFileEvent> listener) throws IOException {
-        if (watcher == null) watcher = DYWatcher.getForFile(file);
+        if (watcher == null) watcher = DYWatcher.getForFile(file, false);
         watcher.addListeners(listener);
         return this;
     }
