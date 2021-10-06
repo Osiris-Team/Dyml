@@ -3,17 +3,22 @@ package com.osiris.dyml.watcher;
 import com.osiris.dyml.DreamYaml;
 
 import java.io.File;
+import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.util.List;
 
 public class DYFileEvent {
-    private final DYRegisteredFile file;
-    private final WatchEvent parentWatchEvent;
+    private final DYRegisteredFile parentDirectory;
+    private final WatchEvent watchEvent;
+    private final File file;
+    private final Path path;
 
-    public DYFileEvent(DYRegisteredFile file, WatchEvent<?> parentWatchEvent) {
-        this.file = file;
-        this.parentWatchEvent = parentWatchEvent;
+    public DYFileEvent(DYRegisteredFile parentDirectory, WatchEvent<?> watchEvent) {
+        this.parentDirectory = parentDirectory;
+        this.watchEvent = watchEvent;
+        this.file = new File(parentDirectory+"/"+watchEvent.context());
+        this.path = file.toPath();
     }
 
     /**
@@ -21,21 +26,21 @@ public class DYFileEvent {
      * {@link DYWatcher#addListeners(File, List, boolean, DreamYaml)}.
      */
     public DreamYaml getYaml() {
-        return file.getYaml();
+        return parentDirectory.getYaml();
     }
 
     /**
      * Returns the file that caused this event.
      */
-    public DYRegisteredFile getFile() {
-        return file;
+    public DYRegisteredFile getParentDirectory() {
+        return parentDirectory;
     }
 
     /**
      * Returns the low-level {@link WatchEvent}.
      */
-    public WatchEvent getParentWatchEvent() {
-        return parentWatchEvent;
+    public WatchEvent getWatchEvent() {
+        return watchEvent;
     }
 
     /**
@@ -43,21 +48,29 @@ public class DYFileEvent {
      * For all event kinds see {@link StandardWatchEventKinds}.
      */
     public WatchEvent.Kind<?> getWatchEventKind() {
-        return this.parentWatchEvent.kind();
+        return this.watchEvent.kind();
+    }
+
+    public File getFile() {
+        return file;
+    }
+
+    public Path getPath() {
+        return path;
     }
 
     /**
      * Convenience method for returning the {@link WatchEvent#context()}.
      */
     public Object getWatchEventContext() {
-        return this.parentWatchEvent.context();
+        return this.watchEvent.context();
     }
 
     /**
      * Convenience method for returning the {@link WatchEvent#count()}.
      */
     public int getWatchEventCount() {
-        return this.parentWatchEvent.count();
+        return this.watchEvent.count();
     }
 
 }

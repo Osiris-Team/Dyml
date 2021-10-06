@@ -30,7 +30,7 @@ class DYWatcherExample {
                     event.getYaml().lockFile();
                     event.getYaml().load();
                     event.getYaml().unlockFile();
-                    System.out.println("Reloaded yaml file '" + event.getFile().getName() +
+                    System.out.println("Reloaded yaml file '" + event.getParentDirectory().getName() +
                             "' because of '" + event.getWatchEventKind() + "' event.");
                 }
             } catch (Exception e) {
@@ -59,7 +59,7 @@ class DYWatcherExample {
         File example2 = new File(System.getProperty("user.dir") + "/src/test/watcher-example2.txt");
         if (!example2.exists()) example2.createNewFile();
         DYWatcher.getForFile(example2, false).addListeners(fileChangeEvent -> {
-            System.out.println("Event'" + fileChangeEvent.getFile().getName() +
+            System.out.println("Event'" + fileChangeEvent.getParentDirectory().getName() +
                     "' because of '" + fileChangeEvent.getWatchEventKind() + "' event.");
             changed.set(true);
         });

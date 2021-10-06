@@ -138,10 +138,13 @@ public class DYWatcher extends Thread implements AutoCloseable {
         WatchKey watchKey = path.register(watchService, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY, OVERFLOW);
         if (watchSubdirectories) { // Add subdirectories if enabled
             Files.walkFileTree(path, new SimpleFileVisitor<Path>() {
+                int pos = 0;
                 @Override
                 public FileVisitResult preVisitDirectory(Path path, BasicFileAttributes attrs)
                         throws IOException {
-                    watchFile(path, true);
+                    if (pos!=0) // First directory visit is always the current directory that is already beeing watched
+                        watchFile(path, true);
+                    pos++;
                     return FileVisitResult.CONTINUE;
                 }
             });
