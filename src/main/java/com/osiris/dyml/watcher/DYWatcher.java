@@ -96,7 +96,7 @@ public class DYWatcher extends Thread implements AutoCloseable {
         if (!path.toFile().isDirectory()) dirPath = path.getParent();
         for (DYWatcher watcher :
                 activeWatchers) {
-            if (watcher.getRegisteredFile().toPath().equals(path))
+            if (watcher.getRegisteredFile().toPath().equals(path) && watcher.isAlive())
                 return watcher;
         }
         return new DYWatcher(path, isWatchSubDirs);
@@ -111,10 +111,11 @@ public class DYWatcher extends Thread implements AutoCloseable {
                 watchKey = key;
                 for (WatchEvent<?> event :
                         key.pollEvents()) {
-                    for (DYFileEventListener<DYFileEvent> listener :
-                            listeners) {
-                        listener.runOnEvent(new DYFileEvent(registeredFile, event));
-                    }
+                    if (this.listeners!=null)
+                        for (DYFileEventListener<DYFileEvent> listener :
+                                listeners) {
+                            listener.runOnEvent(new DYFileEvent(registeredFile, event));
+                        }
                 }
                 key.reset();
             }
