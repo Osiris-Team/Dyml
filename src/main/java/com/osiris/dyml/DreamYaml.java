@@ -511,7 +511,14 @@ public class DreamYaml {
      */
     public DreamYaml addFileEventListener(DYFileEventListener<DYFileEvent> listener) throws IOException {
         if (watcher == null) watcher = DYWatcher.getForFile(file, false);
-        watcher.addListeners(listener);
+        DYFileEventListener<DYFileEvent> yamlListener = new DYFileEventListener<DYFileEvent>() {
+            @Override
+            public void runOnEvent(DYFileEvent event) {
+                if (event.getPath().equals(file.toPath())) // To make sure that only events are thrown for the actual yaml file
+                    listener.runOnEvent(event);
+            }
+        };
+        watcher.addListeners(yamlListener);
         return this;
     }
 
