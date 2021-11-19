@@ -68,7 +68,7 @@ pending-tasks:
 ## More examples
 These examples build on top of each other, so make sure to follow the order.
 
-## Basics:
+#### Basics:
 <details>
   <summary>CORE features example</summary>
 <pre lang="java">
@@ -377,7 +377,7 @@ try{
 </pre>
 </details>
 
-## DreamYaml-Watcher:
+#### DreamYaml-Watcher:
  <details>
   <summary>WATCHING yaml files example</summary>
 <pre lang="java">
@@ -411,7 +411,7 @@ try(DYWatcher watcher = DYWatcher.getForFile(readmeFile)){
 </pre>
 </details>
 
-## DreamYaml-Database:
+#### DreamYaml-Database:
   <details>
   <summary>Simple DreamYamlDB example</summary>
 <pre lang="java">
