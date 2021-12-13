@@ -65,6 +65,19 @@ pending-tasks:
   - buy food
   - start working
 ```
+Coming soon, for very lazy people:
+```java
+Y y = new Y("my-file.yml");
+y.load();
+
+y.k("name").dv("John");
+y.k("last-name").dv("Goldman");
+y.k("age").dv("29");
+y.k("work").dv("Reporter");
+y.k("pending-tasks").dv("do research", "buy food", "start working");
+
+y.save();
+```
 ## More examples
 These examples build on top of each other, so make sure to follow the order.
 

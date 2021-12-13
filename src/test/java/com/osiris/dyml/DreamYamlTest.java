@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class DreamYamlTest {
 
     @Test
-    void codingStyle() {
+    void codingStyle() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
 
     }
 

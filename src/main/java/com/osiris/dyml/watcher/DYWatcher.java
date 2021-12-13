@@ -81,7 +81,7 @@ public class DYWatcher extends Thread implements AutoCloseable {
     }
 
     /**
-     * See {@link #getForPath(Path)} for details.
+     * See {@link #getForPath(Path, boolean)} for details.
      */
     public static synchronized DYWatcher getForFile(File file, boolean isWatchSubDirs) throws IOException {
         return getForPath(file.toPath(), isWatchSubDirs);
@@ -89,7 +89,7 @@ public class DYWatcher extends Thread implements AutoCloseable {
 
     /**
      * Checks if there is an existing {@link DYWatcher} for <br>
-     * the provided path and returns it. If the path is a file, it checks for the parent directory. <br>
+     * the provided path and returns it. If the path is a file, it checks for the files' parent directory. <br>
      * Otherwise creates a new {@link DYWatcher} for the provided path and returns it. <br>
      */
     public static synchronized DYWatcher getForPath(Path path, boolean isWatchSubDirs) throws IOException {
