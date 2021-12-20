@@ -1,17 +1,20 @@
 # Dream-Yaml [![](https://jitpack.io/v/Osiris-Team/Dream-Yaml.svg)](https://jitpack.io/#Osiris-Team/Dream-Yaml)
 The Java-API for processing YAML you've always dreamed of.
+
 ## Links
  - [API-Design](DESIGN.md)
  - Support and chat over at [Discord](https://discord.com/invite/GGNmtCC)
  - Support the development by [donating](https://www.paypal.com/donate?hosted_button_id=JNXQCWF2TF9W4)
+
 ## Installation
 [Click here for maven/gradle/sbt/leinigen instructions.](https://jitpack.io/#Osiris-Team/Dream-Yaml/LATEST) <br>
 Java 8+ required. <br>
 Make sure to watch this repository to get notified of future updates. <br>
+
 ## Motivation
-It started by not being able to find an API that fulfilled my needs in simplicity and performance.
-So I developed Dream-Yaml with the aim of having a simple, performant, and reliable API for processing YAML files.
-Currently, only the most essential parts of YAML are implemented.
+I wasn't able to find a Java API for YAML that had decent comments support, was simple but also feature rich and fast/performant.
+So I had to develop Dream-Yaml with those issues in mind.
+
 ## Features
 ```YAML
 # Comments and
