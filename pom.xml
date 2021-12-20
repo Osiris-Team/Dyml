@@ -14,7 +14,7 @@
 
     <groupId>com.osiris.dyml</groupId>
     <artifactId>dyml</artifactId>
-    <version>8.3</version>
+    <version>8.3.1</version>
     <packaging>jar</packaging>
 
     <name>Dream-Yaml</name>
