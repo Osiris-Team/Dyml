@@ -65,7 +65,7 @@ pending-tasks:
   - buy food
   - start working
 ```
-Coming soon, for very lazy people:
+Coming soon, for very lazy people (all shortcuts [here](SHORTCUTS.md)):
 ```java
 Y y = new Y("my-file.yml");
 y.load();

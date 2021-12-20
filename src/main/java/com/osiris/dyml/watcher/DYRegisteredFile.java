@@ -15,7 +15,7 @@ import java.net.URI;
 import java.util.List;
 
 public class DYRegisteredFile extends File {
-    private DYWatcher watcher;
+    private final DYWatcher watcher;
 
     public DYRegisteredFile(String pathname, DYWatcher watcher) {
         super(pathname);

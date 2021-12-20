@@ -164,10 +164,11 @@ public class DYModule {
      *     key: value # comment
      * </pre>
      * See {@link DYValueContainer#DYValueContainer(String, String)} for details.
+     *
      * @param v value
      * @param c comment
      */
-    public DYModule addValueWithComment(String v, String c){
+    public DYModule addValueWithComment(String v, String c) {
         addValues(new DYValueContainer(v, c));
         return this;
     }
@@ -217,10 +218,11 @@ public class DYModule {
      *     key: value # comment
      * </pre>
      * See {@link DYValueContainer#DYValueContainer(String, String)} for details.
+     *
      * @param v default value
      * @param c comment
      */
-    public DYModule addDefValueWithComment(String v, String c){
+    public DYModule addDefValueWithComment(String v, String c) {
         addDefValues(new DYValueContainer(v, c));
         return this;
     }

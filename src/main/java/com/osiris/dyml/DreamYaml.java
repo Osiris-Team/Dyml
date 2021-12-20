@@ -16,10 +16,7 @@ import com.osiris.dyml.watcher.DYFileEvent;
 import com.osiris.dyml.watcher.DYFileEventListener;
 import com.osiris.dyml.watcher.DYWatcher;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.PrintStream;
+import java.io.*;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantLock;
@@ -37,7 +34,7 @@ public class DreamYaml {
      * A final list, that contains {@link DYModule}s that are in editing. <br>
      * In contrary to the {@link #loadedModules} list, this list doesn't get cleared <br>
      * and its {@link DYModule}s stay the same, no matter how often you call {@link #load()}. <br>
-     * {@link DYModule}s get added to the list, by {@link #get(String...)}, {@link #put(String...)}, {@link #add(String...)} or {@link #replace(DYModule, DYModule)}.
+     * {@link DYModule}s get added to this list, by {@link #get(String...)}, {@link #put(String...)}, {@link #add(String...)} or {@link #replace(DYModule, DYModule)}.
      */
     private final List<DYModule> inEditModules = new ArrayList<>();
     /**
@@ -50,8 +47,9 @@ public class DreamYaml {
     private final UtilsDYModule utilsDYModule = new UtilsDYModule();
     private final UtilsFile utilsFile = new UtilsFile();
     // Yaml-Content:
-    private InputStream inputStream;
     private File file;
+    private InputStream inputStream;
+    private OutputStream outputStream;
     // General:
     private boolean isDebugEnabled;
     private boolean isLoaded = false;
@@ -69,19 +67,37 @@ public class DreamYaml {
     private DYWatcher watcher = null;
     // Logging:
     private DYDebugLogger debugLogger = new DYDebugLogger(System.out);
+
     /**
      * Initialises the {@link DreamYaml} object with useful features enabled. <br>
-     * See {@link #DreamYaml(InputStream, boolean, boolean)} for details.
+     * See {@link #DreamYaml(InputStream, OutputStream, boolean, boolean)} for details.
      */
-    public DreamYaml(InputStream inputStream) {
-        this(inputStream, true, false);
+    public DreamYaml(InputStream inputStream, OutputStream outputStream) {
+        this(inputStream, outputStream, true, false);
     }
+
     /**
      * Initialises the {@link DreamYaml} object with useful features enabled. <br>
-     * See {@link #DreamYaml(InputStream, boolean, boolean)} for details.
+     * See {@link #DreamYaml(InputStream, OutputStream, boolean, boolean)} for details.
      */
-    public DreamYaml(InputStream inputStream, boolean isDebugEnabled) {
-        this(inputStream, true, isDebugEnabled);
+    public DreamYaml(InputStream inputStream, OutputStream outputStream, boolean isDebugEnabled) {
+        this(inputStream, outputStream, true, isDebugEnabled);
+    }
+
+    /**
+     * Initialises the {@link DreamYaml} object.
+     *
+     * @param inputStream             Yaml content input. Is read from at {@link #load()}.
+     * @param outputStream            Yaml content output. Is written to at {@link #save()}.
+     * @param isPostProcessingEnabled Enabled by default. <br>
+     *                                You can also enable/disable specific post-processing options individually: <br>
+     *                                See {@link #isPostProcessingEnabled()} for details.
+     * @param isDebugEnabled          Disabled by default. Shows debugging stuff.
+     */
+    public DreamYaml(InputStream inputStream, OutputStream outputStream, boolean isPostProcessingEnabled, boolean isDebugEnabled) {
+        this.inputStream = inputStream;
+        this.outputStream = outputStream;
+        init(isPostProcessingEnabled, isDebugEnabled);
     }
 
 
@@ -102,6 +118,21 @@ public class DreamYaml {
     }
 
     /**
+     * Initialises the {@link DreamYaml} object.
+     *
+     * @param file                    Your yaml file.
+     * @param isPostProcessingEnabled Enabled by default. <br>
+     *                                You can also enable/disable specific post-processing options individually: <br>
+     *                                See {@link #isPostProcessingEnabled()} for details.
+     * @param isDebugEnabled          Disabled by default. Shows debugging stuff.
+     */
+    public DreamYaml(File file, boolean isPostProcessingEnabled, boolean isDebugEnabled) {
+        this.file = file;
+        init(isPostProcessingEnabled, isDebugEnabled);
+    }
+
+
+    /**
      * Initialises the {@link DreamYaml} object with useful features enabled. <br>
      * See {@link #DreamYaml(String, boolean, boolean)} for details.
      */
@@ -115,34 +146,6 @@ public class DreamYaml {
      */
     public DreamYaml(String filePath, boolean isDebugEnabled) {
         this(filePath, true, isDebugEnabled);
-    }
-
-    /**
-     * Initialises the {@link DreamYaml} object.
-     *
-     * @param inputStream             InputStream of yaml content.
-     * @param isPostProcessingEnabled Enabled by default. <br>
-     *                                You can also enable/disable specific post-processing options individually: <br>
-     *                                See {@link #isPostProcessingEnabled()} for details.
-     * @param isDebugEnabled          Disabled by default. Shows debugging stuff.
-     */
-    public DreamYaml(InputStream inputStream, boolean isPostProcessingEnabled, boolean isDebugEnabled) {
-        this.inputStream = inputStream;
-        init(isPostProcessingEnabled, isDebugEnabled);
-    }
-
-    /**
-     * Initialises the {@link DreamYaml} object.
-     *
-     * @param file                    Your yaml file.
-     * @param isPostProcessingEnabled Enabled by default. <br>
-     *                                You can also enable/disable specific post-processing options individually: <br>
-     *                                See {@link #isPostProcessingEnabled()} for details.
-     * @param isDebugEnabled          Disabled by default. Shows debugging stuff.
-     */
-    public DreamYaml(File file, boolean isPostProcessingEnabled, boolean isDebugEnabled) {
-        this.file = file;
-        init(isPostProcessingEnabled, isDebugEnabled);
     }
 
     /**
@@ -166,10 +169,10 @@ public class DreamYaml {
     }
 
     /**
-     * Loads the file into memory by parsing it into modules({@link DYModule}). <br>
+     * Loads the files' or streams' contents into memory by parsing it into modules({@link DYModule}). <br>
      * Creates a new file and its parent directories if they didn't exist already. <br>
      * You can return the list of modules with {@link #getAllLoaded()}. <br>
-     * Remember, that this updates your added modules values. <br>
+     * Remember, that this updates your {@link #inEditModules} values and parent/child modules. <br>
      * Also note that it post-processes the 'loaded modules'. <br>
      * You can also enable/disable specific post-processing options individually: <br>
      * See {@link #isPostProcessingEnabled()} for details.
@@ -284,22 +287,20 @@ public class DreamYaml {
      * Note that this method won't reload the file after. Use {@link #saveAndLoad()} instead. <br>
      * It's recommended to keep {@link #load()} and {@link #save()} timely close to each other, so the user  <br>
      * can't change the values in the meantime. <br>
-     * If the yaml file is missing some 'added modules', these get created using their values/default values.<br>
+     * If the yaml file is missing some {@link #inEditModules}, these get created using their values/default values.<br>
      * More info on this topic: <br>
      * {@link #isWriteDefaultValuesWhenEmptyEnabled()} <br>
      * {@link #createUnifiedList(List, List)} <br>
      * {@link DYModule#setDefValues(List)} <br>
      *
      * @param overwrite false by default.
-     *                  If true, the yaml file gets overwritten with only modules from the 'added modules list'.
-     *                  That means that everything that wasn't added via {@link #add(String...)} (loaded modules) will not exist in the file.
+     *                  If true, the yaml file gets overwritten with only modules from the {@link #inEditModules} list.
+     *                  That means that everything that wasn't added to that list (loaded modules) will not exist in the file.
      */
     public DreamYaml save(boolean overwrite) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException {
         if (this.isDebugEnabled) debugLogger.log(this, "Executing save()");
-        if (inputStream == null) {
-            if (!isLoaded) this.load();
-            new DYWriter().parse(this, overwrite, false);
-        }
+        if (!isLoaded) this.load();
+        new DYWriter().parse(this, overwrite, false);
         return this;
     }
 
@@ -529,17 +530,17 @@ public class DreamYaml {
     }
 
     /**
-     * This method returns a new unified list containing the loaded and added modules merged together. <br>
-     * The loaded modules list is used as 'base' and is overwritten/extended by the added modules list. <br>
+     * This method returns a new unified list containing the {@link #loadedModules} and {@link #inEditModules} merged together. <br>
+     * The loaded modules list is used as 'base' and is overwritten/extended by the {@link #inEditModules} list. <br>
      * This ensures, that the structure(hierarchies) of the loaded file stay the same <br>
      * and that new modules are inserted in the correct position. <br>
      * Logic: <br>
-     * 1. If the loaded modules list is empty, nothing needs to be done! Return added modules. <br>
-     * 2. Else go through the loaded modules and compare each module with the added modules list.
-     * If there is an added module with the same keys, add it to the unified list instead of the loaded module. <br>
-     * 3. If there are NEW modules in the added modules list, insert them into the right places of unified list. <br>
+     * 1. If the loaded modules list is empty, nothing needs to be done! Return {@link #inEditModules}. <br>
+     * 2. Else go through the loaded modules and compare each module with the {@link #inEditModules} list.
+     * If there is an inEdit module with the same keys, add it to the unified list instead of the loaded module. <br>
+     * 3. If there are NEW modules in the {@link #inEditModules} list, insert them into the right places of unified list. <br>
      *
-     * @return a fresh unified list containing loaded modules extended by added modules.
+     * @return a fresh unified list containing loaded modules extended by {@link #inEditModules}.
      */
     public List<DYModule> createUnifiedList(List<DYModule> inEditModules, List<DYModule> loadedModules) {
         if (loadedModules.isEmpty()) return inEditModules;
@@ -572,7 +573,7 @@ public class DreamYaml {
         }
         for (DYModule loadedModule :
                 loadedModules) {
-            // Check if there is the same 'added module' available
+            // Check if there is the same 'inEdit module' available
             DYModule existing = utilsDYModule.getExisting(loadedModule, copyInEditModules);
             if (existing != null) {
                 unifiedList.add(existing);
@@ -791,6 +792,10 @@ public class DreamYaml {
 
     public InputStream getInputStream() {
         return inputStream;
+    }
+
+    public OutputStream getOutputStream() {
+        return outputStream;
     }
 
     public UtilsDreamYaml getUtilsDreamYaml() {

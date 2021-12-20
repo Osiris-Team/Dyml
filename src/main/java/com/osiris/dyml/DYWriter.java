@@ -35,7 +35,11 @@ class DYWriter {
         if (file == null) throw new DYWriterException("File is null! Make sure to load it at least once!");
         if (!file.exists()) throw new DYWriterException("File '" + file.getName() + "' doesn't exist!");
 
-        BufferedWriter writer = new BufferedWriter(new FileWriter(file), 32768); // TODO compare speed with def buffer
+        BufferedWriter writer;
+        if (yaml.getOutputStream() != null)
+            writer = new BufferedWriter(new OutputStreamWriter(yaml.getOutputStream()), 32768); // TODO compare speed with def buffer
+        else
+            writer = new BufferedWriter(new FileWriter(file), 32768); // TODO compare speed with def buffer
         writer.write(""); // Clear old content
 
         if (reset) return;

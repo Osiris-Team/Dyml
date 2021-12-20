@@ -17,7 +17,7 @@ public class DYFileEvent {
     public DYFileEvent(DYRegisteredFile parentDirectory, WatchEvent<?> watchEvent) {
         this.parentDirectory = parentDirectory;
         this.watchEvent = watchEvent;
-        this.file = new File(parentDirectory+"/"+watchEvent.context());
+        this.file = new File(parentDirectory + "/" + watchEvent.context());
         this.path = file.toPath();
     }
 

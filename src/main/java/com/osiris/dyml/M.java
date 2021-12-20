@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * Useful for very lazy people.
  */
-public class M extends DYModule{
+public class M extends DYModule {
     public M(DreamYaml yaml) {
         super(yaml);
     }
