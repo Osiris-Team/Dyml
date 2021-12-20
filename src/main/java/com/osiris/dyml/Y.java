@@ -13,17 +13,23 @@ import com.osiris.dyml.exceptions.NotLoadedException;
 
 import java.io.File;
 import java.io.InputStream;
+import java.io.OutputStream;
 
 /**
  * Useful for very lazy people.
  */
 public class Y extends DreamYaml {
-    public Y(InputStream inputStream) {
-        super(inputStream);
+
+    public Y(InputStream inputStream, OutputStream outputStream) {
+        super(inputStream, outputStream);
     }
 
-    public Y(InputStream inputStream, boolean isDebugEnabled) {
-        super(inputStream, isDebugEnabled);
+    public Y(InputStream inputStream, OutputStream outputStream, boolean isDebugEnabled) {
+        super(inputStream, outputStream, isDebugEnabled);
+    }
+
+    public Y(InputStream inputStream, OutputStream outputStream, boolean isPostProcessingEnabled, boolean isDebugEnabled) {
+        super(inputStream, outputStream, isPostProcessingEnabled, isDebugEnabled);
     }
 
     public Y(File file) {
@@ -34,20 +40,16 @@ public class Y extends DreamYaml {
         super(file, isDebugEnabled);
     }
 
+    public Y(File file, boolean isPostProcessingEnabled, boolean isDebugEnabled) {
+        super(file, isPostProcessingEnabled, isDebugEnabled);
+    }
+
     public Y(String filePath) {
         super(filePath);
     }
 
     public Y(String filePath, boolean isDebugEnabled) {
         super(filePath, isDebugEnabled);
-    }
-
-    public Y(InputStream inputStream, boolean isPostProcessingEnabled, boolean isDebugEnabled) {
-        super(inputStream, isPostProcessingEnabled, isDebugEnabled);
-    }
-
-    public Y(File file, boolean isPostProcessingEnabled, boolean isDebugEnabled) {
-        super(file, isPostProcessingEnabled, isDebugEnabled);
     }
 
     public Y(String filePath, boolean isPostProcessingEnabled, boolean isDebugEnabled) {
