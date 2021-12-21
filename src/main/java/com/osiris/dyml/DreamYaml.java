@@ -29,44 +29,105 @@ import java.util.concurrent.locks.ReentrantLock;
 public class DreamYaml {
 
     // Thread safety:
-    private static final Map<String, ReentrantLock> pathsAndLocks = new HashMap<>();
+    /**
+     * See {@link #lockFile()} and {@link #unlockFile()} for details.
+     */
+    public static final Map<String, ReentrantLock> pathsAndLocks = new HashMap<>();
     /**
      * A final list, that contains {@link DYModule}s that are in editing. <br>
      * In contrary to the {@link #loadedModules} list, this list doesn't get cleared <br>
      * and its {@link DYModule}s stay the same, no matter how often you call {@link #load()}. <br>
      * {@link DYModule}s get added to this list, by {@link #get(String...)}, {@link #put(String...)}, {@link #add(String...)} or {@link #replace(DYModule, DYModule)}.
      */
-    private final List<DYModule> inEditModules = new ArrayList<>();
+    public final List<DYModule> inEditModules = new ArrayList<>();
     /**
      * A final list, that contains loaded {@link DYModule}s. <br>
      * It gets cleared and refilled with new {@link DYModule}s in {@link #load()}. <br>
      */
-    private final List<DYModule> loadedModules = new ArrayList<>();
+    public final List<DYModule> loadedModules = new ArrayList<>();
     // Utils:
-    private final UtilsDreamYaml utilsDreamYaml = new UtilsDreamYaml(this);
-    private final UtilsDYModule utilsDYModule = new UtilsDYModule();
-    private final UtilsFile utilsFile = new UtilsFile();
+    public final UtilsDreamYaml utilsDreamYaml = new UtilsDreamYaml(this);
+    public final UtilsDYModule utilsDYModule = new UtilsDYModule();
+    public final UtilsFile utilsFile = new UtilsFile();
     // Yaml-Content:
-    private File file;
-    private InputStream inputStream;
-    private OutputStream outputStream;
+    public File file;
+    public InputStream inputStream;
+    public OutputStream outputStream;
     // General:
-    private boolean isDebugEnabled;
-    private boolean isLoaded = false;
+    public boolean isDebugEnabled;
+    /**
+     * True if {@link #load()} was called successfully once.
+     */
+    public boolean isLoaded = false;
+    public boolean isIgnoreNotLoadedException = false;
     // Post-Processing:
-    private boolean isPostProcessingEnabled;
-    private boolean isTrimLoadedValuesEnabled = true;
-    private boolean isRemoveQuotesFromLoadedValuesEnabled = true;
-    private boolean isRemoveLoadedNullValuesEnabled = true;
-    private boolean isTrimCommentsEnabled = true;
+    /**
+     * Enabled by default. Convenience method for toggling post-processing.<br>
+     * When disabled none of the post-processing options gets run, no matter if they are enabled/disabled. <br>
+     * Post-Processing happens inside {@link #load()}. <br>
+     * Some available options are: <br>
+     * {@link #isTrimCommentsEnabled} <br>
+     * {@link #isTrimLoadedValuesEnabled} <br>
+     * {@link #isRemoveQuotesFromLoadedValuesEnabled} <br>
+     * etc...
+     */
+    public boolean isPostProcessingEnabled = true;
+    /**
+     * Enabled by default. Part of post-processing. <br>
+     * Trims the loaded {@link DYValueContainer}. Example: <br>
+     * <pre>
+     * String before: '  hello there  '
+     * String after: 'hello there'
+     * Result: removed 4 spaces.
+     * </pre>
+     */
+    public boolean isTrimLoadedValuesEnabled = true;
+    /**
+     * Enabled by default. Part of post-processing. <br>
+     * Removes quotation marks ("" or '') from the loaded {@link DYValueContainer}. Example: <br>
+     * <pre>
+     * String before: "hello there"
+     * String after: hello there
+     * Result: removed 2 quotation-marks.
+     * </pre>
+     */
+    public boolean isRemoveQuotesFromLoadedValuesEnabled = true;
+    /**
+     * Enabled by default. Part of post-processing. <br>
+     * If {@link DYValueContainer#asString()} returns null, the whole {@link DYValueContainer} gets removed from the modules values list. <br>
+     */
+    public boolean isRemoveLoadedNullValuesEnabled = true;
+    /**
+     * Enabled by default. Part of post-processing. <br>
+     * Trims the loaded key- and value-comments. Example: <br>
+     * <pre>
+     * String before: '  hello there  '
+     * String after: 'hello there'
+     * Result: removed 4 spaces.
+     * </pre>
+     */
+    public boolean isTrimCommentsEnabled = true;
     // Modules:
-    private boolean isReturnDefaultWhenValueIsNullEnabled = true;
-    private boolean isWriteDefaultValuesWhenEmptyEnabled = true;
-    private boolean isWriteDefaultCommentsWhenEmptyEnabled = true;
+    /**
+     * Enabled by default. <br>
+     * Null values return their default values as fallback.<br>
+     * See {@link DYModule#getValueByIndex(int)} for details.
+     */
+    public boolean isReturnDefaultWhenValueIsNullEnabled = true;
+    /**
+     * Enabled by default. <br>
+     * If there are no values to write, write the default values.
+     */
+    public boolean isWriteDefaultValuesWhenEmptyEnabled = true;
+    /**
+     * Enabled by default. <br>
+     * If there are no comments to write, write the default comments.
+     */
+    public boolean isWriteDefaultCommentsWhenEmptyEnabled = true;
     // Watcher:
-    private DYWatcher watcher = null;
+    public DYWatcher watcher = null;
     // Logging:
-    private DYDebugLogger debugLogger = new DYDebugLogger(System.out);
+    public DYDebugLogger debugLogger = new DYDebugLogger(System.out);
 
     /**
      * Initialises the {@link DreamYaml} object with useful features enabled. <br>
@@ -87,11 +148,11 @@ public class DreamYaml {
     /**
      * Initialises the {@link DreamYaml} object.
      *
-     * @param inputStream             Yaml content input. Is read from at {@link #load()}.
-     * @param outputStream            Yaml content output. Is written to at {@link #save()}.
+     * @param inputStream             Yaml content input. Is read from at {@link #load()}. If null, {@link #load()} will do nothing.
+     * @param outputStream            Yaml content output. Is written to at {@link #save()}. If null, {@link #save()} will do nothing.
      * @param isPostProcessingEnabled Enabled by default. <br>
      *                                You can also enable/disable specific post-processing options individually: <br>
-     *                                See {@link #isPostProcessingEnabled()} for details.
+     *                                See {@link #isPostProcessingEnabled} for details.
      * @param isDebugEnabled          Disabled by default. Shows debugging stuff.
      */
     public DreamYaml(InputStream inputStream, OutputStream outputStream, boolean isPostProcessingEnabled, boolean isDebugEnabled) {
@@ -120,10 +181,10 @@ public class DreamYaml {
     /**
      * Initialises the {@link DreamYaml} object.
      *
-     * @param file                    Your yaml file.
+     * @param file                    Your yaml file. If null, {@link #load()} and {@link #save()} will do nothing.
      * @param isPostProcessingEnabled Enabled by default. <br>
      *                                You can also enable/disable specific post-processing options individually: <br>
-     *                                See {@link #isPostProcessingEnabled()} for details.
+     *                                See {@link #isPostProcessingEnabled} for details.
      * @param isDebugEnabled          Disabled by default. Shows debugging stuff.
      */
     public DreamYaml(File file, boolean isPostProcessingEnabled, boolean isDebugEnabled) {
@@ -151,10 +212,10 @@ public class DreamYaml {
     /**
      * Initialises the {@link DreamYaml} object.
      *
-     * @param filePath                Your yaml files path.
+     * @param filePath                Your yaml files path. If null, {@link #load()} and {@link #save()} will do nothing.
      * @param isPostProcessingEnabled Enabled by default. <br>
      *                                You can also enable/disable specific post-processing options individually: <br>
-     *                                See {@link #isPostProcessingEnabled()} for details.
+     *                                See {@link #isPostProcessingEnabled} for details.
      * @param isDebugEnabled          Disabled by default. Shows debugging stuff.
      */
     public DreamYaml(String filePath, boolean isPostProcessingEnabled, boolean isDebugEnabled) {
@@ -820,203 +881,12 @@ public class DreamYaml {
         return this;
     }
 
-    /**
-     * Enabled by default. Convenience method for toggling post-processing.<br>
-     * When disabled none of the post-processing options gets run, no matter if they are enabled/disabled. <br>
-     * Post-Processing happens inside {@link #load()}. <br>
-     * All available options are: <br>
-     * {@link #setTrimLoadedValuesEnabled(boolean)} <br>
-     * {@link #setRemoveQuotesFromLoadedValuesEnabled(boolean)} <br>
-     * {@link #setRemoveLoadedNullValuesEnabled(boolean)} <br>
-     */
-    public boolean isPostProcessingEnabled() {
-        return isPostProcessingEnabled;
-    }
-
-    /**
-     * Enabled by default.<br>
-     * Convenience method for enabling/disabling all post-processing options. <br>
-     * Post-Processing happens inside {@link #load()}. <br>
-     * All available options are: <br>
-     * {@link #setTrimLoadedValuesEnabled(boolean)} <br>
-     * {@link #setRemoveQuotesFromLoadedValuesEnabled(boolean)} <br>
-     * {@link #setRemoveLoadedNullValuesEnabled(boolean)} <br>
-     */
-    public DreamYaml setPostProcessingEnabled(boolean postProcessingEnabled) {
-        this.isPostProcessingEnabled = postProcessingEnabled;
-        return this;
-    }
-
-    /**
-     * Enabled by default. Part of post-processing.<br>
-     * Trims the loaded {@link DYValueContainer}. Example: <br>
-     * <pre>
-     * String before: '  hello there  '
-     * String after: 'hello there'
-     * Result: removed 4 spaces.
-     * </pre>
-     */
-    public boolean isTrimLoadedValuesEnabled() {
-        return isTrimLoadedValuesEnabled;
-    }
-
-    /**
-     * Enabled by default. Part of post-processing. <br>
-     * Trims the loaded {@link DYValueContainer}. Example: <br>
-     * <pre>
-     * String before: '  hello there  '
-     * String after: 'hello there'
-     * Result: removed 4 spaces.
-     * </pre>
-     */
-    public DreamYaml setTrimLoadedValuesEnabled(boolean trimLoadedValuesEnabled) {
-        isTrimLoadedValuesEnabled = trimLoadedValuesEnabled;
-        return this;
-    }
-
-    /**
-     * Enabled by default. Part of post-processing. <br>
-     * Removes quotation marks ("" or '') from the loaded {@link DYValueContainer}. Example: <br>
-     * <pre>
-     * String before: "hello there"
-     * String after: hello there
-     * Result: removed 2 quotation-marks.
-     * </pre>
-     */
-    public boolean isRemoveQuotesFromLoadedValuesEnabled() {
-        return isRemoveQuotesFromLoadedValuesEnabled;
-    }
-
-    /**
-     * Enabled by default. Part of post-processing. <br>
-     * Removes quotation marks ("" or '') from the loaded {@link DYValueContainer}. Example: <br>
-     * <pre>
-     * String before: "hello there"
-     * String after: hello there
-     * Result: removed 2 quotation-marks.
-     * </pre>
-     */
-    public DreamYaml setRemoveQuotesFromLoadedValuesEnabled(boolean removeQuotesFromLoadedValuesEnabled) {
-        isRemoveQuotesFromLoadedValuesEnabled = removeQuotesFromLoadedValuesEnabled;
-        return this;
-    }
-
-    /**
-     * Enabled by default. Part of post-processing. <br>
-     * If {@link DYValueContainer#asString()} returns null, the whole {@link DYValueContainer} gets removed from the modules values list. <br>
-     */
-    public boolean isRemoveLoadedNullValuesEnabled() {
-        return isRemoveLoadedNullValuesEnabled;
-    }
-
-    /**
-     * Enabled by default. Part of post-processing. <br>
-     * If {@link DYValueContainer#asString()} returns null, the whole {@link DYValueContainer} gets removed from the modules values list. <br>
-     */
-    public DreamYaml setRemoveLoadedNullValuesEnabled(boolean removeLoadedNullValuesEnabled) {
-        isRemoveLoadedNullValuesEnabled = removeLoadedNullValuesEnabled;
-        return this;
-    }
-
-    public UtilsFile getUtilsFile() {
-        return utilsFile;
-    }
-
-    /**
-     * Enabled by default. Part of post-processing. <br>
-     * Trims the loaded key-/value-comments. Example: <br>
-     * <pre>
-     * String before: '  hello there  '
-     * String after: 'hello there'
-     * Result: removed 4 spaces.
-     * </pre>
-     */
-    public boolean isTrimCommentsEnabled() {
-        return isTrimCommentsEnabled;
-    }
-
-    /**
-     * Enabled by default. Part of post-processing. <br>
-     * Trims the loaded key-/value-comments. Example: <br>
-     * <pre>
-     * String before: '  hello there  '
-     * String after: 'hello there'
-     * Result: removed 4 spaces.
-     * </pre>
-     */
-    public void setTrimCommentsEnabled(boolean trimCommentsEnabled) {
-        isTrimCommentsEnabled = trimCommentsEnabled;
-    }
 
 
-    // CONFIGS FOR MODULES
 
 
-    /**
-     * Enabled by default. <br>
-     * Null values return their default values as fallback.<br>
-     * See {@link DYModule#getValueByIndex(int)} for details.
-     */
-    public boolean isReturnDefaultWhenValueIsNullEnabled() {
-        return isReturnDefaultWhenValueIsNullEnabled;
-    }
 
-    /**
-     * Enabled by default. <br>
-     * Null values return their default values as fallback. <br>
-     * See {@link      * See {@link DYModule#getValueByIndex(int)} for details.#getValueByIndex(int)} for details.
-     */
-    public DreamYaml setReturnDefaultWhenValueIsNullEnabled(boolean returnDefaultWhenValueIsNullEnabled) {
-        this.isReturnDefaultWhenValueIsNullEnabled = returnDefaultWhenValueIsNullEnabled;
-        return this;
-    }
 
-    /**
-     * Enabled by default. <br>
-     * If there are no values to write, write the default values.
-     */
-    public boolean isWriteDefaultValuesWhenEmptyEnabled() {
-        return isWriteDefaultValuesWhenEmptyEnabled;
-    }
 
-    /**
-     * Enabled by default. <br>
-     * If there are no values to write, write the default values.
-     */
-    public DreamYaml setWriteDefaultValuesWhenEmptyEnabled(boolean writeDefaultValuesWhenEmptyEnabled) {
-        isWriteDefaultValuesWhenEmptyEnabled = writeDefaultValuesWhenEmptyEnabled;
-        return this;
-    }
-
-    /**
-     * Enabled by default. <br>
-     * If there are no comments to write, write the default comments.
-     */
-    public boolean isWriteDefaultCommentsWhenEmptyEnabled() {
-        return isWriteDefaultCommentsWhenEmptyEnabled;
-    }
-
-    /**
-     * Enabled by default. <br>
-     * If there are no comments to write, write the default comments.
-     */
-    public void setWriteDefaultCommentsWhenEmptyEnabled(boolean writeDefaultCommentsWhenEmptyEnabled) {
-        isWriteDefaultCommentsWhenEmptyEnabled = writeDefaultCommentsWhenEmptyEnabled;
-    }
-
-    public DYDebugLogger getDebugLogger() {
-        return debugLogger;
-    }
-
-    public void setDebugLogger(DYDebugLogger debugLogger) {
-        this.debugLogger = debugLogger;
-    }
-
-    /**
-     * True if {@link #load()} was called successfully once.
-     */
-    public boolean isLoaded() {
-        return isLoaded;
-    }
 }
 

@@ -14,7 +14,10 @@ import com.osiris.dyml.exceptions.IllegalListException;
 import com.osiris.dyml.utils.UtilsDYModule;
 import com.osiris.dyml.utils.UtilsTimeStopper;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -43,15 +46,17 @@ class DYReader {
             System.out.println("Started reading yaml " + (yaml.getInputStream() == null ? "file: " + yaml.getFile().getName() : "InputStream") + " at " + new Date());
         }
 
-        BufferedReader reader;
-        if (yaml.getInputStream() == null) {
-            File file = yaml.getFile();
-            if (file == null) throw new DYReaderException("File is null! Make sure to load it at least once!");
-            if (!file.exists()) throw new DYReaderException("File '" + file.getName() + "' doesn't exist!");
-
-            reader = new BufferedReader(new FileReader(file));
-        } else {
+        BufferedReader reader = null;
+        if (yaml.file != null) {
+            if (!yaml.file.exists()) throw new DYReaderException("File '" + yaml.file.getName() + "' doesn't exist!");
+            reader = new BufferedReader(new FileReader(yaml.file));
+        }
+        if (yaml.inputStream!=null){
             reader = new BufferedReader(new InputStreamReader(yaml.getInputStream()));
+        }
+        if (reader==null){
+            System.out.println("File and InputStream are both null. Nothing to read/load yaml from!");
+            return;
         }
         yaml.getAllLoaded().clear();
 
@@ -84,27 +89,27 @@ class DYReader {
 
         // Do post processing if enabled
         UtilsDYModule utils = new UtilsDYModule();
-        if (yaml.isPostProcessingEnabled()) {
+        if (yaml.isPostProcessingEnabled) {
 
-            if (yaml.isTrimLoadedValuesEnabled())
+            if (yaml.isTrimLoadedValuesEnabled)
                 for (DYModule m :
                         yaml.getAllLoaded()) {
                     utils.trimValues(m.getValues());
                 }
 
-            if (yaml.isRemoveQuotesFromLoadedValuesEnabled())
+            if (yaml.isRemoveQuotesFromLoadedValuesEnabled)
                 for (DYModule m :
                         yaml.getAllLoaded()) {
                     utils.removeQuotesFromValues(m.getValues());
                 }
 
-            if (yaml.isRemoveLoadedNullValuesEnabled())
+            if (yaml.isRemoveLoadedNullValuesEnabled)
                 for (DYModule m :
                         yaml.getAllLoaded()) {
                     utils.removeNullValues(m.getValues());
                 }
 
-            if (yaml.isTrimCommentsEnabled())
+            if (yaml.isTrimCommentsEnabled)
                 for (DYModule m :
                         yaml.getAllLoaded()) {
                     utils.trimComments(m.getComments());

@@ -13,7 +13,7 @@ class DYModuleTest {
     void nullAndFallbackTests() throws Exception {
         DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/null-values-test.yml");
         yaml.load();
-        yaml.setReturnDefaultWhenValueIsNullEnabled(false); // Disable to check values
+        yaml.isReturnDefaultWhenValueIsNullEnabled = false; // Disable to check values
         yaml.reset(); // Make sure the file is empty
         DYModule nullValueModule = yaml.add("i have no value")
                 .setValues((String) null)
@@ -29,7 +29,7 @@ class DYModuleTest {
         assertNull(nullValueModule.getValue().asString());
         assertNotNull(nullValueModule.getDefValue().asString());
 
-        yaml.setReturnDefaultWhenValueIsNullEnabled(true); // Enable
+        yaml.isReturnDefaultWhenValueIsNullEnabled = true; // Enable
         assertNotNull(nullValueModule.getValue().asString());
         assertNotNull(nullValueModule.getDefValue().asString());
 

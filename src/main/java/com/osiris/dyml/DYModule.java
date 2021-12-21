@@ -360,7 +360,7 @@ public class DYModule {
         } catch (Exception ignored) {
         }
 
-        if (v.asString() == null && yaml.isReturnDefaultWhenValueIsNullEnabled())
+        if (v.asString() == null && yaml.isReturnDefaultWhenValueIsNullEnabled)
             return getDefValueByIndex(i);
         return v;
     }

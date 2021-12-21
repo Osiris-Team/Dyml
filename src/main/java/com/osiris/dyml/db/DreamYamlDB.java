@@ -88,7 +88,7 @@ public class DreamYamlDB {
     private void init(DreamYaml yaml) {
         Objects.requireNonNull(yaml);
         this.yaml = yaml;
-        yaml.setRemoveLoadedNullValuesEnabled(false);
+        yaml.isRemoveLoadedNullValuesEnabled = false;
     }
 
     public DreamYaml getYaml() {

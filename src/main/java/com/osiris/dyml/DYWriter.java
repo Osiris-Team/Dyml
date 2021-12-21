@@ -23,25 +23,26 @@ class DYWriter {
 
     public void parse(DreamYaml yaml, boolean overwrite, boolean reset) throws DYWriterException, IOException {
         this.yaml = yaml;
-        DYDebugLogger logger = yaml.getDebugLogger();
+        DYDebugLogger logger = yaml.debugLogger;
 
         UtilsTimeStopper timer = new UtilsTimeStopper();
         timer.start();
         if (yaml.isDebugEnabled())
             logger.log(this, "Started writing yaml file: " + yaml.getFile().getName() + " at " + new Date() + " with overwrite: " + overwrite + " and reset: " + reset);
 
-
-        File file = yaml.getFile();
-        if (file == null) throw new DYWriterException("File is null! Make sure to load it at least once!");
-        if (!file.exists()) throw new DYWriterException("File '" + file.getName() + "' doesn't exist!");
-
-        BufferedWriter writer;
+        BufferedWriter writer = null;
         if (yaml.getOutputStream() != null)
             writer = new BufferedWriter(new OutputStreamWriter(yaml.getOutputStream()), 32768); // TODO compare speed with def buffer
-        else
-            writer = new BufferedWriter(new FileWriter(file), 32768); // TODO compare speed with def buffer
-        writer.write(""); // Clear old content
+        if(yaml.file != null){
+            if(!yaml.file.exists()) throw new DYWriterException("File '" + yaml.file.getName() + "' doesn't exist!");
+            writer = new BufferedWriter(new FileWriter(yaml.file), 32768); // TODO compare speed with def buffer
+        }
+        if (writer == null){
+            System.out.println("File and OutputStream are both null. Nothing to write yaml to!");
+            return;
+        }
 
+        writer.write(""); // Clear old content
         if (reset) return;
 
         List<DYModule> modulesToSave;
@@ -52,7 +53,7 @@ class DYWriter {
             modulesToSave = yaml.createUnifiedList(yaml.getAllInEdit(), yaml.getAllLoaded());
 
         if (modulesToSave.isEmpty() && yaml.isDebugEnabled())
-            yaml.getDebugLogger().log(this, "The modules list is empty. Written an empty file.");
+            logger.log(this, "The modules list is empty. Written an empty file.");
 
 
         DYModule lastModule = new DYModule(yaml); // Create an empty module as start point
@@ -152,7 +153,7 @@ class DYWriter {
                                 writer.flush();
                             }
                         }
-                    } else if (yaml.isWriteDefaultCommentsWhenEmptyEnabled()) {
+                    } else if (yaml.isWriteDefaultCommentsWhenEmptyEnabled) {
                         for (String comment :
                                 module.getComments()) {
                             // Adds support for Strings containing \n to split up comments
@@ -204,7 +205,7 @@ class DYWriter {
                                 writer.flush();
                             }
                         }
-                    } else if (yaml.isWriteDefaultValuesWhenEmptyEnabled()) {
+                    } else if (yaml.isWriteDefaultValuesWhenEmptyEnabled) {
                         if (module.getDefValues() != null && !module.getDefValues().isEmpty()) {
                             if (module.getDefValues().size() == 1) {
                                 DYValueContainer defValue = module.getDefValue();

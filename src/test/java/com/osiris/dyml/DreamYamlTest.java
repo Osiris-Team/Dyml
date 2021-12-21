@@ -20,7 +20,7 @@ class DreamYamlTest {
     void threadSafetyTest() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException, InterruptedException {
 
         List<Thread> threads = new ArrayList<>();
-        for (int i = 0; i < 1000; i++) {
+        for (int i = 0; i < 10; i++) { // Don't make this too big, since github actions will take very long and abort the build then
             threads.add(new Thread(() -> {
                 for (int f = 0; f < 10; f++) {
                     DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml");
