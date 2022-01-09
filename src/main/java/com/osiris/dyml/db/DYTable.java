@@ -1,7 +1,7 @@
 package com.osiris.dyml.db;
 
 import com.osiris.dyml.DYModule;
-import com.osiris.dyml.DYValueContainer;
+import com.osiris.dyml.DYValue;
 import com.osiris.dyml.DreamYaml;
 import com.osiris.dyml.exceptions.*;
 
@@ -30,7 +30,7 @@ public class DYTable {
      * @throws IndexOutOfBoundsException when the row at the provided index does not exist.
      */
     public DYRow getRow(int index) {
-        Map<DYValueContainer, DYColumn> valuesAndColumns = new HashMap<>();
+        Map<DYValue, DYColumn> valuesAndColumns = new HashMap<>();
         for (DYColumn col :
                 getColumns()) {
             valuesAndColumns.put(col.get(index), col);
@@ -39,12 +39,12 @@ public class DYTable {
     }
 
     /**
-     * Returns the {@link DYRow} at the provided index, as a list of {@link DYValueContainer}s. <br>
+     * Returns the {@link DYRow} at the provided index, as a list of {@link DYValue}s. <br>
      *
      * @throws IndexOutOfBoundsException when the row at the provided index does not exist.
      */
-    public List<DYValueContainer> getRowAsList(int index) {
-        List<DYValueContainer> row = new ArrayList<>();
+    public List<DYValue> getRowAsList(int index) {
+        List<DYValue> row = new ArrayList<>();
         for (DYColumn col :
                 getColumns()) {
             row.add(col.get(index));
@@ -136,7 +136,7 @@ public class DYTable {
      *
      * @throws IndexOutOfBoundsException if the row at the provided index does not exist.
      */
-    public DYTable setRow(int index, DYValueContainer... values) {
+    public DYTable setRow(int index, DYValue... values) {
         List<DYColumn> columns = getColumns();
         for (DYColumn col :
                 columns) {
@@ -237,11 +237,11 @@ public class DYTable {
     public List<DYRow> getValuesEqualTo(DYColumn column, String value) {
         List<DYRow> results = new ArrayList<>();
         int index = 0;
-        for (DYValueContainer v :
+        for (DYValue v :
                 column.getValues()) {
             if (v.asString() != null && v.asString().equals(value)) {
                 // Get the other columns values at the current index position
-                Map<DYValueContainer, DYColumn> map = new HashMap<>();
+                Map<DYValue, DYColumn> map = new HashMap<>();
                 for (DYColumn col :
                         getColumns()) {
                     map.put(col.get(index), col);
@@ -263,11 +263,11 @@ public class DYTable {
     public List<DYRow> getValuesBiggerThan(DYColumn column, long value) {
         List<DYRow> results = new ArrayList<>();
         int index = 0;
-        for (DYValueContainer v :
+        for (DYValue v :
                 column.getValues()) {
             if (v.asLong() > value) {
                 // Get the other columns values at the current index position
-                Map<DYValueContainer, DYColumn> map = new HashMap<>();
+                Map<DYValue, DYColumn> map = new HashMap<>();
                 for (DYColumn col :
                         getColumns()) {
                     map.put(col.get(index), col);
@@ -289,11 +289,11 @@ public class DYTable {
     public List<DYRow> getValuesBiggerThan(DYColumn column, double value) {
         List<DYRow> results = new ArrayList<>();
         int index = 0;
-        for (DYValueContainer v :
+        for (DYValue v :
                 column.getValues()) {
             if (v.asDouble() > value) {
                 // Get the other columns values at the current index position
-                Map<DYValueContainer, DYColumn> map = new HashMap<>();
+                Map<DYValue, DYColumn> map = new HashMap<>();
                 for (DYColumn col :
                         getColumns()) {
                     map.put(col.get(index), col);
@@ -315,11 +315,11 @@ public class DYTable {
     public List<DYRow> getValuesSmallerThan(DYColumn column, long value) {
         List<DYRow> results = new ArrayList<>();
         int index = 0;
-        for (DYValueContainer v :
+        for (DYValue v :
                 column.getValues()) {
             if (v.asLong() < value) {
                 // Get the other columns values at the current index position
-                Map<DYValueContainer, DYColumn> map = new HashMap<>();
+                Map<DYValue, DYColumn> map = new HashMap<>();
                 for (DYColumn col :
                         getColumns()) {
                     map.put(col.get(index), col);
@@ -341,11 +341,11 @@ public class DYTable {
     public List<DYRow> getValuesSmallerThan(DYColumn column, double value) {
         List<DYRow> results = new ArrayList<>();
         int index = 0;
-        for (DYValueContainer v :
+        for (DYValue v :
                 column.getValues()) {
             if (v.asDouble() < value) {
                 // Get the other columns values at the current index position
-                Map<DYValueContainer, DYColumn> map = new HashMap<>();
+                Map<DYValue, DYColumn> map = new HashMap<>();
                 for (DYColumn col :
                         getColumns()) {
                     map.put(col.get(index), col);

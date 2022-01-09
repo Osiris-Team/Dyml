@@ -9,7 +9,7 @@
 package com.osiris.dyml.utils;
 
 import com.osiris.dyml.DYModule;
-import com.osiris.dyml.DYValueContainer;
+import com.osiris.dyml.DYValue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,22 +66,22 @@ public class UtilsDYModule {
         return null;
     }
 
-    public List<DYValueContainer> stringArrayToValuesList(String[] array) {
+    public List<DYValue> stringArrayToValuesList(String[] array) {
         return stringListToValuesList(Arrays.asList(array));
     }
 
-    public List<DYValueContainer> stringListToValuesList(List<String> list) {
-        List<DYValueContainer> values = new ArrayList<>();
+    public List<DYValue> stringListToValuesList(List<String> list) {
+        List<DYValue> values = new ArrayList<>();
         for (String s :
                 list) {
-            values.add(new DYValueContainer(s));
+            values.add(new DYValue(s));
         }
         return values;
     }
 
-    public List<String> valuesListToStringList(List<DYValueContainer> list) {
+    public List<String> valuesListToStringList(List<DYValue> list) {
         List<String> stringList = new ArrayList<>();
-        for (DYValueContainer value :
+        for (DYValue value :
                 list) {
             stringList.add(value.asString());
         }
@@ -89,11 +89,11 @@ public class UtilsDYModule {
     }
 
     /**
-     * We assume that none of the {@link DYValueContainer}s in the list is null. {@link DYValueContainer#asString()} however can be null.
+     * We assume that none of the {@link DYValue}s in the list is null. {@link DYValue#asString()} however can be null.
      */
-    public void trimValues(List<DYValueContainer> values) {
-        List<DYValueContainer> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
-        for (DYValueContainer value :
+    public void trimValues(List<DYValue> values) {
+        List<DYValue> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
+        for (DYValue value :
                 copy) {
             String s;
             if ((s = value.asString()) != null) {
@@ -103,9 +103,9 @@ public class UtilsDYModule {
         }
     }
 
-    public void trimValuesComments(List<DYValueContainer> values) {
-        List<DYValueContainer> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
-        for (DYValueContainer value :
+    public void trimValuesComments(List<DYValue> values) {
+        List<DYValue> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
+        for (DYValue value :
                 copy) {
             if (value.hasComment())
                 value.setComment(value.getComment().trim());
@@ -125,11 +125,11 @@ public class UtilsDYModule {
     /**
      * Removes "" and '' from those encapsulated values.<br>
      * Its recommended, that each value was trimmed before, to achieve the best results. <br>
-     * We assume that none of the {@link DYValueContainer}s in the list is null. {@link DYValueContainer#asString()} however can be null. <br>
+     * We assume that none of the {@link DYValue}s in the list is null. {@link DYValue#asString()} however can be null. <br>
      */
-    public void removeQuotesFromValues(List<DYValueContainer> values) {
-        List<DYValueContainer> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
-        for (DYValueContainer value :
+    public void removeQuotesFromValues(List<DYValue> values) {
+        List<DYValue> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
+        for (DYValue value :
                 copy) {
             String s;
             if ((s = value.asString()) != null && !s.isEmpty()) {
@@ -148,10 +148,10 @@ public class UtilsDYModule {
     }
 
     /**
-     * We assume that none of the {@link DYValueContainer}s in the list is null. {@link DYValueContainer#asString()} however can be null.
+     * We assume that none of the {@link DYValue}s in the list is null. {@link DYValue#asString()} however can be null.
      */
-    public void removeNullValues(List<DYValueContainer> values) {
-        List<DYValueContainer> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
+    public void removeNullValues(List<DYValue> values) {
+        List<DYValue> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
         for (int i = 0; i < copy.size(); i++) {
             if (copy.get(i).asString() == null) values.remove(i);
         }

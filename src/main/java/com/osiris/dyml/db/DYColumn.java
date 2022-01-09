@@ -1,7 +1,7 @@
 package com.osiris.dyml.db;
 
 import com.osiris.dyml.DYModule;
-import com.osiris.dyml.DYValueContainer;
+import com.osiris.dyml.DYValue;
 
 import java.util.List;
 
@@ -32,7 +32,7 @@ public class DYColumn {
     }
 
     /**
-     * Adds the provided string to a {@link DYValueContainer} and then adds that to the column.
+     * Adds the provided string to a {@link DYValue} and then adds that to the column.
      */
     public DYColumn add(String... values) {
         columnModule.addValues(values);
@@ -40,16 +40,16 @@ public class DYColumn {
     }
 
     /**
-     * Adds the provided {@link DYValueContainer} to the column.
+     * Adds the provided {@link DYValue} to the column.
      */
-    public DYColumn add(DYValueContainer... values) {
+    public DYColumn add(DYValue... values) {
         columnModule.addValues(values);
         return this;
     }
 
 
     /**
-     * Adds the provided string to a {@link DYValueContainer} and then adds that to the column. <br>
+     * Adds the provided string to a {@link DYValue} and then adds that to the column. <br>
      * Note that this is a default value, thus it only gets written to the file if the column was empty before. <br>
      */
     public DYColumn addDef(String... values) {
@@ -58,10 +58,10 @@ public class DYColumn {
     }
 
     /**
-     * Adds the provided {@link DYValueContainer} to the column. <br>
+     * Adds the provided {@link DYValue} to the column. <br>
      * Note that this is a default value, thus it only gets written to the file if the column was empty before. <br>
      */
-    public DYColumn addDef(DYValueContainer... values) {
+    public DYColumn addDef(DYValue... values) {
         columnModule.addDefValues(values);
         return this;
     }
@@ -70,7 +70,7 @@ public class DYColumn {
      * Returns the columns size,<br>
      * aka length,<br>
      * aka the amount of rows for this column, <br>
-     * aka the amount of {@link DYValueContainer}s. <br>
+     * aka the amount of {@link DYValue}s. <br>
      */
     public int size() {
         return columnModule.getValues().size();
@@ -80,17 +80,17 @@ public class DYColumn {
      * Returns the columns size for default values,<br>
      * aka length,<br>
      * aka the amount of default rows for this column, <br>
-     * aka the amount of default {@link DYValueContainer}s. <br>
+     * aka the amount of default {@link DYValue}s. <br>
      */
     public int defSize() {
         return columnModule.getDefValues().size();
     }
 
-    public List<DYValueContainer> getValues() {
+    public List<DYValue> getValues() {
         return columnModule.getValues();
     }
 
-    public List<DYValueContainer> getDefValues() {
+    public List<DYValue> getDefValues() {
         return columnModule.getDefValues();
     }
 
@@ -99,16 +99,16 @@ public class DYColumn {
 
 
     /**
-     * Returns the {@link DYValueContainer} at the provided index (row).
+     * Returns the {@link DYValue} at the provided index (row).
      */
-    public DYValueContainer get(int index) {
+    public DYValue get(int index) {
         return columnModule.getValueByIndex(index);
     }
 
     /**
-     * Returns the default {@link DYValueContainer} at the provided index (row).
+     * Returns the default {@link DYValue} at the provided index (row).
      */
-    public DYValueContainer getDef(int index) {
+    public DYValue getDef(int index) {
         return columnModule.getDefValueByIndex(index);
     }
 

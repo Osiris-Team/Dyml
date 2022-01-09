@@ -180,7 +180,7 @@ class DYWriter {
                 if (module.getValues() != null && i == (keysSize - 1)) { // Only write values to the last key in the list
                     if (!module.getValues().isEmpty() && !isOnlyNullsList(module.getValues())) { // Write values if they exist, else write defaults, else write nothing
                         if (module.getValues().size() == 1) { // Even if we only got one DYModule, it written as a list
-                            DYValueContainer value = module.getValue();
+                            DYValue value = module.getValue();
                             if (value != null) { // Only write if its not null
                                 if (value.asString() != null) writeValueWithoutLineBreaks(writer, value.asString());
                                 if (value.hasComment())
@@ -192,7 +192,7 @@ class DYWriter {
                         } else { // This means we got multiple values, aka a list
                             writer.newLine();
                             for (int j = 0; j < module.getValues().size(); j++) {
-                                DYValueContainer value = module.getValueByIndex(j);
+                                DYValue value = module.getValueByIndex(j);
                                 if (value != null) {
                                     writer.write(spaces + "  - ");
                                     if (value.asString() != null)
@@ -208,7 +208,7 @@ class DYWriter {
                     } else if (yaml.isWriteDefaultValuesWhenEmptyEnabled) {
                         if (module.getDefValues() != null && !module.getDefValues().isEmpty()) {
                             if (module.getDefValues().size() == 1) {
-                                DYValueContainer defValue = module.getDefValue();
+                                DYValue defValue = module.getDefValue();
                                 if (defValue != null) {
                                     if (defValue.asString() != null)
                                         writeValueWithoutLineBreaks(writer, defValue.asString());
@@ -221,7 +221,7 @@ class DYWriter {
                             } else {
                                 writer.newLine();
                                 for (int j = 0; j < module.getDefValues().size(); j++) {
-                                    DYValueContainer value = module.getDefValueByIndex(j);
+                                    DYValue value = module.getDefValueByIndex(j);
                                     if (value != null) {
                                         writer.write(spaces + "  - ");
                                         if (value.asString() != null)
@@ -253,9 +253,9 @@ class DYWriter {
         writer.write(value);
     }
 
-    private boolean isOnlyNullsList(List<DYValueContainer> values) {
+    private boolean isOnlyNullsList(List<DYValue> values) {
         boolean hasValue = false;
-        for (DYValueContainer val :
+        for (DYValue val :
                 values) {
             if (val.get() != null) {
                 hasValue = true;

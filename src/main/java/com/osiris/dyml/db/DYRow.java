@@ -1,6 +1,6 @@
 package com.osiris.dyml.db;
 
-import com.osiris.dyml.DYValueContainer;
+import com.osiris.dyml.DYValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,9 +20,9 @@ import java.util.Objects;
  */
 public class DYRow {
     private final int rowIndex;
-    private final Map<DYValueContainer, DYColumn> valuesAndColumns;
+    private final Map<DYValue, DYColumn> valuesAndColumns;
 
-    public DYRow(int rowIndex, Map<DYValueContainer, DYColumn> valuesAndColumns) {
+    public DYRow(int rowIndex, Map<DYValue, DYColumn> valuesAndColumns) {
         this.rowIndex = rowIndex;
         this.valuesAndColumns = valuesAndColumns;
     }
@@ -34,10 +34,10 @@ public class DYRow {
      *     =================
      *     rock    | paper
      * </pre>
-     * The examples, returned list has two {@link DYValueContainer}s. <br>
+     * The examples, returned list has two {@link DYValue}s. <br>
      * The first one contains 'rock' and the second one 'paper'. <br>
      */
-    public List<DYValueContainer> getValues() {
+    public List<DYValue> getValues() {
         return new ArrayList<>(valuesAndColumns.keySet());
     }
 
@@ -58,24 +58,24 @@ public class DYRow {
     /**
      * Returns a map with values mapped to their columns.
      */
-    public Map<DYValueContainer, DYColumn> getValuesAndColumns() {
+    public Map<DYValue, DYColumn> getValuesAndColumns() {
         return valuesAndColumns;
     }
 
-    public DYColumn getColumnFromValue(DYValueContainer value) {
+    public DYColumn getColumnFromValue(DYValue value) {
         return valuesAndColumns.get(value);
     }
 
     /**
-     * Returns the linked {@link DYValueContainer} for the provided {@link DYColumn}.
+     * Returns the linked {@link DYValue} for the provided {@link DYColumn}.
      *
      * @throws NullPointerException if the provided column is null, or couldn't be found in the map.
      */
-    public DYValueContainer getValueFromColumn(DYColumn column) {
+    public DYValue getValueFromColumn(DYColumn column) {
         Objects.requireNonNull(column);
-        DYValueContainer[] values = valuesAndColumns.keySet().toArray(new DYValueContainer[0]);
+        DYValue[] values = valuesAndColumns.keySet().toArray(new DYValue[0]);
         int index = 0;
-        DYValueContainer val = null;
+        DYValue val = null;
         for (DYColumn col :
                 valuesAndColumns.values()) {
             if (col.getName().equals(column.getName()))

@@ -8,72 +8,72 @@ package com.osiris.dyml;
  * This value may have a comment (side comment).
  */
 @SuppressWarnings("ALL")
-public class DYValueContainer {
+public class DYValue {
     private String value;
     private String comment;
     private String defaultComment;
 
-    public DYValueContainer(String value) {
+    public DYValue(String value) {
         this(value, null);
     }
 
-    public DYValueContainer(char[] value) {
+    public DYValue(char[] value) {
         this(String.valueOf(value), null);
     }
 
-    public DYValueContainer(boolean value) {
+    public DYValue(boolean value) {
         this(String.valueOf(value), null);
     }
 
-    public DYValueContainer(Boolean value) {
+    public DYValue(Boolean value) {
         this(value.toString(), null);
     }
 
-    public DYValueContainer(byte value) {
+    public DYValue(byte value) {
         this(String.valueOf(value), null);
     }
 
-    public DYValueContainer(Byte value) {
+    public DYValue(Byte value) {
         this(value.toString(), null);
     }
 
-    public DYValueContainer(short value) {
+    public DYValue(short value) {
         this(String.valueOf(value), null);
     }
 
-    public DYValueContainer(Short value) {
+    public DYValue(Short value) {
         this(value.toString(), null);
     }
 
-    public DYValueContainer(int value) {
+    public DYValue(int value) {
         this(String.valueOf(value), null);
     }
 
-    public DYValueContainer(Integer value) {
+    public DYValue(Integer value) {
         this(value.toString(), null);
     }
 
-    public DYValueContainer(long value) {
+    public DYValue(long value) {
         this(String.valueOf(value), null);
     }
 
-    public DYValueContainer(Long value) {
+    public DYValue(Long value) {
         this(value.toString(), null);
     }
 
-    public DYValueContainer(float value) {
+    public DYValue(float value) {
         this(String.valueOf(value), null);
     }
 
-    public DYValueContainer(Float value) {
+    public DYValue(Float value) {
         this(value.toString(), null);
     }
 
-    public DYValueContainer(double value) {
+    public DYValue(double value) {
         this(String.valueOf(value), null);
     }
 
-    public DYValueContainer(Double value) {
+    public DYValue(Double value) {
         this(value.toString(), null);
     }
 
@@ -86,7 +86,7 @@ public class DYValueContainer {
      * @param value   Can be null.
      * @param comment Can be null.
      */
-    public DYValueContainer(String value, String comment) {
+    public DYValue(String value, String comment) {
         this(value, comment, null);
     }
 
@@ -100,7 +100,7 @@ public class DYValueContainer {
      * @param comment    Can be null.
      * @param defComment Can be null.
      */
-    public DYValueContainer(String value, String comment, String defComment) {
+    public DYValue(String value, String comment, String defComment) {
         this.value = value;
         setComment(comment);
         setDefComment(defComment);
@@ -135,7 +135,7 @@ public class DYValueContainer {
      * Line separators get removed.
      * See {@link #getComment()} for details.
      */
-    public DYValueContainer setComment(String comment) {
+    public DYValue setComment(String comment) {
         if (comment != null)
             comment = comment.replace(System.lineSeparator(), "");
         this.comment = comment;
@@ -146,7 +146,7 @@ public class DYValueContainer {
      * Line separators get removed.
      * See {@link #getComment()} for details.
      */
-    public DYValueContainer setDefComment(String defComment) {
+    public DYValue setDefComment(String defComment) {
         if (defComment != null)
             defComment = defComment.replace(System.lineSeparator(), "");
         this.defaultComment = defComment;
@@ -179,35 +179,67 @@ public class DYValueContainer {
         return value;
     }
 
+    /**
+     * Note that this can be null.
+     */
     public char[] asCharArray() {
+        if (value==null) return null;
         return value.toCharArray();
     }
 
-    public boolean asBoolean() {
+    /**
+     * Note that this can be null.
+     */
+    public Boolean asBoolean() {
+        if (value==null) return null;
         return Boolean.parseBoolean(value);
     }
 
-    public byte asByte() {
+    /**
+     * Note that this can be null.
+     */
+    public Byte asByte() {
+        if (value==null) return null;
         return Byte.parseByte(value);
     }
 
-    public short asShort() {
+    /**
+     * Note that this can be null.
+     */
+    public Short asShort() {
+        if (value==null) return null;
         return Short.parseShort(value);
     }
 
-    public int asInt() {
+    /**
+     * Note that this can be null.
+     */
+    public Integer asInt() {
+        if (value==null) return null;
         return Integer.parseInt(value);
     }
 
-    public long asLong() {
+    /**
+     * Note that this can be null.
+     */
+    public Long asLong() {
+        if (value==null) return null;
         return Long.parseLong(value);
     }
 
-    public float asFloat() {
+    /**
+     * Note that this can be null.
+     */
+    public Float asFloat() {
+        if (value==null) return null;
         return Float.parseFloat(value);
     }
 
+    /**
+     * Note that this can be null.
+     */
     public Double asDouble() {
+        if (value==null) return null;
         return Double.parseDouble(value);
     }
 
@@ -215,22 +247,22 @@ public class DYValueContainer {
     // SETTERS:
 
 
-    public DYValueContainer set(String value) {
+    public DYValue set(String value) {
         this.value = value;
         return this;
     }
 
-    public DYValueContainer set(char[] value) {
+    public DYValue set(char[] value) {
         this.value = String.valueOf(value);
         return this;
     }
 
-    public DYValueContainer set(boolean value) {
+    public DYValue set(boolean value) {
         this.value = String.valueOf(value);
         return this;
     }
 
-    public DYValueContainer set(Boolean value) {
+    public DYValue set(Boolean value) {
         if (value == null) {
             this.value = null;
             return this;
@@ -239,12 +271,12 @@ public class DYValueContainer {
         return this;
     }
 
-    public DYValueContainer set(byte value) {
+    public DYValue set(byte value) {
         this.value = String.valueOf(value);
         return this;
     }
 
-    public DYValueContainer set(Byte value) {
+    public DYValue set(Byte value) {
         if (value == null) {
             this.value = null;
             return this;
@@ -253,12 +285,12 @@ public class DYValueContainer {
         return this;
     }
 
-    public DYValueContainer set(short value) {
+    public DYValue set(short value) {
         this.value = String.valueOf(value);
         return this;
     }
 
-    public DYValueContainer set(Short value) {
+    public DYValue set(Short value) {
         if (value == null) {
             this.value = null;
             return this;
@@ -267,13 +299,13 @@ public class DYValueContainer {
         return this;
     }
 
-    public DYValueContainer set(int value) {
+    public DYValue set(int value) {
         this.value = String.valueOf(value);
 
         return this;
     }
 
-    public DYValueContainer set(Integer value) {
+    public DYValue set(Integer value) {
         if (value == null) {
             this.value = null;
             return this;
@@ -282,12 +314,12 @@ public class DYValueContainer {
         return this;
     }
 
-    public DYValueContainer set(long value) {
+    public DYValue set(long value) {
         this.value = String.valueOf(value);
         return this;
     }
 
-    public DYValueContainer set(Long value) {
+    public DYValue set(Long value) {
         if (value == null) {
             this.value = null;
             return this;
@@ -296,12 +328,12 @@ public class DYValueContainer {
         return this;
     }
 
-    public DYValueContainer set(float value) {
+    public DYValue set(float value) {
         this.value = String.valueOf(value);
         return this;
     }
 
-    public DYValueContainer set(Float value) {
+    public DYValue set(Float value) {
         if (value == null) {
             this.value = null;
             return this;
@@ -310,12 +342,12 @@ public class DYValueContainer {
         return this;
     }
 
-    public DYValueContainer set(double value) {
+    public DYValue set(double value) {
         this.value = String.valueOf(value);
         return this;
     }
 
-    public DYValueContainer set(Double value) {
+    public DYValue set(Double value) {
         if (value == null) {
             this.value = null;
             return this;

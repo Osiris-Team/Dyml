@@ -22,7 +22,7 @@ public class M extends DYModule {
         super(yaml, keys);
     }
 
-    public M(DreamYaml yaml, List<String> keys, List<DYValueContainer> defaultValues, List<DYValueContainer> values, List<String> comments) {
+    public M(DreamYaml yaml, List<String> keys, List<DYValue> defaultValues, List<DYValue> values, List<String> comments) {
         super(yaml, keys, defaultValues, values, comments);
     }
 

@@ -25,8 +25,8 @@ public class DYModule {
     private final UtilsDYModule utils = new UtilsDYModule();
     private DreamYaml yaml;
     private List<String> keys;
-    private List<DYValueContainer> values;
-    private List<DYValueContainer> defaultValues;
+    private List<DYValue> values;
+    private List<DYValue> defaultValues;
     private List<String> comments;
     private List<String> defaultComments;
     private int countTopSpaces;
@@ -62,11 +62,11 @@ public class DYModule {
      * @param values        a list containing its values. Pass over null to create a new list.
      * @param comments      a list containing its comments. Pass over null to create a new list.
      */
-    public DYModule(DreamYaml yaml, List<String> keys, List<DYValueContainer> defaultValues, List<DYValueContainer> values, List<String> comments) {
+    public DYModule(DreamYaml yaml, List<String> keys, List<DYValue> defaultValues, List<DYValue> values, List<String> comments) {
         init(yaml, keys, defaultValues, values, comments);
     }
 
-    private void init(DreamYaml yaml, List<String> keys, List<DYValueContainer> defaultValues, List<DYValueContainer> values, List<String> comments) {
+    private void init(DreamYaml yaml, List<String> keys, List<DYValue> defaultValues, List<DYValue> values, List<String> comments) {
         this.yaml = yaml;
         this.keys = keys;
         this.values = values;
@@ -163,13 +163,13 @@ public class DYModule {
      * <pre>
      *     key: value # comment
      * </pre>
-     * See {@link DYValueContainer#DYValueContainer(String, String)} for details.
+     * See {@link DYValue#DYValue(String, String)} for details.
      *
      * @param v value
      * @param c comment
      */
     public DYModule addValueWithComment(String v, String c) {
-        addValues(new DYValueContainer(v, c));
+        addValues(new DYValue(v, c));
         return this;
     }
 
@@ -180,33 +180,33 @@ public class DYModule {
         if (v != null)
             addValues(utils.stringArrayToValuesList(v));
         else
-            addValues((List<DYValueContainer>) null);
+            addValues((List<DYValue>) null);
         return this;
     }
 
     /**
      * See {@link #addValues(List)} for details.
      */
-    public DYModule addValues(DYValueContainer... v) {
+    public DYModule addValues(DYValue... v) {
         if (v != null)
             addValues(Arrays.asList(v));
         else
-            addValues((List<DYValueContainer>) null);
+            addValues((List<DYValue>) null);
         return this;
     }
 
     /**
      * Adds new values to the list. <br>
      */
-    public DYModule addValues(List<DYValueContainer> v) {
+    public DYModule addValues(List<DYValue> v) {
         if (v != null) {
-            for (DYValueContainer value :
+            for (DYValue value :
                     v) {
                 Objects.requireNonNull(value);
             }
             this.values.addAll(v);
         } else
-            this.values.add(new DYValueContainer((String) null));
+            this.values.add(new DYValue((String) null));
 
         return this;
     }
@@ -217,54 +217,54 @@ public class DYModule {
      * <pre>
      *     key: value # comment
      * </pre>
-     * See {@link DYValueContainer#DYValueContainer(String, String)} for details.
+     * See {@link DYValue#DYValue(String, String)} for details.
      *
      * @param v default value
      * @param c comment
      */
     public DYModule addDefValueWithComment(String v, String c) {
-        addDefValues(new DYValueContainer(v, c));
+        addDefValues(new DYValue(v, c));
         return this;
     }
 
     /**
-     * Converts the provided string array, into a {@link DYValueContainer}s list. <br>
+     * Converts the provided string array, into a {@link DYValue}s list. <br>
      * See {@link #addDefValues(List)} for details.
      */
     public DYModule addDefValues(String... v) {
         if (v != null)
             addDefValues(utils.stringArrayToValuesList(v));
         else
-            addDefValues((List<DYValueContainer>) null);
+            addDefValues((List<DYValue>) null);
         return this;
     }
 
     /**
      * {@link #addDefValues(List)}
      */
-    public DYModule addDefValues(DYValueContainer... v) {
+    public DYModule addDefValues(DYValue... v) {
         if (v != null)
             addDefValues(Arrays.asList(v));
         else
-            addDefValues((List<DYValueContainer>) null);
+            addDefValues((List<DYValue>) null);
         return this;
     }
 
     /**
-     * Adds new default {@link DYValueContainer}s to the list. <br>
-     * Note that the list cannot contain null {@link DYValueContainer}s, thus <br>
-     * if null is passed as parameter a new {@link DYValueContainer} gets created with a null value. <br>
-     * That means that {@link DYValueContainer#asString()} will return null.
+     * Adds new default {@link DYValue}s to the list. <br>
+     * Note that the list cannot contain null {@link DYValue}s, thus <br>
+     * if null is passed as parameter a new {@link DYValue} gets created with a null value. <br>
+     * That means that {@link DYValue#asString()} will return null.
      */
-    public DYModule addDefValues(List<DYValueContainer> v) {
+    public DYModule addDefValues(List<DYValue> v) {
         if (v != null) {
-            for (DYValueContainer value :
+            for (DYValue value :
                     v) {
                 Objects.requireNonNull(value);
             }
             defaultValues.addAll(v);
         } else
-            defaultValues.add(new DYValueContainer((String) null));
+            defaultValues.add(new DYValue((String) null));
         return this;
     }
 
@@ -345,7 +345,7 @@ public class DYModule {
      * Returns the 'real' value from the yaml file
      * at the time when load() was called.
      */
-    public DYValueContainer getValue() {
+    public DYValue getValue() {
         return getValueByIndex(0);
     }
 
@@ -353,8 +353,8 @@ public class DYModule {
      * Returns the value by given index or
      * its default value, if the value is null/empty and {@link DreamYaml#isReturnDefaultWhenValueIsNullEnabled()} is set to true.
      */
-    public DYValueContainer getValueByIndex(int i) {
-        DYValueContainer v = new DYValueContainer((String) null);
+    public DYValue getValueByIndex(int i) {
+        DYValue v = new DYValue((String) null);
         try {
             v = values.get(i);
         } catch (Exception ignored) {
@@ -365,7 +365,7 @@ public class DYModule {
         return v;
     }
 
-    public List<DYValueContainer> getValues() {
+    public List<DYValue> getValues() {
         return values;
     }
 
@@ -378,38 +378,38 @@ public class DYModule {
     }
 
     /**
-     * Not allowed to contain null {@link DYValueContainer}s. <br>
+     * Not allowed to contain null {@link DYValue}s. <br>
      * See {@link #setValues(List)} for details.
      */
-    public DYModule setValues(DYValueContainer... v) {
+    public DYModule setValues(DYValue... v) {
         setValues(Arrays.asList(v));
         return this;
     }
 
     /**
      * Clears the values list and adds the values from the provided list. <br>
-     * Note that the list can NOT contain null {@link DYValueContainer}s. <br>
-     * {@link DYValueContainer#asString()} may return null though. <br>
+     * Note that the list can NOT contain null {@link DYValue}s. <br>
+     * {@link DYValue#asString()} may return null though. <br>
      * If you want to remove values, use {@link #removeAllValues()} instead.
      */
-    public DYModule setValues(List<DYValueContainer> v) {
+    public DYModule setValues(List<DYValue> v) {
         this.values.clear();
         addValues(v);
         return this;
     }
 
     /**
-     * Returns the first {@link DYValueContainer} in the default values list.
+     * Returns the first {@link DYValue} in the default values list.
      */
-    public DYValueContainer getDefValue() {
+    public DYValue getDefValue() {
         return getDefValueByIndex(0);
     }
 
     /**
-     * Returns the {@link DYValueContainer} at index i in the default values list.
+     * Returns the {@link DYValue} at index i in the default values list.
      */
-    public DYValueContainer getDefValueByIndex(int i) {
-        DYValueContainer v = new DYValueContainer((String) null);
+    public DYValue getDefValueByIndex(int i) {
+        DYValue v = new DYValue((String) null);
         try {
             v = defaultValues.get(i);
         } catch (Exception ignored) {
@@ -417,7 +417,7 @@ public class DYModule {
         return v;
     }
 
-    public List<DYValueContainer> getDefValues() {
+    public List<DYValue> getDefValues() {
         return defaultValues;
     }
 
@@ -432,7 +432,7 @@ public class DYModule {
     /**
      * See {@link #setDefValues(List)} for details.
      */
-    public DYModule setDefValues(DYValueContainer... v) {
+    public DYModule setDefValues(DYValue... v) {
         setDefValues(Arrays.asList(v));
         return this;
     }
@@ -443,7 +443,7 @@ public class DYModule {
      * {@link DreamYaml#isWriteDefaultValuesWhenEmptyEnabled()} <br>
      * {@link DreamYaml#isReturnDefaultWhenValueIsNullEnabled()} <br>
      */
-    public DYModule setDefValues(List<DYValueContainer> v) {
+    public DYModule setDefValues(List<DYValue> v) {
         this.defaultValues.clear();
         addDefValues(v);
         return this;
@@ -523,8 +523,8 @@ public class DYModule {
     // AS METHODS:
 
     /**
-     * Shortcut for retrieving this {@link DYModule}s first {@link DYValueContainer} as string. <br>
-     * See {@link DYValueContainer#asString()} for details. <br>
+     * Shortcut for retrieving this {@link DYModule}s first {@link DYValue} as string. <br>
+     * See {@link DYValue#asString()} for details. <br>
      */
     public String asString() {
         return asString(0);
@@ -535,13 +535,13 @@ public class DYModule {
     }
 
     /**
-     * Shortcut for retrieving this {@link DYModule}s first {@link DYValueContainer}.
+     * Shortcut for retrieving this {@link DYModule}s first {@link DYValue}.
      */
-    public DYValueContainer asDYValue() {
+    public DYValue asDYValue() {
         return asDYValue(0);
     }
 
-    public DYValueContainer asDYValue(int i) {
+    public DYValue asDYValue(int i) {
         return getValueByIndex(i);
     }
 
@@ -553,7 +553,7 @@ public class DYModule {
     }
 
     /**
-     * Shortcut for retrieving this {@link DYModule}s first {@link DYValueContainer} as char-array.
+     * Shortcut for retrieving this {@link DYModule}s first {@link DYValue} as char-array.
      */
     public char[] asCharArray() {
         return asCharArray(0);
@@ -564,7 +564,7 @@ public class DYModule {
     }
 
     /**
-     * Shortcut for retrieving this {@link DYModule}s first {@link DYValueContainer} as boolean.
+     * Shortcut for retrieving this {@link DYModule}s first {@link DYValue} as boolean.
      */
     public boolean asBoolean() {
         return asBoolean(0);
@@ -575,7 +575,7 @@ public class DYModule {
     }
 
     /**
-     * Shortcut for retrieving this {@link DYModule}s first {@link DYValueContainer} as byte.
+     * Shortcut for retrieving this {@link DYModule}s first {@link DYValue} as byte.
      */
     public byte asByte() {
         return asByte(0);
@@ -586,7 +586,7 @@ public class DYModule {
     }
 
     /**
-     * Shortcut for retrieving this {@link DYModule}s first {@link DYValueContainer} as short.
+     * Shortcut for retrieving this {@link DYModule}s first {@link DYValue} as short.
      */
     public short asShort() {
         return asShort(0);
@@ -597,7 +597,7 @@ public class DYModule {
     }
 
     /**
-     * Shortcut for retrieving this {@link DYModule}s first {@link DYValueContainer} as int.
+     * Shortcut for retrieving this {@link DYModule}s first {@link DYValue} as int.
      */
     public int asInt() {
         return asInt(0);
@@ -608,7 +608,7 @@ public class DYModule {
     }
 
     /**
-     * Shortcut for retrieving this {@link DYModule}s first {@link DYValueContainer} as long.
+     * Shortcut for retrieving this {@link DYModule}s first {@link DYValue} as long.
      */
     public long asLong() {
         return asLong(0);
@@ -619,7 +619,7 @@ public class DYModule {
     }
 
     /**
-     * Shortcut for retrieving this {@link DYModule}s first {@link DYValueContainer} as float.
+     * Shortcut for retrieving this {@link DYModule}s first {@link DYValue} as float.
      */
     public float asFloat() {
         return asFloat(0);
@@ -630,7 +630,7 @@ public class DYModule {
     }
 
     /**
-     * Shortcut for retrieving this {@link DYModule}s first {@link DYValueContainer} as double.
+     * Shortcut for retrieving this {@link DYModule}s first {@link DYValue} as double.
      */
     public Double asDouble() {
         return asDouble(0);
