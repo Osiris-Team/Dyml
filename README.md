@@ -1,5 +1,5 @@
 # Dream-Yaml [![](https://jitpack.io/v/Osiris-Team/Dream-Yaml.svg)](https://jitpack.io/#Osiris-Team/Dream-Yaml)
-The Java-API for processing YAML you've always dreamed of.
+The YAML processor of your dreams, written in pure Java!
 
 ## Links
  - [API-Design](DESIGN.md)
