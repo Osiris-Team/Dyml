@@ -25,11 +25,49 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <repositories>
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
+        </repository>
+    </repositories>
+
     <dependencies>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>5.7.2</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- FOR BENCHMARKING: -->
+        <dependency>
+            <groupId>org.yaml</groupId>
+            <artifactId>snakeyaml</artifactId>
+            <version>1.26</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.google.code.gson</groupId>
+            <artifactId>gson</artifactId>
+            <version>2.8.8</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.amihaiemil.web</groupId>
+            <artifactId>eo-yaml</artifactId>
+            <version>5.1.7</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>me.carleslc.Simple-YAML</groupId>
+            <artifactId>Simple-Yaml</artifactId>
+            <version>1.7.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.esotericsoftware.yamlbeans</groupId>
+            <artifactId>yamlbeans</artifactId>
+            <version>1.15</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

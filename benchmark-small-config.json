@@ -1,0 +1,22 @@
+{
+  "architect": "amihaiemil",
+  "devops": [
+    {
+      "name": "rultor"
+    },
+    {
+      "name": "0pdd"
+    }
+  ],
+  "developers": [
+    {
+      "name": "amihaiemil"
+    },
+    {
+      "name": "salikjan"
+    },
+    {
+      "name": "SherifWally"
+    }
+  ]
+}

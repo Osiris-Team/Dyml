@@ -1,0 +1,12 @@
+# Project Name
+architect: amihaiemil
+# This is a test comment with no line breaks!
+devops:
+  - rultor
+  - 0pdd
+# This is a multi-lined comment!
+# See it goes on!
+developers:
+  - amihaiemil
+  - salikjan
+  - SherifWally
