@@ -9,21 +9,16 @@ The Java-API for processing YAML you've always dreamed of.
 ## Installation
 [Click here for maven/gradle/sbt/leinigen instructions.](https://jitpack.io/#Osiris-Team/Dream-Yaml/LATEST) <br>
 Java 8+ required. <br>
-Make sure to watch this repository to get notified of future updates. <br>
-
-## Motivation
-I wasn't able to find a Java API for YAML that had decent comments support, was simple but also feature rich and fast/performant.
-So I had to develop Dream-Yaml with those issues in mind.
+Watch this repository to get notified of future updates. <br>
 
 ## Features
+Amazing support for side/multilined/regular comments. Very small in size, blazing fast and easy to use.
 ```YAML
 # Comments and
 # multiline comments support.
-the-show-off-list: 
-  - completely written from scratch without any extra dependency
-  - fastest YAML reader and writer currently available (see benchmarks below)
-  - very memory efficient
-  - useful watcher for listening to file events
+supports-lists: 
+  - Hello World!
+  - 2nd value
 supports-hyphen-separation: awesome! 
 or separation by spaces: great! # side-comments supported!
 and.dots.like.this: wow!
@@ -38,8 +33,8 @@ p1:
     # This is also a side-comment, for the value below
     - v2
 
-not supported:
-  - everything else that is not explicitly mentioned in this file
+important:
+  - Everything else that is not explicitly mentioned in this file is not supported
 ```
 Some extras:
  - **DYWatcher |** Yaml files watcher with recursive directory watching support.
