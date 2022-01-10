@@ -31,8 +31,8 @@ public class YamlBenchmarks {
         List<Double> resultsEOYaml = new ArrayList<>();
         List<Double> resultsSimpleYaml = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            File file = new File(System.getProperty("user.dir")+"/benchmark-small-config.yml");
-            File json = new File(System.getProperty("user.dir")+"/benchmark-small-config.json");
+            File file = new File(System.getProperty("user.dir") + "/benchmark-small-config.yml");
+            File json = new File(System.getProperty("user.dir") + "/benchmark-small-config.json");
             UtilsTimeStopper timer = new UtilsTimeStopper();
             String msGSON;
             String msDY;
@@ -53,7 +53,7 @@ public class YamlBenchmarks {
             DreamYaml dreamYaml = new DreamYaml(file);
             dreamYaml.load();
             timer.stop();
-            dreamYaml=null;
+            dreamYaml = null;
             msDY = timer.getFormattedMillis();
             resultsDreamYaml.add(timer.getMillis());
 
@@ -63,7 +63,7 @@ public class YamlBenchmarks {
             InputStream fileInput = new FileInputStream(file);
             snakeYaml.loadAll(fileInput);
             timer.stop();
-            snakeYaml=null;
+            snakeYaml = null;
             msSNY = timer.getFormattedMillis();
             resultsSnakeYaml.add(timer.getMillis());
 
@@ -71,9 +71,9 @@ public class YamlBenchmarks {
             timer.start();
             YamlReader yamlBeans = new YamlReader(new FileReader(file));
             Object object = yamlBeans.read();
-            Map map = (Map)object;
+            Map map = (Map) object;
             timer.stop();
-            yamlBeans=null;
+            yamlBeans = null;
             msYB = timer.getFormattedMillis();
             resultsYamlBeans.add(timer.getMillis());
 
@@ -84,7 +84,7 @@ public class YamlBenchmarks {
             ).readYamlMapping();
             eolYamlTest.values();
             timer.stop();
-            eolYamlTest=null;
+            eolYamlTest = null;
             msEOY = timer.getFormattedMillis();
             resultsEOYaml.add(timer.getMillis());
 
@@ -93,24 +93,25 @@ public class YamlBenchmarks {
             YamlFile simpleYamlTest = new YamlFile(file);
             simpleYamlTest.loadWithComments(); // Loads the entire file
             timer.stop();
-            simpleYamlTest=null;
+            simpleYamlTest = null;
             msSMY = timer.getFormattedMillis();
             resultsSimpleYaml.add(timer.getMillis());
 
-            System.out.println("["+i+"] [GSON:"+msGSON+"ms] [DY: "+msDY+"ms] [SNY: "+msSNY+"ms] [YB: "+msYB+"ms] [EOY: "+msEOY+"ms] [SMY: "+msSMY+"ms]");
+            System.out.println("[" + i + "] [GSON:" + msGSON + "ms] [DY: " + msDY + "ms] [SNY: " + msSNY + "ms] [YB: " + msYB + "ms] [EOY: " + msEOY + "ms] [SMY: " + msSMY + "ms]");
             Thread.sleep(500);
         }
-        System.out.println("Average read speeds in milliseconds:");
-        System.out.println("Gson: "+calcAverage(resultsGSON));
-        System.out.println("DreamYaml: "+calcAverage(resultsDreamYaml));
-        System.out.println("SnakeYaml: "+calcAverage(resultsSnakeYaml));
-        System.out.println("YamlBeans: "+calcAverage(resultsYamlBeans));
-        System.out.println("EOYaml: "+calcAverage(resultsEOYaml));
-        System.out.println("SimpleYaml: "+calcAverage(resultsSimpleYaml));
+        System.out.println("Average read speeds in milliseconds (first run was excluded):");
+        System.out.println("Gson: " + calcAverage(resultsGSON));
+        System.out.println("DreamYaml: " + calcAverage(resultsDreamYaml));
+        System.out.println("SnakeYaml: " + calcAverage(resultsSnakeYaml));
+        System.out.println("YamlBeans: " + calcAverage(resultsYamlBeans));
+        System.out.println("EOYaml: " + calcAverage(resultsEOYaml));
+        System.out.println("SimpleYaml: " + calcAverage(resultsSimpleYaml));
     }
 
-    private Double calcAverage(List<Double> values){
+    private Double calcAverage(List<Double> values) {
         Double total = 0.0;
+        values.remove(0);
         for (Double val :
                 values) {
             total = total + val;

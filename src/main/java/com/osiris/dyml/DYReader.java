@@ -131,6 +131,7 @@ class DYReader {
             }
 
         timer.stop();
+
         debug.log(this, "Loaded modules details:");
         for (DYModule loadedModule :
                 yaml.getAllLoaded()) {
@@ -433,6 +434,21 @@ class DYReader {
                 oldModule.getValues().remove(0);
             }
             oldModule.addValues(currentLine.getRawValue()); // Now all we do is add the current value to the parent module.
+        } else{ // CURRENT LINE DOES NOT CONTAIN A COMMENT OR A KEY OR A HYPHEN! Multiple examples:
+            // m1: value1
+            // value2 <---
+
+            // m1:
+            //   m1-inside: value1
+            //              value2 <---
+            // value3 <---
+            //      value4 <---
+            // All those values are actually part of value1, so we need to append the content of this line to the last modules, last value.
+            DYValue lastValue = yaml.getLastLoadedModule().getLastValue();
+            if (lastValue.get()==null)
+                lastValue.set(currentLine.getFullLine()); // Note that we don't call currentLine.getRawValue() because that only gets set if there was a ':'
+            else
+                lastValue.set(lastValue.get()+"\n"+currentLine.getFullLine());
         }
 
         beforeModule = module;

@@ -225,7 +225,14 @@ class DreamYamlTest {
         DreamYaml yaml = new DreamYaml("key: Hello\nThere!", "");
         yaml.load();
         assertEquals("Hello\nThere!", yaml.get("key").asString());
+        yaml.inString = "key: Hello\n" +
+                "There\n" +
+                "         there\n" +
+                "key2: hello\n";
+        assertEquals("Hello\nThere\nthere", yaml.get("key").asString());
+        assertEquals("hello", yaml.get("key2").asString());
     }
+
     @Test
     void writeValueWithLineBreaks() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
         DreamYaml yaml = new DreamYaml("", "");
@@ -239,6 +246,7 @@ class DreamYamlTest {
     void readValueAsModule() {
 
     }
+
     @Test
     void writeValueAsModule() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
     }

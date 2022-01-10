@@ -796,7 +796,7 @@ public class DreamYaml {
     }
 
     /**
-     * Convenience method for returning the last module from the {@link #inEditModules} list.
+     * Convenience method for returning the last module from the {@link #loadedModules} list.
      */
     public DYModule getLastLoadedModule() {
         return loadedModules.get(loadedModules.size() - 1);

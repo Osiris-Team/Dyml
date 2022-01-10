@@ -64,7 +64,7 @@ class DYWatcherExample {
             changed.set(true);
         });
         example2.delete();
-        while(!changed.get())
+        while (!changed.get())
             Thread.sleep(100);
     }
 
