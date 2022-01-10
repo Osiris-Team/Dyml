@@ -24,18 +24,26 @@ class DYWriter {
     public void parse(DreamYaml yaml, boolean overwrite, boolean reset) throws DYWriterException, IOException {
         this.yaml = yaml;
         DYDebugLogger logger = yaml.debugLogger;
+        boolean isDebug = yaml.debugLogger.isEnabled();
 
         UtilsTimeStopper timer = new UtilsTimeStopper();
         timer.start();
-        if (yaml.isDebugEnabled())
-            logger.log(this, "Started writing yaml file: " + yaml.getFile().getName() + " at " + new Date() + " with overwrite: " + overwrite + " and reset: " + reset);
 
         BufferedWriter writer = null;
-        if (yaml.getOutputStream() != null)
-            writer = new BufferedWriter(new OutputStreamWriter(yaml.getOutputStream()), 32768); // TODO compare speed with def buffer
-        if(yaml.file != null){
+        StringWriter stringWriter = null;
+
+        if (yaml.outputStream != null){
+            writer = new BufferedWriter(new OutputStreamWriter(yaml.outputStream), 32768); // TODO compare speed with def buffer
+            logger.log(this, "Started writing yaml to file '" + yaml.file + "' with overwrite: " + overwrite + " and reset: " + reset);
+        }
+        else if(yaml.file != null){
             if(!yaml.file.exists()) throw new DYWriterException("File '" + yaml.file.getName() + "' doesn't exist!");
             writer = new BufferedWriter(new FileWriter(yaml.file), 32768); // TODO compare speed with def buffer
+            logger.log(this, "Started writing yaml to OutputStream '" + yaml.outputStream + "' with overwrite: " + overwrite + " and reset: " + reset);        }
+        else if(yaml.outputString != null){
+            stringWriter = new StringWriter();
+            writer = new BufferedWriter(stringWriter, 32768); // TODO compare speed with def buffer
+            logger.log(this, "Started writing yaml to String '" + yaml.outputString + "' with overwrite: " + overwrite + " and reset: " + reset);
         }
         if (writer == null){
             System.out.println("File and OutputStream are both null. Nothing to write yaml to!");
@@ -52,7 +60,7 @@ class DYWriter {
         } else
             modulesToSave = yaml.createUnifiedList(yaml.getAllInEdit(), yaml.getAllLoaded());
 
-        if (modulesToSave.isEmpty() && yaml.isDebugEnabled())
+        if (modulesToSave.isEmpty() && isDebug)
             logger.log(this, "The modules list is empty. Written an empty file.");
 
 
@@ -64,7 +72,7 @@ class DYWriter {
         }
 
         timer.stop();
-        if (yaml.isDebugEnabled()) {
+        if (isDebug) {
             logger.log(this, "Finished writing of " + yaml.getFile().getName() + " at " + new Date());
             logger.log(this, "Written unified modules details:");
             for (DYModule loadedModule :
@@ -86,7 +94,11 @@ class DYWriter {
                 }
             }
         }
-        if (yaml.isDebugEnabled()) {
+        if (stringWriter!=null){
+            yaml.outputString = stringWriter.toString();
+        }
+
+        if (isDebug) {
             logger.log(this, "Finished writing of " + yaml.getFile().getName() + " at " + new Date());
             logger.log(this, "Operation took " + timer.getFormattedMillis() + "ms or " + timer.getFormattedSeconds() + "s");
             logger.log(this, "");

@@ -3,6 +3,7 @@ package com.osiris.dyml;
 import com.osiris.dyml.exceptions.*;
 import org.junit.jupiter.api.Test;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -219,4 +220,28 @@ class DreamYamlTest {
         assertEquals("c1", yaml.getAllLoaded().get(3).getKeyByIndex(1));
         assertEquals("c1", yaml.getAllLoaded().get(5).getKeyByIndex(1));
     }
+
+    @Test
+    void readValueWithLineBreaks() {
+
+    }
+    @Test
+    void writeValueWithLineBreaks() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        DreamYaml yaml = new DreamYaml(null, out);
+        yaml.load();
+        yaml.put("key").setValues("Hello\nThere!");
+        yaml.save();
+        assertEquals("key: Hello\nThere!", out.toString());
+    }
+
+    @Test
+    void readValueAsModule() {
+
+    }
+    @Test
+    void writeValueAsModule() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
+    }
+
+
 }

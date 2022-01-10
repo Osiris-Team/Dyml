@@ -36,16 +36,24 @@ public class DYDebugLogger {
      * @param object if you want to provide details to the object this message is about.
      */
     public void log(Object object, String message) {
-        StringBuilder builder = new StringBuilder();
-        //builder.append("[").append(new Date().toString()).append("]");
-        builder.append("[").append(object.toString()).append("]");
-        builder.append(" ").append(message);
-        builder.append(System.lineSeparator());
-
         // Print and write to file
         try {
-            if (printOut != null) printOut.print(builder);
-            if (fileOut != null) fileOut.write(builder.toString().getBytes(StandardCharsets.UTF_8));
+            if (printOut != null) {
+                StringBuilder builder = new StringBuilder();
+                //builder.append("[").append(new Date().toString()).append("]");
+                builder.append("[").append(object.getClass().getSimpleName()).append("]");
+                builder.append(" ").append(message);
+                builder.append(System.lineSeparator());
+                printOut.print(builder);
+            }
+            if (fileOut != null){
+                StringBuilder builder = new StringBuilder();
+                //builder.append("[").append(new Date().toString()).append("]");
+                builder.append("[").append(object.getClass().getSimpleName()).append("]");
+                builder.append(" ").append(message);
+                builder.append(System.lineSeparator());
+                fileOut.write(builder.toString().getBytes(StandardCharsets.UTF_8));
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -65,5 +73,9 @@ public class DYDebugLogger {
 
     public void setFileOut(FileOutputStream fileOut) {
         this.fileOut = fileOut;
+    }
+
+    public boolean isEnabled() {
+        return printOut!=null || fileOut!=null;
     }
 }

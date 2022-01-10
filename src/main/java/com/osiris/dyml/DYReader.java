@@ -14,10 +14,7 @@ import com.osiris.dyml.exceptions.IllegalListException;
 import com.osiris.dyml.utils.UtilsDYModule;
 import com.osiris.dyml.utils.UtilsTimeStopper;
 
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -26,6 +23,7 @@ import java.util.List;
  * Responsible for reading the provided file/stream and parsing it into modules.
  */
 class DYReader {
+    private DYDebugLogger debug;
     /**
      * A list that only contains already read lines, that contain a key. <br>
      * Is used when working with regular modules <br>
@@ -39,20 +37,24 @@ class DYReader {
     private DYModule beforeModule;
 
     public void parse(DreamYaml yaml) throws DYReaderException, IOException, IllegalListException {
+        this.debug = yaml.debugLogger;
+
         UtilsTimeStopper timer = new UtilsTimeStopper();
         timer.start();
-        if (yaml.isDebugEnabled()) {
-            System.out.println();
-            System.out.println("Started reading yaml " + (yaml.getInputStream() == null ? "file: " + yaml.getFile().getName() : "InputStream") + " at " + new Date());
-        }
 
         BufferedReader reader = null;
         if (yaml.file != null) {
-            if (!yaml.file.exists()) throw new DYReaderException("File '" + yaml.file.getName() + "' doesn't exist!");
+            if (!yaml.file.exists()) throw new DYReaderException("File '" + yaml.file + "' doesn't exist!");
             reader = new BufferedReader(new FileReader(yaml.file));
+            debug.log(this, "Started reading yaml from file '"+yaml.file+"'");
         }
         if (yaml.inputStream!=null){
-            reader = new BufferedReader(new InputStreamReader(yaml.getInputStream()));
+            reader = new BufferedReader(new InputStreamReader(yaml.inputStream));
+            debug.log(this, "Started reading yaml from InputStream '"+yaml.inputStream+"'");
+        }
+        if (yaml.inputString!=null){
+            reader = new BufferedReader(new StringReader(yaml.inputString));
+            debug.log(this, "Started reading yaml from String '"+yaml.inputString+"'");
         }
         if (reader==null){
             System.out.println("File and InputStream are both null. Nothing to read/load yaml from!");
@@ -130,31 +132,28 @@ class DYReader {
             }
 
         timer.stop();
-        if (yaml.isDebugEnabled()) {
-            System.out.println("Loaded modules details:");
-            for (DYModule loadedModule :
-                    yaml.getAllLoaded()) {
+        debug.log(this, "Loaded modules details:");
+        for (DYModule loadedModule :
+                yaml.getAllLoaded()) {
 
-                System.out.println();
-                System.out.println("---> " + loadedModule.getModuleInformationAsString());
-                if (loadedModule.getParentModule() != null)
-                    System.out.println("PARENT -> " + loadedModule.getParentModule().getModuleInformationAsString());
+            debug.log(this, "");
+            debug.log(this, "---> " + loadedModule.getModuleInformationAsString());
+            if (loadedModule.getParentModule() != null)
+                debug.log(this, "PARENT -> " + loadedModule.getParentModule().getModuleInformationAsString());
+            else
+                debug.log(this, "PARENT -> NULL");
+
+            for (DYModule childModule :
+                    loadedModule.getChildModules()) {
+                if (childModule != null)
+                    debug.log(this, "CHILD -> " + childModule.getModuleInformationAsString());
                 else
-                    System.out.println("PARENT -> NULL");
-
-                for (DYModule childModule :
-                        loadedModule.getChildModules()) {
-                    if (childModule != null)
-                        System.out.println("CHILD -> " + childModule.getModuleInformationAsString());
-                    else
-                        System.out.println("CHILD -> NULL");
-                }
+                    debug.log(this, "CHILD -> NULL");
             }
-            System.out.println();
-            System.out.println("Finished reading of " + (yaml.getInputStream() == null ? yaml.getFile().getName() : "InputStream") + " at " + new Date());
-            System.out.println("Operation took " + timer.getFormattedMillis() + "ms or " + timer.getFormattedSeconds() + "s");
         }
-
+        debug.log(this, "");
+        debug.log(this, "Finished reading of " + (yaml.getInputStream() == null ? yaml.getFile().getName() : "InputStream") + " at " + new Date());
+        debug.log(this, "Operation took " + timer.getFormattedMillis() + "ms or " + timer.getFormattedSeconds() + "s");
     }
 
     /**
@@ -235,8 +234,7 @@ class DYReader {
 
     public void parseFirstLine(DreamYaml yaml, DYLine currentLine) throws IllegalListException {
         if (!currentLine.getFullLine().isEmpty()) {
-            if (yaml.isDebugEnabled())
-                System.out.println("Reading line '" + currentLine.getLineNumber() + "' with content: '" + currentLine.getFullLine() + "'");
+            debug.log(this, "Reading line '" + currentLine.getLineNumber() + "' with content: '" + currentLine.getFullLine() + "'");
             // Go thorough each character of the string, until a special one is found
             int charCode;
             for (int i = 0; i < currentLine.getFullLine().length(); i++) {
@@ -291,9 +289,7 @@ class DYReader {
             countEmptyBeforeLines++;
             return;
         }
-
-        if (yaml.isDebugEnabled())
-            System.out.println("Reading line '" + currentLine.getLineNumber() + "' with content: '" + currentLine.getFullLine() + "'");
+        debug.log(this, "Reading line '" + currentLine.getLineNumber() + "' with content: '" + currentLine.getFullLine() + "'");
 
         // Add the module to the yaml loaded modules list, but only under certain circumstances (logic below)
         List<DYModule> allLoaded = yaml.getAllLoaded();

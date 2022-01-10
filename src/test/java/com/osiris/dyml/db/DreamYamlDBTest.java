@@ -1,5 +1,6 @@
 package com.osiris.dyml.db;
 
+import com.osiris.dyml.DYDebugLogger;
 import com.osiris.dyml.exceptions.*;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -12,7 +13,7 @@ class DreamYamlDBTest {
     @Test
     void testCodingStyle() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
         DreamYamlDB db = new DreamYamlDB(new File(System.getProperty("user.dir") + "/src/test/test-db.yml"));
-        db.getYaml().setDebugEnabled(true);
+        db.getYaml().debugLogger = new DYDebugLogger(System.out);
         db.load();
 
         // Define the table:

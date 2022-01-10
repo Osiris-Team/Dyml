@@ -53,8 +53,9 @@ public class DreamYaml {
     public File file;
     public InputStream inputStream;
     public OutputStream outputStream;
+    public String inputString;
+    public String outputString;
     // General:
-    public boolean isDebugEnabled;
     /**
      * True if {@link #load()} was called successfully once.
      */
@@ -127,7 +128,7 @@ public class DreamYaml {
     // Watcher:
     public DYWatcher watcher = null;
     // Logging:
-    public DYDebugLogger debugLogger = new DYDebugLogger(System.out);
+    public DYDebugLogger debugLogger;
 
     /**
      * Initialises the {@link DreamYaml} object with useful features enabled. <br>
@@ -158,6 +159,39 @@ public class DreamYaml {
     public DreamYaml(InputStream inputStream, OutputStream outputStream, boolean isPostProcessingEnabled, boolean isDebugEnabled) {
         this.inputStream = inputStream;
         this.outputStream = outputStream;
+        init(isPostProcessingEnabled, isDebugEnabled);
+    }
+
+
+    /**
+     * Initialises the {@link DreamYaml} object with useful features enabled. <br>
+     * See {@link #DreamYaml(String, String, boolean, boolean)} for details.
+     */
+    public DreamYaml(String inputString, String outputString) {
+        this(inputString, outputString, true, false);
+    }
+
+    /**
+     * Initialises the {@link DreamYaml} object with useful features enabled. <br>
+     * See {@link #DreamYaml(String, String, boolean, boolean)} for details.
+     */
+    public DreamYaml(String inputString, String outputString, boolean isDebugEnabled) {
+        this(inputString, outputString, true, isDebugEnabled);
+    }
+
+    /**
+     * Initialises the {@link DreamYaml} object.
+     *
+     * @param inputString             Yaml content input as String. Is read from at {@link #load()}. If null, {@link #load()} will do nothing.
+     * @param outputString            Yaml content output as String. Is written to at {@link #save()}. If null, {@link #save()} will do nothing.
+     * @param isPostProcessingEnabled Enabled by default. <br>
+     *                                You can also enable/disable specific post-processing options individually: <br>
+     *                                See {@link #isPostProcessingEnabled} for details.
+     * @param isDebugEnabled          Disabled by default. Shows debugging stuff.
+     */
+    public DreamYaml(String inputString, String outputString, boolean isPostProcessingEnabled, boolean isDebugEnabled) {
+        this.inputString = inputString;
+        this.outputString = outputString;
         init(isPostProcessingEnabled, isDebugEnabled);
     }
 
@@ -226,7 +260,10 @@ public class DreamYaml {
 
     private void init(boolean isPostProcessingEnabled, boolean isDebugEnabled) {
         this.isPostProcessingEnabled = isPostProcessingEnabled;
-        this.isDebugEnabled = isDebugEnabled;
+        if (isDebugEnabled)
+            debugLogger = new DYDebugLogger(System.out);
+        else
+            debugLogger = new DYDebugLogger(null);
     }
 
     /**
@@ -239,7 +276,7 @@ public class DreamYaml {
      * See {@link #isPostProcessingEnabled()} for details.
      */
     public DreamYaml load() throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
-        if (this.isDebugEnabled) System.out.println("Executing load()");
+        debugLogger.log(this, "Executing load()");
         if (file != null && !file.exists()) {
             if (file.getParentFile() != null) file.getParentFile().mkdirs();
             file.createNewFile();
@@ -314,7 +351,7 @@ public class DreamYaml {
      * The {@link #getAllInEdit()} list is not affected.
      */
     public DreamYaml reset() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException {
-        if (this.isDebugEnabled) debugLogger.log(this, "Executing reset()");
+        debugLogger.log(this, "Executing reset()");
         if (inputStream == null) {
             if (!isLoaded) this.load();
             new DYWriter().parse(this, true, true);
@@ -359,7 +396,7 @@ public class DreamYaml {
      *                  That means that everything that wasn't added to that list (loaded modules) will not exist in the file.
      */
     public DreamYaml save(boolean overwrite) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException {
-        if (this.isDebugEnabled) debugLogger.log(this, "Executing save()");
+        debugLogger.log(this, "Executing save()");
         if (!isLoaded) this.load();
         new DYWriter().parse(this, overwrite, false);
         return this;
@@ -390,7 +427,7 @@ public class DreamYaml {
      */
     public DYModule get(List<String> keys) {
         Objects.requireNonNull(keys);
-        if (this.isDebugEnabled) debugLogger.log(this, "Executing get(" + keys.toString() + ")");
+        debugLogger.log(this, "Executing get(" + keys.toString() + ")");
         DYModule module = utilsDYModule.getExisting(keys, inEditModules);
         if (module == null) {
             module = utilsDYModule.getExisting(keys, loadedModules);
@@ -426,7 +463,7 @@ public class DreamYaml {
      */
     public DYModule put(String... keys) throws NotLoadedException, IllegalKeyException {
         Objects.requireNonNull(keys);
-        if (this.isDebugEnabled) debugLogger.log(this, "Executing add(" + keys.toString() + ")");
+        debugLogger.log(this, "Executing add(" + keys.toString() + ")");
         DYModule module = utilsDYModule.getExisting(Arrays.asList(keys), inEditModules);
         if (module == null) {
             module = utilsDYModule.getExisting(Arrays.asList(keys), loadedModules);
@@ -438,8 +475,7 @@ public class DreamYaml {
                 } catch (NotLoadedException | IllegalKeyException e) {
                     throw e;
                 } catch (DuplicateKeyException ignored) {
-                    if (isDebugEnabled)
-                        debugLogger.log(this, "This shouldn't happen! Error while adding " + keys.toString() + " Message: " + ignored.getMessage());
+                    debugLogger.log(this, "This shouldn't happen! Error while adding " + keys.toString() + " Message: " + ignored.getMessage());
                 }
         }
         return module;
@@ -495,7 +531,7 @@ public class DreamYaml {
     public DYModule add(DYModule module) throws IllegalKeyException, NotLoadedException, DuplicateKeyException {
         Objects.requireNonNull(module);
         Objects.requireNonNull(module.getKeys());
-        if (this.isDebugEnabled) debugLogger.log(this, "Executing add(" + module.getKeys().toString() + ")");
+        debugLogger.log(this, "Executing add(" + module.getKeys().toString() + ")");
         if (module.getKeys().isEmpty()) throw new IllegalKeyException("Keys list of this module cannot be empty!");
         if (!isLoaded) throw new NotLoadedException(); // load() should've been called at least once before
         if (module.getKeys().contains(null))
@@ -520,7 +556,7 @@ public class DreamYaml {
      * the replacement gets added to the {@link #inEditModules} list. <br>
      */
     public DYModule replace(DYModule moduleToReplace, DYModule newModule) {
-        if (this.isDebugEnabled) debugLogger.log(this, "Executing replace()");
+        debugLogger.log(this, "Executing replace()");
         Objects.requireNonNull(moduleToReplace);
         Objects.requireNonNull(newModule);
         DYModule module = utilsDYModule.getExisting(moduleToReplace, inEditModules);
@@ -550,7 +586,7 @@ public class DreamYaml {
      * Removes the module from the yaml file once {@link #save()} was called. <br>
      */
     public DreamYaml remove(DYModule module) {
-        if (this.isDebugEnabled) debugLogger.log(this, "Executing remove()");
+        debugLogger.log(this, "Executing remove()");
         DYModule addedM = utilsDYModule.getExisting(module, inEditModules);
         if (addedM != null)
             this.inEditModules.remove(addedM);
@@ -606,32 +642,28 @@ public class DreamYaml {
     public List<DYModule> createUnifiedList(List<DYModule> inEditModules, List<DYModule> loadedModules) {
         if (loadedModules.isEmpty()) return inEditModules;
 
-        if (isDebugEnabled) {
-            debugLogger.log(this, "### CREATE UNIFIED LIST ###");
-            debugLogger.log(this, "This process creates a single list out of the 'inEditModules' and 'loadedModules' lists.");
-            debugLogger.log(this, "Printing contents of both lists:");
-            debugLogger.log(this, "EM: inEditModule, LM: loadedModule.");
-            for (DYModule m :
-                    inEditModules) {
-                debugLogger.log(this, "EM: " + m.getKeys());
-            }
+        debugLogger.log(this, "### CREATE UNIFIED LIST ###");
+        debugLogger.log(this, "This process creates a single list out of the 'inEditModules' and 'loadedModules' lists.");
+        debugLogger.log(this, "Printing contents of both lists:");
+        debugLogger.log(this, "EM: inEditModule, LM: loadedModule.");
+        for (DYModule m :
+                inEditModules) {
+            debugLogger.log(this, "EM: " + m.getKeys());
+        }
 
-            for (DYModule m :
-                    loadedModules) {
-                debugLogger.log(this, "LM: " + m.getKeys());
-            }
+        for (DYModule m :
+                loadedModules) {
+            debugLogger.log(this, "LM: " + m.getKeys());
         }
 
         List<DYModule> copyInEditModules = new CopyOnWriteArrayList<>(inEditModules);
         List<DYModule> unifiedList = new ArrayList<>();
         // Go through the loadedModules list and take its structure.
-        if (isDebugEnabled) {
-            debugLogger.log(this, "Create the unified list: ");
-            debugLogger.log(this, "We go thorough the loadedModules list, to keep its structure and");
-            debugLogger.log(this, "add its modules to the unified list. If there is a inEditModule that has the");
-            debugLogger.log(this, "same keys as the loadedModule, it gets added instead.");
-            debugLogger.log(this, "EM: inEditModule, LM: loadedModule.");
-        }
+        debugLogger.log(this, "Create the unified list: ");
+        debugLogger.log(this, "We go thorough the loadedModules list, to keep its structure and");
+        debugLogger.log(this, "add its modules to the unified list. If there is a inEditModule that has the");
+        debugLogger.log(this, "same keys as the loadedModule, it gets added instead.");
+        debugLogger.log(this, "EM: inEditModule, LM: loadedModule.");
         for (DYModule loadedModule :
                 loadedModules) {
             // Check if there is the same 'inEdit module' available
@@ -640,19 +672,17 @@ public class DreamYaml {
                 unifiedList.add(existing);
                 // Also remove it from its own list, so at the end there are only 'new' modules in that list
                 copyInEditModules.remove(existing);
-                if (isDebugEnabled) debugLogger.log(this, "+ EM " + existing.getKeys().toString() + " to unified.");
+                debugLogger.log(this, "+ EM " + existing.getKeys().toString() + " to unified.");
             } else {
                 unifiedList.add(loadedModule);
-                if (isDebugEnabled) debugLogger.log(this, "+ LM " + loadedModule.getKeys().toString() + " to unified.");
+                debugLogger.log(this, "+ LM " + loadedModule.getKeys().toString() + " to unified.");
             }
         }
 
-        if (isDebugEnabled) {
-            debugLogger.log(this, "Now go through the copyInEditModules(" + copyInEditModules.size() + ") list, which");
-            debugLogger.log(this, "should now only contain new modules, that didn't exist in the loadedModules list.");
-            debugLogger.log(this, "Insert those modules, into the unified list, at the right place:");
-            debugLogger.log(this, "NM: newModule.");
-        }
+        debugLogger.log(this, "Now go through the copyInEditModules(" + copyInEditModules.size() + ") list, which");
+        debugLogger.log(this, "should now only contain new modules, that didn't exist in the loadedModules list.");
+        debugLogger.log(this, "Insert those modules, into the unified list, at the right place:");
+        debugLogger.log(this, "NM: newModule.");
 
 
         // The copyInEditModules, now only contains completely new modules.
@@ -682,8 +712,7 @@ public class DreamYaml {
                             //   g1-1:
                             //   g1-2: <---
                             if (j + 1 >= highestCountOfMatchingKeys) { // Since j is the index, add +1 to get the actual count
-                                if (isDebugEnabled)
-                                    debugLogger.log(this, "Set bestMatchIndex to " + currentIndex + " because of " + (j + 1) + "x similar keys found in unifiedModule, while searching for " + newModule.getKeys().toString());
+                                debugLogger.log(this, "Set bestMatchIndex to " + currentIndex + " because of " + (j + 1) + "x similar keys found in unifiedModule, while searching for " + newModule.getKeys().toString());
                                 bestMatchIndex = currentIndex;
                                 highestCountOfMatchingKeys = j + 1; // Since j is the index, add +1 to get the actual count
                             }
@@ -711,8 +740,7 @@ public class DreamYaml {
                             beforeFillerModule.addChildModules(fillerModule);
                             fillerModule.setParentModule(beforeFillerModule);
                         }
-                        if (isDebugEnabled)
-                            debugLogger.log(this, "+ Filler at index " + bestMatchIndex + " " + fillerModule.getKeys().toString());
+                        debugLogger.log(this, "+ Filler at index " + bestMatchIndex + " " + fillerModule.getKeys().toString());
                         beforeFillerModule = fillerModule;
                     }
                 }
@@ -723,29 +751,25 @@ public class DreamYaml {
                     unifiedList.add(bestMatchIndex, newModule);
                     parent.addChildModules(newModule);
                     newModule.setParentModule(parent);
-                    if (isDebugEnabled)
-                        debugLogger.log(this, "> Insert at index " + bestMatchIndex + " " + newModule.getKeys().toString());
+                    debugLogger.log(this, "> Insert at index " + bestMatchIndex + " " + newModule.getKeys().toString());
                 } catch (Exception e) {
-                    if (isDebugEnabled)
-                        debugLogger.log(this, "! Failed to find parent for: " + newModule.getKeys().toString() + " Probably a new module.");
+                    debugLogger.log(this, "! Failed to find parent for: " + newModule.getKeys().toString() + " Probably a new module.");
                     unifiedList.add(0, newModule); // Can be a completely new >G0 module
-                    if (isDebugEnabled) debugLogger.log(this, "+ NM " + newModule.getKeys().toString());
+                    debugLogger.log(this, "+ NM " + newModule.getKeys().toString());
                 }
             } else {
                 unifiedList.add(0, newModule); // G0 modules get added to the end of the file
-                if (isDebugEnabled) debugLogger.log(this, "+ NM at G0 " + newModule.getKeys().toString());
+                debugLogger.log(this, "+ NM at G0 " + newModule.getKeys().toString());
             }
         }
 
-        if (isDebugEnabled) {
-            debugLogger.log(this, "Finished creation of unified list. Quick overview of the result:");
-            debugLogger.log(this, "UM: unifiedModule.");
-            for (DYModule m :
-                    unifiedList) {
-                debugLogger.log(this, "UM: " + m.getKeys().toString());
-            }
-            debugLogger.log(this, "### FINISHED CREATE UNIFIED LIST ###");
+        debugLogger.log(this, "Finished creation of unified list. Quick overview of the result:");
+        debugLogger.log(this, "UM: unifiedModule.");
+        for (DYModule m :
+                unifiedList) {
+            debugLogger.log(this, "UM: " + m.getKeys().toString());
         }
+        debugLogger.log(this, "### FINISHED CREATE UNIFIED LIST ###");
         return unifiedList;
     }
 
@@ -871,22 +895,6 @@ public class DreamYaml {
         if (!isLoaded) throw new NotLoadedException();
         return file.getName().replaceFirst("[.][^.]+$", ""); // Removes the file extension
     }
-
-    public boolean isDebugEnabled() {
-        return isDebugEnabled;
-    }
-
-    public DreamYaml setDebugEnabled(boolean debugEnabled) {
-        this.isDebugEnabled = debugEnabled;
-        return this;
-    }
-
-
-
-
-
-
-
 
 }
 
