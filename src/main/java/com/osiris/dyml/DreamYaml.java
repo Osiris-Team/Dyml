@@ -53,8 +53,8 @@ public class DreamYaml {
     public File file;
     public InputStream inputStream;
     public OutputStream outputStream;
-    public String inputString;
-    public String outputString;
+    public String inString;
+    public String outString;
     // General:
     /**
      * True if {@link #load()} was called successfully once.
@@ -167,31 +167,31 @@ public class DreamYaml {
      * Initialises the {@link DreamYaml} object with useful features enabled. <br>
      * See {@link #DreamYaml(String, String, boolean, boolean)} for details.
      */
-    public DreamYaml(String inputString, String outputString) {
-        this(inputString, outputString, true, false);
+    public DreamYaml(String inString, String outString) {
+        this(inString, outString, true, false);
     }
 
     /**
      * Initialises the {@link DreamYaml} object with useful features enabled. <br>
      * See {@link #DreamYaml(String, String, boolean, boolean)} for details.
      */
-    public DreamYaml(String inputString, String outputString, boolean isDebugEnabled) {
-        this(inputString, outputString, true, isDebugEnabled);
+    public DreamYaml(String inString, String outString, boolean isDebugEnabled) {
+        this(inString, outString, true, isDebugEnabled);
     }
 
     /**
      * Initialises the {@link DreamYaml} object.
      *
-     * @param inputString             Yaml content input as String. Is read from at {@link #load()}. If null, {@link #load()} will do nothing.
-     * @param outputString            Yaml content output as String. Is written to at {@link #save()}. If null, {@link #save()} will do nothing.
+     * @param inString             Yaml content input as String. Is read from at {@link #load()}. If null, {@link #load()} will do nothing.
+     * @param outString            Yaml content output as String. Is written to at {@link #save()}. If null, {@link #save()} will do nothing.
      * @param isPostProcessingEnabled Enabled by default. <br>
      *                                You can also enable/disable specific post-processing options individually: <br>
      *                                See {@link #isPostProcessingEnabled} for details.
      * @param isDebugEnabled          Disabled by default. Shows debugging stuff.
      */
-    public DreamYaml(String inputString, String outputString, boolean isPostProcessingEnabled, boolean isDebugEnabled) {
-        this.inputString = inputString;
-        this.outputString = outputString;
+    public DreamYaml(String inString, String outString, boolean isPostProcessingEnabled, boolean isDebugEnabled) {
+        this.inString = inString;
+        this.outString = outString;
         init(isPostProcessingEnabled, isDebugEnabled);
     }
 

@@ -16,7 +16,6 @@ import com.osiris.dyml.utils.UtilsTimeStopper;
 
 import java.io.*;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -52,9 +51,9 @@ class DYReader {
             reader = new BufferedReader(new InputStreamReader(yaml.inputStream));
             debug.log(this, "Started reading yaml from InputStream '"+yaml.inputStream+"'");
         }
-        if (yaml.inputString!=null){
-            reader = new BufferedReader(new StringReader(yaml.inputString));
-            debug.log(this, "Started reading yaml from String '"+yaml.inputString+"'");
+        if (yaml.inString !=null){
+            reader = new BufferedReader(new StringReader(yaml.inString));
+            debug.log(this, "Started reading yaml from String '"+yaml.inString +"'");
         }
         if (reader==null){
             System.out.println("File and InputStream are both null. Nothing to read/load yaml from!");
@@ -152,8 +151,7 @@ class DYReader {
             }
         }
         debug.log(this, "");
-        debug.log(this, "Finished reading of " + (yaml.getInputStream() == null ? yaml.getFile().getName() : "InputStream") + " at " + new Date());
-        debug.log(this, "Operation took " + timer.getFormattedMillis() + "ms or " + timer.getFormattedSeconds() + "s");
+        debug.log(this, "Finished reading, took " + timer.getFormattedMillis() + "ms or " + timer.getFormattedSeconds() + "s");
     }
 
     /**
