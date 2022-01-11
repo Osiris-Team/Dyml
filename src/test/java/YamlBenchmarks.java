@@ -20,8 +20,26 @@ import java.util.Map;
 public class YamlBenchmarks {
 
     @Test
+    void test() {
+        String s = "hi:#-\nhi";
+        try{
+            StringReader reader = new StringReader(s);
+            int c = 0;
+            while((c=reader.read())!=-1){
+                System.out.println("int: "+c+" char: "+(char)c);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Test
     void compareAll() throws InterruptedException, IOException, InvalidConfigurationException, DuplicateKeyException, DYReaderException, IllegalListException {
-        System.out.println("Performing benchmark... Results:");
+        File file = new File(System.getProperty("user.dir") + "/benchmark-small-config.yml");
+        File json = new File(System.getProperty("user.dir") + "/benchmark-small-config.json");
+        System.out.println("Performing read speed benchmark on files:");
+        System.out.println("Size in bytes: "+file.length()+" Path: "+file);
+        System.out.println("Size in bytes: "+json.length()+" Path: "+json);
         System.out.println("Run | Gson | DreamYaml | SnakeYaml | YamlBeans | EoYaml | SimpleYaml");
 
         List<Double> resultsGSON = new ArrayList<>();
@@ -31,8 +49,8 @@ public class YamlBenchmarks {
         List<Double> resultsEOYaml = new ArrayList<>();
         List<Double> resultsSimpleYaml = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            File file = new File(System.getProperty("user.dir") + "/benchmark-small-config.yml");
-            File json = new File(System.getProperty("user.dir") + "/benchmark-small-config.json");
+            file = new File(System.getProperty("user.dir") + "/benchmark-small-config.yml");
+            json = new File(System.getProperty("user.dir") + "/benchmark-small-config.json");
             UtilsTimeStopper timer = new UtilsTimeStopper();
             String msGSON;
             String msDY;
