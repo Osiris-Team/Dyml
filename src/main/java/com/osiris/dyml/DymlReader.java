@@ -11,24 +11,24 @@ package com.osiris.dyml;
 
 import com.osiris.dyml.exceptions.DYReaderException;
 import com.osiris.dyml.exceptions.IllegalListException;
-import com.osiris.dyml.utils.UtilsDYModule;
-import com.osiris.dyml.utils.UtilsTimeStopper;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * Responsible for reading the provided file/stream and parsing it into modules.
  */
 class DymlReader {
-    private DYDebugLogger debug;
-    private List<Integer> listCountSpaces = new ArrayList<>();
-    private List<DymlSection> listSections;
+    public long ms = 0;
+    private List<Integer> listCountSpaces = new ArrayList<>(50);
+    private List<DymlSection> listSections = new ArrayList<>(50);
 
     private DymlSection lastSection;
     // Last lines information: (use fields instead of an actual line object bc of performance)
     private boolean lastCommentFound;
+    private List<String> lastComments;
 
     private DymlSection section;
     // Current lines information:
@@ -37,128 +37,199 @@ class DymlReader {
     private boolean keyFound;
     private boolean charFound;
 
-    public void parse(Dyml dyml) throws DYReaderException, IOException, IllegalListException {
-        this.debug = dyml.debugLogger;
-
-        UtilsTimeStopper timer = new UtilsTimeStopper();
-        timer.start();
+    public List<DymlSection> parse(File file, InputStream inputStream, String inString) throws DYReaderException, IOException, IllegalListException {
+        ms = System.currentTimeMillis();
 
         BufferedReader reader = null;
-        if (dyml.file != null) {
-            if (!dyml.file.exists()) throw new DYReaderException("File '" + dyml.file + "' doesn't exist!");
-            reader = new BufferedReader(new FileReader(dyml.file));
-            debug.log(this, "Started reading dyml from file '"+dyml.file+"'");
+        if (file != null) {
+            if (!file.exists()) throw new DYReaderException("File '" + file + "' doesn't exist!");
+            reader = new BufferedReader(new FileReader(file));
         }
-        if (dyml.inputStream!=null){
-            reader = new BufferedReader(new InputStreamReader(dyml.inputStream));
-            debug.log(this, "Started reading dyml from InputStream '"+dyml.inputStream+"'");
+        if (inputStream!=null){
+            reader = new BufferedReader(new InputStreamReader(inputStream));
         }
-        if (dyml.inString !=null){
-            reader = new BufferedReader(new StringReader(dyml.inString));
-            debug.log(this, "Started reading dyml from String '"+dyml.inString +"'");
+        if (inString !=null){
+            reader = new BufferedReader(new StringReader(inString));
         }
         if (reader==null){
-            System.out.println("File and InputStream are both null. Nothing to read/load dyml from!");
-            return;
+            throw new DYReaderException("File/InputStream/String are all null. Nothing to read/load dyml from!");
         }
-        listSections = dyml.getAllLoaded();
-        listSections.clear();
-
 
         // Parse the first line manually, so that the lastSection is NOT null, and we don't have to check it every time
-        StringBuilder firstLine = new StringBuilder(100);
-        int firstChar = reader.read();
-        if (firstChar==32) { // ' '
-            lastCommentFound = true;
-            lastSection = new DymlSection(
-                    new SmartString(emptyToNull(firstLine.toString())),
-                    new SmartString(emptyToNull(reader.readLine())), // Read the rest of the line
-                    null
-            );
-        } else{
-            for (int i = 0; i < Integer.MAX_VALUE; i++) {
-                firstChar = reader.read();
-                firstLine.append((char) firstChar);
-                if (firstChar==32 || firstChar==10 || firstChar==-1){
-                    lastSection = new DymlSection(
-                            new SmartString(emptyToNull(firstLine.toString())),
-                            new SmartString(emptyToNull(reader.readLine())), // Read the rest of the line
-                            null
-                     );
-                    break;
-                }
-            }
-        }
-
-        // This is the actual loop
-        StringBuilder line = new StringBuilder(100); // Max line length of 10k chars
+        char[] line = new char[10000]; // Max line length of 10k chars
+        int lineIndex = 0;
         int c;
         try{
+            c = reader.read();
+            // Parse the first line manually:
+            if (c==32) { // ' ' means it's a comment
+                lastCommentFound = true;
+                lastSection = new DymlSection(
+                        new SmartString(null),
+                        new SmartString(emptyToNull(reader.readLine())), // Read the rest of the line
+                        null
+                );
+                section = lastSection;
+                listSections.add(section);
+            } else{
+                lastSection = new DymlSection(null, null, null);
+                section = lastSection;
+                listSections.add(section);
+                // Determine key:
+                int indexStart = lineIndex;
+                for (int k = 0; k < Integer.MAX_VALUE; k++) { // No while loop bc of performance
+                    c = reader.read();
+                    line[lineIndex] = ((char) c);
+                    if (c==32){
+                        String key = new String(Arrays.copyOfRange(line, indexStart, lineIndex));
+                        section.key = new SmartString(key);
+                        break;
+                    }
+                    else if (c==10){ // Reads until the end of the line
+                        String key = new String(Arrays.copyOfRange(line, indexStart, lineIndex));
+                        section.key = new SmartString(key);
+                        break;
+                    } else if(c==-1){
+                        String key = new String(Arrays.copyOfRange(line, indexStart, lineIndex));
+                        section.key = new SmartString(key);
+                        throw new EOFException();
+                    }
+                    lineIndex++;
+                }
+
+                // Determine value:
+                indexStart = lineIndex;
+                for (int k = 0; k < Integer.MAX_VALUE; k++) { // No while loop bc of performance
+                    c = reader.read();
+                    line[lineIndex] = ((char) c);
+                    if (c==10){ // Reads until the end of the line
+                        String value = new String(Arrays.copyOfRange(line, indexStart, lineIndex));
+                        section.value = new SmartString(emptyToNull(value));
+                        break;
+                    } else if(c==-1){
+                        String value = new String(Arrays.copyOfRange(line, indexStart, lineIndex));
+                        section.value = new SmartString(emptyToNull(value));
+                        throw new EOFException();
+                    }
+                    lineIndex++;
+                }
+            }
+            lineIndex = 0;
+
+            // Parse all the next lines:
             while (true){ // Use this special loop to avoid an actual while loop, to increase read speed
                 for (int i = 0; i < Integer.MAX_VALUE; i++) {
                     c = reader.read(); // Read char by char until the end
-                    line.append((char) c);
+                    line[lineIndex] = (char) c;
                     switch (c){ // Instead of if bc of performance
                         // The cases below are sorted from probably most abundant char in the file to least
                         case 32: // ' '
                             if (!charFound) countSpaces++;
-                            else { // Found a key, read until next space
-                                for (int j = 0; j < Integer.MAX_VALUE; j++) { // No while loop bc of performance
-                                    c = reader.read();
-                                    line.append((char) c);
-                                    if (c==32 || c==10 || c==-1){
-                                        if (countSpaces%2==0){
-                                            keyFound = true;
-                                            // parent
-                                            //    A comment
-                                            //   child value <---
-                                            if (lastCommentFound)
-                                                section = lastSection;
-                                            section.key = new SmartString(emptyToNull(line.toString()));
-                                            section.value = new SmartString(emptyToNull(reader.readLine())); // Read the rest of the line
-                                            c = 10; // \n
-                                            // Determine this sections parent:
-                                            // Go reversely through the sections list and pick the first section where the difference in spaces is 2.
-                                            // It can be that this is a G0 module. In that case we don't need to search for a parent.
-                                            if (countSpaces > 0) {
-                                                for (int k = listSections.size() - 1; k >= 0; k--) {
-                                                    if ((listCountSpaces.get(k)-countSpaces) == 2){
-                                                        DymlSection parent = listSections.get(k);
-                                                        section.parent = parent;
-                                                        parent.children.add(section);
-                                                    }
-                                                }
-                                            }
-                                            listSections.add(section);
-                                            listCountSpaces.add(countSpaces);
-                                        } else{
-                                            commentFound = true;
-                                            String comment = emptyToNull(reader.readLine()); // Read the rest of the line
-                                            c = 10; // \n
-                                            section.comment = comment;
-                                        }
-                                        break;
-                                    }
-                                }
-                            }
+                            lineIndex++;
                             break;
                         case 10: // '\n' (aka next line char, aka end of the current line)
-                            charFound = true;
+                            // Run always on \n
                             // Save important current line info
                             lastSection = section;
                             lastCommentFound = commentFound;
                             // Reset current line info
-                            line = new StringBuilder(100);
                             countSpaces = 0;
                             commentFound = false;
                             keyFound = false;
                             charFound = false;
+                            lineIndex = 0;
                             break;
                         case -1: // 'EOF' (end of file "char")
                             throw new EOFException(); // Do this bc then of performance
-                        default:
-                            // Any other charCode than above will count as word
+                        default: // Any other char
                             charFound = true;
+                            if (countSpaces%2==0){
+                                keyFound = true;
+                                // parent
+                                //    A comment
+                                //   child value <---
+                                if (lastCommentFound)
+                                    section = lastSection;
+                                // Determine key:
+                                int indexStart = lineIndex;
+                                for (int k = 0; k < Integer.MAX_VALUE; k++) { // No while loop bc of performance
+                                    c = reader.read();
+                                    line[lineIndex] = ((char) c);
+                                    if (c==32){
+                                        String key = new String(Arrays.copyOfRange(line, indexStart, lineIndex));
+                                        section.key = new SmartString(key);
+                                        break;
+                                    }
+                                    else if (c==10){ // Reads until the end of the line
+                                        String key = new String(Arrays.copyOfRange(line, indexStart, lineIndex));
+                                        section.key = new SmartString(key);
+                                        break;
+                                    } else if(c==-1){
+                                        String key = new String(Arrays.copyOfRange(line, indexStart, lineIndex));
+                                        section.key = new SmartString(key);
+                                        throw new EOFException();
+                                    }
+                                    lineIndex++;
+                                }
+
+                                // Determine value:
+                                indexStart = lineIndex;
+                                for (int k = 0; k < Integer.MAX_VALUE; k++) { // No while loop bc of performance
+                                    c = reader.read();
+                                    line[lineIndex] = ((char) c);
+                                    if (c==10){ // Reads until the end of the line
+                                        String value = new String(Arrays.copyOfRange(line, indexStart, lineIndex));
+                                        section.value = new SmartString(emptyToNull(value));
+                                        break;
+                                    } else if(c==-1){
+                                        String value = new String(Arrays.copyOfRange(line, indexStart, lineIndex));
+                                        section.value = new SmartString(emptyToNull(value));
+                                        throw new EOFException();
+                                    }
+                                    lineIndex++;
+                                }
+                                // Determine this sections parent:
+                                // Go reversely through the sections list and pick the first section where the difference in spaces is 2.
+                                // It can be that this is a G0 module. In that case we don't need to search for a parent.
+                                if (countSpaces > 0) {
+                                    for (int k = listSections.size() - 1; k >= 0; k--) {
+                                        if ((listCountSpaces.get(k)-countSpaces) == 2){
+                                            DymlSection parent = listSections.get(k);
+                                            section.parent = parent;
+                                            parent.children.add(section);
+                                        }
+                                    }
+                                }
+                                listSections.add(section);
+                                listCountSpaces.add(countSpaces);
+                            } else{
+                                commentFound = true;
+                                int indexStart = lineIndex;
+                                for (int k = 0; k < Integer.MAX_VALUE; k++) { // No while loop bc of performance
+                                    c = reader.read();
+                                    line[lineIndex] = ((char) c);
+                                    if (c==10){ // Reads until the end of the line
+                                        String comment = new String(Arrays.copyOfRange(line, indexStart, lineIndex));
+                                        section.comment = emptyToNull(comment);
+                                        break;
+                                    } else if(c==-1){
+                                        String comment = new String(Arrays.copyOfRange(line, indexStart, lineIndex));
+                                        section.comment = emptyToNull(comment);
+                                        throw new EOFException();
+                                    }
+                                    lineIndex++;
+                                }
+                            }
+                            // Run always on \n
+                            // Save important current line info
+                            lastSection = section;
+                            lastCommentFound = commentFound;
+                            // Reset current line info
+                            countSpaces = 0;
+                            commentFound = false;
+                            keyFound = false;
+                            charFound = false;
+                            lineIndex = 0;
                     }
                 }
             }
@@ -169,50 +240,8 @@ class DymlReader {
             throw e;
         }
 
-        // Do post processing if enabled
-        UtilsDYModule utils = new UtilsDYModule();
-        if (dyml.isPostProcessingEnabled) {
-
-            if (dyml.isTrimLoadedValuesEnabled)
-                for (DYModule m :
-                        dyml.getAllLoaded()) {
-                    utils.trimValues(m.getValues());
-                }
-
-            if (dyml.isRemoveQuotesFromLoadedValuesEnabled)
-                for (DYModule m :
-                        dyml.getAllLoaded()) {
-                    utils.removeQuotesFromValues(m.getValues());
-                }
-
-            if (dyml.isRemoveLoadedNullValuesEnabled)
-                for (DYModule m :
-                        dyml.getAllLoaded()) {
-                    utils.removeNullValues(m.getValues());
-                }
-
-            if (dyml.isTrimCommentsEnabled)
-                for (DYModule m :
-                        dyml.getAllLoaded()) {
-                    utils.trimComments(m.getComments());
-                    utils.trimValuesComments(m.getValues());
-                }
-
-        }
-
-        // Update the inEditModules values and their parent/child modules.
-        // This is done, because these modules may have only default values set.
-        if (!dyml.getAllLoaded().isEmpty())
-            for (DYModule inEditM :
-                    dyml.getAllInEdit()) {
-                DYModule loadedM = utils.getExisting(inEditM, dyml.getAllLoaded());
-                inEditM.setValues(loadedM.getValues());
-                inEditM.setParentModule(loadedM.getParentModule());
-                inEditM.setChildModules(loadedM.getChildModules());
-            }
-
-        timer.stop();
-        debug.log(this, "Finished reading, took " + timer.getFormattedMillis() + "ms or " + timer.getFormattedSeconds() + "s");
+        ms = System.currentTimeMillis() - ms;
+        return listSections;
     }
 
     /**

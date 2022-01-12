@@ -12,16 +12,8 @@ public class SmartString {
 
     // GETTERS:
 
-
     /**
-     * Same as {@link #asString()}. Note that this can be null.
-     */
-    public String get() {
-        return string;
-    }
-
-    /**
-     * Same as {@link #get()}. Note that this can be null.
+     * Note that this can be null.
      */
     public String asString() {
         return string;

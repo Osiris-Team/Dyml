@@ -9,12 +9,6 @@
 package com.osiris.dyml;
 
 
-import com.osiris.dyml.exceptions.DYReaderException;
-import com.osiris.dyml.exceptions.IllegalListException;
-import com.osiris.dyml.utils.UtilsDYModule;
-import com.osiris.dyml.utils.UtilsTimeStopper;
-
-import java.io.*;
 import java.util.List;
 
 /**
@@ -57,6 +51,7 @@ class DYReaderV2 {
     private String rawValue;
     private String rawComment;
 
+    /*
     public void parse(DreamYaml yaml) throws DYReaderException, IOException, IllegalListException {
         this.debug = yaml.debugLogger;
 
@@ -282,6 +277,8 @@ class DYReaderV2 {
         }
     }
 
+
+ */
     /**
      * If the provided String is empty, return null.
      * This is useful, because {@link String#substring(int)} returns an empty string instead of null,

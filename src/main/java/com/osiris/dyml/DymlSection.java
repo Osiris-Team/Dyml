@@ -24,74 +24,70 @@ public class DymlSection {
      * The lowest level is at {@link DYLine}, but thats only accessible for the {@link DYReader} and the {@link DYWriter}. <br>
      */
     public String asString() {
-        return value;
-    }
-
-    public Dyml asDyml(){
-        return dymlValue;
+        return value.asString();
     }
 
     /**
      * Note that this can be null.
      */
     public char[] asCharArray() {
-        if (value==null) return null;
-        return value.toCharArray();
+        if (value.asString()==null) return null;
+        return value.asString().toCharArray();
     }
 
     /**
      * Note that this can be null.
      */
     public Boolean asBoolean() {
-        if (value==null) return null;
-        return Boolean.parseBoolean(value);
+        if (value.asString()==null) return null;
+        return Boolean.parseBoolean(value.asString());
     }
 
     /**
      * Note that this can be null.
      */
     public Byte asByte() {
-        if (value==null) return null;
-        return Byte.parseByte(value);
+        if (value.asString()==null) return null;
+        return Byte.parseByte(value.asString());
     }
 
     /**
      * Note that this can be null.
      */
     public Short asShort() {
-        if (value==null) return null;
-        return Short.parseShort(value);
+        if (value.asString()==null) return null;
+        return Short.parseShort(value.asString());
     }
 
     /**
      * Note that this can be null.
      */
     public Integer asInt() {
-        if (value==null) return null;
-        return Integer.parseInt(value);
+        if (value.asString()==null) return null;
+        return Integer.parseInt(value.asString());
     }
 
     /**
      * Note that this can be null.
      */
     public Long asLong() {
-        if (value==null) return null;
-        return Long.parseLong(value);
+        if (value.asString()==null) return null;
+        return Long.parseLong(value.asString());
     }
 
     /**
      * Note that this can be null.
      */
     public Float asFloat() {
-        if (value==null) return null;
-        return Float.parseFloat(value);
+        if (value.asString()==null) return null;
+        return Float.parseFloat(value.asString());
     }
 
     /**
      * Note that this can be null.
      */
     public Double asDouble() {
-        if (value==null) return null;
-        return Double.parseDouble(value);
+        if (value.asString()==null) return null;
+        return Double.parseDouble(value.asString());
     }
 }
