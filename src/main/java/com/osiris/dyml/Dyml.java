@@ -45,9 +45,10 @@ public class Dyml {
 
     public void printSections(PrintStream out){
         if (loadedSections.size()==0) System.err.println("List is empty!");
+        out.println("Index | Key | Value | Comments");
         for (int i = 0; i < loadedSections.size(); i++) {
             DymlSection section = loadedSections.get(i);
-            out.println("["+i+"] "+section.key.asString()+ " "+section.value.asString()+ " "+section.comment);
+            out.println(i+" '"+section.key.asString()+ "' '"+section.value.asString()+ "' '"+section.comments.toString()+"'");
         }
     }
 

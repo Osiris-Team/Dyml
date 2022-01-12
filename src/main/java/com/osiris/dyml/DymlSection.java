@@ -6,14 +6,14 @@ import java.util.List;
 public class DymlSection {
     public SmartString key;
     public SmartString value;
-    public String comment;
+    public List<String> comments;
     public DymlSection parent;
     public List<DymlSection> children;
 
-    public DymlSection(SmartString key, SmartString value, String comment) {
+    public DymlSection(SmartString key, SmartString value, List<String> comments) {
         this.key = key;
         this.value = value;
-        this.comment = comment;
+        this.comments = comments;
         this.children = new ArrayList<>();
     }
 

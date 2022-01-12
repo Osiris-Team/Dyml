@@ -4,6 +4,7 @@ import com.esotericsoftware.yamlbeans.YamlReader;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.Dyml;
 import com.osiris.dyml.exceptions.DYReaderException;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
 import com.osiris.dyml.exceptions.IllegalListException;
@@ -35,13 +36,15 @@ public class YamlBenchmarks {
 
     @Test
     void compareAll() throws InterruptedException, IOException, InvalidConfigurationException, DuplicateKeyException, DYReaderException, IllegalListException {
-        File file = new File(System.getProperty("user.dir") + "/benchmark-small-config.yml");
-        File json = new File(System.getProperty("user.dir") + "/benchmark-small-config.json");
+        File fileDyml = new File(System.getProperty("user.dir") + "/src/test/benchmark-small-config.dyml");
+        File fileYml = new File(System.getProperty("user.dir") + "/src/test/benchmark-small-config.yml");
+        File fileJson = new File(System.getProperty("user.dir") + "/src/test/benchmark-small-config.json");
         System.out.println("Performing read speed benchmark on files:");
-        System.out.println("Size in bytes: "+file.length()+" Path: "+file);
-        System.out.println("Size in bytes: "+json.length()+" Path: "+json);
-        System.out.println("Run | Gson | DreamYaml | SnakeYaml | YamlBeans | EoYaml | SimpleYaml");
+        System.out.println("Size in bytes: "+fileYml.length()+" Path: "+fileYml);
+        System.out.println("Size in bytes: "+fileJson.length()+" Path: "+fileJson);
+        System.out.println("Run | Dyml | Gson | DreamYaml | SnakeYaml | YamlBeans | EoYaml | SimpleYaml");
 
+        List<Double> resultsDYML = new ArrayList<>();
         List<Double> resultsGSON = new ArrayList<>();
         List<Double> resultsDreamYaml = new ArrayList<>();
         List<Double> resultsSnakeYaml = new ArrayList<>();
@@ -49,9 +52,11 @@ public class YamlBenchmarks {
         List<Double> resultsEOYaml = new ArrayList<>();
         List<Double> resultsSimpleYaml = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            file = new File(System.getProperty("user.dir") + "/benchmark-small-config.yml");
-            json = new File(System.getProperty("user.dir") + "/benchmark-small-config.json");
+            fileDyml = new File(System.getProperty("user.dir") + "/src/test/benchmark-small-config.dyml");
+            fileYml = new File(System.getProperty("user.dir") + "/src/test/benchmark-small-config.yml");
+            fileJson = new File(System.getProperty("user.dir") + "/src/test/benchmark-small-config.json");
             UtilsTimeStopper timer = new UtilsTimeStopper();
+            String msDYML;
             String msGSON;
             String msDY;
             String msSNY;
@@ -59,16 +64,23 @@ public class YamlBenchmarks {
             String msEOY;
             String msSMY;
 
+            // DREAM-YAML DYML
+            timer.start();
+            Dyml.from(fileDyml);
+            timer.stop();
+            resultsDYML.add(timer.getMillis());
+            msDYML = timer.getFormattedMillis();
+
             // DREAM-YAML
             timer.start();
-            new Gson().fromJson(new FileReader(json), JsonObject.class);
+            new Gson().fromJson(new FileReader(fileJson), JsonObject.class);
             timer.stop();
             resultsGSON.add(timer.getMillis());
             msGSON = timer.getFormattedMillis();
 
             // GSON
             timer.start();
-            DreamYaml dreamYaml = new DreamYaml(file);
+            DreamYaml dreamYaml = new DreamYaml(fileYml);
             dreamYaml.load();
             timer.stop();
             dreamYaml = null;
@@ -78,7 +90,7 @@ public class YamlBenchmarks {
             // SNAKE-YAML
             timer.start();
             org.yaml.snakeyaml.Yaml snakeYaml = new org.yaml.snakeyaml.Yaml();
-            InputStream fileInput = new FileInputStream(file);
+            InputStream fileInput = new FileInputStream(fileYml);
             snakeYaml.loadAll(fileInput);
             timer.stop();
             snakeYaml = null;
@@ -87,7 +99,7 @@ public class YamlBenchmarks {
 
             // YAML-BEANS
             timer.start();
-            YamlReader yamlBeans = new YamlReader(new FileReader(file));
+            YamlReader yamlBeans = new YamlReader(new FileReader(fileYml));
             Object object = yamlBeans.read();
             Map map = (Map) object;
             timer.stop();
@@ -98,7 +110,7 @@ public class YamlBenchmarks {
             // EO-YAML
             timer.start();
             YamlMapping eolYamlTest = Yaml.createYamlInput(
-                    file
+                    fileYml
             ).readYamlMapping();
             eolYamlTest.values();
             timer.stop();
@@ -108,17 +120,18 @@ public class YamlBenchmarks {
 
             // SIMPLE-YAML
             timer.start();
-            YamlFile simpleYamlTest = new YamlFile(file);
+            YamlFile simpleYamlTest = new YamlFile(fileYml);
             simpleYamlTest.loadWithComments(); // Loads the entire file
             timer.stop();
             simpleYamlTest = null;
             msSMY = timer.getFormattedMillis();
             resultsSimpleYaml.add(timer.getMillis());
 
-            System.out.println("[" + i + "] [GSON:" + msGSON + "ms] [DY: " + msDY + "ms] [SNY: " + msSNY + "ms] [YB: " + msYB + "ms] [EOY: " + msEOY + "ms] [SMY: " + msSMY + "ms]");
+            System.out.println("[" + i + "] [DYML:" + msDYML + "ms] [GSON:" + msGSON + "ms] [DY: " + msDY + "ms] [SNY: " + msSNY + "ms] [YB: " + msYB + "ms] [EOY: " + msEOY + "ms] [SMY: " + msSMY + "ms]");
             Thread.sleep(500);
         }
         System.out.println("Average read speeds in milliseconds (first run was excluded):");
+        System.out.println("Dyml: " + calcAverage(resultsDYML));
         System.out.println("Gson: " + calcAverage(resultsGSON));
         System.out.println("DreamYaml: " + calcAverage(resultsDreamYaml));
         System.out.println("SnakeYaml: " + calcAverage(resultsSnakeYaml));
