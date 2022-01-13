@@ -23,7 +23,7 @@ public class SmartString {
      * Note that this can be null.
      */
     public char[] asCharArray() {
-        if (string==null) return null;
+        if (string == null) return null;
         return string.toCharArray();
     }
 
@@ -31,7 +31,7 @@ public class SmartString {
      * Note that this can be null.
      */
     public Boolean asBoolean() {
-        if (string==null) return null;
+        if (string == null) return null;
         return Boolean.parseBoolean(string);
     }
 
@@ -39,7 +39,7 @@ public class SmartString {
      * Note that this can be null.
      */
     public Byte asByte() {
-        if (string==null) return null;
+        if (string == null) return null;
         return Byte.parseByte(string);
     }
 
@@ -47,7 +47,7 @@ public class SmartString {
      * Note that this can be null.
      */
     public Short asShort() {
-        if (string==null) return null;
+        if (string == null) return null;
         return Short.parseShort(string);
     }
 
@@ -55,7 +55,7 @@ public class SmartString {
      * Note that this can be null.
      */
     public Integer asInt() {
-        if (string==null) return null;
+        if (string == null) return null;
         return Integer.parseInt(string);
     }
 
@@ -63,7 +63,7 @@ public class SmartString {
      * Note that this can be null.
      */
     public Long asLong() {
-        if (string==null) return null;
+        if (string == null) return null;
         return Long.parseLong(string);
     }
 
@@ -71,7 +71,7 @@ public class SmartString {
      * Note that this can be null.
      */
     public Float asFloat() {
-        if (string==null) return null;
+        if (string == null) return null;
         return Float.parseFloat(string);
     }
 
@@ -79,7 +79,7 @@ public class SmartString {
      * Note that this can be null.
      */
     public Double asDouble() {
-        if (string==null) return null;
+        if (string == null) return null;
         return Double.parseDouble(string);
     }
 

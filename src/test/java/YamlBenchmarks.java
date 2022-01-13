@@ -35,11 +35,25 @@ public class YamlBenchmarks {
     }
 
     @Test
-    void compareAll() throws InterruptedException, IOException, InvalidConfigurationException, DuplicateKeyException, DYReaderException, IllegalListException {
+    void compareAllSmall() throws IOException, InterruptedException, DuplicateKeyException, InvalidConfigurationException, DYReaderException, IllegalListException {
         File fileDyml = new File(System.getProperty("user.dir") + "/src/test/benchmark-small-config.dyml");
         File fileYml = new File(System.getProperty("user.dir") + "/src/test/benchmark-small-config.yml");
         File fileJson = new File(System.getProperty("user.dir") + "/src/test/benchmark-small-config.json");
+        compareAll(fileDyml, fileYml, fileJson);
+    }
+
+    @Test
+    void compareAllMedium() throws IOException, InterruptedException, DuplicateKeyException, InvalidConfigurationException, DYReaderException, IllegalListException {
+        File fileDyml = new File(System.getProperty("user.dir") + "/src/test/benchmark-med-config.dyml");
+        File fileYml = new File(System.getProperty("user.dir") + "/src/test/benchmark-med-config.yml");
+        File fileJson = new File(System.getProperty("user.dir") + "/src/test/benchmark-med-config.json");
+        compareAll(fileDyml, fileYml, fileJson);
+    }
+
+
+    void compareAll(File fileDyml, File fileYml, File fileJson) throws InterruptedException, IOException, InvalidConfigurationException, DuplicateKeyException, DYReaderException, IllegalListException {
         System.out.println("Performing read speed benchmark on files:");
+        System.out.println("Size in bytes: "+fileDyml.length()+" Path: "+fileDyml);
         System.out.println("Size in bytes: "+fileYml.length()+" Path: "+fileYml);
         System.out.println("Size in bytes: "+fileJson.length()+" Path: "+fileJson);
         System.out.println("Run | Dyml | Gson | DreamYaml | SnakeYaml | YamlBeans | EoYaml | SimpleYaml");
@@ -52,9 +66,6 @@ public class YamlBenchmarks {
         List<Double> resultsEOYaml = new ArrayList<>();
         List<Double> resultsSimpleYaml = new ArrayList<>();
         for (int i = 0; i < 10; i++) {
-            fileDyml = new File(System.getProperty("user.dir") + "/src/test/benchmark-small-config.dyml");
-            fileYml = new File(System.getProperty("user.dir") + "/src/test/benchmark-small-config.yml");
-            fileJson = new File(System.getProperty("user.dir") + "/src/test/benchmark-small-config.json");
             UtilsTimeStopper timer = new UtilsTimeStopper();
             String msDYML;
             String msGSON;
@@ -91,7 +102,9 @@ public class YamlBenchmarks {
             timer.start();
             org.yaml.snakeyaml.Yaml snakeYaml = new org.yaml.snakeyaml.Yaml();
             InputStream fileInput = new FileInputStream(fileYml);
-            snakeYaml.loadAll(fileInput);
+            snakeYaml.loadAll(fileInput).forEach(obj -> {
+
+            }); // Snake yaml only parses the objects when iterating over them thus we do this:
             timer.stop();
             snakeYaml = null;
             msSNY = timer.getFormattedMillis();

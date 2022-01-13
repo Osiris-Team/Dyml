@@ -16,7 +16,7 @@ import java.util.List;
  */
 class DYReaderV2 {
     private DYDebugLogger debug;
-    private int countEmptyBeforeLines = 0;
+    private final int countEmptyBeforeLines = 0;
     private List<DYModule> loadedModules;
 
     private DYModule lastModule;
@@ -279,6 +279,7 @@ class DYReaderV2 {
 
 
  */
+
     /**
      * If the provided String is empty, return null.
      * This is useful, because {@link String#substring(int)} returns an empty string instead of null,

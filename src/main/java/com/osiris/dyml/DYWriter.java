@@ -32,20 +32,19 @@ class DYWriter {
         BufferedWriter writer = null;
         StringWriter stringWriter = null;
 
-        if (yaml.outputStream != null){
+        if (yaml.outputStream != null) {
             writer = new BufferedWriter(new OutputStreamWriter(yaml.outputStream), 32768); // TODO compare speed with def buffer
             logger.log(this, "Started writing yaml to file '" + yaml.file + "' with overwrite: " + overwrite + " and reset: " + reset);
-        }
-        else if(yaml.file != null){
-            if(!yaml.file.exists()) throw new DYWriterException("File '" + yaml.file.getName() + "' doesn't exist!");
+        } else if (yaml.file != null) {
+            if (!yaml.file.exists()) throw new DYWriterException("File '" + yaml.file.getName() + "' doesn't exist!");
             writer = new BufferedWriter(new FileWriter(yaml.file), 32768); // TODO compare speed with def buffer
-            logger.log(this, "Started writing yaml to OutputStream '" + yaml.outputStream + "' with overwrite: " + overwrite + " and reset: " + reset);        }
-        else if(yaml.outString != null){
+            logger.log(this, "Started writing yaml to OutputStream '" + yaml.outputStream + "' with overwrite: " + overwrite + " and reset: " + reset);
+        } else if (yaml.outString != null) {
             stringWriter = new StringWriter();
             writer = new BufferedWriter(stringWriter, 32768); // TODO compare speed with def buffer
             logger.log(this, "Started writing yaml to String '" + yaml.outString + "' with overwrite: " + overwrite + " and reset: " + reset);
         }
-        if (writer == null){
+        if (writer == null) {
             System.out.println("File and OutputStream are both null. Nothing to write yaml to!");
             return;
         }
@@ -94,7 +93,7 @@ class DYWriter {
                 }
             }
         }
-        if (stringWriter!=null){
+        if (stringWriter != null) {
             yaml.outString = stringWriter.toString();
         }
 

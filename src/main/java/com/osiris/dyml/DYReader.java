@@ -22,12 +22,12 @@ import java.util.List;
  * Responsible for reading the provided file/stream and parsing it into modules.
  */
 class DYReader {
-    private DYDebugLogger debug;
     /**
      * A list that only contains already read lines, that contain a key. <br>
      * Is used when working with regular modules <br>
      */
     private final List<DYLine> keyLinesList = new ArrayList<>();
+    private DYDebugLogger debug;
     private DYLine beforeLine;
     private int countEmptyBeforeLines = 0;
     /**
@@ -45,17 +45,17 @@ class DYReader {
         if (yaml.file != null) {
             if (!yaml.file.exists()) throw new DYReaderException("File '" + yaml.file + "' doesn't exist!");
             reader = new BufferedReader(new FileReader(yaml.file));
-            debug.log(this, "Started reading yaml from file '"+yaml.file+"'");
+            debug.log(this, "Started reading yaml from file '" + yaml.file + "'");
         }
-        if (yaml.inputStream!=null){
+        if (yaml.inputStream != null) {
             reader = new BufferedReader(new InputStreamReader(yaml.inputStream));
-            debug.log(this, "Started reading yaml from InputStream '"+yaml.inputStream+"'");
+            debug.log(this, "Started reading yaml from InputStream '" + yaml.inputStream + "'");
         }
-        if (yaml.inString !=null){
+        if (yaml.inString != null) {
             reader = new BufferedReader(new StringReader(yaml.inString));
-            debug.log(this, "Started reading yaml from String '"+yaml.inString +"'");
+            debug.log(this, "Started reading yaml from String '" + yaml.inString + "'");
         }
-        if (reader==null){
+        if (reader == null) {
             System.out.println("File and InputStream are both null. Nothing to read/load yaml from!");
             return;
         }
@@ -434,7 +434,7 @@ class DYReader {
                 oldModule.getValues().remove(0);
             }
             oldModule.addValues(currentLine.getRawValue()); // Now all we do is add the current value to the parent module.
-        } else{ // CURRENT LINE DOES NOT CONTAIN A COMMENT OR A KEY OR A HYPHEN! Multiple examples:
+        } else { // CURRENT LINE DOES NOT CONTAIN A COMMENT OR A KEY OR A HYPHEN! Multiple examples:
             // m1: value1
             // value2 <---
 
@@ -445,10 +445,10 @@ class DYReader {
             //      value4 <---
             // All those values are actually part of value1, so we need to append the content of this line to the last modules, last value.
             DYValue lastValue = yaml.getLastLoadedModule().getLastValue();
-            if (lastValue.get()==null)
+            if (lastValue.get() == null)
                 lastValue.set(currentLine.getFullLine()); // Note that we don't call currentLine.getRawValue() because that only gets set if there was a ':'
             else
-                lastValue.set(lastValue.get()+"\n"+currentLine.getFullLine());
+                lastValue.set(lastValue.get() + "\n" + currentLine.getFullLine());
         }
 
         beforeModule = module;

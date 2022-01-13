@@ -46,7 +46,7 @@ public class DYDebugLogger {
                 builder.append(System.lineSeparator());
                 printOut.print(builder);
             }
-            if (fileOut != null){
+            if (fileOut != null) {
                 StringBuilder builder = new StringBuilder();
                 //builder.append("[").append(new Date().toString()).append("]");
                 builder.append("[").append(object.getClass().getSimpleName()).append("]");
@@ -76,6 +76,6 @@ public class DYDebugLogger {
     }
 
     public boolean isEnabled() {
-        return printOut!=null || fileOut!=null;
+        return printOut != null || fileOut != null;
     }
 }

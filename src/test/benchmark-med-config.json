@@ -1,0 +1,92 @@
+{
+  "arr": [
+    {
+      "architect": "amihaiemil",
+      "devops": [
+        {
+          "name": "rultor"
+        },
+        {
+          "name": "0pdd"
+        }
+      ],
+      "developers": [
+        {
+          "name": "amihaiemil"
+        },
+        {
+          "name": "salikjan"
+        },
+        {
+          "name": "SherifWally"
+        }
+      ]
+    },
+    {
+      "architect": "amihaiemil",
+      "devops": [
+        {
+          "name": "rultor"
+        },
+        {
+          "name": "0pdd"
+        }
+      ],
+      "developers": [
+        {
+          "name": "amihaiemil"
+        },
+        {
+          "name": "salikjan"
+        },
+        {
+          "name": "SherifWally"
+        }
+      ]
+    }
+  ,{
+      "architect": "amihaiemil",
+      "devops": [
+        {
+          "name": "rultor"
+        },
+        {
+          "name": "0pdd"
+        }
+      ],
+      "developers": [
+        {
+          "name": "amihaiemil"
+        },
+        {
+          "name": "salikjan"
+        },
+        {
+          "name": "SherifWally"
+        }
+      ]
+    },
+    {
+      "architect": "amihaiemil",
+      "devops": [
+        {
+          "name": "rultor"
+        },
+        {
+          "name": "0pdd"
+        }
+      ],
+      "developers": [
+        {
+          "name": "amihaiemil"
+        },
+        {
+          "name": "salikjan"
+        },
+        {
+          "name": "SherifWally"
+        }
+      ]
+    }
+  ]
+}

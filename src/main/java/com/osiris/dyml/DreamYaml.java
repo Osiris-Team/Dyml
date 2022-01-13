@@ -182,8 +182,8 @@ public class DreamYaml {
     /**
      * Initialises the {@link DreamYaml} object.
      *
-     * @param inString             Yaml content input as String. Is read from at {@link #load()}. If null, {@link #load()} will do nothing.
-     * @param outString            Yaml content output as String. Is written to at {@link #save()}. If null, {@link #save()} will do nothing.
+     * @param inString                Yaml content input as String. Is read from at {@link #load()}. If null, {@link #load()} will do nothing.
+     * @param outString               Yaml content output as String. Is written to at {@link #save()}. If null, {@link #save()} will do nothing.
      * @param isPostProcessingEnabled Enabled by default. <br>
      *                                You can also enable/disable specific post-processing options individually: <br>
      *                                See {@link #isPostProcessingEnabled} for details.

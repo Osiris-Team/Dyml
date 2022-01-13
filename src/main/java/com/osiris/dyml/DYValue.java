@@ -183,7 +183,7 @@ public class DYValue {
      * Note that this can be null.
      */
     public char[] asCharArray() {
-        if (value==null) return null;
+        if (value == null) return null;
         return value.toCharArray();
     }
 
@@ -191,7 +191,7 @@ public class DYValue {
      * Note that this can be null.
      */
     public Boolean asBoolean() {
-        if (value==null) return null;
+        if (value == null) return null;
         return Boolean.parseBoolean(value);
     }
 
@@ -199,7 +199,7 @@ public class DYValue {
      * Note that this can be null.
      */
     public Byte asByte() {
-        if (value==null) return null;
+        if (value == null) return null;
         return Byte.parseByte(value);
     }
 
@@ -207,7 +207,7 @@ public class DYValue {
      * Note that this can be null.
      */
     public Short asShort() {
-        if (value==null) return null;
+        if (value == null) return null;
         return Short.parseShort(value);
     }
 
@@ -215,7 +215,7 @@ public class DYValue {
      * Note that this can be null.
      */
     public Integer asInt() {
-        if (value==null) return null;
+        if (value == null) return null;
         return Integer.parseInt(value);
     }
 
@@ -223,7 +223,7 @@ public class DYValue {
      * Note that this can be null.
      */
     public Long asLong() {
-        if (value==null) return null;
+        if (value == null) return null;
         return Long.parseLong(value);
     }
 
@@ -231,7 +231,7 @@ public class DYValue {
      * Note that this can be null.
      */
     public Float asFloat() {
-        if (value==null) return null;
+        if (value == null) return null;
         return Float.parseFloat(value);
     }
 
@@ -239,7 +239,7 @@ public class DYValue {
      * Note that this can be null.
      */
     public Double asDouble() {
-        if (value==null) return null;
+        if (value == null) return null;
         return Double.parseDouble(value);
     }
 

@@ -298,9 +298,11 @@ public class DYModule {
     public String getLastKey() {
         return getKeyByIndex(keys.size() - 1);
     }
+
     public DYValue getLastValue() {
         return getValueByIndex(values.size() - 1);
     }
+
     public DYValue getLastDefValue() {
         return getValueByIndex(defaultValues.size() - 1);
     }

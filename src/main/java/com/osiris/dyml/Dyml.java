@@ -22,37 +22,6 @@ public class Dyml {
     }
 
     /**
-     * Returns the {@link DymlSection} with the provided key, or null if not found.
-     */
-    public DymlSection get(String... keys){
-        DymlSection foundSection = null;
-        List<DymlSection> listToSearch = loadedSections;
-        for (int i = 0; i < keys.length; i++) {
-            String key = keys[i];
-            for (DymlSection section :
-                    listToSearch) {
-                if (section.key.asString().equals(key)){
-                    if (i==keys.length-1)
-                        foundSection = section;
-                    else
-                        listToSearch = section.children;
-
-                }
-            }
-        }
-        return foundSection;
-    }
-
-    public void printSections(PrintStream out){
-        if (loadedSections.size()==0) System.err.println("List is empty!");
-        out.println("Index | Key | Value | Comments");
-        for (int i = 0; i < loadedSections.size(); i++) {
-            DymlSection section = loadedSections.get(i);
-            out.println(i+" '"+section.key.asString()+ "' '"+section.value.asString()+ "' '"+section.comments.toString()+"'");
-        }
-    }
-
-    /**
      * Reads the dyml content from the provided file and returns a new {@link Dyml} object representing it.
      */
     public static Dyml from(File file) throws IOException, DYReaderException, IllegalListException {
@@ -73,15 +42,46 @@ public class Dyml {
         return new Dyml(new DymlReader().parse(null, null, string));
     }
 
-    public static OutputStream to(OutputStream out){
+    public static OutputStream to(OutputStream out) {
         return null;
     }
 
-    public static File to(File file){
+    public static File to(File file) {
         return null;
     }
 
-    public static String to(){
+    public static String to() {
         return null;
+    }
+
+    /**
+     * Returns the {@link DymlSection} with the provided key, or null if not found.
+     */
+    public DymlSection get(String... keys) {
+        DymlSection foundSection = null;
+        List<DymlSection> listToSearch = loadedSections;
+        for (int i = 0; i < keys.length; i++) {
+            String key = keys[i];
+            for (DymlSection section :
+                    listToSearch) {
+                if (section.key.asString().equals(key)) {
+                    if (i == keys.length - 1)
+                        foundSection = section;
+                    else
+                        listToSearch = section.children;
+
+                }
+            }
+        }
+        return foundSection;
+    }
+
+    public void printSections(PrintStream out) {
+        if (loadedSections.size() == 0) System.err.println("List is empty!");
+        out.println("Index | Key | Value | Comments");
+        for (int i = 0; i < loadedSections.size(); i++) {
+            DymlSection section = loadedSections.get(i);
+            out.println(i + " '" + section.key.asString() + "' '" + section.value.asString() + "' '" + section.comments.toString() + "'");
+        }
     }
 }

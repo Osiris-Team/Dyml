@@ -31,7 +31,7 @@ public class DymlSection {
      * Note that this can be null.
      */
     public char[] asCharArray() {
-        if (value.asString()==null) return null;
+        if (value.asString() == null) return null;
         return value.asString().toCharArray();
     }
 
@@ -39,7 +39,7 @@ public class DymlSection {
      * Note that this can be null.
      */
     public Boolean asBoolean() {
-        if (value.asString()==null) return null;
+        if (value.asString() == null) return null;
         return Boolean.parseBoolean(value.asString());
     }
 
@@ -47,7 +47,7 @@ public class DymlSection {
      * Note that this can be null.
      */
     public Byte asByte() {
-        if (value.asString()==null) return null;
+        if (value.asString() == null) return null;
         return Byte.parseByte(value.asString());
     }
 
@@ -55,7 +55,7 @@ public class DymlSection {
      * Note that this can be null.
      */
     public Short asShort() {
-        if (value.asString()==null) return null;
+        if (value.asString() == null) return null;
         return Short.parseShort(value.asString());
     }
 
@@ -63,7 +63,7 @@ public class DymlSection {
      * Note that this can be null.
      */
     public Integer asInt() {
-        if (value.asString()==null) return null;
+        if (value.asString() == null) return null;
         return Integer.parseInt(value.asString());
     }
 
@@ -71,7 +71,7 @@ public class DymlSection {
      * Note that this can be null.
      */
     public Long asLong() {
-        if (value.asString()==null) return null;
+        if (value.asString() == null) return null;
         return Long.parseLong(value.asString());
     }
 
@@ -79,7 +79,7 @@ public class DymlSection {
      * Note that this can be null.
      */
     public Float asFloat() {
-        if (value.asString()==null) return null;
+        if (value.asString() == null) return null;
         return Float.parseFloat(value.asString());
     }
 
@@ -87,7 +87,7 @@ public class DymlSection {
      * Note that this can be null.
      */
     public Double asDouble() {
-        if (value.asString()==null) return null;
+        if (value.asString() == null) return null;
         return Double.parseDouble(value.asString());
     }
 }
