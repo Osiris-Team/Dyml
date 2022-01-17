@@ -15,8 +15,8 @@ import java.util.List;
  * Responsible for reading the provided file/stream and parsing it into modules.
  */
 class DYReaderV2 {
-    private DYDebugLogger debug;
     private final int countEmptyBeforeLines = 0;
+    private DYDebugLogger debug;
     private List<DYModule> loadedModules;
 
     private DYModule lastModule;

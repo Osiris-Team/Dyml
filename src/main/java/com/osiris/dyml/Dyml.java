@@ -64,7 +64,7 @@ public class Dyml {
             String key = keys[i];
             for (DymlSection section :
                     listToSearch) {
-                if (section.key.asString().equals(key)) {
+                if (section.key.equals(key)) {
                     if (i == keys.length - 1)
                         foundSection = section;
                     else
@@ -76,12 +76,19 @@ public class Dyml {
         return foundSection;
     }
 
+    /**
+     * Returns the {@link DymlSection} at the provided index.
+     */
+    public DymlSection getAt(int index) {
+        return loadedSections.get(index);
+    }
+
     public void printSections(PrintStream out) {
         if (loadedSections.size() == 0) System.err.println("List is empty!");
         out.println("Index | Key | Value | Comments");
         for (int i = 0; i < loadedSections.size(); i++) {
             DymlSection section = loadedSections.get(i);
-            out.println(i + " '" + section.key.asString() + "' '" + section.value.asString() + "' '" + section.comments.toString() + "'");
+            out.println(i + " '" + section.key + "' '" + section.value.asString() + "' '" + section.comments.toString() + "'");
         }
     }
 }

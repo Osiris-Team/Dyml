@@ -4,17 +4,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class DymlSection {
-    public SmartString key;
+    public String key;
     public SmartString value;
     public List<String> comments;
     public DymlSection parent;
     public List<DymlSection> children;
 
-    public DymlSection(SmartString key, SmartString value, List<String> comments) {
+    public DymlSection(String key, SmartString value, List<String> comments) {
         this.key = key;
         this.value = value;
         this.comments = comments;
         this.children = new ArrayList<>();
+    }
+
+    /**
+     * Returns the child {@link DymlSection} at the provided index.
+     */
+    public DymlSection getAt(int index) {
+        return children.get(index);
     }
 
     /**

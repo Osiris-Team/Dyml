@@ -24,7 +24,7 @@ class DymlReader {
 
 
     public List<DymlSection> parse(File file, InputStream inputStream, String inString) throws DYReaderException, IOException, IllegalListException {
-        BufferedReader reader = null;
+        BufferedReader reader = null; // BufferedReader is faster than the regular Reader by around 0,100 ms
         if (file != null) {
             if (!file.exists()) throw new DYReaderException("File '" + file + "' doesn't exist!");
             reader = new BufferedReader(new FileReader(file));
@@ -61,8 +61,7 @@ class DymlReader {
                     c = reader.read(); // Read char by char until the end
                     if (c == 32) { // ' '
                         countSpaces++;
-                    }
-                    else if (c == 10){
+                    } else if (c == 10) {
                         // Run always on \n
                         // Save important current line info
                         lastCommentFound = commentFound;
@@ -72,19 +71,17 @@ class DymlReader {
                         keyFound = false;
                         lineIndex = 0;
                         break;
-                    }
-                    else if(c==-1){
+                    } else if (c == -1) {
                         throw new EOFException(); // Do this bc then of performance
-                    }
-                    else {
+                    } else {
                         line[lineIndex] = (char) c;
                         if (countSpaces % 2 == 0) {
                             keyFound = true;
                             if (lastCommentFound) {
-                                section = new DymlSection(new SmartString(null), new SmartString(null), lastComments);
+                                section = new DymlSection(null, new SmartString(null), lastComments);
                                 lastComments = new ArrayList<>();
                             } else {
-                                section = new DymlSection(new SmartString(null), new SmartString(null), new ArrayList<>());
+                                section = new DymlSection(null, new SmartString(null), new ArrayList<>());
                             }
                             // Determine key:
                             int indexStart = lineIndex;
@@ -93,8 +90,7 @@ class DymlReader {
                                 c = reader.read();
                                 line[lineIndex] = ((char) c);
                                 if (c == 32) {
-                                    String key = new String(Arrays.copyOfRange(line, indexStart, lineIndex));
-                                    section.key = new SmartString(key);
+                                    section.key = new String(Arrays.copyOfRange(line, indexStart, lineIndex));
                                     // Value can only be determined in this case, otherwise its null
                                     indexStart = lineIndex;
                                     lineIndex++; // From previous read()
@@ -102,24 +98,20 @@ class DymlReader {
                                         c = reader.read();
                                         line[lineIndex] = ((char) c);
                                         if (c == 10) { // Reads until the end of the line
-                                            String value = new String(Arrays.copyOfRange(line, indexStart, lineIndex));
-                                            section.value = new SmartString(emptyToNull(value));
+                                            section.value = new SmartString(emptyToNull(new String(Arrays.copyOfRange(line, indexStart, lineIndex))));
                                             break;
                                         } else if (c == -1) {
-                                            String value = new String(Arrays.copyOfRange(line, indexStart, lineIndex));
-                                            section.value = new SmartString(emptyToNull(value));
+                                            section.value = new SmartString(emptyToNull(new String(Arrays.copyOfRange(line, indexStart, lineIndex))));
                                             break; // Don't throw exception yet. Let the stuff below finish first.
                                         }
                                         lineIndex++;
                                     }
                                     break;
                                 } else if (c == 10) { // Reads until the end of the line
-                                    String key = new String(Arrays.copyOfRange(line, indexStart, lineIndex));
-                                    section.key = new SmartString(key);
+                                    section.key = new String(Arrays.copyOfRange(line, indexStart, lineIndex));
                                     break;
                                 } else if (c == -1) {
-                                    String key = new String(Arrays.copyOfRange(line, indexStart, lineIndex));
-                                    section.key = new SmartString(key);
+                                    section.key = new String(Arrays.copyOfRange(line, indexStart, lineIndex));
                                     break; // Don't throw exception yet. Let the stuff below finish first.
                                 }
                                 lineIndex++;
@@ -147,12 +139,10 @@ class DymlReader {
                                 c = reader.read();
                                 line[lineIndex] = ((char) c);
                                 if (c == 10) { // Reads until the end of the line
-                                    String comment = new String(Arrays.copyOfRange(line, indexStart, lineIndex));
-                                    lastComments.add(emptyToNull(comment));
+                                    lastComments.add(emptyToNull(new String(Arrays.copyOfRange(line, indexStart, lineIndex))));
                                     break;
                                 } else if (c == -1) {
-                                    String comment = new String(Arrays.copyOfRange(line, indexStart, lineIndex));
-                                    lastComments.add(emptyToNull(comment));
+                                    lastComments.add(emptyToNull(new String(Arrays.copyOfRange(line, indexStart, lineIndex))));
                                     break; // Don't throw exception yet. Let the stuff below finish first.
                                 }
                                 lineIndex++;
