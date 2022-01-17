@@ -126,6 +126,7 @@ class DymlReader {
                                         DymlSection parent = sections.get(k);
                                         section.parent = parent;
                                         parent.children.add(section);
+                                        break;
                                     }
                                 }
                             }

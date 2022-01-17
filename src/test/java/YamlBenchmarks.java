@@ -56,6 +56,45 @@ public class YamlBenchmarks {
         System.out.println("Size in bytes: "+fileDyml.length()+" Path: "+fileDyml);
         System.out.println("Size in bytes: "+fileYml.length()+" Path: "+fileYml);
         System.out.println("Size in bytes: "+fileJson.length()+" Path: "+fileJson);
+
+        System.out.println("Average read speeds in milliseconds without parsing (first run was excluded):");
+        List<UtilsTimeStopper> timesReadDyml = new ArrayList<>();
+        List<UtilsTimeStopper> timesReadYml = new ArrayList<>();
+        List<UtilsTimeStopper> timesReadJson = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            String line = "";
+            int lines = 0;
+            UtilsTimeStopper timeFileDyml = new UtilsTimeStopper();
+            timesReadDyml.add(timeFileDyml);
+            timeFileDyml.start();
+            try(BufferedReader reader = new BufferedReader(new FileReader(fileDyml))){
+                while ((line = reader.readLine())!=null)
+                    lines++;
+            }
+            timeFileDyml.stop();
+
+            UtilsTimeStopper timeFileYml = new UtilsTimeStopper();
+            timesReadYml.add(timeFileYml);
+            timeFileYml.start();
+            try(BufferedReader reader = new BufferedReader(new FileReader(fileYml))){
+                while ((line = reader.readLine())!=null)
+                    lines++;
+            }
+            timeFileYml.stop();
+
+            UtilsTimeStopper timeFileJson = new UtilsTimeStopper();
+            timesReadJson.add(timeFileJson);
+            timeFileJson.start();
+            try(BufferedReader reader = new BufferedReader(new FileReader(fileJson))){
+                while ((line = reader.readLine())!=null)
+                    lines++;
+            }
+            timeFileJson.stop();
+        }
+        System.out.println(".dyml: " + calcAverageTimes(timesReadDyml));
+        System.out.println(".yml: " + calcAverageTimes(timesReadYml));
+        System.out.println(".json: " + calcAverageTimes(timesReadJson));
+
         System.out.println("Run | Dyml | Gson | DreamYaml | SnakeYaml | YamlBeans | EoYaml | SimpleYaml");
 
         List<Double> resultsDYML = new ArrayList<>();
@@ -141,8 +180,10 @@ public class YamlBenchmarks {
             resultsSimpleYaml.add(timer.getMillis());
 
             System.out.println("[" + i + "] [DYML:" + msDYML + "ms] [GSON:" + msGSON + "ms] [DY: " + msDY + "ms] [SNY: " + msSNY + "ms] [YB: " + msYB + "ms] [EOY: " + msEOY + "ms] [SMY: " + msSMY + "ms]");
-            Thread.sleep(500);
+            //Thread.sleep(500); // Without this it seems that dyml is faster than gson
         }
+
+
         System.out.println("Average read speeds in milliseconds (first run was excluded):");
         System.out.println("Dyml: " + calcAverage(resultsDYML));
         System.out.println("Gson: " + calcAverage(resultsGSON));
@@ -159,6 +200,16 @@ public class YamlBenchmarks {
         for (Double val :
                 values) {
             total = total + val;
+        }
+        return total / values.size();
+    }
+
+    private Double calcAverageTimes(List<UtilsTimeStopper> values) {
+        Double total = 0.0;
+        values.remove(0);
+        for (UtilsTimeStopper val :
+                values) {
+            total = total + val.getMillis();
         }
         return total / values.size();
     }
