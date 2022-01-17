@@ -8,9 +8,9 @@
 
 package com.osiris.dyml;
 
-import com.osiris.dyml.exceptions.DYReaderException;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
 import com.osiris.dyml.exceptions.IllegalListException;
+import com.osiris.dyml.exceptions.YamlReaderException;
 import com.osiris.dyml.utils.UtilsFile;
 import com.osiris.dyml.utils.UtilsTimeStopper;
 import org.junit.jupiter.api.Test;
@@ -18,12 +18,12 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 
-class DYReaderTest {
+class YamlReaderTest {
 
     @Test
-    void testFileReading() throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
+    void testFileReading() throws IOException, YamlReaderException, IllegalListException, DuplicateKeyException {
         File file = new File(System.getProperty("user.dir") + "/src/test/features.yml");
-        DreamYaml yaml = new DreamYaml(file);
+        Yaml yaml = new Yaml(file);
         yaml.load();
         System.out.println("Parsing '" + file.getName() + "' from path '" + file.getAbsolutePath() + "'");
         try {

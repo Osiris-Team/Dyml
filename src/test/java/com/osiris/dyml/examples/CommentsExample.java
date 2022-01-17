@@ -8,9 +8,9 @@
 
 package com.osiris.dyml.examples;
 
-import com.osiris.dyml.DYModule;
-import com.osiris.dyml.DYValue;
-import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.Yaml;
+import com.osiris.dyml.YamlSection;
+import com.osiris.dyml.YamlValue;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -21,20 +21,20 @@ public class CommentsExample {
 
     @Test
     void test() throws Exception {
-        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/comments-example.yml");
+        Yaml yaml = new Yaml(System.getProperty("user.dir") + "/src/test/comments-example.yml");
         yaml.load();
         yaml.reset(); // DO NOT CALL THIS IN PRODUCTION, IT WILL REMOVE ALL THE INFORMATION FROM YOUR YAML FILE!
         // I am doing this only for the sake of testing!
 
-        DYModule firstName = yaml.put("name").setDefValues("John").setComments("You can insert your", "multiline comments like this.");
-        DYModule lastName = yaml.put("last-name").setDefValues("Goldman").setComments(
+        YamlSection firstName = yaml.put("name").setDefValues("John").setComments("You can insert your", "multiline comments like this.");
+        YamlSection lastName = yaml.put("last-name").setDefValues("Goldman").setComments(
                 "This is a multiline comment \n" +
                         "separated by javas \n" +
                         "next line character!");
-        DYModule age = yaml.put("age").setDefValues(new DYValue(29).setComment("This is a side-comment/value-comment"))
+        YamlSection age = yaml.put("age").setDefValues(new YamlValue(29).setComment("This is a side-comment/value-comment"))
                 .setComments("This is a single line comment.");
-        DYModule work = yaml.put("work").setDefValues("Reporter");
-        DYModule parent = yaml.put("p1", "c2", "c3").setComments("Comments in", "a hierarchy.");
+        YamlSection work = yaml.put("work").setDefValues("Reporter");
+        YamlSection parent = yaml.put("p1", "c2", "c3").setComments("Comments in", "a hierarchy.");
 
         yaml.saveAndLoad();
 

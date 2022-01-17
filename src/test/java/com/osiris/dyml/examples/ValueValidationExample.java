@@ -8,8 +8,8 @@
 
 package com.osiris.dyml.examples;
 
-import com.osiris.dyml.DYModule;
-import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.Yaml;
+import com.osiris.dyml.YamlSection;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -19,12 +19,12 @@ public class ValueValidationExample {
 
     @Test
     void test() throws Exception {
-        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/value-validation-example.yml");
+        Yaml yaml = new Yaml(System.getProperty("user.dir") + "/src/test/value-validation-example.yml");
         yaml.load();
         yaml.reset(); // DO NOT CALL THIS IN PRODUCTION, IT WILL REMOVE ALL THE INFORMATION FROM YOUR YAML FILE!
         // I am doing this only for the sake of testing!
 
-        DYModule module = yaml.put("is-valid").setDefValues("false");
+        YamlSection module = yaml.put("is-valid").setDefValues("false");
 
         yaml.saveAndLoad(); // It could be that the file is empty and the default value doesn't exist yet.
 

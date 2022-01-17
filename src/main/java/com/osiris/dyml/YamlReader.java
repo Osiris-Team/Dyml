@@ -9,10 +9,10 @@
 package com.osiris.dyml;
 
 
-import com.osiris.dyml.exceptions.DYReaderException;
 import com.osiris.dyml.exceptions.IllegalListException;
-import com.osiris.dyml.utils.UtilsDYModule;
+import com.osiris.dyml.exceptions.YamlReaderException;
 import com.osiris.dyml.utils.UtilsTimeStopper;
+import com.osiris.dyml.utils.UtilsYamlSection;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * Responsible for reading the provided file/stream and parsing it into modules.
  */
-class DYReader {
+class YamlReader {
     /**
      * A list that only contains already read lines, that contain a key. <br>
      * Is used when working with regular modules <br>
@@ -31,11 +31,11 @@ class DYReader {
     private DYLine beforeLine;
     private int countEmptyBeforeLines = 0;
     /**
-     * Gets set at the end of {@link #parseFirstLine(DreamYaml, DYLine)} and {@link #parseLine(DreamYaml, DYLine)}.
+     * Gets set at the end of {@link #parseFirstLine(Yaml, DYLine)} and {@link #parseLine(Yaml, DYLine)}.
      */
-    private DYModule beforeModule;
+    private YamlSection beforeModule;
 
-    public void parse(DreamYaml yaml) throws DYReaderException, IOException, IllegalListException {
+    public void parse(Yaml yaml) throws YamlReaderException, IOException, IllegalListException {
         this.debug = yaml.debugLogger;
 
         UtilsTimeStopper timer = new UtilsTimeStopper();
@@ -43,7 +43,7 @@ class DYReader {
 
         BufferedReader reader = null;
         if (yaml.file != null) {
-            if (!yaml.file.exists()) throw new DYReaderException("File '" + yaml.file + "' doesn't exist!");
+            if (!yaml.file.exists()) throw new YamlReaderException("File '" + yaml.file + "' doesn't exist!");
             reader = new BufferedReader(new FileReader(yaml.file));
             debug.log(this, "Started reading yaml from file '" + yaml.file + "'");
         }
@@ -89,29 +89,29 @@ class DYReader {
         }
 
         // Do post processing if enabled
-        UtilsDYModule utils = new UtilsDYModule();
+        UtilsYamlSection utils = new UtilsYamlSection();
         if (yaml.isPostProcessingEnabled) {
 
             if (yaml.isTrimLoadedValuesEnabled)
-                for (DYModule m :
+                for (YamlSection m :
                         yaml.getAllLoaded()) {
                     utils.trimValues(m.getValues());
                 }
 
             if (yaml.isRemoveQuotesFromLoadedValuesEnabled)
-                for (DYModule m :
+                for (YamlSection m :
                         yaml.getAllLoaded()) {
                     utils.removeQuotesFromValues(m.getValues());
                 }
 
             if (yaml.isRemoveLoadedNullValuesEnabled)
-                for (DYModule m :
+                for (YamlSection m :
                         yaml.getAllLoaded()) {
                     utils.removeNullValues(m.getValues());
                 }
 
             if (yaml.isTrimCommentsEnabled)
-                for (DYModule m :
+                for (YamlSection m :
                         yaml.getAllLoaded()) {
                     utils.trimComments(m.getComments());
                     utils.trimValuesComments(m.getValues());
@@ -122,9 +122,9 @@ class DYReader {
         // Update the inEditModules values and their parent/child modules.
         // This is done, because these modules may have only default values set.
         if (!yaml.getAllLoaded().isEmpty())
-            for (DYModule inEditM :
+            for (YamlSection inEditM :
                     yaml.getAllInEdit()) {
-                DYModule loadedM = utils.getExisting(inEditM, yaml.getAllLoaded());
+                YamlSection loadedM = utils.getExisting(inEditM, yaml.getAllLoaded());
                 inEditM.setValues(loadedM.getValues());
                 inEditM.setParentModule(loadedM.getParentModule());
                 inEditM.setChildModules(loadedM.getChildModules());
@@ -133,7 +133,7 @@ class DYReader {
         timer.stop();
 
         debug.log(this, "Loaded modules details:");
-        for (DYModule loadedModule :
+        for (YamlSection loadedModule :
                 yaml.getAllLoaded()) {
 
             debug.log(this, "");
@@ -143,7 +143,7 @@ class DYReader {
             else
                 debug.log(this, "PARENT -> NULL");
 
-            for (DYModule childModule :
+            for (YamlSection childModule :
                     loadedModule.getChildModules()) {
                 if (childModule != null)
                     debug.log(this, "CHILD -> " + childModule.getModuleInformationAsString());
@@ -231,7 +231,7 @@ class DYReader {
         }
     }
 
-    public void parseFirstLine(DreamYaml yaml, DYLine currentLine) throws IllegalListException {
+    public void parseFirstLine(Yaml yaml, DYLine currentLine) throws IllegalListException {
         if (!currentLine.getFullLine().isEmpty()) {
             debug.log(this, "Reading line '" + currentLine.getLineNumber() + "' with content: '" + currentLine.getFullLine() + "'");
             // Go thorough each character of the string, until a special one is found
@@ -244,11 +244,11 @@ class DYReader {
             }
 
             // In comparison to parseLine we got a lot less stuff to check.
-            DYModule module = new DYModule(yaml);
+            YamlSection module = new YamlSection(yaml);
             if (currentLine.isCommentFound()) {
                 if (currentLine.isKeyFound()) { // Its a side comment, so we add the comment to the value
                     module.setKeys(currentLine.getRawKey())
-                            .setValues(new DYValue(currentLine.getRawValue(), currentLine.getRawComment()));
+                            .setValues(new YamlValue(currentLine.getRawValue(), currentLine.getRawComment()));
                     yaml.getAllLoaded().add(module);
                 } else if (currentLine.isHyphenFound()) { // Its a side comment, so we add of a value in a list
                     throw new IllegalListException((yaml.getInputStream() == null ? yaml.getFile().getName() : "<InputStream>"), currentLine);
@@ -269,7 +269,7 @@ class DYReader {
     }
 
     /**
-     * Parses the provided {@link DYLine} into a {@link DYModule} depending on its content. <br>
+     * Parses the provided {@link DYLine} into a {@link YamlSection} depending on its content. <br>
      * Note that the provided {@link DYLine}s content gets checked (char by char) and its information updated,
      * before parsing anything. <br>
      * DEV NOTE: <br>
@@ -282,7 +282,7 @@ class DYReader {
      *   key2: value   # G1 | Child of key1 | Count of spaces: 2
      * </pre>
      */
-    public void parseLine(DreamYaml yaml, DYLine currentLine) {
+    public void parseLine(Yaml yaml, DYLine currentLine) {
 
         if (currentLine.getFullLine().trim().isEmpty()) {
             countEmptyBeforeLines++;
@@ -291,8 +291,8 @@ class DYReader {
         debug.log(this, "Reading line '" + currentLine.getLineNumber() + "' with content: '" + currentLine.getFullLine() + "'");
 
         // Add the module to the yaml loaded modules list, but only under certain circumstances (logic below)
-        List<DYModule> allLoaded = yaml.getAllLoaded();
-        DYModule module = new DYModule(yaml);
+        List<YamlSection> allLoaded = yaml.getAllLoaded();
+        YamlSection module = new YamlSection(yaml);
         // Go thorough each character of the string, until a special one is found
         int charCode;
         String fullLine = currentLine.getFullLine();
@@ -325,7 +325,7 @@ class DYReader {
                     for (int i = keyLinesList.size() - 1; i >= 0; i--) {
                         DYLine oldLine = keyLinesList.get(i);
                         if ((currentLine.getCountSpaces() - oldLine.getCountSpaces()) == 2) {
-                            DYModule oldModule = allLoaded.get(i);
+                            YamlSection oldModule = allLoaded.get(i);
                             module.getKeys().addAll(oldModule.getKeys());
                             module.setParentModule(oldModule);
                             oldModule.addChildModules(module);
@@ -335,7 +335,7 @@ class DYReader {
                 }
 
                 module.addKeys(currentLine.getRawKey());
-                module.setValues(new DYValue(currentLine.getRawValue(), currentLine.getRawComment()));
+                module.setValues(new YamlValue(currentLine.getRawValue(), currentLine.getRawComment()));
                 allLoaded.add(module);
             } else if (currentLine.isHyphenFound()) { // Comment + Hyphen found without a key
                 // Its a side comment from a value in a list. Also add support for value top comments inside a list. Example:
@@ -343,7 +343,7 @@ class DYReader {
                 //   - value # value-comment  <---
                 //   # value-comment of the value below, not a key-comment, bc inside of a list
                 //   - second value # value-comment <---
-                DYModule oldModule = yaml.getLastLoadedModule(); // The last added module, which has to contain a key, otherwise its not added
+                YamlSection oldModule = yaml.getLastLoadedModule(); // The last added module, which has to contain a key, otherwise its not added
                 if (beforeLine.isCommentFound() && !beforeLine.isKeyFound() && !beforeLine.isHyphenFound()) { // In this special case, we put the comments from the last line/module together
                     String c = currentLine.getRawComment();
                     for (String comment :
@@ -368,7 +368,7 @@ class DYReader {
                     oldModule.getValues().remove(0);
 
                 // Since the allLoaded lists and keyLinesList sizes are the same we can do the below:
-                oldModule.addValues(new DYValue(currentLine.getRawValue(), currentLine.getRawComment()));
+                oldModule.addValues(new YamlValue(currentLine.getRawValue(), currentLine.getRawComment()));
             } else { // No side-comment, but regular comment
                 // If the current line and the last line are comments, add the current comment to the last comments object/module.
                 // In both cases, don't add the module to the list.
@@ -400,7 +400,7 @@ class DYReader {
                 for (int i = keyLinesList.size() - 1; i >= 0; i--) {
                     DYLine oldLine = keyLinesList.get(i);
                     if ((currentLine.getCountSpaces() - oldLine.getCountSpaces()) == 2) {
-                        DYModule oldModule = allLoaded.get(i);
+                        YamlSection oldModule = allLoaded.get(i);
                         module.getKeys().addAll(oldModule.getKeys());
                         module.setParentModule(oldModule);
                         oldModule.addChildModules(module);
@@ -421,7 +421,7 @@ class DYReader {
             //   m1-inside:
             //     - value1
             //     - value2 <---
-            DYModule oldModule = yaml.getLastLoadedModule();
+            YamlSection oldModule = yaml.getLastLoadedModule();
             if (beforeLine.isCommentFound() && !beforeLine.isKeyFound() && !beforeLine.isHyphenFound()) { // In this special case, we put the comments from the last line/module together
                 String c = currentLine.getRawComment();
                 for (String comment :
@@ -444,7 +444,7 @@ class DYReader {
             // value3 <---
             //      value4 <---
             // All those values are actually part of value1, so we need to append the content of this line to the last modules, last value.
-            DYValue lastValue = yaml.getLastLoadedModule().getLastValue();
+            YamlValue lastValue = yaml.getLastLoadedModule().getLastValue();
             if (lastValue.get() == null)
                 lastValue.set(currentLine.getFullLine()); // Note that we don't call currentLine.getRawValue() because that only gets set if there was a ':'
             else

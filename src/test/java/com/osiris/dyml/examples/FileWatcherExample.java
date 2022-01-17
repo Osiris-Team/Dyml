@@ -1,15 +1,15 @@
 package com.osiris.dyml.examples;
 
-import com.osiris.dyml.DYModule;
-import com.osiris.dyml.DreamYaml;
-import com.osiris.dyml.watcher.DYWatcher;
+import com.osiris.dyml.Yaml;
+import com.osiris.dyml.YamlSection;
+import com.osiris.dyml.watcher.FileWatcher;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.nio.file.StandardWatchEventKinds;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-class DYWatcherExample {
+class FileWatcherExample {
 
     @Test
     void test() throws Exception {
@@ -18,9 +18,9 @@ class DYWatcherExample {
         System.out.println("Note that this test won't print the wanted results, because Junit doesn't allow correct multithreading!");
 
         // First we create two yaml files with some data
-        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/watcher-example.yml");
+        Yaml yaml = new Yaml(System.getProperty("user.dir") + "/src/test/watcher-example.yml");
         yaml.load();
-        DYModule firstName1 = yaml.put("name").setDefValues("John");
+        YamlSection firstName1 = yaml.put("name").setDefValues("John");
         yaml.save(true);
 
         Thread.sleep(1000); // So that the above save doesn't trigger an event
@@ -58,7 +58,7 @@ class DYWatcherExample {
         AtomicBoolean changed = new AtomicBoolean(false);
         File example2 = new File(System.getProperty("user.dir") + "/src/test/watcher-example2.txt");
         if (!example2.exists()) example2.createNewFile();
-        DYWatcher.getForFile(example2, false).addListeners(fileChangeEvent -> {
+        FileWatcher.getForFile(example2, false).addListeners(fileChangeEvent -> {
             System.out.println("Event'" + fileChangeEvent.getParentDirectory().getName() +
                     "' because of '" + fileChangeEvent.getWatchEventKind() + "' event.");
             changed.set(true);

@@ -6,7 +6,7 @@ import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
 
 /**
- * Pass this object to a {@link DreamYaml},
+ * Pass this object to a {@link Yaml},
  * to configure its logging properties.
  */
 public class DYDebugLogger {

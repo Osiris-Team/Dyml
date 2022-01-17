@@ -1,6 +1,6 @@
 package com.osiris.dyml.db;
 
-import com.osiris.dyml.DYValue;
+import com.osiris.dyml.YamlValue;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.Objects;
 
 /**
- * Represents the row of a {@link DYTable}. Example:
+ * Represents the row of a {@link YamlTable}. Example:
  * <pre>
  * column1 | column2
  * =================
@@ -16,13 +16,13 @@ import java.util.Objects;
  * tree    | grass   <--- This is the row at index 1
  * </pre>
  *
- * @see DYColumn
+ * @see YamlColumn
  */
-public class DYRow {
+public class YamlRow {
     private final int rowIndex;
-    private final Map<DYValue, DYColumn> valuesAndColumns;
+    private final Map<YamlValue, YamlColumn> valuesAndColumns;
 
-    public DYRow(int rowIndex, Map<DYValue, DYColumn> valuesAndColumns) {
+    public YamlRow(int rowIndex, Map<YamlValue, YamlColumn> valuesAndColumns) {
         this.rowIndex = rowIndex;
         this.valuesAndColumns = valuesAndColumns;
     }
@@ -34,10 +34,10 @@ public class DYRow {
      *     =================
      *     rock    | paper
      * </pre>
-     * The examples, returned list has two {@link DYValue}s. <br>
+     * The examples, returned list has two {@link YamlValue}s. <br>
      * The first one contains 'rock' and the second one 'paper'. <br>
      */
-    public List<DYValue> getValues() {
+    public List<YamlValue> getValues() {
         return new ArrayList<>(valuesAndColumns.keySet());
     }
 
@@ -58,25 +58,25 @@ public class DYRow {
     /**
      * Returns a map with values mapped to their columns.
      */
-    public Map<DYValue, DYColumn> getValuesAndColumns() {
+    public Map<YamlValue, YamlColumn> getValuesAndColumns() {
         return valuesAndColumns;
     }
 
-    public DYColumn getColumnFromValue(DYValue value) {
+    public YamlColumn getColumnFromValue(YamlValue value) {
         return valuesAndColumns.get(value);
     }
 
     /**
-     * Returns the linked {@link DYValue} for the provided {@link DYColumn}.
+     * Returns the linked {@link YamlValue} for the provided {@link YamlColumn}.
      *
      * @throws NullPointerException if the provided column is null, or couldn't be found in the map.
      */
-    public DYValue getValueFromColumn(DYColumn column) {
+    public YamlValue getValueFromColumn(YamlColumn column) {
         Objects.requireNonNull(column);
-        DYValue[] values = valuesAndColumns.keySet().toArray(new DYValue[0]);
+        YamlValue[] values = valuesAndColumns.keySet().toArray(new YamlValue[0]);
         int index = 0;
-        DYValue val = null;
-        for (DYColumn col :
+        YamlValue val = null;
+        for (YamlColumn col :
                 valuesAndColumns.values()) {
             if (col.getName().equals(column.getName()))
                 val = values[index];

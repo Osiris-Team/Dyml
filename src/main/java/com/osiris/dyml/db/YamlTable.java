@@ -1,22 +1,22 @@
 package com.osiris.dyml.db;
 
-import com.osiris.dyml.DYModule;
-import com.osiris.dyml.DYValue;
-import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.Yaml;
+import com.osiris.dyml.YamlSection;
+import com.osiris.dyml.YamlValue;
 import com.osiris.dyml.exceptions.*;
 
 import java.io.IOException;
 import java.util.*;
 
-public class DYTable {
-    private final DYModule tableModule;
+public class YamlTable {
+    private final YamlSection tableModule;
 
-    public DYTable(DYModule tableModule) {
+    public YamlTable(YamlSection tableModule) {
         Objects.requireNonNull(tableModule);
         this.tableModule = tableModule;
     }
 
-    public DYModule getTableModule() {
+    public YamlSection getTableModule() {
         return tableModule;
     }
 
@@ -25,27 +25,27 @@ public class DYTable {
     }
 
     /**
-     * Returns the {@link DYRow} at the provided index.
+     * Returns the {@link YamlRow} at the provided index.
      *
      * @throws IndexOutOfBoundsException when the row at the provided index does not exist.
      */
-    public DYRow getRow(int index) {
-        Map<DYValue, DYColumn> valuesAndColumns = new HashMap<>();
-        for (DYColumn col :
+    public YamlRow getRow(int index) {
+        Map<YamlValue, YamlColumn> valuesAndColumns = new HashMap<>();
+        for (YamlColumn col :
                 getColumns()) {
             valuesAndColumns.put(col.get(index), col);
         }
-        return new DYRow(index, valuesAndColumns);
+        return new YamlRow(index, valuesAndColumns);
     }
 
     /**
-     * Returns the {@link DYRow} at the provided index, as a list of {@link DYValue}s. <br>
+     * Returns the {@link YamlRow} at the provided index, as a list of {@link YamlValue}s. <br>
      *
      * @throws IndexOutOfBoundsException when the row at the provided index does not exist.
      */
-    public List<DYValue> getRowAsList(int index) {
-        List<DYValue> row = new ArrayList<>();
-        for (DYColumn col :
+    public List<YamlValue> getRowAsList(int index) {
+        List<YamlValue> row = new ArrayList<>();
+        for (YamlColumn col :
                 getColumns()) {
             row.add(col.get(index));
         }
@@ -53,21 +53,21 @@ public class DYTable {
     }
 
     /**
-     * Tries to add a {@link DYRow} to the table. <br>
+     * Tries to add a {@link YamlRow} to the table. <br>
      * If there are missing values to fill the row, null values get added. <br>
      * Note that all columns must have the same length. <br>
      *
      * @throws IndexOutOfBoundsException if there are more values than columns available.
      * @throws BrokenColumnsException    if the columns have different sizes/lengths.
      */
-    public DYTable addRow(String... values) {
-        List<DYColumn> columns = getColumns();
-        List<DYColumn> columnsCopy = new ArrayList<>(columns);
+    public YamlTable addRow(String... values) {
+        List<YamlColumn> columns = getColumns();
+        List<YamlColumn> columnsCopy = new ArrayList<>(columns);
 
         // Check for different column lengths
-        for (DYColumn col :
+        for (YamlColumn col :
                 columns) {
-            for (DYColumn col1 :
+            for (YamlColumn col1 :
                     columnsCopy) {
                 if (!col.equals(col1) && col.size() != col1.size())
                     throw new BrokenColumnsException("All columns should have the same length." +
@@ -92,21 +92,21 @@ public class DYTable {
     }
 
     /**
-     * Tries to add a {@link DYRow} to the table. <br>
+     * Tries to add a {@link YamlRow} to the table. <br>
      * If there are missing values to fill the row, null values get added. <br>
      * Note that all columns must have the same length. <br>
      *
      * @throws IndexOutOfBoundsException if there are more values than columns available.
      * @throws BrokenColumnsException    if the columns have different sizes/lengths.
      */
-    public DYTable addDefRow(String... values) {
-        List<DYColumn> allColumns = getColumns();
-        List<DYColumn> columnsCopy = new ArrayList<>(allColumns);
+    public YamlTable addDefRow(String... values) {
+        List<YamlColumn> allColumns = getColumns();
+        List<YamlColumn> columnsCopy = new ArrayList<>(allColumns);
 
         // Check for different column lengths
-        for (DYColumn col :
+        for (YamlColumn col :
                 allColumns) {
-            for (DYColumn col1 :
+            for (YamlColumn col1 :
                     columnsCopy) {
                 if (!col.equals(col1) && col.size() != col1.size())
                     throw new BrokenColumnsException("All columns should have the same size/length." +
@@ -136,9 +136,9 @@ public class DYTable {
      *
      * @throws IndexOutOfBoundsException if the row at the provided index does not exist.
      */
-    public DYTable setRow(int index, DYValue... values) {
-        List<DYColumn> columns = getColumns();
-        for (DYColumn col :
+    public YamlTable setRow(int index, YamlValue... values) {
+        List<YamlColumn> columns = getColumns();
+        for (YamlColumn col :
                 columns) {
             try {
                 col.get(index);
@@ -157,39 +157,39 @@ public class DYTable {
     }
 
     /**
-     * See {@link DreamYaml#add(String...)} for details.
+     * See {@link Yaml#add(String...)} for details.
      */
-    public DYColumn addColumn(String name) throws NotLoadedException, IllegalKeyException, DuplicateKeyException, DYWriterException, IOException, DYReaderException, IllegalListException {
-        DYColumn column = new DYColumn(tableModule.getYaml().add("tables", getName(), name));
+    public YamlColumn addColumn(String name) throws NotLoadedException, IllegalKeyException, DuplicateKeyException, YamlWriterException, IOException, YamlReaderException, IllegalListException {
+        YamlColumn column = new YamlColumn(tableModule.getYaml().add("tables", getName(), name));
         tableModule.getYaml().saveAndLoad();
         return column;
     }
 
     /**
-     * Note that this triggers {@link DreamYaml#saveAndLoad()}, to ensure the database/yaml-file, <br>
-     * as well as the parent/child modules of this {@link DreamYamlDB} object are up-to-date. <br>
-     * See {@link DreamYaml#put(String...)} for details.
+     * Note that this triggers {@link Yaml#saveAndLoad()}, to ensure the database/yaml-file, <br>
+     * as well as the parent/child modules of this {@link YamlDatabase} object are up-to-date. <br>
+     * See {@link Yaml#put(String...)} for details.
      */
-    public DYColumn putColumn(String name) throws NotLoadedException, IllegalKeyException, DYWriterException, IOException, DuplicateKeyException, DYReaderException, IllegalListException {
-        DYColumn column = new DYColumn(tableModule.getYaml().put("tables", getName(), name));
+    public YamlColumn putColumn(String name) throws NotLoadedException, IllegalKeyException, YamlWriterException, IOException, DuplicateKeyException, YamlReaderException, IllegalListException {
+        YamlColumn column = new YamlColumn(tableModule.getYaml().put("tables", getName(), name));
         tableModule.getYaml().saveAndLoad();
         return column;
     }
 
     /**
-     * Note that this triggers {@link DreamYaml#saveAndLoad()}, to ensure the database/yaml-file, <br>
-     * as well as the parent/child modules of this {@link DreamYamlDB} object are up-to-date. <br>
-     * See {@link DreamYaml#remove(DYModule)} for details.
+     * Note that this triggers {@link Yaml#saveAndLoad()}, to ensure the database/yaml-file, <br>
+     * as well as the parent/child modules of this {@link YamlDatabase} object are up-to-date. <br>
+     * See {@link Yaml#remove(YamlSection)} for details.
      */
-    public DYTable removeColumn(DYColumn column) throws DYWriterException, IOException, DuplicateKeyException, DYReaderException, IllegalListException {
+    public YamlTable removeColumn(YamlColumn column) throws YamlWriterException, IOException, DuplicateKeyException, YamlReaderException, IllegalListException {
         Objects.requireNonNull(column);
         tableModule.getYaml().remove("tables", getName(), column.getName());
         tableModule.getYaml().saveAndLoad();
         return this;
     }
 
-    public DYColumn getColumn(String name) {
-        for (DYColumn c :
+    public YamlColumn getColumn(String name) {
+        for (YamlColumn c :
                 getColumns()) {
             if (c.getName().equals(name))
                 return c;
@@ -197,21 +197,21 @@ public class DYTable {
         return null;
     }
 
-    public DYColumn getColumnAtIndex(int index) {
+    public YamlColumn getColumnAtIndex(int index) {
         return getColumns().get(index);
     }
 
     /**
      * Columns are ordered in this list the same way they are in the database/yaml-file.
      */
-    public List<DYColumn> getColumns() {
+    public List<YamlColumn> getColumns() {
         // TODO idk if this is the best way
-        List<DYColumn> columns = new ArrayList<>();
-        for (DYModule columnModule :
+        List<YamlColumn> columns = new ArrayList<>();
+        for (YamlSection columnModule :
                 tableModule.getChildModules()) {
             // Note that these modules must have been already added to the
             // inEditModules list, that's why we do the below (to ensure that):
-            columns.add(new DYColumn(tableModule.getYaml().get(columnModule.getKeys())));
+            columns.add(new YamlColumn(tableModule.getYaml().get(columnModule.getKeys())));
         }
         return columns;
     }
@@ -221,8 +221,8 @@ public class DYTable {
     // TODO getValuesSimilarTo(value, minSimilarityInPercent)
 
 
-    public List<DYRow> getValuesEqualTo(String colName, String value) {
-        DYColumn column = getColumn(colName);
+    public List<YamlRow> getValuesEqualTo(String colName, String value) {
+        YamlColumn column = getColumn(colName);
         Objects.requireNonNull(column);
         return getValuesEqualTo(column, value);
     }
@@ -234,19 +234,19 @@ public class DYTable {
      * @param column the column to execute the query in.
      * @param value  the value to search for.
      */
-    public List<DYRow> getValuesEqualTo(DYColumn column, String value) {
-        List<DYRow> results = new ArrayList<>();
+    public List<YamlRow> getValuesEqualTo(YamlColumn column, String value) {
+        List<YamlRow> results = new ArrayList<>();
         int index = 0;
-        for (DYValue v :
+        for (YamlValue v :
                 column.getValues()) {
             if (v.asString() != null && v.asString().equals(value)) {
                 // Get the other columns values at the current index position
-                Map<DYValue, DYColumn> map = new HashMap<>();
-                for (DYColumn col :
+                Map<YamlValue, YamlColumn> map = new HashMap<>();
+                for (YamlColumn col :
                         getColumns()) {
                     map.put(col.get(index), col);
                 }
-                results.add(new DYRow(index, map));
+                results.add(new YamlRow(index, map));
             }
             index++;
         }
@@ -260,19 +260,19 @@ public class DYTable {
      * @param column the column to execute the query in.
      * @param value  the value to search for.
      */
-    public List<DYRow> getValuesBiggerThan(DYColumn column, long value) {
-        List<DYRow> results = new ArrayList<>();
+    public List<YamlRow> getValuesBiggerThan(YamlColumn column, long value) {
+        List<YamlRow> results = new ArrayList<>();
         int index = 0;
-        for (DYValue v :
+        for (YamlValue v :
                 column.getValues()) {
             if (v.asLong() > value) {
                 // Get the other columns values at the current index position
-                Map<DYValue, DYColumn> map = new HashMap<>();
-                for (DYColumn col :
+                Map<YamlValue, YamlColumn> map = new HashMap<>();
+                for (YamlColumn col :
                         getColumns()) {
                     map.put(col.get(index), col);
                 }
-                results.add(new DYRow(index, map));
+                results.add(new YamlRow(index, map));
             }
             index++;
         }
@@ -286,19 +286,19 @@ public class DYTable {
      * @param column the column to execute the query in.
      * @param value  the value to search for.
      */
-    public List<DYRow> getValuesBiggerThan(DYColumn column, double value) {
-        List<DYRow> results = new ArrayList<>();
+    public List<YamlRow> getValuesBiggerThan(YamlColumn column, double value) {
+        List<YamlRow> results = new ArrayList<>();
         int index = 0;
-        for (DYValue v :
+        for (YamlValue v :
                 column.getValues()) {
             if (v.asDouble() > value) {
                 // Get the other columns values at the current index position
-                Map<DYValue, DYColumn> map = new HashMap<>();
-                for (DYColumn col :
+                Map<YamlValue, YamlColumn> map = new HashMap<>();
+                for (YamlColumn col :
                         getColumns()) {
                     map.put(col.get(index), col);
                 }
-                results.add(new DYRow(index, map));
+                results.add(new YamlRow(index, map));
             }
             index++;
         }
@@ -312,19 +312,19 @@ public class DYTable {
      * @param column the column to execute the query in.
      * @param value  the value to search for.
      */
-    public List<DYRow> getValuesSmallerThan(DYColumn column, long value) {
-        List<DYRow> results = new ArrayList<>();
+    public List<YamlRow> getValuesSmallerThan(YamlColumn column, long value) {
+        List<YamlRow> results = new ArrayList<>();
         int index = 0;
-        for (DYValue v :
+        for (YamlValue v :
                 column.getValues()) {
             if (v.asLong() < value) {
                 // Get the other columns values at the current index position
-                Map<DYValue, DYColumn> map = new HashMap<>();
-                for (DYColumn col :
+                Map<YamlValue, YamlColumn> map = new HashMap<>();
+                for (YamlColumn col :
                         getColumns()) {
                     map.put(col.get(index), col);
                 }
-                results.add(new DYRow(index, map));
+                results.add(new YamlRow(index, map));
             }
             index++;
         }
@@ -338,19 +338,19 @@ public class DYTable {
      * @param column the column to execute the query in.
      * @param value  the value to search for.
      */
-    public List<DYRow> getValuesSmallerThan(DYColumn column, double value) {
-        List<DYRow> results = new ArrayList<>();
+    public List<YamlRow> getValuesSmallerThan(YamlColumn column, double value) {
+        List<YamlRow> results = new ArrayList<>();
         int index = 0;
-        for (DYValue v :
+        for (YamlValue v :
                 column.getValues()) {
             if (v.asDouble() < value) {
                 // Get the other columns values at the current index position
-                Map<DYValue, DYColumn> map = new HashMap<>();
-                for (DYColumn col :
+                Map<YamlValue, YamlColumn> map = new HashMap<>();
+                for (YamlColumn col :
                         getColumns()) {
                     map.put(col.get(index), col);
                 }
-                results.add(new DYRow(index, map));
+                results.add(new YamlRow(index, map));
             }
             index++;
         }

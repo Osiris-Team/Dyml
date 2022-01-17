@@ -1,8 +1,10 @@
 package com.osiris.dyml.exceptions;
 
+import com.osiris.dyml.db.YamlColumn;
+
 /**
  * Usually thrown when there is something wrong
- * with a {@link com.osiris.dyml.db.DYColumn}s length.
+ * with a {@link YamlColumn}s length.
  */
 public class BrokenColumnsException extends RuntimeException {
     public BrokenColumnsException() {

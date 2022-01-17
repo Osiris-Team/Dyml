@@ -1,6 +1,6 @@
 package com.osiris.dyml.watcher;
 
-import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.Yaml;
 
 import java.io.File;
 import java.nio.file.Path;
@@ -8,13 +8,13 @@ import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.util.List;
 
-public class DYFileEvent {
-    private final DYRegisteredFile parentDirectory;
+public class FileEvent {
+    private final WatchedFile parentDirectory;
     private final WatchEvent watchEvent;
     private final File file;
     private final Path path;
 
-    public DYFileEvent(DYRegisteredFile parentDirectory, WatchEvent<?> watchEvent) {
+    public FileEvent(WatchedFile parentDirectory, WatchEvent<?> watchEvent) {
         this.parentDirectory = parentDirectory;
         this.watchEvent = watchEvent;
         this.file = new File(parentDirectory + "/" + watchEvent.context());
@@ -23,16 +23,16 @@ public class DYFileEvent {
 
     /**
      * Note that this will return null, if you did pass over null for 'yaml' at <br>
-     * {@link DYWatcher#addListeners(File, List, boolean, DreamYaml)}.
+     * {@link FileWatcher#addListeners(File, List, boolean, Yaml)}.
      */
-    public DreamYaml getYaml() {
+    public Yaml getYaml() {
         return parentDirectory.getYaml();
     }
 
     /**
      * Returns the file that caused this event.
      */
-    public DYRegisteredFile getParentDirectory() {
+    public WatchedFile getParentDirectory() {
         return parentDirectory;
     }
 

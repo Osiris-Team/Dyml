@@ -8,8 +8,8 @@
 
 package com.osiris.dyml;
 
-import com.osiris.dyml.exceptions.DYReaderException;
 import com.osiris.dyml.exceptions.IllegalListException;
+import com.osiris.dyml.exceptions.YamlReaderException;
 
 import java.io.*;
 import java.util.List;
@@ -24,21 +24,21 @@ public class Dyml {
     /**
      * Reads the dyml content from the provided file and returns a new {@link Dyml} object representing it.
      */
-    public static Dyml from(File file) throws IOException, DYReaderException, IllegalListException {
+    public static Dyml from(File file) throws IOException, YamlReaderException, IllegalListException {
         return new Dyml(new DymlReader().parse(file, null, null));
     }
 
     /**
      * Reads the dyml content from the provided InputStream and returns a new {@link Dyml} object representing it.
      */
-    public static Dyml from(InputStream inputStream) throws IOException, DYReaderException, IllegalListException {
+    public static Dyml from(InputStream inputStream) throws IOException, YamlReaderException, IllegalListException {
         return new Dyml(new DymlReader().parse(null, inputStream, null));
     }
 
     /**
      * Reads the dyml content from the provided String and returns a new {@link Dyml} object representing it.
      */
-    public static Dyml from(String string) throws IOException, DYReaderException, IllegalListException {
+    public static Dyml from(String string) throws IOException, YamlReaderException, IllegalListException {
         return new Dyml(new DymlReader().parse(null, null, string));
     }
 

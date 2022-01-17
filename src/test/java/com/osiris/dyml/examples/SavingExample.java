@@ -8,8 +8,8 @@
 
 package com.osiris.dyml.examples;
 
-import com.osiris.dyml.DYModule;
-import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.Yaml;
+import com.osiris.dyml.YamlSection;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -19,7 +19,7 @@ public class SavingExample {
 
     @Test
     void test() throws Exception {
-        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/saving-example.yml");
+        Yaml yaml = new Yaml(System.getProperty("user.dir") + "/src/test/saving-example.yml");
         yaml.load();
         yaml.reset(); // Ignore this!
         yaml.add("work").setDefValues("Reporter"); // Ignore this!
@@ -36,9 +36,9 @@ public class SavingExample {
         // Lets imagine another scenario where this file contains a lot of unnecessary stuff we want to get rid of
         // and add other data instead.
         // For that we (again) add the modules first:
-        DYModule firstName = yaml.add("name").setDefValues("John");
-        DYModule lastName = yaml.add("last-name").setDefValues("Goldman");
-        DYModule age = yaml.add("age").setDefValues("29");
+        YamlSection firstName = yaml.add("name").setDefValues("John");
+        YamlSection lastName = yaml.add("last-name").setDefValues("Goldman");
+        YamlSection age = yaml.add("age").setDefValues("29");
         // Then save it with 'overwrite' true:
         yaml.save(true);
         // That's it!

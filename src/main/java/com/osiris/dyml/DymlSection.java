@@ -28,7 +28,7 @@ public class DymlSection {
      * Returns the value like its in the yaml file. If its empty there or null, this returns null. <br>
      * Note that this value got post-processed (if enabled). <br>
      * Also note that this is the lowest level you can get to the original yaml value. <br>
-     * The lowest level is at {@link DYLine}, but thats only accessible for the {@link DYReader} and the {@link DYWriter}. <br>
+     * The lowest level is at {@link DYLine}, but thats only accessible for the {@link YamlReader} and the {@link YamlWriter}. <br>
      */
     public String asString() {
         return value.asString();

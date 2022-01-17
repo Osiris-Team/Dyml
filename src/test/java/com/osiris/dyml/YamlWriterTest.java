@@ -11,7 +11,7 @@ package com.osiris.dyml;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class DYWriterTest {
+class YamlWriterTest {
 
     @Test
     void testWritingWithoutLineBreaks() {

@@ -8,44 +8,44 @@
 
 package com.osiris.dyml.watcher;
 
-import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.Yaml;
 
 import java.io.File;
 import java.net.URI;
 import java.util.List;
 
-public class DYRegisteredFile extends File {
-    private final DYWatcher watcher;
+public class WatchedFile extends File {
+    private final FileWatcher watcher;
 
-    public DYRegisteredFile(String pathname, DYWatcher watcher) {
+    public WatchedFile(String pathname, FileWatcher watcher) {
         super(pathname);
         this.watcher = watcher;
     }
 
-    public DYRegisteredFile(String parent, String child, DYWatcher watcher) {
+    public WatchedFile(String parent, String child, FileWatcher watcher) {
         super(parent, child);
         this.watcher = watcher;
     }
 
-    public DYRegisteredFile(File parent, String child, DYWatcher watcher) {
+    public WatchedFile(File parent, String child, FileWatcher watcher) {
         super(parent, child);
         this.watcher = watcher;
     }
 
-    public DYRegisteredFile(URI uri, DYWatcher watcher) {
+    public WatchedFile(URI uri, FileWatcher watcher) {
         super(uri);
         this.watcher = watcher;
     }
 
-    public DreamYaml getYaml() {
+    public Yaml getYaml() {
         return watcher.getYaml();
     }
 
-    public DYWatcher getWatcher() {
+    public FileWatcher getWatcher() {
         return watcher;
     }
 
-    public List<DYFileEventListener<DYFileEvent>> getListeners() {
+    public List<FileEventListener<FileEvent>> getListeners() {
         return watcher.getListeners();
     }
 

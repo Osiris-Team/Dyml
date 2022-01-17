@@ -9,21 +9,21 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class DreamYamlTest {
+class YamlTest {
 
     @Test
-    void codingStyle() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
+    void codingStyle() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
 
     }
 
     @Test
-    void threadSafetyTest() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException, InterruptedException {
+    void threadSafetyTest() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException, InterruptedException {
 
         List<Thread> threads = new ArrayList<>();
         for (int i = 0; i < 10; i++) { // Don't make this too big, since github actions will take very long and abort the build then
             threads.add(new Thread(() -> {
                 for (int f = 0; f < 10; f++) {
-                    DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml");
+                    Yaml yaml = new Yaml(System.getProperty("user.dir") + "/src/test/tests.yml");
                     yaml.lockFile();
                     try {
                         System.out.println(Thread.currentThread().getName() + " is waiting...");
@@ -59,15 +59,15 @@ class DreamYamlTest {
     }
 
     @Test
-    void runLoadTwice() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
-        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml", true, true);
+    void runLoadTwice() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException {
+        Yaml yaml = new Yaml(System.getProperty("user.dir") + "/src/test/tests.yml", true, true);
         yaml.load();
         yaml.load();
     }
 
     @Test
-    void remove() throws DYWriterException, IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException {
-        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml", true);
+    void remove() throws YamlWriterException, IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException {
+        Yaml yaml = new Yaml(System.getProperty("user.dir") + "/src/test/tests.yml", true);
         yaml.load();
         yaml.reset();
         yaml.add("test");
@@ -78,12 +78,12 @@ class DreamYamlTest {
     }
 
     @Test
-    void add() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
-        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml", true);
+    void add() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, YamlWriterException, NotLoadedException, IllegalKeyException {
+        Yaml yaml = new Yaml(System.getProperty("user.dir") + "/src/test/tests.yml", true);
         yaml.load();
         yaml.reset();
-        DYModule m1 = yaml.add("test-put").setValues("value");
-        DYModule m2 = yaml.add("test-put", "c1").setValues("value");
+        YamlSection m1 = yaml.add("test-put").setValues("value");
+        YamlSection m2 = yaml.add("test-put", "c1").setValues("value");
         yaml.saveAndLoad();
 
         assertNotNull(m1);
@@ -112,12 +112,12 @@ class DreamYamlTest {
     }
 
     @Test
-    void put() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
-        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml");
+    void put() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, YamlWriterException, NotLoadedException, IllegalKeyException {
+        Yaml yaml = new Yaml(System.getProperty("user.dir") + "/src/test/tests.yml");
         yaml.load();
         yaml.reset();
-        DYModule m1 = yaml.put("test-put").setValues("value");
-        DYModule m2 = yaml.put("test-put", "c1").setValues("value");
+        YamlSection m1 = yaml.put("test-put").setValues("value");
+        YamlSection m2 = yaml.put("test-put", "c1").setValues("value");
         yaml.saveAndLoad();
 
         assertNotNull(m1);
@@ -148,15 +148,15 @@ class DreamYamlTest {
     }
 
     @Test
-    void get() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
-        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml");
+    void get() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, YamlWriterException, NotLoadedException, IllegalKeyException {
+        Yaml yaml = new Yaml(System.getProperty("user.dir") + "/src/test/tests.yml");
         yaml.load();
         yaml.put("test-get").setValues("value");
         yaml.put("test-get", "c1").setValues("value");
         yaml.saveAndLoad();
 
-        DYModule m1 = yaml.get("test-get");
-        DYModule m2 = yaml.get("test-get", "c1");
+        YamlSection m1 = yaml.get("test-get");
+        YamlSection m2 = yaml.get("test-get", "c1");
 
         assertNotNull(m1);
         assertNotNull(m2);
@@ -167,7 +167,7 @@ class DreamYamlTest {
 
     @Test
     void getAddedModuleByKeys() throws Exception {
-        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml");
+        Yaml yaml = new Yaml(System.getProperty("user.dir") + "/src/test/tests.yml");
         yaml.load();
         yaml.put("hello").setDefValues("world");
         yaml.save(true);
@@ -176,7 +176,7 @@ class DreamYamlTest {
 
     @Test
     void getLoadedModuleByKeys() throws Exception {
-        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/tests.yml");
+        Yaml yaml = new Yaml(System.getProperty("user.dir") + "/src/test/tests.yml");
         yaml.load();
         yaml.put("hello").setDefValues("world");
         yaml.save(true);
@@ -186,7 +186,7 @@ class DreamYamlTest {
 
     @Test
     void reset() throws Exception {
-        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/reset-test.yml");
+        Yaml yaml = new Yaml(System.getProperty("user.dir") + "/src/test/reset-test.yml");
         yaml.load();
         yaml.put("key").setDefValues("value");
         yaml.save();
@@ -196,7 +196,7 @@ class DreamYamlTest {
 
     @Test
     void save() throws Exception {
-        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/save-test.yml");
+        Yaml yaml = new Yaml(System.getProperty("user.dir") + "/src/test/save-test.yml");
         yaml.load();
         yaml.reset();
         yaml.put("p1");
@@ -221,8 +221,8 @@ class DreamYamlTest {
     }
 
     @Test
-    void readValueWithLineBreaks() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
-        DreamYaml yaml = new DreamYaml("key: Hello\nThere!", "");
+    void readValueWithLineBreaks() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException {
+        Yaml yaml = new Yaml("key: Hello\nThere!", "");
         yaml.load();
         assertEquals("Hello\nThere!", yaml.get("key").asString());
         yaml.inString = "key: Hello\n" +
@@ -234,8 +234,8 @@ class DreamYamlTest {
     }
 
     @Test
-    void writeValueWithLineBreaks() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
-        DreamYaml yaml = new DreamYaml("", "");
+    void writeValueWithLineBreaks() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
+        Yaml yaml = new Yaml("", "");
         yaml.load();
         yaml.put("key").setValues("Hello\nThere!");
         yaml.save();
@@ -248,7 +248,7 @@ class DreamYamlTest {
     }
 
     @Test
-    void writeValueAsModule() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException {
+    void writeValueAsModule() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException {
     }
 
 

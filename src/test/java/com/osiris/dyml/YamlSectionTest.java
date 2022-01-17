@@ -7,15 +7,15 @@ import java.io.IOException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class DYModuleTest {
+class YamlSectionTest {
 
     @Test
     void nullAndFallbackTests() throws Exception {
-        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/null-values-test.yml");
+        Yaml yaml = new Yaml(System.getProperty("user.dir") + "/src/test/null-values-test.yml");
         yaml.load();
         yaml.isReturnDefaultWhenValueIsNullEnabled = false; // Disable to check values
         yaml.reset(); // Make sure the file is empty
-        DYModule nullValueModule = yaml.add("i have no value")
+        YamlSection nullValueModule = yaml.add("i have no value")
                 .setValues((String) null)
                 .setDefValues((String) null);
         yaml.saveAndLoad();
@@ -38,8 +38,8 @@ class DYModuleTest {
     }
 
     @Test
-    void testTopSpace() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException, NotLoadedException, IllegalKeyException {
-        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/top-space-test.yml");
+    void testTopSpace() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, YamlWriterException, NotLoadedException, IllegalKeyException {
+        Yaml yaml = new Yaml(System.getProperty("user.dir") + "/src/test/top-space-test.yml");
         yaml.load();
         yaml.reset();
         yaml.put("i-got-3-spaces").setCountTopSpaces(3);

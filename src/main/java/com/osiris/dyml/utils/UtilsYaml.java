@@ -1,7 +1,7 @@
 package com.osiris.dyml.utils;
 
-import com.osiris.dyml.DYModule;
-import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.Yaml;
+import com.osiris.dyml.YamlSection;
 
 import java.io.*;
 import java.util.List;
@@ -10,15 +10,15 @@ import java.util.List;
  * Contains methods which
  * extend DreamYaml's functionality.
  */
-public class UtilsDreamYaml {
+public class UtilsYaml {
     private static final String n = System.lineSeparator();
-    private final DreamYaml yaml;
+    private final Yaml yaml;
 
     /**
      * Contains methods which
      * extend DreamYaml's functionality.
      */
-    public UtilsDreamYaml(DreamYaml yaml) {
+    public UtilsYaml(Yaml yaml) {
         this.yaml = yaml;
     }
 
@@ -104,9 +104,9 @@ public class UtilsDreamYaml {
      * Util method for returning the modules information from a {@link List}
      * formatted as {@link String}.
      */
-    public String getModulesInformationFromListAsString(List<DYModule> modules) {
+    public String getModulesInformationFromListAsString(List<YamlSection> modules) {
         StringBuilder s = new StringBuilder();
-        for (DYModule module :
+        for (YamlSection module :
                 modules) {
             s.append(module.getModuleInformationAsString()).append(n);
         }

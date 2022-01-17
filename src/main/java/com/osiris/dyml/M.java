@@ -13,44 +13,44 @@ import java.util.List;
 /**
  * Useful for very lazy people.
  */
-public class M extends DYModule {
-    public M(DreamYaml yaml) {
+public class M extends YamlSection {
+    public M(Yaml yaml) {
         super(yaml);
     }
 
-    public M(DreamYaml yaml, String... keys) {
+    public M(Yaml yaml, String... keys) {
         super(yaml, keys);
     }
 
-    public M(DreamYaml yaml, List<String> keys, List<DYValue> defaultValues, List<DYValue> values, List<String> comments) {
+    public M(Yaml yaml, List<String> keys, List<YamlValue> defaultValues, List<YamlValue> values, List<String> comments) {
         super(yaml, keys, defaultValues, values, comments);
     }
 
     /**
      * Shortcut for {@link #setValues(String...)}.
      */
-    public DYModule v(String... v) {
+    public YamlSection v(String... v) {
         return super.setValues(v);
     }
 
     /**
      * Shortcut for {@link #setDefValues(String...)}.
      */
-    public DYModule dv(String... v) {
+    public YamlSection dv(String... v) {
         return super.setDefValues(v);
     }
 
     /**
      * Shortcut for {@link #setComments(String...)}.
      */
-    public DYModule c(String... c) {
+    public YamlSection c(String... c) {
         return super.setComments(c);
     }
 
     /**
      * Shortcut for {@link #setDefComments(String...)}.
      */
-    public DYModule dc(String... c) {
+    public YamlSection dc(String... c) {
         return super.setDefComments(c);
     }
 }

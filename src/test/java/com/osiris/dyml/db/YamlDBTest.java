@@ -8,16 +8,16 @@ import org.junit.jupiter.api.Test;
 import java.io.File;
 import java.io.IOException;
 
-class DreamYamlDBTest {
+class YamlDBTest {
 
     @Test
-    void testCodingStyle() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, NotLoadedException, IllegalKeyException, DYWriterException {
-        DreamYamlDB db = new DreamYamlDB(new File(System.getProperty("user.dir") + "/src/test/test-db.yml"));
+    void testCodingStyle() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
+        YamlDatabase db = new YamlDatabase(new File(System.getProperty("user.dir") + "/src/test/test-db.yml"));
         db.getYaml().debugLogger = new DYDebugLogger(System.out);
         db.load();
 
         // Define the table:
-        DYTable tableUsers = db.putTable("users");
+        YamlTable tableUsers = db.putTable("users");
 
         // Define the columns:
         tableUsers.putColumn("name");

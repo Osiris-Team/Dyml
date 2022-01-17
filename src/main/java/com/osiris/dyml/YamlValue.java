@@ -8,72 +8,72 @@ package com.osiris.dyml;
  * This value may have a comment (side comment).
  */
 @SuppressWarnings("ALL")
-public class DYValue {
+public class YamlValue {
     private String value;
     private String comment;
     private String defaultComment;
 
-    public DYValue(String value) {
+    public YamlValue(String value) {
         this(value, null);
     }
 
-    public DYValue(char[] value) {
+    public YamlValue(char[] value) {
         this(String.valueOf(value), null);
     }
 
-    public DYValue(boolean value) {
+    public YamlValue(boolean value) {
         this(String.valueOf(value), null);
     }
 
-    public DYValue(Boolean value) {
+    public YamlValue(Boolean value) {
         this(value.toString(), null);
     }
 
-    public DYValue(byte value) {
+    public YamlValue(byte value) {
         this(String.valueOf(value), null);
     }
 
-    public DYValue(Byte value) {
+    public YamlValue(Byte value) {
         this(value.toString(), null);
     }
 
-    public DYValue(short value) {
+    public YamlValue(short value) {
         this(String.valueOf(value), null);
     }
 
-    public DYValue(Short value) {
+    public YamlValue(Short value) {
         this(value.toString(), null);
     }
 
-    public DYValue(int value) {
+    public YamlValue(int value) {
         this(String.valueOf(value), null);
     }
 
-    public DYValue(Integer value) {
+    public YamlValue(Integer value) {
         this(value.toString(), null);
     }
 
-    public DYValue(long value) {
+    public YamlValue(long value) {
         this(String.valueOf(value), null);
     }
 
-    public DYValue(Long value) {
+    public YamlValue(Long value) {
         this(value.toString(), null);
     }
 
-    public DYValue(float value) {
+    public YamlValue(float value) {
         this(String.valueOf(value), null);
     }
 
-    public DYValue(Float value) {
+    public YamlValue(Float value) {
         this(value.toString(), null);
     }
 
-    public DYValue(double value) {
+    public YamlValue(double value) {
         this(String.valueOf(value), null);
     }
 
-    public DYValue(Double value) {
+    public YamlValue(Double value) {
         this(value.toString(), null);
     }
 
@@ -86,7 +86,7 @@ public class DYValue {
      * @param value   Can be null.
      * @param comment Can be null.
      */
-    public DYValue(String value, String comment) {
+    public YamlValue(String value, String comment) {
         this(value, comment, null);
     }
 
@@ -100,7 +100,7 @@ public class DYValue {
      * @param comment    Can be null.
      * @param defComment Can be null.
      */
-    public DYValue(String value, String comment, String defComment) {
+    public YamlValue(String value, String comment, String defComment) {
         this.value = value;
         setComment(comment);
         setDefComment(defComment);
@@ -135,7 +135,7 @@ public class DYValue {
      * Line separators get removed.
      * See {@link #getComment()} for details.
      */
-    public DYValue setComment(String comment) {
+    public YamlValue setComment(String comment) {
         if (comment != null)
             comment = comment.replace(System.lineSeparator(), "");
         this.comment = comment;
@@ -146,7 +146,7 @@ public class DYValue {
      * Line separators get removed.
      * See {@link #getComment()} for details.
      */
-    public DYValue setDefComment(String defComment) {
+    public YamlValue setDefComment(String defComment) {
         if (defComment != null)
             defComment = defComment.replace(System.lineSeparator(), "");
         this.defaultComment = defComment;
@@ -162,7 +162,7 @@ public class DYValue {
      * Returns the value like its in the yaml file. If its empty there or null, this returns null. <br>
      * Note that this value got post-processed (if enabled). <br>
      * Also note that this is the lowest level you can get to the original yaml value. <br>
-     * The lowest level is at {@link DYLine}, but thats only accessible for the {@link DYReader} and the {@link DYWriter}. <br>
+     * The lowest level is at {@link DYLine}, but thats only accessible for the {@link YamlReader} and the {@link YamlWriter}. <br>
      */
     public String get() {
         return value;
@@ -173,7 +173,7 @@ public class DYValue {
      * Returns the value like its in the yaml file. If its empty there or null, this returns null. <br>
      * Note that this value got post-processed (if enabled). <br>
      * Also note that this is the lowest level you can get to the original yaml value. <br>
-     * The lowest level is at {@link DYLine}, but thats only accessible for the {@link DYReader} and the {@link DYWriter}. <br>
+     * The lowest level is at {@link DYLine}, but thats only accessible for the {@link YamlReader} and the {@link YamlWriter}. <br>
      */
     public String asString() {
         return value;
@@ -247,22 +247,22 @@ public class DYValue {
     // SETTERS:
 
 
-    public DYValue set(String value) {
+    public YamlValue set(String value) {
         this.value = value;
         return this;
     }
 
-    public DYValue set(char[] value) {
+    public YamlValue set(char[] value) {
         this.value = String.valueOf(value);
         return this;
     }
 
-    public DYValue set(boolean value) {
+    public YamlValue set(boolean value) {
         this.value = String.valueOf(value);
         return this;
     }
 
-    public DYValue set(Boolean value) {
+    public YamlValue set(Boolean value) {
         if (value == null) {
             this.value = null;
             return this;
@@ -271,12 +271,12 @@ public class DYValue {
         return this;
     }
 
-    public DYValue set(byte value) {
+    public YamlValue set(byte value) {
         this.value = String.valueOf(value);
         return this;
     }
 
-    public DYValue set(Byte value) {
+    public YamlValue set(Byte value) {
         if (value == null) {
             this.value = null;
             return this;
@@ -285,12 +285,12 @@ public class DYValue {
         return this;
     }
 
-    public DYValue set(short value) {
+    public YamlValue set(short value) {
         this.value = String.valueOf(value);
         return this;
     }
 
-    public DYValue set(Short value) {
+    public YamlValue set(Short value) {
         if (value == null) {
             this.value = null;
             return this;
@@ -299,13 +299,13 @@ public class DYValue {
         return this;
     }
 
-    public DYValue set(int value) {
+    public YamlValue set(int value) {
         this.value = String.valueOf(value);
 
         return this;
     }
 
-    public DYValue set(Integer value) {
+    public YamlValue set(Integer value) {
         if (value == null) {
             this.value = null;
             return this;
@@ -314,12 +314,12 @@ public class DYValue {
         return this;
     }
 
-    public DYValue set(long value) {
+    public YamlValue set(long value) {
         this.value = String.valueOf(value);
         return this;
     }
 
-    public DYValue set(Long value) {
+    public YamlValue set(Long value) {
         if (value == null) {
             this.value = null;
             return this;
@@ -328,12 +328,12 @@ public class DYValue {
         return this;
     }
 
-    public DYValue set(float value) {
+    public YamlValue set(float value) {
         this.value = String.valueOf(value);
         return this;
     }
 
-    public DYValue set(Float value) {
+    public YamlValue set(Float value) {
         if (value == null) {
             this.value = null;
             return this;
@@ -342,12 +342,12 @@ public class DYValue {
         return this;
     }
 
-    public DYValue set(double value) {
+    public YamlValue set(double value) {
         this.value = String.valueOf(value);
         return this;
     }
 
-    public DYValue set(Double value) {
+    public YamlValue set(Double value) {
         if (value == null) {
             this.value = null;
             return this;

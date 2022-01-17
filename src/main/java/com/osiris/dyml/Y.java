@@ -18,7 +18,7 @@ import java.io.OutputStream;
 /**
  * Useful for very lazy people.
  */
-public class Y extends DreamYaml {
+public class Y extends Yaml {
 
     public Y(InputStream inputStream, OutputStream outputStream) {
         super(inputStream, outputStream);

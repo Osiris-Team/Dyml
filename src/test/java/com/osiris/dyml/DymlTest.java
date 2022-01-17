@@ -1,7 +1,7 @@
 package com.osiris.dyml;
 
-import com.osiris.dyml.exceptions.DYReaderException;
 import com.osiris.dyml.exceptions.IllegalListException;
+import com.osiris.dyml.exceptions.YamlReaderException;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
@@ -9,7 +9,7 @@ import java.io.IOException;
 class DymlTest {
 
     @Test
-    void testCodeStyle() throws IOException, DYReaderException, IllegalListException {
+    void testCodeStyle() throws IOException, YamlReaderException, IllegalListException {
         Dyml dyml = Dyml.from(" Project Name\n" +
                 "architect amihaiemil\n" +
                 " This is a test comment with no line breaks!\n" +

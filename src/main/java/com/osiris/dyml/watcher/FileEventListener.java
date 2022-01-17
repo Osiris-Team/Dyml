@@ -8,6 +8,6 @@
 
 package com.osiris.dyml.watcher;
 
-public interface DYFileEventListener<E extends DYFileEvent> {
+public interface FileEventListener<E extends FileEvent> {
     void runOnEvent(E event);
 }

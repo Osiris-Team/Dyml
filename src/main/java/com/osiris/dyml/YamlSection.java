@@ -9,7 +9,7 @@
 package com.osiris.dyml;
 
 
-import com.osiris.dyml.utils.UtilsDYModule;
+import com.osiris.dyml.utils.UtilsYamlSection;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,30 +21,30 @@ import java.util.Objects;
  * Contains information about its keys, values and comments.
  */
 @SuppressWarnings("ALL")
-public class DYModule {
-    private final UtilsDYModule utils = new UtilsDYModule();
-    private DreamYaml yaml;
+public class YamlSection {
+    private final UtilsYamlSection utils = new UtilsYamlSection();
+    private Yaml yaml;
     private List<String> keys;
-    private List<DYValue> values;
-    private List<DYValue> defaultValues;
+    private List<YamlValue> values;
+    private List<YamlValue> defaultValues;
     private List<String> comments;
     private List<String> defaultComments;
     private int countTopSpaces;
 
-    private DYModule parentModule = null;
-    private List<DYModule> childModules = new ArrayList<>();
+    private YamlSection parentModule = null;
+    private List<YamlSection> childModules = new ArrayList<>();
 
     /**
-     * See {@link #DYModule(DreamYaml, List, List, List, List)} for details.
+     * See {@link #YamlSection(Yaml, List, List, List, List)} for details.
      */
-    public DYModule(DreamYaml yaml) {
+    public YamlSection(Yaml yaml) {
         this(yaml, (String[]) null);
     }
 
     /**
-     * See {@link #DYModule(DreamYaml, List, List, List, List)} for details.
+     * See {@link #YamlSection(Yaml, List, List, List, List)} for details.
      */
-    public DYModule(DreamYaml yaml, String... keys) {
+    public YamlSection(Yaml yaml, String... keys) {
         List<String> list = new ArrayList<>();
         if (keys != null) list.addAll(Arrays.asList(keys));
         init(yaml, list, null, null, null);
@@ -62,11 +62,11 @@ public class DYModule {
      * @param values        a list containing its values. Pass over null to create a new list.
      * @param comments      a list containing its comments. Pass over null to create a new list.
      */
-    public DYModule(DreamYaml yaml, List<String> keys, List<DYValue> defaultValues, List<DYValue> values, List<String> comments) {
+    public YamlSection(Yaml yaml, List<String> keys, List<YamlValue> defaultValues, List<YamlValue> values, List<String> comments) {
         init(yaml, keys, defaultValues, values, comments);
     }
 
-    private void init(DreamYaml yaml, List<String> keys, List<DYValue> defaultValues, List<DYValue> values, List<String> comments) {
+    private void init(Yaml yaml, List<String> keys, List<YamlValue> defaultValues, List<YamlValue> values, List<String> comments) {
         this.yaml = yaml;
         this.keys = keys;
         this.values = values;
@@ -81,14 +81,14 @@ public class DYModule {
     /**
      * Returns the yaml file this module is in.
      */
-    public DreamYaml getYaml() {
+    public Yaml getYaml() {
         return yaml;
     }
 
     /**
      * Prints out this modules most important details.
      */
-    public DYModule print() {
+    public YamlSection print() {
         System.out.println(getModuleInformationAsString());
         return this;
     }
@@ -111,7 +111,7 @@ public class DYModule {
     /**
      * Clears the {@link #keys} list.
      */
-    public DYModule removeAllKeys() {
+    public YamlSection removeAllKeys() {
         keys.clear();
         return this;
     }
@@ -119,7 +119,7 @@ public class DYModule {
     /**
      * Clears the {@link #values} list.
      */
-    public DYModule removeAllValues() {
+    public YamlSection removeAllValues() {
         values.clear();
         return this;
     }
@@ -127,7 +127,7 @@ public class DYModule {
     /**
      * Clears the {@link #defaultValues} list.
      */
-    public DYModule removeAllDefValues() {
+    public YamlSection removeAllDefValues() {
         defaultValues.clear();
         return this;
     }
@@ -135,7 +135,7 @@ public class DYModule {
     /**
      * Clears the {@link #comments} list.
      */
-    public DYModule removeAllComments() {
+    public YamlSection removeAllComments() {
         comments.clear();
         return this;
     }
@@ -148,7 +148,7 @@ public class DYModule {
      * Adds a new key to the list. <br>
      * Duplicate keys and null keys are not allowed.
      */
-    public DYModule addKeys(String... keys) {
+    public YamlSection addKeys(String... keys) {
         for (String key :
                 keys) {
             Objects.requireNonNull(key);
@@ -163,50 +163,50 @@ public class DYModule {
      * <pre>
      *     key: value # comment
      * </pre>
-     * See {@link DYValue#DYValue(String, String)} for details.
+     * See {@link YamlValue#YamlValue(String, String)} for details.
      *
      * @param v value
      * @param c comment
      */
-    public DYModule addValueWithComment(String v, String c) {
-        addValues(new DYValue(v, c));
+    public YamlSection addValueWithComment(String v, String c) {
+        addValues(new YamlValue(v, c));
         return this;
     }
 
     /**
      * See {@link #addValues(List)} for details.
      */
-    public DYModule addValues(String... v) {
+    public YamlSection addValues(String... v) {
         if (v != null)
             addValues(utils.stringArrayToValuesList(v));
         else
-            addValues((List<DYValue>) null);
+            addValues((List<YamlValue>) null);
         return this;
     }
 
     /**
      * See {@link #addValues(List)} for details.
      */
-    public DYModule addValues(DYValue... v) {
+    public YamlSection addValues(YamlValue... v) {
         if (v != null)
             addValues(Arrays.asList(v));
         else
-            addValues((List<DYValue>) null);
+            addValues((List<YamlValue>) null);
         return this;
     }
 
     /**
      * Adds new values to the list. <br>
      */
-    public DYModule addValues(List<DYValue> v) {
+    public YamlSection addValues(List<YamlValue> v) {
         if (v != null) {
-            for (DYValue value :
+            for (YamlValue value :
                     v) {
                 Objects.requireNonNull(value);
             }
             this.values.addAll(v);
         } else
-            this.values.add(new DYValue((String) null));
+            this.values.add(new YamlValue((String) null));
 
         return this;
     }
@@ -217,64 +217,64 @@ public class DYModule {
      * <pre>
      *     key: value # comment
      * </pre>
-     * See {@link DYValue#DYValue(String, String)} for details.
+     * See {@link YamlValue#YamlValue(String, String)} for details.
      *
      * @param v default value
      * @param c comment
      */
-    public DYModule addDefValueWithComment(String v, String c) {
-        addDefValues(new DYValue(v, c));
+    public YamlSection addDefValueWithComment(String v, String c) {
+        addDefValues(new YamlValue(v, c));
         return this;
     }
 
     /**
-     * Converts the provided string array, into a {@link DYValue}s list. <br>
+     * Converts the provided string array, into a {@link YamlValue}s list. <br>
      * See {@link #addDefValues(List)} for details.
      */
-    public DYModule addDefValues(String... v) {
+    public YamlSection addDefValues(String... v) {
         if (v != null)
             addDefValues(utils.stringArrayToValuesList(v));
         else
-            addDefValues((List<DYValue>) null);
+            addDefValues((List<YamlValue>) null);
         return this;
     }
 
     /**
      * {@link #addDefValues(List)}
      */
-    public DYModule addDefValues(DYValue... v) {
+    public YamlSection addDefValues(YamlValue... v) {
         if (v != null)
             addDefValues(Arrays.asList(v));
         else
-            addDefValues((List<DYValue>) null);
+            addDefValues((List<YamlValue>) null);
         return this;
     }
 
     /**
-     * Adds new default {@link DYValue}s to the list. <br>
-     * Note that the list cannot contain null {@link DYValue}s, thus <br>
-     * if null is passed as parameter a new {@link DYValue} gets created with a null value. <br>
-     * That means that {@link DYValue#asString()} will return null.
+     * Adds new default {@link YamlValue}s to the list. <br>
+     * Note that the list cannot contain null {@link YamlValue}s, thus <br>
+     * if null is passed as parameter a new {@link YamlValue} gets created with a null value. <br>
+     * That means that {@link YamlValue#asString()} will return null.
      */
-    public DYModule addDefValues(List<DYValue> v) {
+    public YamlSection addDefValues(List<YamlValue> v) {
         if (v != null) {
-            for (DYValue value :
+            for (YamlValue value :
                     v) {
                 Objects.requireNonNull(value);
             }
             defaultValues.addAll(v);
         } else
-            defaultValues.add(new DYValue((String) null));
+            defaultValues.add(new YamlValue((String) null));
         return this;
     }
 
-    public DYModule addComments(String... c) {
+    public YamlSection addComments(String... c) {
         if (c != null)
             this.comments.addAll(Arrays.asList(c));
         return this;
     }
 
-    public DYModule addDefComments(String... c) {
+    public YamlSection addDefComments(String... c) {
         if (c != null)
             this.defaultComments.addAll(Arrays.asList(c));
         return this;
@@ -283,7 +283,7 @@ public class DYModule {
 
     // SET METHODS:
 
-    public UtilsDYModule getUtils() {
+    public UtilsYamlSection getUtils() {
         return utils;
     }
 
@@ -299,11 +299,11 @@ public class DYModule {
         return getKeyByIndex(keys.size() - 1);
     }
 
-    public DYValue getLastValue() {
+    public YamlValue getLastValue() {
         return getValueByIndex(values.size() - 1);
     }
 
-    public DYValue getLastDefValue() {
+    public YamlValue getLastDefValue() {
         return getValueByIndex(defaultValues.size() - 1);
     }
 
@@ -329,7 +329,7 @@ public class DYModule {
     /**
      * See {@link #setKeys(List)} for details.
      */
-    public DYModule setKeys(String... keys) {
+    public YamlSection setKeys(String... keys) {
         if (keys != null) return setKeys(Arrays.asList(keys));
         return this;
     }
@@ -339,7 +339,7 @@ public class DYModule {
      * Duplicate keys are not allowed,
      * because its the only way of distinguishing modules.
      */
-    public DYModule setKeys(List<String> keys) {
+    public YamlSection setKeys(List<String> keys) {
         if (keys != null) {
             this.keys.clear();
             this.keys.addAll(keys);
@@ -351,16 +351,16 @@ public class DYModule {
      * Returns the 'real' value from the yaml file
      * at the time when load() was called.
      */
-    public DYValue getValue() {
+    public YamlValue getValue() {
         return getValueByIndex(0);
     }
 
     /**
      * Returns the value by given index or
-     * its default value, if the value is null/empty and {@link DreamYaml#isReturnDefaultWhenValueIsNullEnabled()} is set to true.
+     * its default value, if the value is null/empty and {@link Yaml#isReturnDefaultWhenValueIsNullEnabled()} is set to true.
      */
-    public DYValue getValueByIndex(int i) {
-        DYValue v = new DYValue((String) null);
+    public YamlValue getValueByIndex(int i) {
+        YamlValue v = new YamlValue((String) null);
         try {
             v = values.get(i);
         } catch (Exception ignored) {
@@ -371,51 +371,51 @@ public class DYModule {
         return v;
     }
 
-    public List<DYValue> getValues() {
+    public List<YamlValue> getValues() {
         return values;
     }
 
     /**
      * See {@link #setValues(List)} for details.
      */
-    public DYModule setValues(String... v) {
+    public YamlSection setValues(String... v) {
         setValues(utils.stringArrayToValuesList(v));
         return this;
     }
 
     /**
-     * Not allowed to contain null {@link DYValue}s. <br>
+     * Not allowed to contain null {@link YamlValue}s. <br>
      * See {@link #setValues(List)} for details.
      */
-    public DYModule setValues(DYValue... v) {
+    public YamlSection setValues(YamlValue... v) {
         setValues(Arrays.asList(v));
         return this;
     }
 
     /**
      * Clears the values list and adds the values from the provided list. <br>
-     * Note that the list can NOT contain null {@link DYValue}s. <br>
-     * {@link DYValue#asString()} may return null though. <br>
+     * Note that the list can NOT contain null {@link YamlValue}s. <br>
+     * {@link YamlValue#asString()} may return null though. <br>
      * If you want to remove values, use {@link #removeAllValues()} instead.
      */
-    public DYModule setValues(List<DYValue> v) {
+    public YamlSection setValues(List<YamlValue> v) {
         this.values.clear();
         addValues(v);
         return this;
     }
 
     /**
-     * Returns the first {@link DYValue} in the default values list.
+     * Returns the first {@link YamlValue} in the default values list.
      */
-    public DYValue getDefValue() {
+    public YamlValue getDefValue() {
         return getDefValueByIndex(0);
     }
 
     /**
-     * Returns the {@link DYValue} at index i in the default values list.
+     * Returns the {@link YamlValue} at index i in the default values list.
      */
-    public DYValue getDefValueByIndex(int i) {
-        DYValue v = new DYValue((String) null);
+    public YamlValue getDefValueByIndex(int i) {
+        YamlValue v = new YamlValue((String) null);
         try {
             v = defaultValues.get(i);
         } catch (Exception ignored) {
@@ -423,14 +423,14 @@ public class DYModule {
         return v;
     }
 
-    public List<DYValue> getDefValues() {
+    public List<YamlValue> getDefValues() {
         return defaultValues;
     }
 
     /**
      * See {@link #setDefValues(List)} for details.
      */
-    public DYModule setDefValues(String... v) {
+    public YamlSection setDefValues(String... v) {
         setDefValues(utils.stringArrayToValuesList(v));
         return this;
     }
@@ -438,7 +438,7 @@ public class DYModule {
     /**
      * See {@link #setDefValues(List)} for details.
      */
-    public DYModule setDefValues(DYValue... v) {
+    public YamlSection setDefValues(YamlValue... v) {
         setDefValues(Arrays.asList(v));
         return this;
     }
@@ -446,10 +446,10 @@ public class DYModule {
     /**
      * The default values are written to the yaml file, when there were no regular values set/added. <br>
      * Further details: <br>
-     * {@link DreamYaml#isWriteDefaultValuesWhenEmptyEnabled()} <br>
-     * {@link DreamYaml#isReturnDefaultWhenValueIsNullEnabled()} <br>
+     * {@link Yaml#isWriteDefaultValuesWhenEmptyEnabled()} <br>
+     * {@link Yaml#isReturnDefaultWhenValueIsNullEnabled()} <br>
      */
-    public DYModule setDefValues(List<DYValue> v) {
+    public YamlSection setDefValues(List<YamlValue> v) {
         this.defaultValues.clear();
         addDefValues(v);
         return this;
@@ -477,12 +477,12 @@ public class DYModule {
         return comments;
     }
 
-    public DYModule setComments(String... c) {
+    public YamlSection setComments(String... c) {
         if (c != null) setComments(Arrays.asList(c));
         return this;
     }
 
-    public DYModule setComments(List<String> c) {
+    public YamlSection setComments(List<String> c) {
         if (c != null) {
             this.comments.clear();
             this.comments.addAll(c);
@@ -512,12 +512,12 @@ public class DYModule {
         return defaultComments;
     }
 
-    public DYModule setDefComments(String... c) {
+    public YamlSection setDefComments(String... c) {
         if (c != null) setDefComments(Arrays.asList(c));
         return this;
     }
 
-    public DYModule setDefComments(List<String> c) {
+    public YamlSection setDefComments(List<String> c) {
         if (c != null) {
             this.defaultComments.clear();
             this.defaultComments.addAll(c);
@@ -529,8 +529,8 @@ public class DYModule {
     // AS METHODS:
 
     /**
-     * Shortcut for retrieving this {@link DYModule}s first {@link DYValue} as string. <br>
-     * See {@link DYValue#asString()} for details. <br>
+     * Shortcut for retrieving this {@link YamlSection}s first {@link YamlValue} as string. <br>
+     * See {@link YamlValue#asString()} for details. <br>
      */
     public String asString() {
         return asString(0);
@@ -541,13 +541,13 @@ public class DYModule {
     }
 
     /**
-     * Shortcut for retrieving this {@link DYModule}s first {@link DYValue}.
+     * Shortcut for retrieving this {@link YamlSection}s first {@link YamlValue}.
      */
-    public DYValue asDYValue() {
+    public YamlValue asDYValue() {
         return asDYValue(0);
     }
 
-    public DYValue asDYValue(int i) {
+    public YamlValue asDYValue(int i) {
         return getValueByIndex(i);
     }
 
@@ -559,7 +559,7 @@ public class DYModule {
     }
 
     /**
-     * Shortcut for retrieving this {@link DYModule}s first {@link DYValue} as char-array.
+     * Shortcut for retrieving this {@link YamlSection}s first {@link YamlValue} as char-array.
      */
     public char[] asCharArray() {
         return asCharArray(0);
@@ -570,7 +570,7 @@ public class DYModule {
     }
 
     /**
-     * Shortcut for retrieving this {@link DYModule}s first {@link DYValue} as boolean.
+     * Shortcut for retrieving this {@link YamlSection}s first {@link YamlValue} as boolean.
      */
     public boolean asBoolean() {
         return asBoolean(0);
@@ -581,7 +581,7 @@ public class DYModule {
     }
 
     /**
-     * Shortcut for retrieving this {@link DYModule}s first {@link DYValue} as byte.
+     * Shortcut for retrieving this {@link YamlSection}s first {@link YamlValue} as byte.
      */
     public byte asByte() {
         return asByte(0);
@@ -592,7 +592,7 @@ public class DYModule {
     }
 
     /**
-     * Shortcut for retrieving this {@link DYModule}s first {@link DYValue} as short.
+     * Shortcut for retrieving this {@link YamlSection}s first {@link YamlValue} as short.
      */
     public short asShort() {
         return asShort(0);
@@ -603,7 +603,7 @@ public class DYModule {
     }
 
     /**
-     * Shortcut for retrieving this {@link DYModule}s first {@link DYValue} as int.
+     * Shortcut for retrieving this {@link YamlSection}s first {@link YamlValue} as int.
      */
     public int asInt() {
         return asInt(0);
@@ -614,7 +614,7 @@ public class DYModule {
     }
 
     /**
-     * Shortcut for retrieving this {@link DYModule}s first {@link DYValue} as long.
+     * Shortcut for retrieving this {@link YamlSection}s first {@link YamlValue} as long.
      */
     public long asLong() {
         return asLong(0);
@@ -625,7 +625,7 @@ public class DYModule {
     }
 
     /**
-     * Shortcut for retrieving this {@link DYModule}s first {@link DYValue} as float.
+     * Shortcut for retrieving this {@link YamlSection}s first {@link YamlValue} as float.
      */
     public float asFloat() {
         return asFloat(0);
@@ -636,7 +636,7 @@ public class DYModule {
     }
 
     /**
-     * Shortcut for retrieving this {@link DYModule}s first {@link DYValue} as double.
+     * Shortcut for retrieving this {@link YamlSection}s first {@link YamlValue} as double.
      */
     public Double asDouble() {
         return asDouble(0);
@@ -652,19 +652,19 @@ public class DYModule {
 
     /**
      * <p style="color:red;">Do not modify this directly, unless you know what you are doing!</p>
-     * The parent {@link DYModule} of this {@link DYModule}, aka the last {@link DYModule} in the generation before. <br>
-     * More about generations here: {@link DYReader#parseLine(DreamYaml, DYLine)}.
+     * The parent {@link YamlSection} of this {@link YamlSection}, aka the last {@link YamlSection} in the generation before. <br>
+     * More about generations here: {@link YamlReader#parseLine(Yaml, DYLine)}.
      */
-    public DYModule getParentModule() {
+    public YamlSection getParentModule() {
         return parentModule;
     }
 
     /**
      * <p style="color:red;">Do not modify this directly, unless you know what you are doing!</p>
-     * The parent {@link DYModule} of this {@link DYModule}, aka the last {@link DYModule} in the generation before. <br>
-     * More about generations here: {@link DYReader#parseLine(DreamYaml, DYLine)}.
+     * The parent {@link YamlSection} of this {@link YamlSection}, aka the last {@link YamlSection} in the generation before. <br>
+     * More about generations here: {@link YamlReader#parseLine(Yaml, DYLine)}.
      */
-    public DYModule setParentModule(DYModule parentModule) {
+    public YamlSection setParentModule(YamlSection parentModule) {
         this.parentModule = parentModule;
         return this;
     }
@@ -675,9 +675,9 @@ public class DYModule {
      * Note that this list does NOT contain generations beyond that. <br>
      * This methods ensures that these modules get added to the 'inEditModules' list, and thus <br>
      * modifying them has also affect to the actual yaml file. <br>
-     * More about generations here: {@link DYReader#parseLine(DreamYaml, DYLine)}.
+     * More about generations here: {@link YamlReader#parseLine(Yaml, DYLine)}.
      */
-    public List<DYModule> getChildModules() {
+    public List<YamlSection> getChildModules() {
         return childModules;
     }
 
@@ -685,14 +685,14 @@ public class DYModule {
      * <p style="color:red;">Do not modify this list directly, unless you know what you are doing!</p>
      * A list containing this modules child modules, aka the next generation. <br>
      * Note that this list does NOT contain generations beyond that. <br>
-     * More about generations here: {@link DYReader#parseLine(DreamYaml, DYLine)}.
+     * More about generations here: {@link YamlReader#parseLine(Yaml, DYLine)}.
      */
-    public DYModule setChildModules(List<DYModule> childModules) {
+    public YamlSection setChildModules(List<YamlSection> childModules) {
         this.childModules = childModules;
         return this;
     }
 
-    public DYModule addChildModules(DYModule... cModules) {
+    public YamlSection addChildModules(YamlSection... cModules) {
         Objects.requireNonNull(cModules);
         childModules.addAll(Arrays.asList(cModules));
         return this;
@@ -700,7 +700,7 @@ public class DYModule {
 
 
     /**
-     * The count of line breaks before this {@link DYModule}. <br>
+     * The count of line breaks before this {@link YamlSection}. <br>
      * Example yaml file:
      * <pre>
      *     m1: value
@@ -717,7 +717,7 @@ public class DYModule {
     }
 
     /**
-     * Set the count of line breaks before this {@link DYModule}. <br>
+     * Set the count of line breaks before this {@link YamlSection}. <br>
      * Example yaml file before:
      * <pre>
      *     m1: value
@@ -732,7 +732,7 @@ public class DYModule {
      *     m2: value
      * </pre>
      */
-    public DYModule setCountTopSpaces(int countTopSpaces) {
+    public YamlSection setCountTopSpaces(int countTopSpaces) {
         this.countTopSpaces = countTopSpaces;
         return this;
     }

@@ -9,12 +9,12 @@
 package com.osiris.dyml;
 
 import com.osiris.dyml.exceptions.*;
-import com.osiris.dyml.utils.UtilsDYModule;
-import com.osiris.dyml.utils.UtilsDreamYaml;
 import com.osiris.dyml.utils.UtilsFile;
-import com.osiris.dyml.watcher.DYFileEvent;
-import com.osiris.dyml.watcher.DYFileEventListener;
-import com.osiris.dyml.watcher.DYWatcher;
+import com.osiris.dyml.utils.UtilsYaml;
+import com.osiris.dyml.utils.UtilsYamlSection;
+import com.osiris.dyml.watcher.FileEvent;
+import com.osiris.dyml.watcher.FileEventListener;
+import com.osiris.dyml.watcher.FileWatcher;
 
 import java.io.*;
 import java.util.*;
@@ -26,7 +26,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * that contains all of the default and loaded modules.
  */
 @SuppressWarnings("ALL")
-public class DreamYaml {
+public class Yaml {
 
     // Thread safety:
     /**
@@ -34,20 +34,20 @@ public class DreamYaml {
      */
     public static final Map<String, ReentrantLock> pathsAndLocks = new HashMap<>();
     /**
-     * A final list, that contains {@link DYModule}s that are in editing. <br>
+     * A final list, that contains {@link YamlSection}s that are in editing. <br>
      * In contrary to the {@link #loadedModules} list, this list doesn't get cleared <br>
-     * and its {@link DYModule}s stay the same, no matter how often you call {@link #load()}. <br>
-     * {@link DYModule}s get added to this list, by {@link #get(String...)}, {@link #put(String...)}, {@link #add(String...)} or {@link #replace(DYModule, DYModule)}.
+     * and its {@link YamlSection}s stay the same, no matter how often you call {@link #load()}. <br>
+     * {@link YamlSection}s get added to this list, by {@link #get(String...)}, {@link #put(String...)}, {@link #add(String...)} or {@link #replace(YamlSection, YamlSection)}.
      */
-    public final List<DYModule> inEditModules = new ArrayList<>();
+    public final List<YamlSection> inEditModules = new ArrayList<>();
     /**
-     * A final list, that contains loaded {@link DYModule}s. <br>
-     * It gets cleared and refilled with new {@link DYModule}s in {@link #load()}. <br>
+     * A final list, that contains loaded {@link YamlSection}s. <br>
+     * It gets cleared and refilled with new {@link YamlSection}s in {@link #load()}. <br>
      */
-    public final List<DYModule> loadedModules = new ArrayList<>();
+    public final List<YamlSection> loadedModules = new ArrayList<>();
     // Utils:
-    public final UtilsDreamYaml utilsDreamYaml = new UtilsDreamYaml(this);
-    public final UtilsDYModule utilsDYModule = new UtilsDYModule();
+    public final UtilsYaml utilsYaml = new UtilsYaml(this);
+    public final UtilsYamlSection utilsYamlSection = new UtilsYamlSection();
     public final UtilsFile utilsFile = new UtilsFile();
     // Yaml-Content:
     public File file;
@@ -75,7 +75,7 @@ public class DreamYaml {
     public boolean isPostProcessingEnabled = true;
     /**
      * Enabled by default. Part of post-processing. <br>
-     * Trims the loaded {@link DYValue}. Example: <br>
+     * Trims the loaded {@link YamlValue}. Example: <br>
      * <pre>
      * String before: '  hello there  '
      * String after: 'hello there'
@@ -85,7 +85,7 @@ public class DreamYaml {
     public boolean isTrimLoadedValuesEnabled = true;
     /**
      * Enabled by default. Part of post-processing. <br>
-     * Removes quotation marks ("" or '') from the loaded {@link DYValue}. Example: <br>
+     * Removes quotation marks ("" or '') from the loaded {@link YamlValue}. Example: <br>
      * <pre>
      * String before: "hello there"
      * String after: hello there
@@ -95,7 +95,7 @@ public class DreamYaml {
     public boolean isRemoveQuotesFromLoadedValuesEnabled = true;
     /**
      * Enabled by default. Part of post-processing. <br>
-     * If {@link DYValue#asString()} returns null, the whole {@link DYValue} gets removed from the modules values list. <br>
+     * If {@link YamlValue#asString()} returns null, the whole {@link YamlValue} gets removed from the modules values list. <br>
      */
     public boolean isRemoveLoadedNullValuesEnabled = true;
     /**
@@ -112,7 +112,7 @@ public class DreamYaml {
     /**
      * Enabled by default. <br>
      * Null values return their default values as fallback.<br>
-     * See {@link DYModule#getValueByIndex(int)} for details.
+     * See {@link YamlSection#getValueByIndex(int)} for details.
      */
     public boolean isReturnDefaultWhenValueIsNullEnabled = true;
     /**
@@ -126,28 +126,28 @@ public class DreamYaml {
      */
     public boolean isWriteDefaultCommentsWhenEmptyEnabled = true;
     // Watcher:
-    public DYWatcher watcher = null;
+    public FileWatcher watcher = null;
     // Logging:
     public DYDebugLogger debugLogger;
 
     /**
-     * Initialises the {@link DreamYaml} object with useful features enabled. <br>
-     * See {@link #DreamYaml(InputStream, OutputStream, boolean, boolean)} for details.
+     * Initialises the {@link Yaml} object with useful features enabled. <br>
+     * See {@link #Yaml(InputStream, OutputStream, boolean, boolean)} for details.
      */
-    public DreamYaml(InputStream inputStream, OutputStream outputStream) {
+    public Yaml(InputStream inputStream, OutputStream outputStream) {
         this(inputStream, outputStream, true, false);
     }
 
     /**
-     * Initialises the {@link DreamYaml} object with useful features enabled. <br>
-     * See {@link #DreamYaml(InputStream, OutputStream, boolean, boolean)} for details.
+     * Initialises the {@link Yaml} object with useful features enabled. <br>
+     * See {@link #Yaml(InputStream, OutputStream, boolean, boolean)} for details.
      */
-    public DreamYaml(InputStream inputStream, OutputStream outputStream, boolean isDebugEnabled) {
+    public Yaml(InputStream inputStream, OutputStream outputStream, boolean isDebugEnabled) {
         this(inputStream, outputStream, true, isDebugEnabled);
     }
 
     /**
-     * Initialises the {@link DreamYaml} object.
+     * Initialises the {@link Yaml} object.
      *
      * @param inputStream             Yaml content input. Is read from at {@link #load()}. If null, {@link #load()} will do nothing.
      * @param outputStream            Yaml content output. Is written to at {@link #save()}. If null, {@link #save()} will do nothing.
@@ -156,7 +156,7 @@ public class DreamYaml {
      *                                See {@link #isPostProcessingEnabled} for details.
      * @param isDebugEnabled          Disabled by default. Shows debugging stuff.
      */
-    public DreamYaml(InputStream inputStream, OutputStream outputStream, boolean isPostProcessingEnabled, boolean isDebugEnabled) {
+    public Yaml(InputStream inputStream, OutputStream outputStream, boolean isPostProcessingEnabled, boolean isDebugEnabled) {
         this.inputStream = inputStream;
         this.outputStream = outputStream;
         init(isPostProcessingEnabled, isDebugEnabled);
@@ -164,23 +164,23 @@ public class DreamYaml {
 
 
     /**
-     * Initialises the {@link DreamYaml} object with useful features enabled. <br>
-     * See {@link #DreamYaml(String, String, boolean, boolean)} for details.
+     * Initialises the {@link Yaml} object with useful features enabled. <br>
+     * See {@link #Yaml(String, String, boolean, boolean)} for details.
      */
-    public DreamYaml(String inString, String outString) {
+    public Yaml(String inString, String outString) {
         this(inString, outString, true, false);
     }
 
     /**
-     * Initialises the {@link DreamYaml} object with useful features enabled. <br>
-     * See {@link #DreamYaml(String, String, boolean, boolean)} for details.
+     * Initialises the {@link Yaml} object with useful features enabled. <br>
+     * See {@link #Yaml(String, String, boolean, boolean)} for details.
      */
-    public DreamYaml(String inString, String outString, boolean isDebugEnabled) {
+    public Yaml(String inString, String outString, boolean isDebugEnabled) {
         this(inString, outString, true, isDebugEnabled);
     }
 
     /**
-     * Initialises the {@link DreamYaml} object.
+     * Initialises the {@link Yaml} object.
      *
      * @param inString                Yaml content input as String. Is read from at {@link #load()}. If null, {@link #load()} will do nothing.
      * @param outString               Yaml content output as String. Is written to at {@link #save()}. If null, {@link #save()} will do nothing.
@@ -189,7 +189,7 @@ public class DreamYaml {
      *                                See {@link #isPostProcessingEnabled} for details.
      * @param isDebugEnabled          Disabled by default. Shows debugging stuff.
      */
-    public DreamYaml(String inString, String outString, boolean isPostProcessingEnabled, boolean isDebugEnabled) {
+    public Yaml(String inString, String outString, boolean isPostProcessingEnabled, boolean isDebugEnabled) {
         this.inString = inString;
         this.outString = outString;
         init(isPostProcessingEnabled, isDebugEnabled);
@@ -197,23 +197,23 @@ public class DreamYaml {
 
 
     /**
-     * Initialises the {@link DreamYaml} object with useful features enabled. <br>
-     * See {@link #DreamYaml(File, boolean, boolean)} for details.
+     * Initialises the {@link Yaml} object with useful features enabled. <br>
+     * See {@link #Yaml(File, boolean, boolean)} for details.
      */
-    public DreamYaml(File file) {
+    public Yaml(File file) {
         this(file, true, false);
     }
 
     /**
-     * Initialises the {@link DreamYaml} object with useful features enabled. <br>
-     * See {@link #DreamYaml(File, boolean, boolean)} for details.
+     * Initialises the {@link Yaml} object with useful features enabled. <br>
+     * See {@link #Yaml(File, boolean, boolean)} for details.
      */
-    public DreamYaml(File file, boolean isDebugEnabled) {
+    public Yaml(File file, boolean isDebugEnabled) {
         this(file, true, isDebugEnabled);
     }
 
     /**
-     * Initialises the {@link DreamYaml} object.
+     * Initialises the {@link Yaml} object.
      *
      * @param file                    Your yaml file. If null, {@link #load()} and {@link #save()} will do nothing.
      * @param isPostProcessingEnabled Enabled by default. <br>
@@ -221,30 +221,30 @@ public class DreamYaml {
      *                                See {@link #isPostProcessingEnabled} for details.
      * @param isDebugEnabled          Disabled by default. Shows debugging stuff.
      */
-    public DreamYaml(File file, boolean isPostProcessingEnabled, boolean isDebugEnabled) {
+    public Yaml(File file, boolean isPostProcessingEnabled, boolean isDebugEnabled) {
         this.file = file;
         init(isPostProcessingEnabled, isDebugEnabled);
     }
 
 
     /**
-     * Initialises the {@link DreamYaml} object with useful features enabled. <br>
-     * See {@link #DreamYaml(String, boolean, boolean)} for details.
+     * Initialises the {@link Yaml} object with useful features enabled. <br>
+     * See {@link #Yaml(String, boolean, boolean)} for details.
      */
-    public DreamYaml(String filePath) {
+    public Yaml(String filePath) {
         this(filePath, true, false);
     }
 
     /**
-     * Initialises the {@link DreamYaml} object with useful features enabled. <br>
-     * See {@link #DreamYaml(String, boolean, boolean)} for details.
+     * Initialises the {@link Yaml} object with useful features enabled. <br>
+     * See {@link #Yaml(String, boolean, boolean)} for details.
      */
-    public DreamYaml(String filePath, boolean isDebugEnabled) {
+    public Yaml(String filePath, boolean isDebugEnabled) {
         this(filePath, true, isDebugEnabled);
     }
 
     /**
-     * Initialises the {@link DreamYaml} object.
+     * Initialises the {@link Yaml} object.
      *
      * @param filePath                Your yaml files path. If null, {@link #load()} and {@link #save()} will do nothing.
      * @param isPostProcessingEnabled Enabled by default. <br>
@@ -252,7 +252,7 @@ public class DreamYaml {
      *                                See {@link #isPostProcessingEnabled} for details.
      * @param isDebugEnabled          Disabled by default. Shows debugging stuff.
      */
-    public DreamYaml(String filePath, boolean isPostProcessingEnabled, boolean isDebugEnabled) {
+    public Yaml(String filePath, boolean isPostProcessingEnabled, boolean isDebugEnabled) {
         this.file = new File(filePath);
         init(isPostProcessingEnabled, isDebugEnabled);
     }
@@ -267,7 +267,7 @@ public class DreamYaml {
     }
 
     /**
-     * Loads the files' or streams' contents into memory by parsing it into modules({@link DYModule}). <br>
+     * Loads the files' or streams' contents into memory by parsing it into modules({@link YamlSection}). <br>
      * Creates a new file and its parent directories if they didn't exist already. <br>
      * You can return the list of modules with {@link #getAllLoaded()}. <br>
      * Remember, that this updates your {@link #inEditModules} values and parent/child modules. <br>
@@ -275,13 +275,13 @@ public class DreamYaml {
      * You can also enable/disable specific post-processing options individually: <br>
      * See {@link #isPostProcessingEnabled()} for details.
      */
-    public DreamYaml load() throws IOException, DYReaderException, IllegalListException, DuplicateKeyException {
+    public Yaml load() throws IOException, YamlReaderException, IllegalListException, DuplicateKeyException {
         debugLogger.log(this, "Executing load()");
         if (file != null && !file.exists()) {
             if (file.getParentFile() != null) file.getParentFile().mkdirs();
             file.createNewFile();
         }
-        new DYReader().parse(this);
+        new YamlReader().parse(this);
         isLoaded = true;
         return this;
     }
@@ -350,11 +350,11 @@ public class DreamYaml {
      * Also the {@link #getAllLoaded()} list is empty after this operation.
      * The {@link #getAllInEdit()} list is not affected.
      */
-    public DreamYaml reset() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException {
+    public Yaml reset() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, YamlWriterException {
         debugLogger.log(this, "Executing reset()");
         if (inputStream == null) {
             if (!isLoaded) this.load();
-            new DYWriter().parse(this, true, true);
+            new YamlWriter().parse(this, true, true);
             this.load();
         }
         return this;
@@ -364,7 +364,7 @@ public class DreamYaml {
      * Convenience method for saving and loading afterwards. <br>
      * See {@link #save(boolean)} and {@link #load()} for details.
      */
-    public DreamYaml saveAndLoad() throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException {
+    public Yaml saveAndLoad() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, YamlWriterException {
         if (!isLoaded) this.load();
         this.save();
         this.load();
@@ -374,7 +374,7 @@ public class DreamYaml {
     /**
      * For more details see: {@link #save(boolean)}
      */
-    public DreamYaml save() throws DYWriterException, IOException, DuplicateKeyException, DYReaderException, IllegalListException {
+    public Yaml save() throws YamlWriterException, IOException, DuplicateKeyException, YamlReaderException, IllegalListException {
         this.save(false);
         return this;
     }
@@ -389,48 +389,48 @@ public class DreamYaml {
      * More info on this topic: <br>
      * {@link #isWriteDefaultValuesWhenEmptyEnabled()} <br>
      * {@link #createUnifiedList(List, List)} <br>
-     * {@link DYModule#setDefValues(List)} <br>
+     * {@link YamlSection#setDefValues(List)} <br>
      *
      * @param overwrite false by default.
      *                  If true, the yaml file gets overwritten with only modules from the {@link #inEditModules} list.
      *                  That means that everything that wasn't added to that list (loaded modules) will not exist in the file.
      */
-    public DreamYaml save(boolean overwrite) throws IOException, DuplicateKeyException, DYReaderException, IllegalListException, DYWriterException {
+    public Yaml save(boolean overwrite) throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, YamlWriterException {
         debugLogger.log(this, "Executing save()");
         if (!isLoaded) this.load();
-        new DYWriter().parse(this, overwrite, false);
+        new YamlWriter().parse(this, overwrite, false);
         return this;
     }
 
     /**
-     * Returns the {@link DYModule} with matching keys or null. <br>
+     * Returns the {@link YamlSection} with matching keys or null. <br>
      * Details: <br>
      * Searches the {@link #inEditModules} list, and the {@link #loadedModules} list for
-     * the matching {@link DYModule}
-     * and returns it. Null if no matching {@link DYModule} for the provided keys could be found. <br>
-     * If the {@link DYModule} was found in the {@link #loadedModules} list, it gets removed from there and
+     * the matching {@link YamlSection}
+     * and returns it. Null if no matching {@link YamlSection} for the provided keys could be found. <br>
+     * If the {@link YamlSection} was found in the {@link #loadedModules} list, it gets removed from there and
      * added to the {@link #inEditModules} list. <br>
      */
-    public DYModule get(String... keys) {
+    public YamlSection get(String... keys) {
         Objects.requireNonNull(keys);
         return get(Arrays.asList(keys));
     }
 
     /**
-     * Returns the {@link DYModule} with matching keys or null. <br>
+     * Returns the {@link YamlSection} with matching keys or null. <br>
      * Details: <br>
      * Searches the {@link #inEditModules} list, and the {@link #loadedModules} list for
-     * the matching {@link DYModule}
-     * and returns it. Null if no matching {@link DYModule} for the provided keys could be found. <br>
-     * If the {@link DYModule} was found in the {@link #loadedModules} list, it gets removed from there and
+     * the matching {@link YamlSection}
+     * and returns it. Null if no matching {@link YamlSection} for the provided keys could be found. <br>
+     * If the {@link YamlSection} was found in the {@link #loadedModules} list, it gets removed from there and
      * added to the {@link #inEditModules} list. <br>
      */
-    public DYModule get(List<String> keys) {
+    public YamlSection get(List<String> keys) {
         Objects.requireNonNull(keys);
         debugLogger.log(this, "Executing get(" + keys.toString() + ")");
-        DYModule module = utilsDYModule.getExisting(keys, inEditModules);
+        YamlSection module = utilsYamlSection.getExisting(keys, inEditModules);
         if (module == null) {
-            module = utilsDYModule.getExisting(keys, loadedModules);
+            module = utilsYamlSection.getExisting(keys, loadedModules);
             if (module != null) {
                 inEditModules.add(module);
             }
@@ -439,21 +439,21 @@ public class DreamYaml {
     }
 
     /**
-     * Returns the existing {@link DYModule} with matching keys, or adds a new one. <br>
+     * Returns the existing {@link YamlSection} with matching keys, or adds a new one. <br>
      * Details: <br>
      * Searches for duplicate in the {@link #inEditModules}, <br>
      * and the {@link #loadedModules} list and returns it if could find one. <br>
-     * Otherwise, it creates a new {@link DYModule} from the <br>
+     * Otherwise, it creates a new {@link YamlSection} from the <br>
      * provided keys, adds it to the {@link #inEditModules} list and returns it. <br>
      * Note: <br>
-     * If you have a populated yaml file and add a completely new {@link DYModule}, it gets added to the bottom of the hierarchy. <br>
-     * Example yaml file before adding the new {@link DYModule} with keys [g0, g1-new]:
+     * If you have a populated yaml file and add a completely new {@link YamlSection}, it gets added to the bottom of the hierarchy. <br>
+     * Example yaml file before adding the new {@link YamlSection} with keys [g0, g1-new]:
      * <pre>
      * g0:
      *   g1-m1:
      *   g1-m2:
      * </pre>
-     * Example yaml file after adding the new {@link DYModule} with keys [g0, g1-new]:
+     * Example yaml file after adding the new {@link YamlSection} with keys [g0, g1-new]:
      * <pre>
      * g0:
      *   g1-m1:
@@ -461,12 +461,12 @@ public class DreamYaml {
      *   g1-new:
      * </pre>
      */
-    public DYModule put(String... keys) throws NotLoadedException, IllegalKeyException {
+    public YamlSection put(String... keys) throws NotLoadedException, IllegalKeyException {
         Objects.requireNonNull(keys);
         debugLogger.log(this, "Executing add(" + keys.toString() + ")");
-        DYModule module = utilsDYModule.getExisting(Arrays.asList(keys), inEditModules);
+        YamlSection module = utilsYamlSection.getExisting(Arrays.asList(keys), inEditModules);
         if (module == null) {
-            module = utilsDYModule.getExisting(Arrays.asList(keys), loadedModules);
+            module = utilsYamlSection.getExisting(Arrays.asList(keys), loadedModules);
             if (module != null) {
                 inEditModules.add(module);
             } else
@@ -483,39 +483,39 @@ public class DreamYaml {
 
 
     /**
-     * Creates a new {@link DYModule}, with the provided keys, adds it to the modules list and returns it. <br>
-     * See {@link #add(DYModule)} for details.
+     * Creates a new {@link YamlSection}, with the provided keys, adds it to the modules list and returns it. <br>
+     * See {@link #add(YamlSection)} for details.
      */
-    public DYModule add(String... keys) throws NotLoadedException, IllegalKeyException, DuplicateKeyException {
+    public YamlSection add(String... keys) throws NotLoadedException, IllegalKeyException, DuplicateKeyException {
         Objects.requireNonNull(keys);
         List<String> list = new ArrayList<>(Arrays.asList(keys));
         return add(list, null, null, null);
     }
 
     /**
-     * Creates a new {@link DYModule}, with the provided keys, adds it and returns it. <br>
-     * See {@link #add(DYModule)} for details.
+     * Creates a new {@link YamlSection}, with the provided keys, adds it and returns it. <br>
+     * See {@link #add(YamlSection)} for details.
      */
-    public DYModule add(List<String> keys, List<DYValue> defaultValues, List<DYValue> values, List<String> comments) throws NotLoadedException, IllegalKeyException, DuplicateKeyException {
-        return add(new DYModule(this, keys, defaultValues, values, comments));
+    public YamlSection add(List<String> keys, List<YamlValue> defaultValues, List<YamlValue> values, List<String> comments) throws NotLoadedException, IllegalKeyException, DuplicateKeyException {
+        return add(new YamlSection(this, keys, defaultValues, values, comments));
     }
 
     /**
-     * Adds the provided {@link DYModule} or throws exception if it already exists. <br>
+     * Adds the provided {@link YamlSection} or throws exception if it already exists. <br>
      * Note that null or duplicate KEYS are not allowed. <br>
      * Details: <br>
      * Searches for duplicates in the {@link #inEditModules}, and the {@link #loadedModules} list and throws
-     * {@link DuplicateKeyException} if it could find one. Otherwise, it creates a new {@link DYModule} from the
+     * {@link DuplicateKeyException} if it could find one. Otherwise, it creates a new {@link YamlSection} from the
      * provided keys, adds it to the {@link #inEditModules} list and returns it. <br>
      * Note: <br>
-     * If you have a populated yaml file and add a completely new {@link DYModule}, it gets added to the bottom of the hierarchy. <br>
-     * Example yaml file before adding the new {@link DYModule} with keys [g0, g1-new]:
+     * If you have a populated yaml file and add a completely new {@link YamlSection}, it gets added to the bottom of the hierarchy. <br>
+     * Example yaml file before adding the new {@link YamlSection} with keys [g0, g1-new]:
      * <pre>
      * g0:
      *   g1-m1:
      *   g1-m2:
      * </pre>
-     * Example yaml file after adding the new {@link DYModule} with keys [g0, g1-new]:
+     * Example yaml file after adding the new {@link YamlSection} with keys [g0, g1-new]:
      * <pre>
      * g0:
      *   g1-m1:
@@ -528,7 +528,7 @@ public class DreamYaml {
      * @throws NotLoadedException    if the yaml file has not been loaded once yet
      * @throws DuplicateKeyException if another module with the same keys already exists
      */
-    public DYModule add(DYModule module) throws IllegalKeyException, NotLoadedException, DuplicateKeyException {
+    public YamlSection add(YamlSection module) throws IllegalKeyException, NotLoadedException, DuplicateKeyException {
         Objects.requireNonNull(module);
         Objects.requireNonNull(module.getKeys());
         debugLogger.log(this, "Executing add(" + module.getKeys().toString() + ")");
@@ -537,10 +537,10 @@ public class DreamYaml {
         if (module.getKeys().contains(null))
             throw new IllegalKeyException("The provided keys list contains null key(s)! This is not allowed!");
 
-        if (utilsDYModule.getExisting(module, this.inEditModules) != null)
+        if (utilsYamlSection.getExisting(module, this.inEditModules) != null)
             throw new DuplicateKeyException((inputStream == null ? file.getName() : "<InputStream>"), module.getKeys().toString());
 
-        if (utilsDYModule.getExisting(module, this.loadedModules) != null)
+        if (utilsYamlSection.getExisting(module, this.loadedModules) != null)
             throw new DuplicateKeyException((inputStream == null ? file.getName() : "<InputStream>"), module.getKeys().toString());
 
         this.inEditModules.add(module);
@@ -548,20 +548,20 @@ public class DreamYaml {
     }
 
     /**
-     * Replaces {@link DYModule}, with the provided {@link DYModule}. <br>
+     * Replaces {@link YamlSection}, with the provided {@link YamlSection}. <br>
      * Details: <br>
-     * Searches the {@link #inEditModules} list, and the {@link #loadedModules} list for the {@link DYModule} to replace. <br>
-     * Replaces it and returns the replacement, or null if {@link DYModule} to replace couldn't be found. <br>
-     * If the {@link DYModule} to replace was found in the {@link #loadedModules} list, it gets removed from there and <br>
+     * Searches the {@link #inEditModules} list, and the {@link #loadedModules} list for the {@link YamlSection} to replace. <br>
+     * Replaces it and returns the replacement, or null if {@link YamlSection} to replace couldn't be found. <br>
+     * If the {@link YamlSection} to replace was found in the {@link #loadedModules} list, it gets removed from there and <br>
      * the replacement gets added to the {@link #inEditModules} list. <br>
      */
-    public DYModule replace(DYModule moduleToReplace, DYModule newModule) {
+    public YamlSection replace(YamlSection moduleToReplace, YamlSection newModule) {
         debugLogger.log(this, "Executing replace()");
         Objects.requireNonNull(moduleToReplace);
         Objects.requireNonNull(newModule);
-        DYModule module = utilsDYModule.getExisting(moduleToReplace, inEditModules);
+        YamlSection module = utilsYamlSection.getExisting(moduleToReplace, inEditModules);
         if (module == null) {
-            module = utilsDYModule.getExisting(moduleToReplace, loadedModules);
+            module = utilsYamlSection.getExisting(moduleToReplace, loadedModules);
             if (module != null) {
                 inEditModules.add(newModule);
             }
@@ -576,21 +576,21 @@ public class DreamYaml {
     /**
      * Removes the module from the yaml file once {@link #save()} was called. <br>
      */
-    public DreamYaml remove(String... keys) {
+    public Yaml remove(String... keys) {
         Objects.requireNonNull(keys);
-        remove(new DYModule(this, keys));
+        remove(new YamlSection(this, keys));
         return this;
     }
 
     /**
      * Removes the module from the yaml file once {@link #save()} was called. <br>
      */
-    public DreamYaml remove(DYModule module) {
+    public Yaml remove(YamlSection module) {
         debugLogger.log(this, "Executing remove()");
-        DYModule addedM = utilsDYModule.getExisting(module, inEditModules);
+        YamlSection addedM = utilsYamlSection.getExisting(module, inEditModules);
         if (addedM != null)
             this.inEditModules.remove(addedM);
-        DYModule loadedM = utilsDYModule.getExisting(module, loadedModules);
+        YamlSection loadedM = utilsYamlSection.getExisting(module, loadedModules);
         if (loadedM != null)
             this.loadedModules.remove(loadedM);
         return this;
@@ -601,17 +601,17 @@ public class DreamYaml {
 
 
     /**
-     * Registers this {@link #file} and adds the provided {@link DYFileEventListener} to the list. <br>
+     * Registers this {@link #file} and adds the provided {@link FileEventListener} to the list. <br>
      * Once a file event happens, the listeners <br>
-     * {@link DYFileEventListener#runOnEvent(DYFileEvent)} method gets executed. <br>
+     * {@link FileEventListener#runOnEvent(FileEvent)} method gets executed. <br>
      * Details: <br>
-     * If {@link #watcher} is null, this method creates and starts a new {@link DYWatcher}.
+     * If {@link #watcher} is null, this method creates and starts a new {@link FileWatcher}.
      */
-    public DreamYaml addFileEventListener(DYFileEventListener<DYFileEvent> listener) throws IOException {
-        if (watcher == null) watcher = DYWatcher.getForFile(file, false);
-        DYFileEventListener<DYFileEvent> yamlListener = new DYFileEventListener<DYFileEvent>() {
+    public Yaml addFileEventListener(FileEventListener<FileEvent> listener) throws IOException {
+        if (watcher == null) watcher = FileWatcher.getForFile(file, false);
+        FileEventListener<FileEvent> yamlListener = new FileEventListener<FileEvent>() {
             @Override
-            public void runOnEvent(DYFileEvent event) {
+            public void runOnEvent(FileEvent event) {
                 if (event.getPath().equals(file.toPath())) // To make sure that only events are thrown for the actual yaml file
                     listener.runOnEvent(event);
             }
@@ -620,7 +620,7 @@ public class DreamYaml {
         return this;
     }
 
-    public DreamYaml removeFileEventListener(DYFileEventListener<DYFileEvent> listener) throws Exception {
+    public Yaml removeFileEventListener(FileEventListener<FileEvent> listener) throws Exception {
         Objects.requireNonNull(watcher);
         watcher.removeListeners(listener);
         return this;
@@ -639,35 +639,35 @@ public class DreamYaml {
      *
      * @return a fresh unified list containing loaded modules extended by {@link #inEditModules}.
      */
-    public List<DYModule> createUnifiedList(List<DYModule> inEditModules, List<DYModule> loadedModules) {
+    public List<YamlSection> createUnifiedList(List<YamlSection> inEditModules, List<YamlSection> loadedModules) {
         if (loadedModules.isEmpty()) return inEditModules;
 
         debugLogger.log(this, "### CREATE UNIFIED LIST ###");
         debugLogger.log(this, "This process creates a single list out of the 'inEditModules' and 'loadedModules' lists.");
         debugLogger.log(this, "Printing contents of both lists:");
         debugLogger.log(this, "EM: inEditModule, LM: loadedModule.");
-        for (DYModule m :
+        for (YamlSection m :
                 inEditModules) {
             debugLogger.log(this, "EM: " + m.getKeys());
         }
 
-        for (DYModule m :
+        for (YamlSection m :
                 loadedModules) {
             debugLogger.log(this, "LM: " + m.getKeys());
         }
 
-        List<DYModule> copyInEditModules = new CopyOnWriteArrayList<>(inEditModules);
-        List<DYModule> unifiedList = new ArrayList<>();
+        List<YamlSection> copyInEditModules = new CopyOnWriteArrayList<>(inEditModules);
+        List<YamlSection> unifiedList = new ArrayList<>();
         // Go through the loadedModules list and take its structure.
         debugLogger.log(this, "Create the unified list: ");
         debugLogger.log(this, "We go thorough the loadedModules list, to keep its structure and");
         debugLogger.log(this, "add its modules to the unified list. If there is a inEditModule that has the");
         debugLogger.log(this, "same keys as the loadedModule, it gets added instead.");
         debugLogger.log(this, "EM: inEditModule, LM: loadedModule.");
-        for (DYModule loadedModule :
+        for (YamlSection loadedModule :
                 loadedModules) {
             // Check if there is the same 'inEdit module' available
-            DYModule existing = utilsDYModule.getExisting(loadedModule, copyInEditModules);
+            YamlSection existing = utilsYamlSection.getExisting(loadedModule, copyInEditModules);
             if (existing != null) {
                 unifiedList.add(existing);
                 // Also remove it from its own list, so at the end there are only 'new' modules in that list
@@ -688,7 +688,7 @@ public class DreamYaml {
         // The copyInEditModules, now only contains completely new modules.
         // Go through that list, add G0 modules to the end of the unifiedModules list and
         // other generations to their respective parents, also at the last position.
-        for (DYModule newModule :
+        for (YamlSection newModule :
                 copyInEditModules) {
 
             if (newModule.getKeys().size() > 1) {
@@ -696,7 +696,7 @@ public class DreamYaml {
                 int currentIndex = 0; // The current index in the loop below
                 int bestMatchIndex = 0; // The index of the module, with the highest count of matching keys
                 int highestCountOfMatchingKeys = 0;
-                for (DYModule unifiedModule : // Compare each unified modules keys against the new modules keys
+                for (YamlSection unifiedModule : // Compare each unified modules keys against the new modules keys
                         unifiedList) {
                     for (int j = 0; j < unifiedModule.getKeys().size(); j++) {
                         if (unifiedModule.getKeys().get(j).equals(newModule.getKeys().get(j))) {
@@ -731,9 +731,9 @@ public class DreamYaml {
                     // In this case the highest count of matching keys is 2: [g0, g1], but the parent should be [g0, g1, g2], aka
                     // the highest count of matching keys should be 3.
                     // Thus we need to create and add those missing modules in between, as fillers.
-                    DYModule beforeFillerModule = null;
+                    YamlSection beforeFillerModule = null;
                     for (int i = highestCountOfMatchingKeys; i < newModule.getKeys().size() - 1; i++) { // -1 Because we want the parent module
-                        DYModule fillerModule = new DYModule(this, newModule.getKeys().subList(0, i), null, null, null);
+                        YamlSection fillerModule = new YamlSection(this, newModule.getKeys().subList(0, i), null, null, null);
                         bestMatchIndex++; // So that the new filler module gets added in the right position
                         unifiedList.add(bestMatchIndex, fillerModule);
                         if (beforeFillerModule != null) {
@@ -746,7 +746,7 @@ public class DreamYaml {
                 }
 
                 try {
-                    DYModule parent = unifiedList.get(bestMatchIndex);
+                    YamlSection parent = unifiedList.get(bestMatchIndex);
                     bestMatchIndex++; // +1 because we currently got the index for the parent, before this module.
                     unifiedList.add(bestMatchIndex, newModule);
                     parent.addChildModules(newModule);
@@ -765,7 +765,7 @@ public class DreamYaml {
 
         debugLogger.log(this, "Finished creation of unified list. Quick overview of the result:");
         debugLogger.log(this, "UM: unifiedModule.");
-        for (DYModule m :
+        for (YamlSection m :
                 unifiedList) {
             debugLogger.log(this, "UM: " + m.getKeys().toString());
         }
@@ -781,7 +781,7 @@ public class DreamYaml {
      * This list is the one, that gets written to the yaml file. <br>
      * See {@link #createUnifiedList(List, List)} for details.
      */
-    public List<DYModule> getAll() {
+    public List<YamlSection> getAll() {
         return createUnifiedList(this.inEditModules, this.loadedModules);
     }
 
@@ -791,39 +791,39 @@ public class DreamYaml {
      * This is the original list. Note that its modules get updated every time {@link #load()} is called.
      * Its modules, do not contain default values.
      */
-    public List<DYModule> getAllLoaded() {
+    public List<YamlSection> getAllLoaded() {
         return loadedModules;
     }
 
     /**
      * Convenience method for returning the last module from the {@link #loadedModules} list.
      */
-    public DYModule getLastLoadedModule() {
+    public YamlSection getLastLoadedModule() {
         return loadedModules.get(loadedModules.size() - 1);
     }
 
     /**
      * <p style="color:red;">Do not modify this list directly, unless you know what you are doing!</p>
-     * Returns a list containing all {@link DYModule}s that are being edited.
+     * Returns a list containing all {@link YamlSection}s that are being edited.
      * Modules should only be added by {@link #put(String...)}/{@link #add(String...)} and never by this lists own add() method.
      * This list is not affected by {@link #load()}, unlike the
      * 'loaded modules' list, which can be returned by {@link #getAllLoaded()}.
      */
-    public List<DYModule> getAllInEdit() {
+    public List<YamlSection> getAllInEdit() {
         return inEditModules;
     }
 
     /**
      * Convenience method for returning the last module from the {@link #inEditModules} list.
      */
-    public DYModule getLastInEditModule() {
+    public YamlSection getLastInEditModule() {
         return inEditModules.get(inEditModules.size() - 1);
     }
 
     /**
      * Prints out all lists.
      */
-    public DreamYaml printAll() {
+    public Yaml printAll() {
         printLoaded();
         printInEdit();
         printUnified();
@@ -833,35 +833,35 @@ public class DreamYaml {
 
     /**
      * Prints out all modules in the loaded list.
-     * For more info see {@link UtilsDreamYaml#printLoaded(PrintStream)}}.
+     * For more info see {@link UtilsYaml#printLoaded(PrintStream)}}.
      */
-    public DreamYaml printLoaded() {
-        utilsDreamYaml.printLoaded(System.out);
+    public Yaml printLoaded() {
+        utilsYaml.printLoaded(System.out);
         return this;
     }
 
     /**
      * Prints out all modules in the added list.
-     * For more info see {@link UtilsDreamYaml#printInEdit(PrintStream)}}.
+     * For more info see {@link UtilsYaml#printInEdit(PrintStream)}}.
      */
-    public DreamYaml printInEdit() {
-        utilsDreamYaml.printInEdit(System.out);
+    public Yaml printInEdit() {
+        utilsYaml.printInEdit(System.out);
         return this;
     }
 
     /**
      * Prints out all modules in the unified list.
-     * For more info see {@link #createUnifiedList(List, List)} and {@link UtilsDreamYaml#printUnified(PrintStream)}}.
+     * For more info see {@link #createUnifiedList(List, List)} and {@link UtilsYaml#printUnified(PrintStream)}}.
      */
-    public DreamYaml printUnified() {
-        utilsDreamYaml.printUnified(System.out);
+    public Yaml printUnified() {
+        utilsYaml.printUnified(System.out);
         return this;
     }
 
     /**
      * Prints out the files content.
      */
-    public DreamYaml printFile() {
+    public Yaml printFile() {
         Objects.requireNonNull(file);
         utilsFile.printFile(file);
         return this;
@@ -883,8 +883,8 @@ public class DreamYaml {
         return outputStream;
     }
 
-    public UtilsDreamYaml getUtilsDreamYaml() {
-        return utilsDreamYaml;
+    public UtilsYaml getUtilsDreamYaml() {
+        return utilsYaml;
     }
 
     /**

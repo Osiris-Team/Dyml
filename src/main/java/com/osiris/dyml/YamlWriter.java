@@ -8,7 +8,7 @@
 
 package com.osiris.dyml;
 
-import com.osiris.dyml.exceptions.DYWriterException;
+import com.osiris.dyml.exceptions.YamlWriterException;
 import com.osiris.dyml.utils.UtilsTimeStopper;
 
 import java.io.*;
@@ -18,10 +18,10 @@ import java.util.List;
 /**
  * Responsible for parsing and writing the provided modules.
  */
-class DYWriter {
-    private DreamYaml yaml;
+class YamlWriter {
+    private Yaml yaml;
 
-    public void parse(DreamYaml yaml, boolean overwrite, boolean reset) throws DYWriterException, IOException {
+    public void parse(Yaml yaml, boolean overwrite, boolean reset) throws YamlWriterException, IOException {
         this.yaml = yaml;
         DYDebugLogger logger = yaml.debugLogger;
         boolean isDebug = yaml.debugLogger.isEnabled();
@@ -36,7 +36,7 @@ class DYWriter {
             writer = new BufferedWriter(new OutputStreamWriter(yaml.outputStream), 32768); // TODO compare speed with def buffer
             logger.log(this, "Started writing yaml to file '" + yaml.file + "' with overwrite: " + overwrite + " and reset: " + reset);
         } else if (yaml.file != null) {
-            if (!yaml.file.exists()) throw new DYWriterException("File '" + yaml.file.getName() + "' doesn't exist!");
+            if (!yaml.file.exists()) throw new YamlWriterException("File '" + yaml.file.getName() + "' doesn't exist!");
             writer = new BufferedWriter(new FileWriter(yaml.file), 32768); // TODO compare speed with def buffer
             logger.log(this, "Started writing yaml to OutputStream '" + yaml.outputStream + "' with overwrite: " + overwrite + " and reset: " + reset);
         } else if (yaml.outString != null) {
@@ -52,7 +52,7 @@ class DYWriter {
         writer.write(""); // Clear old content
         if (reset) return;
 
-        List<DYModule> modulesToSave;
+        List<YamlSection> modulesToSave;
         if (overwrite) {
             modulesToSave = yaml.getAllInEdit();
 
@@ -63,8 +63,8 @@ class DYWriter {
             logger.log(this, "The modules list is empty. Written an empty file.");
 
 
-        DYModule lastModule = new DYModule(yaml); // Create an empty module as start point
-        for (DYModule m :
+        YamlSection lastModule = new YamlSection(yaml); // Create an empty module as start point
+        for (YamlSection m :
                 modulesToSave) {
             parseModule(writer, m, lastModule);
             lastModule = m;
@@ -74,7 +74,7 @@ class DYWriter {
         if (isDebug) {
             logger.log(this, "Finished writing of " + yaml.getFile().getName() + " at " + new Date());
             logger.log(this, "Written unified modules details:");
-            for (DYModule loadedModule :
+            for (YamlSection loadedModule :
                     modulesToSave) {
 
                 logger.log(this, "");
@@ -84,7 +84,7 @@ class DYWriter {
                 else
                     logger.log(this, "PARENT -> NULL");
 
-                for (DYModule childModule :
+                for (YamlSection childModule :
                         loadedModule.getChildModules()) {
                     if (childModule != null)
                         logger.log(this, "CHILD -> " + childModule.getModuleInformationAsString());
@@ -104,15 +104,15 @@ class DYWriter {
     }
 
     /**
-     * Writes an in-memory {@link DYModule} object to file.
+     * Writes an in-memory {@link YamlSection} object to file.
      *
      * @param writer       the writer to use.
      * @param module       the current module to write.
      * @param beforeModule the last already written module.
      */
     private void parseModule(BufferedWriter writer,
-                             DYModule module,
-                             DYModule beforeModule) throws IOException {
+                             YamlSection module,
+                             YamlSection beforeModule) throws IOException {
         int keysSize = module.getKeys().size();
         int beforeKeysSize = beforeModule.getKeys().size();
         String currentKey; // The current key of the current module
@@ -190,7 +190,7 @@ class DYWriter {
                 if (module.getValues() != null && i == (keysSize - 1)) { // Only write values to the last key in the list
                     if (!module.getValues().isEmpty() && !isOnlyNullsList(module.getValues())) { // Write values if they exist, else write defaults, else write nothing
                         if (module.getValues().size() == 1) { // Even if we only got one DYModule, it written as a list
-                            DYValue value = module.getValue();
+                            YamlValue value = module.getValue();
                             if (value != null) { // Only write if its not null
                                 if (value.asString() != null) writeValueWithoutLineBreaks(writer, value.asString());
                                 if (value.hasComment())
@@ -202,7 +202,7 @@ class DYWriter {
                         } else { // This means we got multiple values, aka a list
                             writer.newLine();
                             for (int j = 0; j < module.getValues().size(); j++) {
-                                DYValue value = module.getValueByIndex(j);
+                                YamlValue value = module.getValueByIndex(j);
                                 if (value != null) {
                                     writer.write(spaces + "  - ");
                                     if (value.asString() != null)
@@ -218,7 +218,7 @@ class DYWriter {
                     } else if (yaml.isWriteDefaultValuesWhenEmptyEnabled) {
                         if (module.getDefValues() != null && !module.getDefValues().isEmpty()) {
                             if (module.getDefValues().size() == 1) {
-                                DYValue defValue = module.getDefValue();
+                                YamlValue defValue = module.getDefValue();
                                 if (defValue != null) {
                                     if (defValue.asString() != null)
                                         writeValueWithoutLineBreaks(writer, defValue.asString());
@@ -231,7 +231,7 @@ class DYWriter {
                             } else {
                                 writer.newLine();
                                 for (int j = 0; j < module.getDefValues().size(); j++) {
-                                    DYValue value = module.getDefValueByIndex(j);
+                                    YamlValue value = module.getDefValueByIndex(j);
                                     if (value != null) {
                                         writer.write(spaces + "  - ");
                                         if (value.asString() != null)
@@ -263,9 +263,9 @@ class DYWriter {
         writer.write(value);
     }
 
-    private boolean isOnlyNullsList(List<DYValue> values) {
+    private boolean isOnlyNullsList(List<YamlValue> values) {
         boolean hasValue = false;
-        for (DYValue val :
+        for (YamlValue val :
                 values) {
             if (val.get() != null) {
                 hasValue = true;

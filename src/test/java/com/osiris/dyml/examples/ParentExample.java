@@ -8,8 +8,8 @@
 
 package com.osiris.dyml.examples;
 
-import com.osiris.dyml.DYModule;
-import com.osiris.dyml.DreamYaml;
+import com.osiris.dyml.Yaml;
+import com.osiris.dyml.YamlSection;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -20,21 +20,21 @@ public class ParentExample {
 
     @Test
     void test() throws Exception {
-        DreamYaml yaml = new DreamYaml(System.getProperty("user.dir") + "/src/test/parent-example.yml", true);
+        Yaml yaml = new Yaml(System.getProperty("user.dir") + "/src/test/parent-example.yml", true);
         yaml.load();
         yaml.reset(); // DO NOT CALL THIS IN PRODUCTION, IT WILL REMOVE ALL THE INFORMATION FROM YOUR YAML FILE!
         // I am doing this only for the sake of testing!
 
-        DYModule p1 = yaml.put("p1").setComments("Create a more complex yaml file", "with multiple parents and children.");
-        DYModule p1C1 = yaml.put("p1", "c1").setDefValues("You can arrange your");
-        DYModule p1C2 = yaml.put("p1", "c2").setDefValues("keys and values");
-        DYModule p1C3 = yaml.put("p1", "c3").setDefValues("as you like!");
-        DYModule p2C3 = yaml.put("p2", "c1", "c2", "c3").setDefValues("awesome!"); // Always order objects from parent to child, otherwise you will get errors!
+        YamlSection p1 = yaml.put("p1").setComments("Create a more complex yaml file", "with multiple parents and children.");
+        YamlSection p1C1 = yaml.put("p1", "c1").setDefValues("You can arrange your");
+        YamlSection p1C2 = yaml.put("p1", "c2").setDefValues("keys and values");
+        YamlSection p1C3 = yaml.put("p1", "c3").setDefValues("as you like!");
+        YamlSection p2C3 = yaml.put("p2", "c1", "c2", "c3").setDefValues("awesome!"); // Always order objects from parent to child, otherwise you will get errors!
         // DYModule notAllowed = yaml.addDef("p2", "c1", "c2"); <- ERROR because you try to access c2 even though c3 already was added
         // If you want to access the child's values you need to pass them one after another like this:
-        DYModule p3C1 = yaml.put("p3", "c1").setDefValues("v1");
-        DYModule p3C2 = yaml.put("p3", "c1", "c2").setDefValues("v2");
-        DYModule p3C3 = yaml.put("p3", "c1", "c2", "c3").setDefValues("v3");
+        YamlSection p3C1 = yaml.put("p3", "c1").setDefValues("v1");
+        YamlSection p3C2 = yaml.put("p3", "c1", "c2").setDefValues("v2");
+        YamlSection p3C3 = yaml.put("p3", "c1", "c2", "c3").setDefValues("v3");
 
         yaml.printInEdit();
         yaml.save();

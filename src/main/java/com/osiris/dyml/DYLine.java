@@ -10,7 +10,7 @@ package com.osiris.dyml;
 
 /**
  * Represents a single line of a yaml file.
- * It gets filled with information by {@link DYReader#checkChar(DYLine, int, int)} and {@link DYReader#parseLine(DreamYaml, DYLine)}.
+ * It gets filled with information by {@link YamlReader#checkChar(DYLine, int, int)} and {@link YamlReader#parseLine(Yaml, DYLine)}.
  */
 public class DYLine {
     private String fullLine;

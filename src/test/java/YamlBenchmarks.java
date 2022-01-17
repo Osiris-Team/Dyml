@@ -1,13 +1,12 @@
-import com.amihaiemil.eoyaml.Yaml;
 import com.amihaiemil.eoyaml.YamlMapping;
 import com.esotericsoftware.yamlbeans.YamlReader;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
-import com.osiris.dyml.DreamYaml;
 import com.osiris.dyml.Dyml;
-import com.osiris.dyml.exceptions.DYReaderException;
+import com.osiris.dyml.Yaml;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
 import com.osiris.dyml.exceptions.IllegalListException;
+import com.osiris.dyml.exceptions.YamlReaderException;
 import com.osiris.dyml.utils.UtilsTimeStopper;
 import org.junit.jupiter.api.Test;
 import org.simpleyaml.configuration.file.YamlFile;
@@ -35,7 +34,7 @@ public class YamlBenchmarks {
     }
 
     @Test
-    void compareAllSmall() throws IOException, InterruptedException, DuplicateKeyException, InvalidConfigurationException, DYReaderException, IllegalListException {
+    void compareAllSmall() throws IOException, InterruptedException, DuplicateKeyException, InvalidConfigurationException, YamlReaderException, IllegalListException {
         File fileDyml = new File(System.getProperty("user.dir") + "/src/test/benchmark-small-config.dyml");
         File fileYml = new File(System.getProperty("user.dir") + "/src/test/benchmark-small-config.yml");
         File fileJson = new File(System.getProperty("user.dir") + "/src/test/benchmark-small-config.json");
@@ -43,7 +42,7 @@ public class YamlBenchmarks {
     }
 
     @Test
-    void compareAllMedium() throws IOException, InterruptedException, DuplicateKeyException, InvalidConfigurationException, DYReaderException, IllegalListException {
+    void compareAllMedium() throws IOException, InterruptedException, DuplicateKeyException, InvalidConfigurationException, YamlReaderException, IllegalListException {
         File fileDyml = new File(System.getProperty("user.dir") + "/src/test/benchmark-med-config.dyml");
         File fileYml = new File(System.getProperty("user.dir") + "/src/test/benchmark-med-config.yml");
         File fileJson = new File(System.getProperty("user.dir") + "/src/test/benchmark-med-config.json");
@@ -51,7 +50,7 @@ public class YamlBenchmarks {
     }
 
 
-    void compareAll(File fileDyml, File fileYml, File fileJson) throws InterruptedException, IOException, InvalidConfigurationException, DuplicateKeyException, DYReaderException, IllegalListException {
+    void compareAll(File fileDyml, File fileYml, File fileJson) throws InterruptedException, IOException, InvalidConfigurationException, DuplicateKeyException, YamlReaderException, IllegalListException {
         System.out.println("Performing read speed benchmark on files:");
         System.out.println("Size in bytes: "+fileDyml.length()+" Path: "+fileDyml);
         System.out.println("Size in bytes: "+fileYml.length()+" Path: "+fileYml);
@@ -130,10 +129,10 @@ public class YamlBenchmarks {
 
             // GSON
             timer.start();
-            DreamYaml dreamYaml = new DreamYaml(fileYml);
-            dreamYaml.load();
+            Yaml yaml = new Yaml(fileYml);
+            yaml.load();
             timer.stop();
-            dreamYaml = null;
+            yaml = null;
             msDY = timer.getFormattedMillis();
             resultsDreamYaml.add(timer.getMillis());
 
@@ -161,7 +160,7 @@ public class YamlBenchmarks {
 
             // EO-YAML
             timer.start();
-            YamlMapping eolYamlTest = Yaml.createYamlInput(
+            YamlMapping eolYamlTest = com.amihaiemil.eoyaml.Yaml.createYamlInput(
                     fileYml
             ).readYamlMapping();
             eolYamlTest.values();

@@ -9,8 +9,8 @@
 package com.osiris.dyml;
 
 
-import com.osiris.dyml.exceptions.DYReaderException;
 import com.osiris.dyml.exceptions.IllegalListException;
+import com.osiris.dyml.exceptions.YamlReaderException;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -23,10 +23,10 @@ import java.util.List;
 class DymlReader {
 
 
-    public List<DymlSection> parse(File file, InputStream inputStream, String inString) throws DYReaderException, IOException, IllegalListException {
+    public List<DymlSection> parse(File file, InputStream inputStream, String inString) throws YamlReaderException, IOException, IllegalListException {
         BufferedReader reader = null; // BufferedReader is faster than the regular Reader by around 0,100 ms
         if (file != null) {
-            if (!file.exists()) throw new DYReaderException("File '" + file + "' doesn't exist!");
+            if (!file.exists()) throw new YamlReaderException("File '" + file + "' doesn't exist!");
             reader = new BufferedReader(new FileReader(file));
         }
         if (inputStream != null) {
@@ -36,7 +36,7 @@ class DymlReader {
             reader = new BufferedReader(new StringReader(inString));
         }
         if (reader == null) {
-            throw new DYReaderException("File/InputStream/String are all null. Nothing to read/load dyml from!");
+            throw new YamlReaderException("File/InputStream/String are all null. Nothing to read/load dyml from!");
         }
 
         List<Integer> spaces = new ArrayList<>(50);

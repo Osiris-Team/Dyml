@@ -17,9 +17,9 @@ import java.util.List;
 class DYReaderV2 {
     private final int countEmptyBeforeLines = 0;
     private DYDebugLogger debug;
-    private List<DYModule> loadedModules;
+    private List<YamlSection> loadedModules;
 
-    private DYModule lastModule;
+    private YamlSection lastModule;
     // Last lines information: (use fields instead of an actual line object bc of performance)
     private String lastFullLine;
     private int lastLineNumber;
@@ -35,7 +35,7 @@ class DYReaderV2 {
     private String lastRawValue;
     private String lastRawComment;
 
-    private DYModule module;
+    private YamlSection module;
     // Current lines information:
     private String fullLine;
     private int lineNumber;

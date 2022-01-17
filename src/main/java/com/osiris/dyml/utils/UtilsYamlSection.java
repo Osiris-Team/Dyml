@@ -8,14 +8,14 @@
 
 package com.osiris.dyml.utils;
 
-import com.osiris.dyml.DYModule;
-import com.osiris.dyml.DYValue;
+import com.osiris.dyml.YamlSection;
+import com.osiris.dyml.YamlValue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class UtilsDYModule {
+public class UtilsYamlSection {
 
     /**
      * Searches for a module with the same keys and returns it if it finds it, else null.
@@ -24,9 +24,9 @@ public class UtilsDYModule {
      * @param modules     the list in which to search for the module.
      * @return a module containing exactly the same keys or null if it doesn't.
      */
-    public DYModule getAlreadyExistingModuleByKeys(DYModule queryModule, List<DYModule> modules) {
+    public YamlSection getAlreadyExistingModuleByKeys(YamlSection queryModule, List<YamlSection> modules) {
         int size = queryModule.getKeys().size();
-        for (DYModule listModule :
+        for (YamlSection listModule :
                 modules) {
             if (size == listModule.getKeys().size())
                 for (int i = 0; i < size; i++) {
@@ -48,8 +48,8 @@ public class UtilsDYModule {
      * @param queryModule the module which should be checked.
      * @return the already existing object, otherwise null.
      */
-    public DYModule getExisting(DYModule queryModule, List<DYModule> modules) {
-        for (DYModule listModule :
+    public YamlSection getExisting(YamlSection queryModule, List<YamlSection> modules) {
+        for (YamlSection listModule :
                 modules) {
             if (listModule.getKeys().equals(queryModule.getKeys()))
                 return listModule;
@@ -57,8 +57,8 @@ public class UtilsDYModule {
         return null;
     }
 
-    public DYModule getExisting(List<String> keys, List<DYModule> modules) {
-        for (DYModule listModule :
+    public YamlSection getExisting(List<String> keys, List<YamlSection> modules) {
+        for (YamlSection listModule :
                 modules) {
             if (listModule.getKeys().equals(keys))
                 return listModule;
@@ -66,22 +66,22 @@ public class UtilsDYModule {
         return null;
     }
 
-    public List<DYValue> stringArrayToValuesList(String[] array) {
+    public List<YamlValue> stringArrayToValuesList(String[] array) {
         return stringListToValuesList(Arrays.asList(array));
     }
 
-    public List<DYValue> stringListToValuesList(List<String> list) {
-        List<DYValue> values = new ArrayList<>();
+    public List<YamlValue> stringListToValuesList(List<String> list) {
+        List<YamlValue> values = new ArrayList<>();
         for (String s :
                 list) {
-            values.add(new DYValue(s));
+            values.add(new YamlValue(s));
         }
         return values;
     }
 
-    public List<String> valuesListToStringList(List<DYValue> list) {
+    public List<String> valuesListToStringList(List<YamlValue> list) {
         List<String> stringList = new ArrayList<>();
-        for (DYValue value :
+        for (YamlValue value :
                 list) {
             stringList.add(value.asString());
         }
@@ -89,11 +89,11 @@ public class UtilsDYModule {
     }
 
     /**
-     * We assume that none of the {@link DYValue}s in the list is null. {@link DYValue#asString()} however can be null.
+     * We assume that none of the {@link YamlValue}s in the list is null. {@link YamlValue#asString()} however can be null.
      */
-    public void trimValues(List<DYValue> values) {
-        List<DYValue> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
-        for (DYValue value :
+    public void trimValues(List<YamlValue> values) {
+        List<YamlValue> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
+        for (YamlValue value :
                 copy) {
             String s;
             if ((s = value.asString()) != null) {
@@ -103,9 +103,9 @@ public class UtilsDYModule {
         }
     }
 
-    public void trimValuesComments(List<DYValue> values) {
-        List<DYValue> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
-        for (DYValue value :
+    public void trimValuesComments(List<YamlValue> values) {
+        List<YamlValue> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
+        for (YamlValue value :
                 copy) {
             if (value.hasComment())
                 value.setComment(value.getComment().trim());
@@ -125,11 +125,11 @@ public class UtilsDYModule {
     /**
      * Removes "" and '' from those encapsulated values.<br>
      * Its recommended, that each value was trimmed before, to achieve the best results. <br>
-     * We assume that none of the {@link DYValue}s in the list is null. {@link DYValue#asString()} however can be null. <br>
+     * We assume that none of the {@link YamlValue}s in the list is null. {@link YamlValue#asString()} however can be null. <br>
      */
-    public void removeQuotesFromValues(List<DYValue> values) {
-        List<DYValue> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
-        for (DYValue value :
+    public void removeQuotesFromValues(List<YamlValue> values) {
+        List<YamlValue> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
+        for (YamlValue value :
                 copy) {
             String s;
             if ((s = value.asString()) != null && !s.isEmpty()) {
@@ -148,10 +148,10 @@ public class UtilsDYModule {
     }
 
     /**
-     * We assume that none of the {@link DYValue}s in the list is null. {@link DYValue#asString()} however can be null.
+     * We assume that none of the {@link YamlValue}s in the list is null. {@link YamlValue#asString()} however can be null.
      */
-    public void removeNullValues(List<DYValue> values) {
-        List<DYValue> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
+    public void removeNullValues(List<YamlValue> values) {
+        List<YamlValue> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
         for (int i = 0; i < copy.size(); i++) {
             if (copy.get(i).asString() == null) values.remove(i);
         }
