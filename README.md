@@ -37,6 +37,7 @@ important:
   - Everything else that is not explicitly mentioned in this file is not supported
 ```
 Some extras:
+ - **[.dyml](DYML-SPEC.md)** | (Work in progress) Smaller file sizes and faster read/write speeds are no longer a dream.
  - **DYWatcher |** Yaml files watcher with recursive directory watching support.
  - **DreamYamlDB |** Yaml based, lightning fast database.
 ## Simple example

@@ -1,6 +1,5 @@
-# Aim
-Create a file specification based on YAML, with the focus more on performance instead of readability.
-DYML is currently faster to read/write and smaller to store than YAML.
+# .dyml
+Smaller file sizes and faster read/write speeds are no longer a dream.
 
 # Features
 
