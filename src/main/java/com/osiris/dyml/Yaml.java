@@ -12,14 +12,14 @@ import com.osiris.dyml.exceptions.*;
 import com.osiris.dyml.utils.UtilsFile;
 import com.osiris.dyml.utils.UtilsYaml;
 import com.osiris.dyml.utils.UtilsYamlSection;
+import com.osiris.dyml.watcher.DirWatcher;
 import com.osiris.dyml.watcher.FileEvent;
-import com.osiris.dyml.watcher.FileEventListener;
-import com.osiris.dyml.watcher.FileWatcher;
 
 import java.io.*;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.function.Consumer;
 
 /**
  * The in-memory representation of the full yaml file
@@ -126,7 +126,7 @@ public class Yaml {
      */
     public boolean isWriteDefaultCommentsWhenEmptyEnabled = true;
     // Watcher:
-    public FileWatcher watcher = null;
+    public DirWatcher watcher = null;
     // Logging:
     public DYDebugLogger debugLogger;
 
@@ -601,26 +601,18 @@ public class Yaml {
 
 
     /**
-     * Registers this {@link #file} and adds the provided {@link FileEventListener} to the list. <br>
-     * Once a file event happens, the listeners <br>
-     * {@link FileEventListener#runOnEvent(FileEvent)} method gets executed. <br>
+     * Registers this {@link #file} and adds the provided {@link Consumer} to the list. <br>
+     * Once a file event happens, the listeners method gets executed. <br>
      * Details: <br>
-     * If {@link #watcher} is null, this method creates and starts a new {@link FileWatcher}.
+     * If {@link #watcher} is null, this method creates and starts a new {@link DirWatcher}.
      */
-    public Yaml addFileEventListener(FileEventListener<FileEvent> listener) throws IOException {
-        if (watcher == null) watcher = FileWatcher.getForFile(file, false);
-        FileEventListener<FileEvent> yamlListener = new FileEventListener<FileEvent>() {
-            @Override
-            public void runOnEvent(FileEvent event) {
-                if (event.getPath().equals(file.toPath())) // To make sure that only events are thrown for the actual yaml file
-                    listener.runOnEvent(event);
-            }
-        };
-        watcher.addListeners(yamlListener);
+    public Yaml addFileEventListener(Consumer<FileEvent> listener) throws IOException {
+        if (watcher == null) watcher = DirWatcher.get(file, false);
+        watcher.watchFile(file, listener);
         return this;
     }
 
-    public Yaml removeFileEventListener(FileEventListener<FileEvent> listener) throws Exception {
+    public Yaml removeFileEventListener(Consumer<FileEvent> listener) throws Exception {
         Objects.requireNonNull(watcher);
         watcher.removeListeners(listener);
         return this;

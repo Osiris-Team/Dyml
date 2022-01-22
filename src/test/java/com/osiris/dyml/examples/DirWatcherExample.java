@@ -2,14 +2,14 @@ package com.osiris.dyml.examples;
 
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
-import com.osiris.dyml.watcher.FileWatcher;
+import com.osiris.dyml.watcher.DirWatcher;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.nio.file.StandardWatchEventKinds;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-class FileWatcherExample {
+class DirWatcherExample {
 
     @Test
     void test() throws Exception {
@@ -27,10 +27,10 @@ class FileWatcherExample {
         yaml.addFileEventListener(event -> {
             try {
                 if (event.getWatchEventKind().equals(StandardWatchEventKinds.ENTRY_MODIFY)) {
-                    event.getYaml().lockFile();
-                    event.getYaml().load();
-                    event.getYaml().unlockFile();
-                    System.out.println("Reloaded yaml file '" + event.getParentDirectory().getName() +
+                    yaml.lockFile();
+                    yaml.load();
+                    yaml.unlockFile();
+                    System.out.println("Reloaded yaml file '" + event.parentDirectory.getName() +
                             "' because of '" + event.getWatchEventKind() + "' event.");
                 }
             } catch (Exception e) {
@@ -58,8 +58,8 @@ class FileWatcherExample {
         AtomicBoolean changed = new AtomicBoolean(false);
         File example2 = new File(System.getProperty("user.dir") + "/src/test/watcher-example2.txt");
         if (!example2.exists()) example2.createNewFile();
-        FileWatcher.getForFile(example2, false).addListeners(fileChangeEvent -> {
-            System.out.println("Event'" + fileChangeEvent.getParentDirectory().getName() +
+        DirWatcher.get(example2, false).addListeners(fileChangeEvent -> {
+            System.out.println("Event'" + fileChangeEvent.parentDirectory.getName() +
                     "' because of '" + fileChangeEvent.getWatchEventKind() + "' event.");
             changed.set(true);
         });
