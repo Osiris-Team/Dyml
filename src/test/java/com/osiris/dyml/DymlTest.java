@@ -10,37 +10,11 @@ class DymlTest {
 
     @Test
     void testCodeStyle() throws IOException, YamlReaderException, IllegalListException {
-        Dyml dyml = Dyml.from(" Project Name\n" +
-                "architect amihaiemil\n" +
-                " This is a test comment with no line breaks!\n" +
-                "devops rultor 0pdd\n" +
-                " This is a multi-lined comment!\n" +
-                " See it goes on!\n" +
-                "developers amihaiemil salikjan SherifWally\n" +
-                "\n" +
-                " Project Name\n" +
-                "architect1 amihaiemil\n" +
-                " This is a test comment with no line breaks!\n" +
-                "devops1 rultor 0pdd\n" +
-                " This is a multi-lined comment!\n" +
-                " See it goes on!\n" +
-                "developers1 amihaiemil salikjan SherifWally\n" +
-                "\n" +
-                " Project Name\n" +
-                "architect2 amihaiemil\n" +
-                " This is a test comment with no line breaks!\n" +
-                "devops2 rultor 0pdd\n" +
-                " This is a multi-lined comment!\n" +
-                " See it goes on!\n" +
-                "developers2 amihaiemil salikjan SherifWally\n" +
-                "\n" +
-                " Project Name\n" +
-                "architect3 amihaiemil\n" +
-                " This is a test comment with no line breaks!\n" +
-                "devops3 rultor 0pdd\n" +
-                " This is a multi-lined comment!\n" +
-                " See it goes on!\n" +
-                "developers3 amihaiemil salikjan SherifWally");
+        Dyml dyml = Dyml.from("" +
+                "key val\n" +
+                "  c1 val\n" +
+                "  c2 val\n" +
+                "    g1 val\n");
         dyml.printSections(System.out);
     }
 }

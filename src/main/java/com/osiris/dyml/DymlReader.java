@@ -122,7 +122,7 @@ class DymlReader {
                             // It can be that this is a G0 module. In that case we don't need to search for a parent.
                             if (countSpaces > 0) {
                                 for (int k = (sections.size() - 1); k >= 0; k--) {
-                                    if ((spaces.get(k) - countSpaces) == 2) {
+                                    if ((countSpaces - spaces.get(k)) == 2) {
                                         DymlSection parent = sections.get(k);
                                         section.parent = parent;
                                         parent.children.add(section);

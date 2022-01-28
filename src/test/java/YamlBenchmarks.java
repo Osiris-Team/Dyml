@@ -115,7 +115,7 @@ public class YamlBenchmarks {
 
             // DREAM-YAML DYML
             timer.start();
-            Dyml.from(fileDyml);
+            Dyml.fromFile(fileDyml);
             timer.stop();
             resultsDYML.add(timer.getMillis());
             msDYML = timer.getFormattedMillis();
