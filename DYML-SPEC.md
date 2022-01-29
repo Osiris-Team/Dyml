@@ -27,7 +27,9 @@ parent
    I am a comment
   child
 ```
-Multiple values can be assigned to one key, by adding spaces between values:
+Multiple values are generally not supported and implementation specific. 
+One idea would be by splitting the value into multiple
+values via spaces inbetween each value:
 ```dyml
 parent value
   child value1 value2 value3
