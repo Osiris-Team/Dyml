@@ -28,10 +28,11 @@ class DymlWriter {
                 "ma boi 69\n" +
                 "  chil val\n" +
                 "    c3 val\n" +
+                "    c4 val\n" +
                 "  skkr val\n" );
-        System.out.println("Found: "+dyml.get("ma", "chil").asString());
+        System.out.println("Found: "+dyml.get("ma", "chil", "c4").asString());
         dyml.printSections(System.out);
-        System.out.println(dyml.asString());
+        System.out.println(dyml.toText());
         System.out.println();
     }
 
@@ -60,13 +61,10 @@ class DymlWriter {
         writer.write(""); // Clear old content
         if (reset) return null;
 
-        List<DymlSection> sections = new ArrayList<>(dyml.sections);
-        for (DymlSection sec :
-                sections) {
-            writeSection(writer, sec);
-        }
+        List<Dyml> sections = new ArrayList<>(dyml.children);
+        writeSections(writer, sections);
 
-        if (stringWriter != null) return  stringWriter.toString();
+        if (stringWriter != null) return (outString = stringWriter.toString());
         writer.flush();
 
         writer.close();
@@ -74,23 +72,18 @@ class DymlWriter {
         return null;
     }
 
-    private void writeSection(PrintWriter writer, DymlSection section) {
-        int coutSpaces = 0;
-        if (section.children.isEmpty()){
-            coutSpaces = 0;
-            DymlSection parent = section.parent;
-            while (parent != null){
-                coutSpaces += 2;
-                parent = parent.parent;
-            }
+    public void writeSections(PrintWriter writer, List<Dyml> sections) {
+        for (int i = 0; i < sections.size(); i++) {
+            Dyml section = sections.get(i);
             StringBuilder builder = new StringBuilder();
-            for (int i = 0; i < coutSpaces; i++) {
+            for (int j = 0; j < section.countSpaces(); j++) {
                 builder.append(" ");
             }
             String spaces = builder.toString();
             String spacesComments = spaces+" ";
 
-            if (section.comments!=null && !section.comments.isEmpty()){ // Comments
+            // Comments
+            if (section.comments!=null && !section.comments.isEmpty()){
                 for (String comment :
                         section.comments) {
                     if (comment.contains("\n")){
@@ -105,9 +98,29 @@ class DymlWriter {
                 }
             }
 
-            writer.println(section.key.trim()+" "+section.value.asString().trim());
+            // Key and values
+            writer.println(spaces + section.key.trim()+" "+section.value.asString().trim());
+
+            if (!section.children.isEmpty()){
+                writeSections(writer, section.children);
+            }
+        }
+    }
+
+    private void writeSection(PrintWriter writer, Dyml section) {
+        int coutSpaces = 0;
+        if (section.children.isEmpty()){
+            coutSpaces = 0;
+            Dyml parent = section.parent;
+            while (parent != null){
+                coutSpaces += 2;
+                parent = parent.parent;
+            }
+
+
+
         } else
-            for (DymlSection sec :
+            for (Dyml sec :
                     section.children) {
                 writeSection(writer, sec);
             }

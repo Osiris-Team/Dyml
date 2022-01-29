@@ -1,7 +1,6 @@
 package examples.dyml;
 
 import com.osiris.dyml.Dyml;
-import com.osiris.dyml.DymlSection;
 import com.osiris.dyml.SmartString;
 import com.osiris.dyml.exceptions.IllegalListException;
 import com.osiris.dyml.exceptions.YamlReaderException;
@@ -25,11 +24,11 @@ public class SimpleExample {
         dyml.printSections(System.out);
 
         // 2. Modify
-        DymlSection key1 = dyml.get("key1");
+        Dyml key1 = dyml.get("key1");
         key1.key = "my-key";
         key1.value.set("my-value");
         //key1.comments = Arrays.asList("First comment line", "Second comment line");
-        key1.children.add(new DymlSection("bad-boi", new SmartString("value"), null));
+        key1.children.add(new Dyml("bad-boi", new SmartString("value"), null));
 
         System.out.println("AFTER:");
         dyml.printSections(System.out);

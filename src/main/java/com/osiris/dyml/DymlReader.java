@@ -22,8 +22,11 @@ import java.util.List;
  */
 class DymlReader {
 
-
-    public List<DymlSection> parse(File file, InputStream inputStream, String inString) throws YamlReaderException, IOException, IllegalListException {
+    /**
+     * Parses the .dyml content of a file/stream/string into a special list, which only contains the root sections.
+     * Those have references to their parent and child sections. <br>
+     */
+    public List<Dyml> parse(File file, InputStream inputStream, String inString) throws YamlReaderException, IOException, IllegalListException {
         BufferedReader reader = null; // BufferedReader is faster than the regular Reader by around 0,100 ms
         if (file != null) {
             if (!file.exists()) throw new YamlReaderException("File '" + file + "' doesn't exist!");
@@ -40,12 +43,12 @@ class DymlReader {
         }
 
         List<Integer> spaces = new ArrayList<>(50);
-        List<DymlSection> sections = new ArrayList<>(50);
+        List<Dyml> sections = new ArrayList<>(50);
         // Last lines information: (use fields instead of an actual line object bc of performance)
         boolean lastCommentFound = false;
         List<String> lastComments = new ArrayList<>();
 
-        DymlSection section = null;
+        Dyml section = null;
         // Current lines information:
         int countSpaces = 0;
         boolean commentFound = false;
@@ -78,10 +81,10 @@ class DymlReader {
                         if (countSpaces % 2 == 0) {
                             keyFound = true;
                             if (lastCommentFound) {
-                                section = new DymlSection(null, new SmartString(null), lastComments);
+                                section = new Dyml(null, new SmartString(null), lastComments);
                                 lastComments = new ArrayList<>();
                             } else {
-                                section = new DymlSection(null, new SmartString(null), new ArrayList<>());
+                                section = new Dyml(null, new SmartString(null), new ArrayList<>());
                             }
                             // Determine key:
                             int indexStart = lineIndex;
@@ -123,16 +126,15 @@ class DymlReader {
                             if (countSpaces > 0) {
                                 for (int k = (sections.size() - 1); k >= 0; k--) {
                                     if ((countSpaces - spaces.get(k)) == 2) {
-                                        DymlSection parent = sections.get(k);
+                                        Dyml parent = sections.get(k);
                                         section.parent = parent;
                                         parent.children.add(section);
                                         break;
                                     }
                                 }
-                            } else{
-                                sections.add(section);
-                                spaces.add(countSpaces);
                             }
+                            sections.add(section);
+                            spaces.add(countSpaces);
 
                         } else {
                             commentFound = true;
@@ -170,7 +172,13 @@ class DymlReader {
         } catch (Exception e) {
             throw e;
         }
-        return sections;
+
+        List<Dyml> rootSections = new ArrayList<>();
+        for (int i = 0; i < spaces.size(); i++) { // spaces and sections lists are same length
+            if (spaces.get(i) == 0)
+                rootSections.add(sections.get(i));
+        }
+        return rootSections;
     }
 
     /**
