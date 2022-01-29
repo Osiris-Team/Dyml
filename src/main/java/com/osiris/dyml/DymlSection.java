@@ -25,6 +25,48 @@ public class DymlSection {
     }
 
     /**
+     * Returns the child with the provided key. If not existing creates one.
+     */
+    public DymlSection put(String... keys) {
+
+        return null;
+    }
+
+    /**
+     * Returns a list containing this sections' parent sections. Example:
+     * <pre>
+     *     g0 val
+     *       g1 val
+     *         g2 val <---
+     * </pre>
+     * Returned list: [g1, g0]
+     */
+    public List<DymlSection> getAllParents(){
+        List<DymlSection> parents = new ArrayList<>();
+        DymlSection parent = this.parent;
+        while(parent!=null){
+            parents.add(parent);
+            parent = parent.parent;
+        }
+        return parents;
+    }
+
+    public int countParents() {
+        int count = 0;
+        DymlSection parent = this.parent;
+        while(parent!=null){
+            count++;
+            parent = parent.parent;
+        }
+        return count;
+    }
+
+    public int countSpaces(){
+        return countParents() * 2;
+    }
+
+
+    /**
      * Returns the value like its in the yaml file. If its empty there or null, this returns null. <br>
      * Note that this value got post-processed (if enabled). <br>
      * Also note that this is the lowest level you can get to the original yaml value. <br>

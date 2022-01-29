@@ -2,6 +2,7 @@ package examples.dyml;
 
 import com.osiris.dyml.Dyml;
 import com.osiris.dyml.DymlSection;
+import com.osiris.dyml.SmartString;
 import com.osiris.dyml.exceptions.IllegalListException;
 import com.osiris.dyml.exceptions.YamlReaderException;
 import com.osiris.dyml.exceptions.YamlWriterException;
@@ -28,6 +29,7 @@ public class SimpleExample {
         key1.key = "my-key";
         key1.value.set("my-value");
         //key1.comments = Arrays.asList("First comment line", "Second comment line");
+        key1.children.add(new DymlSection("bad-boi", new SmartString("value"), null));
 
         System.out.println("AFTER:");
         dyml.printSections(System.out);

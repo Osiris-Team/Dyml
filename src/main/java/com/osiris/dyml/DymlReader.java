@@ -129,9 +129,11 @@ class DymlReader {
                                         break;
                                     }
                                 }
+                            } else{
+                                sections.add(section);
+                                spaces.add(countSpaces);
                             }
-                            sections.add(section);
-                            spaces.add(countSpaces);
+
                         } else {
                             commentFound = true;
                             int indexStart = lineIndex;

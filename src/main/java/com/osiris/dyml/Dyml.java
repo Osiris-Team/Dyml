@@ -130,18 +130,20 @@ public class Dyml {
     }
 
     public void printSections(PrintStream out) {
+        printSections(out, sections);
+    }
+
+    public void printSections(PrintStream out, List<DymlSection> sections) {
         if (sections.size() == 0) System.err.println("List is empty!");
-        out.println("Index | Key | Value | Comments");
         for (int i = 0; i < sections.size(); i++) {
             DymlSection section = sections.get(i);
-            out.println("I:"+i + " KEY:'" + section.key + "' VAL:'" + section.value.asString() + "' COM:'" + section.comments.toString() + "'");
+            String spaces = "";
+            for (int j = 0; j < section.countSpaces(); j++) {
+                spaces += " ";
+            }
+            out.println(spaces+"I:"+i + " KEY:'" + section.key + "' VAL:'" + section.value.asString() + "' COM:'" + section.comments.toString() + "'");
             if (!section.children.isEmpty()){
-                out.print("  -> CHILD: ");
-                for (DymlSection child :
-                        section.children) {
-                    out.print(child.key);
-                }
-                out.println();
+                printSections(out, section.children);
             }
         }
     }

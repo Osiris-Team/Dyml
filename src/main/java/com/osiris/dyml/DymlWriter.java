@@ -31,6 +31,7 @@ class DymlWriter {
                 "  skkr val\n" );
         System.out.println("Found: "+dyml.get("ma", "chil").asString());
         dyml.printSections(System.out);
+        System.out.println(dyml.asString());
         System.out.println();
     }
 
