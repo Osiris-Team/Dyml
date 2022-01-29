@@ -81,10 +81,10 @@ class DymlReader {
                         if (countSpaces % 2 == 0) {
                             keyFound = true;
                             if (lastCommentFound) {
-                                section = new Dyml(null, new SmartString(null), lastComments);
+                                section = new Dyml(null, new SmartString(), lastComments);
                                 lastComments = new ArrayList<>();
                             } else {
-                                section = new Dyml(null, new SmartString(null), new ArrayList<>());
+                                section = new Dyml(null, new SmartString(), new ArrayList<>());
                             }
                             // Determine key:
                             int indexStart = lineIndex;

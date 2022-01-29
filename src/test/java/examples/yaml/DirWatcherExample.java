@@ -1,4 +1,4 @@
-package com.osiris.dyml.examples;
+package examples.yaml;
 
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;

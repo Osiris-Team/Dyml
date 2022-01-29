@@ -229,7 +229,8 @@ class YamlTest {
                 "There\n" +
                 "         there\n" +
                 "key2: hello\n";
-        assertEquals("Hello\nThere\nthere", yaml.get("key").asString());
+        yaml.load();
+        assertEquals("Hello\nThere\n         there", yaml.get("key").asString());
         assertEquals("hello", yaml.get("key2").asString());
     }
 
@@ -238,17 +239,10 @@ class YamlTest {
         Yaml yaml = new Yaml("", "");
         yaml.load();
         yaml.put("key").setValues("Hello\nThere!");
+        yaml.put("key2").setDefValues("val");
         yaml.save();
-        assertEquals("key: Hello\nThere!", yaml.outString);
-    }
-
-    @Test
-    void readValueAsModule() {
-
-    }
-
-    @Test
-    void writeValueAsModule() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException {
+        assertEquals("Hello\nThere!", yaml.get("key").asString());
+        assertEquals("val", yaml.get("key2").asString());
     }
 
 

@@ -29,15 +29,16 @@ class DymlWriter {
                 "  chil val\n" +
                 "    c3 val\n" +
                 "    c4 val\n" +
-                "  skkr val\n" );
-        System.out.println("Found: "+dyml.get("ma", "chil", "c4").asString());
-        dyml.printSections(System.out);
+                "  skkr val\n");
+        System.out.println("Found: " + dyml.get("ma", "chil", "c4").asString());
+        dyml.debugPrint(System.out);
         System.out.println(dyml.toText());
         System.out.println();
     }
 
-    public String parse(Dyml dyml, File file, OutputStream outputStream, String outString, boolean reset) throws YamlWriterException, IOException {
-        Objects.requireNonNull(dyml);
+    public String parse(List<Dyml> sections, File file, OutputStream outputStream, String outString, boolean reset) throws YamlWriterException, IOException {
+        Objects.requireNonNull(sections);
+        if (sections.isEmpty()) throw new YamlWriterException("Sections cannot be empty!");
         PrintWriter writer = null; // Buffered is faster than the regular Reader by around 0,100 ms
         StringWriter stringWriter = null;
         if (file != null) {
@@ -61,68 +62,52 @@ class DymlWriter {
         writer.write(""); // Clear old content
         if (reset) return null;
 
-        List<Dyml> sections = new ArrayList<>(dyml.children);
-        writeSections(writer, sections);
+        List<Dyml> copy = new ArrayList<>(sections);
+        writeSections(writer, copy);
 
-        if (stringWriter != null) return (outString = stringWriter.toString());
+        if (stringWriter != null) return stringWriter.toString();
         writer.flush();
-
         writer.close();
-
         return null;
     }
 
+    /**
+     * Writes all sections (parents and children) via the provided writer, recursively.
+     */
     public void writeSections(PrintWriter writer, List<Dyml> sections) {
-        for (int i = 0; i < sections.size(); i++) {
-            Dyml section = sections.get(i);
+        for (Dyml section : sections) {
             StringBuilder builder = new StringBuilder();
             for (int j = 0; j < section.countSpaces(); j++) {
                 builder.append(" ");
             }
             String spaces = builder.toString();
-            String spacesComments = spaces+" ";
+            String spacesComments = spaces + " ";
 
             // Comments
-            if (section.comments!=null && !section.comments.isEmpty()){
+            if (section.comments != null && !section.comments.isEmpty()) {
                 for (String comment :
                         section.comments) {
-                    if (comment.contains("\n")){
+                    if (comment.contains("\n")) {
                         String[] arr = comment.split("\n");
                         for (String c :
                                 arr) {
                             writer.println(spacesComments + c.trim());
                         }
-                    } else{
+                    } else {
                         writer.println(spacesComments + comment.trim());
                     }
                 }
             }
 
             // Key and values
-            writer.println(spaces + section.key.trim()+" "+section.value.asString().trim());
+            if (section.value.asString() != null)
+                writer.println(spaces + section.key.trim() + " " + section.value.asString().trim());
+            else
+                writer.println(spaces + section.key.trim() + " ");
 
-            if (!section.children.isEmpty()){
+            if (!section.children.isEmpty()) {
                 writeSections(writer, section.children);
             }
         }
-    }
-
-    private void writeSection(PrintWriter writer, Dyml section) {
-        int coutSpaces = 0;
-        if (section.children.isEmpty()){
-            coutSpaces = 0;
-            Dyml parent = section.parent;
-            while (parent != null){
-                coutSpaces += 2;
-                parent = parent.parent;
-            }
-
-
-
-        } else
-            for (Dyml sec :
-                    section.children) {
-                writeSection(writer, sec);
-            }
     }
 }

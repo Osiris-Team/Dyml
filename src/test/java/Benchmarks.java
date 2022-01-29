@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class YamlBenchmarks {
+public class Benchmarks {
 
     @Test
     void test() {

@@ -192,7 +192,7 @@ class YamlWriter {
                         if (module.getValues().size() == 1) { // Even if we only got one DYModule, it written as a list
                             YamlValue value = module.getValue();
                             if (value != null) { // Only write if its not null
-                                if (value.asString() != null) writeValueWithoutLineBreaks(writer, value.asString());
+                                if (value.asString() != null) writer.write(value.asString());
                                 if (value.hasComment())
                                     writer.write(" # " + value.getComment()); // Append side comment to value
                             }
@@ -206,7 +206,7 @@ class YamlWriter {
                                 if (value != null) {
                                     writer.write(spaces + "  - ");
                                     if (value.asString() != null)
-                                        writeValueWithoutLineBreaks(writer, value.asString()); // Append the value
+                                        writer.write(value.asString()); // Append the value
                                     if (value.hasComment())
                                         writer.write(" # " + value.getComment()); // Append side comment to value
                                 }
@@ -221,7 +221,7 @@ class YamlWriter {
                                 YamlValue defValue = module.getDefValue();
                                 if (defValue != null) {
                                     if (defValue.asString() != null)
-                                        writeValueWithoutLineBreaks(writer, defValue.asString());
+                                        writer.write(defValue.asString());
                                     if (defValue.hasComment())
                                         writer.write(" # " + defValue.getComment()); // Append side comment to value
                                 }
@@ -235,7 +235,7 @@ class YamlWriter {
                                     if (value != null) {
                                         writer.write(spaces + "  - ");
                                         if (value.asString() != null)
-                                            writeValueWithoutLineBreaks(writer, value.asString()); // Append the value
+                                            writer.write(value.asString()); // Append the value
                                         if (value.hasComment())
                                             writer.write(" # " + value.getComment()); // Append side comment to value
                                     }
@@ -256,11 +256,6 @@ class YamlWriter {
                 }
             }
         }
-    }
-
-    private void writeValueWithoutLineBreaks(BufferedWriter writer, String value) throws IOException {
-        value = value.replace("\n", " ");
-        writer.write(value);
     }
 
     private boolean isOnlyNullsList(List<YamlValue> values) {

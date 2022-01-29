@@ -3,34 +3,70 @@ package com.osiris.dyml;
 import com.osiris.dyml.exceptions.IllegalListException;
 import com.osiris.dyml.exceptions.YamlReaderException;
 import com.osiris.dyml.exceptions.YamlWriterException;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
+/**
+ * Can be parent or child of another {@link Dyml} object. <br>
+ * Represents a single section like this:
+ * <pre>
+ *      Comment
+ *     key value
+ * </pre>
+ * Example .dyml content:
+ * <pre>
+ *     g0a val
+ *       g1a val
+ *       g1b val
+ *     gb0 val
+ * </pre>
+ * If we parse the above with {@link Dyml#from(String)}, <br>
+ * we end up with 5 {@link Dyml} objects, even though we have 4 sections. <br>
+ * That's because we need a root {@link Dyml} object, aka root parent, <br>
+ * to work with the other sections. <br>
+ */
 public class Dyml {
+    /**
+     * Null string if this is the root section.
+     */
     public String key;
+    @NotNull
     public SmartString value;
+    @NotNull
     public List<String> comments;
+    /**
+     * Null if this is the root section.
+     */
     public Dyml parent;
-    public List<Dyml> children;
+    /**
+     * <p style="color:red">Do not modify this list directly. Use the methods provided by {@link Dyml} instead.</p>
+     * Contains this sections', child sections. <br>
+     * Aka all the child sections got this section as {@link #parent}. <br>
+     * If you still really want to traverse this list use {@link #getChildren()}. <br>
+     */
+    @NotNull
+    public List<Dyml> children = new ArrayList<>();
 
     /**
-     * <p style="color:red">Use the static method {@link #from(String)} instead to create {@link Dyml} objects.</p>
+     * <p style="color:red">To parse .dyml content, use the static methods like {@link #from(String)} instead.</p>
      */
-    public Dyml(String key, SmartString value, List<String> comments) {
+    public Dyml(String key, @NotNull SmartString value, @NotNull List<String> comments) {
         this.key = key;
         this.value = value;
         this.comments = comments;
-        this.children = new ArrayList<>();
     }
 
     /**
      * Reads the dyml content from the provided InputStream and returns a new {@link Dyml} object representing it.
      */
     public static Dyml from(InputStream inputStream) throws IOException, YamlReaderException, IllegalListException {
-        Dyml dyml = new Dyml(null, null, null);
+        Dyml dyml = new Dyml("", new SmartString(), new ArrayList<>());
         dyml.children = new DymlReader().parse(null, inputStream, null);
         return dyml;
     }
@@ -39,7 +75,7 @@ public class Dyml {
      * Reads the dyml content from the provided String and returns a new {@link Dyml} object representing it.
      */
     public static Dyml from(String string) throws IOException, YamlReaderException, IllegalListException {
-        Dyml dyml = new Dyml(null, null, null);
+        Dyml dyml = new Dyml("", new SmartString(), new ArrayList<>());
         dyml.children = new DymlReader().parse(null, null, string);
         return dyml;
     }
@@ -48,70 +84,74 @@ public class Dyml {
      * Reads the dyml content from the provided file and returns a new {@link Dyml} object representing it.
      */
     public static Dyml fromFile(File file) throws IOException, YamlReaderException, IllegalListException {
-        Dyml dyml = new Dyml(null, null, null);
+        Dyml dyml = new Dyml("", new SmartString(), new ArrayList<>());
         dyml.children = new DymlReader().parse(file, null, null);
         return dyml;
     }
+
     /**
      * Reads the dyml content from the provided file and returns a new {@link Dyml} object representing it.
      */
     public static Dyml fromFile(String filePath) throws IOException, YamlReaderException, IllegalListException {
-        Dyml dyml = new Dyml(null, null, null);
+        Dyml dyml = new Dyml("", new SmartString(), new ArrayList<>());
         dyml.children = new DymlReader().parse(new File(filePath), null, null);
         return dyml;
     }
+
     /**
      * Reads the dyml content from the provided file and returns a new {@link Dyml} object representing it.
      */
     public static Dyml fromFile(Path filePath) throws IOException, YamlReaderException, IllegalListException {
-        Dyml dyml = new Dyml(null, null, null);
+        Dyml dyml = new Dyml("", new SmartString(), new ArrayList<>());
         dyml.children = new DymlReader().parse(filePath.toFile(), null, null);
         return dyml;
     }
 
 
     /**
-     * Parses this {@link Dyml} object and writes it to the provided output.
+     * Parses the {@link #children} list and writes it to the provided output.
      */
     public OutputStream toOutput(OutputStream out) throws YamlWriterException, IOException {
-        new DymlWriter().parse(this, null, out, null, false);
+        new DymlWriter().parse(this.children, null, out, null, false);
         return out;
     }
 
     /**
-     * Parses this {@link Dyml} object and writes it to a {@link String}, which gets returned.
+     * Parses the {@link #children} list and writes it to a {@link String}, which gets returned.
      */
     public String toText() throws YamlWriterException, IOException {
-        return new DymlWriter().parse(this, null, null, "", false);
+        return new DymlWriter().parse(this.children, null, null, "", false);
     }
 
     /**
-     * Parses this {@link Dyml} object and writes it to the provided output.
+     * Parses the {@link #children} list and writes it to the provided output.
      */
     public File toFile(File file) throws YamlWriterException, IOException {
-        new DymlWriter().parse(this, file, null, null, false);
+        new DymlWriter().parse(this.children, file, null, null, false);
         return file;
     }
+
     /**
-     * Parses this {@link Dyml} object and writes it to the provided output.
+     * Parses the {@link #children} list and writes it to the provided output.
      */
     public File toFile(String filePath) throws YamlWriterException, IOException {
         File file = new File(filePath);
-        new DymlWriter().parse(this, file, null, null, false);
+        new DymlWriter().parse(this.children, file, null, null, false);
         return file;
     }
+
     /**
-     * Parses this {@link Dyml} object and writes it to the provided output.
+     * Parses the {@link #children} list and writes it to the provided output.
      */
     public File toFile(Path filePath) throws YamlWriterException, IOException {
         File file = filePath.toFile();
-        new DymlWriter().parse(this, file, null, null, false);
+        new DymlWriter().parse(this.children, file, null, null, false);
         return file;
     }
 
 
     /**
-     * Returns the {@link Dyml} with the provided key(s), or null if not found.
+     * Returns the child {@link Dyml} with the provided key(s), or null if not found.
      */
     public Dyml get(String... keys) {
         Dyml foundSection = null;
@@ -133,17 +173,102 @@ public class Dyml {
     }
 
     /**
+     * Returns an unmodifiable copy of {@link #children}. <br>
+     * See {@link Collections#unmodifiableList(List)}. <br>
+     */
+    public List<Dyml> getChildren() {
+        return Collections.unmodifiableList(children);
+    }
+
+    /**
      * Returns the child {@link Dyml} at the provided index.
      */
-    public Dyml getAt(int index) {
+    public Dyml get(int index) {
         return children.get(index);
     }
 
-    public void printSections(PrintStream out) {
-        printSections(out, children);
+    /**
+     * Returns the child {@link Dyml}  with the provided key(s). If not existing creates one.
+     */
+    public Dyml put(String... keys) {
+        Dyml lastParent = this;
+        List<Dyml> listToSearch = this.children;
+        Dyml foundSection = null;
+        for (String key : keys) {
+
+            foundSection = null;
+
+            for (Dyml section :
+                    listToSearch) {
+                if (section.key.equals(key)) {
+                    foundSection = section;
+                    lastParent = section;
+                    listToSearch = section.children;
+                    break;
+                }
+            }
+
+            if (foundSection == null) {
+                Dyml newSection = lastParent.add(key);
+                lastParent = newSection;
+                foundSection = newSection;
+                listToSearch = newSection.children;
+            }
+        }
+        return foundSection;
     }
 
-    public void printSections(PrintStream out, List<Dyml> sections) {
+    /**
+     * Adds a new {@link Dyml} with the provided key, to the provided index in {@link #children}. <br>
+     * Behaves like {@link List#add(int, Object)}. <br>
+     */
+    public Dyml add(int index, String key) {
+        Dyml child = new Dyml(key, new SmartString(null), new ArrayList<>());
+        children.add(index, child);
+        child.parent = this;
+        return child;
+    }
+
+    /**
+     * Adds a new {@link Dyml} with the provided key, to the end of {@link #children}. <br>
+     * Behaves like {@link List#add(Object)}. <br>
+     */
+    public Dyml add(String key) {
+        Dyml child = new Dyml(key, new SmartString(null), new ArrayList<>());
+        add(child);
+        return child;
+    }
+
+    /**
+     * Adds a new {@link Dyml} with the provided key, to the end of {@link #children}. <br>
+     * Behaves like {@link List#add(Object)}. <br>
+     */
+    public Dyml add(Dyml child) {
+        children.add(child);
+        child.parent = this;
+        return child;
+    }
+
+    /**
+     * Adds a new comment to the end of {@link #comments}. <br>
+     * Each comment in that list represents one comment line in the file. <br>
+     * Behaves like {@link List#add(Object)}. <br>
+     */
+    public void addComments(String... comment) {
+        comments.addAll(Arrays.asList(comment));
+    }
+
+    /**
+     * See {@link #debugPrint(PrintStream, List)}.
+     */
+    public void debugPrint(PrintStream out) {
+        debugPrint(out, children);
+    }
+
+    /**
+     * Prints the provided sections (and their children) to the provided output with the most info possible.
+     */
+    public void debugPrint(PrintStream out, List<Dyml> sections) {
         if (sections.size() == 0) System.err.println("List is empty!");
         for (int i = 0; i < sections.size(); i++) {
             Dyml section = sections.get(i);
@@ -151,19 +276,11 @@ public class Dyml {
             for (int j = 0; j < section.countSpaces(); j++) {
                 spaces += " ";
             }
-            out.println(spaces+"I:"+i + " KEY:'" + section.key + "' VAL:'" + section.value.asString() + "' COM:'" + section.comments.toString() + "'");
-            if (!section.children.isEmpty()){
-                printSections(out, section.children);
+            out.println(spaces + "I:" + i + " KEY:'" + section.key + "' VAL:'" + section.value.asString() + "' COM:'" + section.comments + "'");
+            if (!section.children.isEmpty()) {
+                debugPrint(out, section.children);
             }
         }
-    }
-
-    /**
-     * Returns the child with the provided key. If not existing creates one.
-     */
-    public Dyml put(String... keys) {
-
-        return null;
     }
 
     /**
@@ -175,10 +292,10 @@ public class Dyml {
      * </pre>
      * Returned list: [g1, g0]
      */
-    public List<Dyml> getAllParents(){
+    public List<Dyml> getAllParents() {
         List<Dyml> parents = new ArrayList<>();
         Dyml parent = this.parent;
-        while(parent!=null){
+        while (parent != null) {
             parents.add(parent);
             parent = parent.parent;
         }
@@ -188,7 +305,7 @@ public class Dyml {
     public int countParents() {
         int count = 0;
         Dyml parent = this.parent;
-        while(parent!=null){
+        while (parent != null) {
             count++;
             parent = parent.parent;
         }
@@ -204,82 +321,80 @@ public class Dyml {
      * </pre>
      * Returns 0 for g0 and 2 for g1. <br>
      */
-    public int countSpaces(){
-        return countParents() * 2;
+    public int countSpaces() {
+        return countParents() * 2 - 2; // -2 because the root parent doesn't count
     }
 
 
     /**
-     * Returns the value like its in the yaml file. If its empty there or null, this returns null. <br>
-     * Note that this value got post-processed (if enabled). <br>
-     * Also note that this is the lowest level you can get to the original yaml value. <br>
-     * The lowest level is at {@link DYLine}, but thats only accessible for the {@link YamlReader} and the {@link YamlWriter}. <br>
+     * Shortcut for returning the {@link #value}.<br>
+     * Note that this can be null but never empty. <br>
      */
     public String asString() {
         return value.asString();
     }
 
     /**
-     * Note that this can be null.
+     * Shortcut for returning the {@link #value}.<br>
+     * Note that this can be null. <br>
      */
     public char[] asCharArray() {
-        if (value.asString() == null) return null;
-        return value.asString().toCharArray();
+        return value.asCharArray();
     }
 
     /**
-     * Note that this can be null.
+     * Shortcut for returning the {@link #value}.<br>
+     * Note that this can be null. <br>
      */
     public Boolean asBoolean() {
-        if (value.asString() == null) return null;
-        return Boolean.parseBoolean(value.asString());
+        return value.asBoolean();
     }
 
     /**
-     * Note that this can be null.
+     * Shortcut for returning the {@link #value}.<br>
+     * Note that this can be null. <br>
      */
     public Byte asByte() {
-        if (value.asString() == null) return null;
-        return Byte.parseByte(value.asString());
+        return value.asByte();
     }
 
     /**
-     * Note that this can be null.
+     * Shortcut for returning the {@link #value}.<br>
+     * Note that this can be null. <br>
      */
     public Short asShort() {
-        if (value.asString() == null) return null;
-        return Short.parseShort(value.asString());
+        return value.asShort();
     }
 
     /**
-     * Note that this can be null.
+     * Shortcut for returning the {@link #value}.<br>
+     * Note that this can be null. <br>
      */
     public Integer asInt() {
-        if (value.asString() == null) return null;
-        return Integer.parseInt(value.asString());
+        return value.asInt();
     }
 
     /**
-     * Note that this can be null.
+     * Shortcut for returning the {@link #value}.<br>
+     * Note that this can be null. <br>
      */
     public Long asLong() {
-        if (value.asString() == null) return null;
-        return Long.parseLong(value.asString());
+        return value.asLong();
     }
 
     /**
-     * Note that this can be null.
+     * Shortcut for returning the {@link #value}.<br>
+     * Note that this can be null. <br>
      */
     public Float asFloat() {
-        if (value.asString() == null) return null;
-        return Float.parseFloat(value.asString());
+        return value.asFloat();
     }
 
     /**
-     * Note that this can be null.
+     * Shortcut for returning the {@link #value}.<br>
+     * Note that this can be null. <br>
      */
     public Double asDouble() {
-        if (value.asString() == null) return null;
-        return Double.parseDouble(value.asString());
+        return value.asDouble();
     }
 }

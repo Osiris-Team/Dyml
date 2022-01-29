@@ -15,6 +15,6 @@ class DymlTest {
                 "  c1 val\n" +
                 "  c2 val\n" +
                 "    g1 val\n");
-        dyml.printSections(System.out);
+        dyml.debugPrint(System.out);
     }
 }

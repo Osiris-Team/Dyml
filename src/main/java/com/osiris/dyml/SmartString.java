@@ -6,6 +6,10 @@ package com.osiris.dyml;
 public class SmartString {
     private String string;
 
+    public SmartString() {
+        this(null);
+    }
+
     public SmartString(String string) {
         this.string = string;
     }

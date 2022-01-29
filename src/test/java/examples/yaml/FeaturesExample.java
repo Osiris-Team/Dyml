@@ -1,4 +1,4 @@
-package com.osiris.dyml.examples;
+package examples.yaml;
 
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlValue;
@@ -12,22 +12,20 @@ public class FeaturesExample {
     @Test
     void test() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
         Yaml yaml = new Yaml(System.getProperty("user.dir") + "/src/test/features.yml", true);
-        yaml.load();
+        yaml.load(); // Also supports InputStreams and Strings as input
 
-        yaml.put("the-show-off-list").setDefValues("completely written from scratch without any extra dependency", "fastest YAML reader and writer currently available (see benchmarks below)", "not a single static method and very memory efficient");
+        yaml.put("important").setDefValues("Everything else that is not explicitly mentioned in this file is not supported");
+
+        yaml.put("supports-lists").setCountTopSpaces(1).setDefValues("Hello World!", "2nd value");
         yaml.put("supports-hyphen-separation").setDefValues("awesome!");
         yaml.put("or separation by spaces").setDefValues(new YamlValue("great!").setComment("side-comments supported!"));
         yaml.put("and.dots.like.this").setDefValues("wow!");
 
-        yaml.put("m1-g0", "m1-g1", "m1-g2").setDefValues("wow!");
-        yaml.put("m1-g0", "m1-g1", "m2-g2").setDefValues("<3");
-        yaml.put("m1-g0", "m2-g1")
+        yaml.put("g0", "g1a", "g2a").setCountTopSpaces(1).setDefValues("wow!");
+        yaml.put("g0", "g1a", "g2b").setDefValues("<3");
+        yaml.put("g0", "g1b")
                 .addDefValues(new YamlValue("v1").setComment("This is a side-comment in a list"))
                 .addDefValues(new YamlValue("v2").setComment("This is also a side-comment, for the value below"));
-
-        yaml.put("not supported").setDefValues(
-                "everything else that is not explicitly mentioned in this file"
-        );
 
         yaml.save();
     }
