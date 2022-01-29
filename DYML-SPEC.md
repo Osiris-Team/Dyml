@@ -42,10 +42,3 @@ key1 value
  Second comment
 key2 value
 ```
-Example Java methods :
-```java
-Dyml file = Dyml.from("example.dyml");
-DymlSection key1 = file.get("key1");
-key1.asString(); // Returns "value"
-DymlSection child1 = file.get("key1", "child1");
-```
