@@ -1,4 +1,4 @@
-# Dyml [![](https://jitpack.io/v/Osiris-Team/Dream-Yaml.svg)](https://jitpack.io/#Osiris-Team/Dream-Yaml)
+# Dyml [![](https://jitpack.io/v/Osiris-Team/Dream-Yaml.svg)](https://jitpack.io/#Osiris-Team/Dyml)
 The YAML and DYML processor of your dreams, written in pure Java! <br>
 - Java 8 or higher required.
 [Maven/gradle/sbt/leinigen instructions](https://jitpack.io/#Osiris-Team/Dream-Yaml/LATEST).
