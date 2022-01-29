@@ -1,7 +1,5 @@
 # .dyml
-Smaller file sizes and faster read/write speeds are no longer a dream.
-
-[Benchmarks](https://github.com/Osiris-Team/Dyml/issues/17);
+Smaller file sizes and faster read/write speeds are no longer a dream. See [benchmarks](https://github.com/Osiris-Team/Dyml/issues/17).
 
 # Features
 
