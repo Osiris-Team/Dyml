@@ -22,9 +22,9 @@ parent value
 ```
 Comments must be above a section, and get defined by having one more leading space than the section they belong:
 ```dyml
- I am a comment
+ I am a comment of parent
 parent
-   I am a comment
+   I am a comment of child
   child
 ```
 Multiple values are generally not supported and implementation specific. 
