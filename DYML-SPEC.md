@@ -4,6 +4,7 @@ Smaller file sizes and faster read/write speeds are no longer a dream. See [benc
 # Todo
 - Find a way of representing lists, aka multiple values
 - Maybe use tab instead of 2 spaces to reduce file size?
+- How to handle line breaks in values?
 
 # Features
 
@@ -47,6 +48,9 @@ key null
  Returned value is "''"
 key ''
 ```
+
+# Limitations
+- Values cannot contain line breaks
 
 example.dyml
 ```dyml
