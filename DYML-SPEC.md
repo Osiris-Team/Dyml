@@ -68,7 +68,6 @@ key2 value
 Comlex objects also as children of a parent:
 ```dyml
 parent value
-   
   child value
   child2 value
   
