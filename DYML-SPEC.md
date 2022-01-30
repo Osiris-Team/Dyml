@@ -1,6 +1,9 @@
 # .dyml
 Smaller file sizes and faster read/write speeds are no longer a dream. See [benchmarks](https://github.com/Osiris-Team/Dyml/issues/17).
 
+# Todo
+- Find a way of representing lists, aka multiple values
+
 # Features
 
 All sections must have a parent section, except the root/first section. A child section gets defined by adding 2 spaces at the beginning:
