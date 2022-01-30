@@ -14,7 +14,7 @@ parent
   child1
   child2
 ```
-All sections can have values. Values get defined by adding a space after the key:
+All sections can have values. Values get defined by adding a space after the key (thus a key cannot contain spaces):
 ```dyml
 parent value
   child1 value
