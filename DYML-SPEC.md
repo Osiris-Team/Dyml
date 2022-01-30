@@ -32,13 +32,6 @@ parent
    I am a comment of child
   child
 ```
-Multiple values are generally not supported and implementation specific. 
-One idea would be by splitting the value into multiple
-values via spaces inbetween each value:
-```dyml
-parent value
-  child value1 value2 value3
-```
 Empty values do not exist. Only null values exist. Which means that if the value is empty or only contains spaces return null:
 ```
  Returned value is null
@@ -49,7 +42,9 @@ key null
 key ''
 ```
 
+
 # Limitations
+- One value per key. You can however split the value by a certain char like a space and return a list of values. This is up to you.
 - Values cannot contain line breaks
 
 example.dyml
