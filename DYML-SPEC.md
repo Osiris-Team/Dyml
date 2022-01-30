@@ -34,6 +34,15 @@ values via spaces inbetween each value:
 parent value
   child value1 value2 value3
 ```
+Empty values do not exist. Only null values exist. Which means that if the value is empty or only contains spaces return null:
+```
+ Returned value is null
+key
+ Returned value is "null"
+key null
+ Returned values is "''"
+key ''
+```
 
 example.dyml
 ```dyml
