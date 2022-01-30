@@ -3,6 +3,7 @@ Smaller file sizes and faster read/write speeds are no longer a dream. See [benc
 
 # Todo
 - Find a way of representing lists, aka multiple values
+- Maybe use tab instead of 2 spaces to reduce file size?
 
 # Features
 
