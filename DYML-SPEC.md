@@ -53,7 +53,6 @@ key2 value
 
 # Todo
 - Maybe use tab instead of 2 spaces to reduce file size?
-- How to handle line breaks in values?
 
 Create complex objects / a list of objects, with two line breaks:
 ```dyml
