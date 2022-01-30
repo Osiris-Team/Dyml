@@ -40,7 +40,7 @@ Empty values do not exist. Only null values exist. Which means that if the value
 key
  Returned value is "null"
 key null
- Returned values is "''"
+ Returned value is "''"
 key ''
 ```
 
