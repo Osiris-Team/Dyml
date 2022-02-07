@@ -397,4 +397,36 @@ public class Dyml {
     public Double asDouble() {
         return value.asDouble();
     }
+
+    /**
+     * Shortcut for returning the {@link #value}.<br>
+     * Note that this can be null. <br>
+     */
+    public String[] asArraySplitBySpaces() {
+        return value.asArraySplitBySpaces();
+    }
+
+    /**
+     * Shortcut for returning the {@link #value}.<br>
+     * Note that this can be null. <br>
+     */
+    public List<String> asListSplitBySpaces() {
+        return value.asListSplitBySpaces();
+    }
+
+    /**
+     * Shortcut for returning the {@link #value}.<br>
+     * Note that this can be null. <br>
+     */
+    public String[] asArraySplitByColons() {
+        return value.asArraySplitByColons();
+    }
+
+    /**
+     * Shortcut for returning the {@link #value}.<br>
+     * Note that this can be null. <br>
+     */
+    public List<String> asListSplitByColons() {
+        return value.asListSplitByColons();
+    }
 }

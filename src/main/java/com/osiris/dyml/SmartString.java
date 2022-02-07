@@ -1,5 +1,8 @@
 package com.osiris.dyml;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Wraps around a String and provides additional type conversion methods.
  */
@@ -85,6 +88,42 @@ public class SmartString {
     public Double asDouble() {
         if (string == null) return null;
         return Double.parseDouble(string);
+    }
+
+
+    // CUSTOM GETTERS:
+
+
+    /**
+     * Note that this can be null.
+     */
+    public String[] asArraySplitBySpaces() {
+        if (string == null) return null;
+        return string.split(" ");
+    }
+
+    /**
+     * Note that this can be null.
+     */
+    public List<String> asListSplitBySpaces() {
+        if (string == null) return null;
+        return Arrays.asList(string.split(" "));
+    }
+
+    /**
+     * Note that this can be null.
+     */
+    public String[] asArraySplitByColons() {
+        if (string == null) return null;
+        return string.split(",");
+    }
+
+    /**
+     * Note that this can be null.
+     */
+    public List<String> asListSplitByColons() {
+        if (string == null) return null;
+        return Arrays.asList(string.split(","));
     }
 
 
