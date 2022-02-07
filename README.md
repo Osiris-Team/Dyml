@@ -33,7 +33,7 @@ g0:
     # This is also a side-comment, for the value below
     - v2
 ```
-The file above was created in the [FeaturesExample.class](src/test/java/examples/yaml/FeaturesExample.java).
+The file above was created in Java [here](src/test/java/examples/yaml/FeaturesExample.java).
 
 `example.dyml`
 ```DYML
@@ -48,11 +48,10 @@ g0
     g2b <3
   g1b great!
 ```
-The file above was created in the [FeaturesExample.class](src/test/java/examples/dyml/FeaturesExample.java). Read more about this awesome, new
+The file above was created in Java [here](src/test/java/examples/dyml/FeaturesExample.java). Read more about this awesome, new
 file type [here](DYML-SPEC.md).
 
 Some extras:
- - **.dyml processor** | Faster than the fastest .json Java lib (gson). Smaller file sizes and faster read/write speeds are no longer a dream.
  - **DirWatcher |** Directory watcher with recursive directory watching support.
  - **YamlDatabase |** (BETA) Yaml based, lightning fast database.
 
