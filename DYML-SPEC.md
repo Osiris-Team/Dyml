@@ -3,7 +3,7 @@ The alternative to .yaml, with smaller file sizes and the simplest syntax. Blazi
 
 
 ### Limitations
-- One value per key. You can however split the value by a certain char like a space and return a list of values. This is up to you.
+- One value per key, no lists. You can however split the value by a certain char like a space and return a list of values. This is up to you.
 - Values cannot contain line breaks
 
 ### Features
