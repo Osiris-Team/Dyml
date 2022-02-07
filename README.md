@@ -9,6 +9,8 @@ The YAML and DYML processor of your dreams, written in pure Java! <br>
 - Amazing support for side, multiline and regular comments.
 - Written from scratch with performance, comments and usability in mind.
 - Very small, blazing fast and easy to use.
+
+`example.yml`
 ```YAML
 important: Everything else that is not explicitly mentioned in this file is not supported
 
@@ -32,6 +34,8 @@ g0:
     - v2
 ```
 The file above was created in the [FeaturesExample.class](src/test/java/examples/yaml/FeaturesExample.java).
+
+`example.dyml`
 ```DYML
 important Everything else that is not explicitly mentioned in this file is not supported
  Comments and
