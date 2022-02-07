@@ -1,11 +1,11 @@
 # .dyml
 Smaller file sizes and faster read/write speeds are no longer a dream. See [benchmarks](https://github.com/Osiris-Team/Dyml/issues/17).
 
-# Limitations
+### Limitations
 - One value per key. You can however split the value by a certain char like a space and return a list of values. This is up to you.
 - Values cannot contain line breaks
 
-# Features
+### Features
 
 All sections must have a parent section, except the root/first section. A child section gets defined by adding 2 spaces at the beginning:
 ```dyml
@@ -51,7 +51,7 @@ key1 value
 key2 value
 ```
 
-# Todo
+### Todo
 - Maybe use tab instead of 2 spaces to reduce file size?
 
 Create complex objects / a list of objects, with two line breaks:
