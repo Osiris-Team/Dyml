@@ -1,5 +1,6 @@
 # .dyml
-A less complex alternative to .yaml with smaller file sizes and faster parsing, read and write speeds. See [benchmarks](https://github.com/Osiris-Team/Dyml/issues/17).
+The alternative to .yaml, with smaller file sizes and the simplest syntax. Blazing fast parsing, read and write speeds, see [benchmarks](https://github.com/Osiris-Team/Dyml/issues/17).
+
 
 ### Limitations
 - One value per key. You can however split the value by a certain char like a space and return a list of values. This is up to you.
