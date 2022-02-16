@@ -10,7 +10,7 @@ The YAML and DYML processor of your dreams, written in pure Java! <br>
 - Written from scratch with performance, comments and usability in mind.
 - Very small, blazing fast and easy to use.
 
-`example.yml`
+`example.yml`[code](src/test/java/examples/yaml/FeaturesExample.java)
 ```YAML
 important: Everything else that is not explicitly mentioned in this file is not supported
 
@@ -33,9 +33,8 @@ g0:
     # This is also a side-comment, for the value below
     - v2
 ```
-The file above was created in Java [here](src/test/java/examples/yaml/FeaturesExample.java).
 
-`example.dyml`
+`example.dyml`[code](src/test/java/examples/dyml/FeaturesExample.java)
 ```DYML
 important Everything else that is not explicitly mentioned in this file is not supported
  Comments and
@@ -48,8 +47,7 @@ g0
     g2b <3
   g1b great!
 ```
-The file above was created in Java [here](src/test/java/examples/dyml/FeaturesExample.java). Read more about this awesome, new
-file type [here](DYML-SPEC.md).
+Read more about this awesome, new file type [here](DYML-SPEC.md).
 
 Some extras:
  - **DirWatcher |** Directory watcher with recursive directory watching support.
