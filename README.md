@@ -10,7 +10,7 @@ The YAML and DYML processor of your dreams, written in pure Java! <br>
 - Written from scratch with performance, comments and usability in mind.
 - Very small, blazing fast and easy to use.
 
-`example.yml`[code](src/test/java/examples/yaml/FeaturesExample.java)
+`example.yml` [code](src/test/java/examples/yaml/FeaturesExample.java)
 ```YAML
 important: Everything else that is not explicitly mentioned in this file is not supported
 
@@ -34,7 +34,7 @@ g0:
     - v2
 ```
 
-`example.dyml`[code](src/test/java/examples/dyml/FeaturesExample.java)
+`example.dyml` [code](src/test/java/examples/dyml/FeaturesExample.java)
 ```DYML
 important Everything else that is not explicitly mentioned in this file is not supported
  Comments and
