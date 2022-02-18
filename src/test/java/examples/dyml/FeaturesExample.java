@@ -11,7 +11,7 @@ import java.io.IOException;
 public class FeaturesExample {
     @Test
     void test() throws YamlReaderException, IOException, IllegalListException, YamlWriterException {
-        Dyml dyml = new Dyml(); // Can be String/InputStream or File with .fromFile()
+        Dyml dyml = new Dyml(); // You can pass over a String/InputStream or File
         dyml.put("important").value.set("Everything else that is not explicitly mentioned in this file is not supported");
         Dyml key = dyml.put("key");
         key.value.set("value");
