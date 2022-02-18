@@ -24,7 +24,7 @@ import java.util.Objects;
 class DymlWriter {
 
     public static void main(String[] args) throws YamlReaderException, IOException, IllegalListException, YamlWriterException {
-        Dyml dyml = Dyml.from("hello there\n" +
+        Dyml dyml = new Dyml("hello there\n" +
                 "ma boi 69\n" +
                 "  chil val\n" +
                 "    c3 val\n" +
@@ -32,7 +32,7 @@ class DymlWriter {
                 "  skkr val\n");
         System.out.println("Found: " + dyml.get("ma", "chil", "c4").asString());
         dyml.debugPrint(System.out);
-        System.out.println(dyml.toText());
+        System.out.println(dyml.saveToText());
         System.out.println();
     }
 

@@ -14,7 +14,7 @@ public class SimpleExample {
     void test() throws YamlReaderException, IOException, IllegalListException, YamlWriterException {
 
         // 1. Load
-        Dyml dyml = Dyml.from("key1 value\n" +
+        Dyml dyml = new Dyml("key1 value\n" +
                 "  child value\n" +
                 "key2 value\n"); // Can be String/InputStream or File with .fromFile()
         System.out.println("BEFORE:");
@@ -31,7 +31,7 @@ public class SimpleExample {
         dyml.debugPrint(System.out);
 
         // 3. Save
-        String text = dyml.toText(); // Save to file with dyml.toFile(file);
+        String text = dyml.saveToText(); // Save to file with dyml.saveToFile(file);
 
         // Note for Dyml devs: Cannot assertEquals because line separators are different on Windows
     }

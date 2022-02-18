@@ -26,12 +26,13 @@ import java.util.List;
  *       g1b val
  *     gb0 val
  * </pre>
- * If we parse the above with {@link Dyml#from(String)}, <br>
+ * If we parse the above with {@link #Dyml(String)}, <br>
  * we end up with 5 {@link Dyml} objects, even though we have 4 sections. <br>
  * That's because we need a root {@link Dyml} object, aka root parent, <br>
  * to work with the other sections. <br>
  */
 public class Dyml {
+    public File file;
     /**
      * Null string if this is the root section.
      */
@@ -54,8 +55,18 @@ public class Dyml {
     public List<Dyml> children = new ArrayList<>();
 
     /**
-     * <p style="color:red">To parse .dyml content, use the static methods like {@link #from(String)} instead.</p>
+     * <p style="color:red">Note that this creates a parent {@link Dyml} object, and should not be used by you.</p>
+     * To parse .dyml content use these constructors instead: <br>
+     * - {@link #Dyml(File)} <br>
+     * - {@link #Dyml(String)} <br>
+     * - {@link #Dyml(InputStream)} <br>
      */
+    public Dyml() {
+        this.key = "";
+        this.value = new SmartString();
+        this.comments = new ArrayList<>();
+    }
+
     public Dyml(String key, @NotNull SmartString value, @NotNull List<String> comments) {
         this.key = key;
         this.value = value;
@@ -65,53 +76,36 @@ public class Dyml {
     /**
      * Reads the dyml content from the provided InputStream and returns a new {@link Dyml} object representing it.
      */
-    public static Dyml from(InputStream inputStream) throws IOException, YamlReaderException, IllegalListException {
-        Dyml dyml = new Dyml("", new SmartString(), new ArrayList<>());
-        dyml.children = new DymlReader().parse(null, inputStream, null);
-        return dyml;
+    public Dyml(InputStream inputStream) throws IOException, YamlReaderException, IllegalListException {
+        this.children = new DymlReader().parse(null, inputStream, null);
     }
 
     /**
      * Reads the dyml content from the provided String and returns a new {@link Dyml} object representing it.
      */
-    public static Dyml from(String string) throws IOException, YamlReaderException, IllegalListException {
-        Dyml dyml = new Dyml("", new SmartString(), new ArrayList<>());
-        dyml.children = new DymlReader().parse(null, null, string);
-        return dyml;
+    public Dyml(String string) throws IOException, YamlReaderException, IllegalListException {
+        this.children = new DymlReader().parse(null, null, string);
     }
 
     /**
      * Reads the dyml content from the provided file and returns a new {@link Dyml} object representing it.
      */
-    public static Dyml fromFile(File file) throws IOException, YamlReaderException, IllegalListException {
-        Dyml dyml = new Dyml("", new SmartString(), new ArrayList<>());
-        dyml.children = new DymlReader().parse(file, null, null);
-        return dyml;
+    public Dyml(File file) throws IOException, YamlReaderException, IllegalListException {
+        this.children = new DymlReader().parse((this.file = file), null, null);
     }
 
     /**
      * Reads the dyml content from the provided file and returns a new {@link Dyml} object representing it.
      */
-    public static Dyml fromFile(String filePath) throws IOException, YamlReaderException, IllegalListException {
-        Dyml dyml = new Dyml("", new SmartString(), new ArrayList<>());
-        dyml.children = new DymlReader().parse(new File(filePath), null, null);
-        return dyml;
-    }
-
-    /**
-     * Reads the dyml content from the provided file and returns a new {@link Dyml} object representing it.
-     */
-    public static Dyml fromFile(Path filePath) throws IOException, YamlReaderException, IllegalListException {
-        Dyml dyml = new Dyml("", new SmartString(), new ArrayList<>());
-        dyml.children = new DymlReader().parse(filePath.toFile(), null, null);
-        return dyml;
+    public Dyml(Path filePath) throws IOException, YamlReaderException, IllegalListException {
+        this.children = new DymlReader().parse((this.file = filePath.toFile()), null, null);
     }
 
 
     /**
      * Parses the {@link #children} list and writes it to the provided output.
      */
-    public OutputStream toOutput(OutputStream out) throws YamlWriterException, IOException {
+    public OutputStream saveToOutput(OutputStream out) throws YamlWriterException, IOException {
         new DymlWriter().parse(this.children, null, out, null, false);
         return out;
     }
@@ -119,14 +113,15 @@ public class Dyml {
     /**
      * Parses the {@link #children} list and writes it to a {@link String}, which gets returned.
      */
-    public String toText() throws YamlWriterException, IOException {
+    public String saveToText() throws YamlWriterException, IOException {
         return new DymlWriter().parse(this.children, null, null, "", false);
     }
 
     /**
-     * Parses the {@link #children} list and writes it to the provided output.
+     * Parses the {@link #children} list and writes it to the provided output. <br>
+     * Note that this only works when {@link #file} is not null. <br>
      */
-    public File toFile(File file) throws YamlWriterException, IOException {
+    public File saveToFile() throws YamlWriterException, IOException {
         new DymlWriter().parse(this.children, file, null, null, false);
         return file;
     }
@@ -134,7 +129,15 @@ public class Dyml {
     /**
      * Parses the {@link #children} list and writes it to the provided output.
      */
-    public File toFile(String filePath) throws YamlWriterException, IOException {
+    public File saveToFile(File file) throws YamlWriterException, IOException {
+        new DymlWriter().parse(this.children, file, null, null, false);
+        return file;
+    }
+
+    /**
+     * Parses the {@link #children} list and writes it to the provided output.
+     */
+    public File saveToFile(String filePath) throws YamlWriterException, IOException {
         File file = new File(filePath);
         new DymlWriter().parse(this.children, file, null, null, false);
         return file;
@@ -143,7 +146,7 @@ public class Dyml {
     /**
      * Parses the {@link #children} list and writes it to the provided output.
      */
-    public File toFile(Path filePath) throws YamlWriterException, IOException {
+    public File saveToFile(Path filePath) throws YamlWriterException, IOException {
         File file = filePath.toFile();
         new DymlWriter().parse(this.children, file, null, null, false);
         return file;

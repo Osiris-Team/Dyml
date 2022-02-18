@@ -10,7 +10,7 @@ class DymlTest {
 
     @Test
     void testCodeStyle() throws IOException, YamlReaderException, IllegalListException {
-        Dyml dyml = Dyml.from("" +
+        Dyml dyml = new Dyml("" +
                 "key val\n" +
                 "  c1 val\n" +
                 "  c2 val\n" +

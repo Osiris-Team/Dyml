@@ -16,11 +16,12 @@ public class FeaturesExample {
 
         yaml.put("important").setDefValues("Everything else that is not explicitly mentioned in this file is not supported");
 
-        yaml.put("supports-lists").setCountTopSpaces(1).setDefValues("Hello World!", "2nd value");
+        yaml.put("supports-lists").setCountTopSpaces(1).setDefValues("Hello World!", "2nd value").setComments("Comments and", "multiline comments support.");
         yaml.put("supports-hyphen-separation").setDefValues("awesome!");
         yaml.put("or separation by spaces").setDefValues(new YamlValue("great!").setComment("side-comments supported!"));
         yaml.put("and.dots.like.this").setDefValues("wow!");
 
+        yaml.put("g0").setCountTopSpaces(0);
         yaml.put("g0", "g1a", "g2a").setCountTopSpaces(1).setDefValues("wow!");
         yaml.put("g0", "g1a", "g2b").setDefValues("<3");
         yaml.put("g0", "g1b")
