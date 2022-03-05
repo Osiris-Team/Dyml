@@ -215,9 +215,9 @@ class YamlTest {
         yaml.save(true);
         yaml.load();
         yaml.printAll();
-        assertEquals("c1", yaml.getAllLoaded().get(1).getKeyByIndex(1));
-        assertEquals("c1", yaml.getAllLoaded().get(3).getKeyByIndex(1));
-        assertEquals("c1", yaml.getAllLoaded().get(5).getKeyByIndex(1));
+        assertEquals("c1", yaml.getAllLoaded().get(1).getKeyAt(1));
+        assertEquals("c1", yaml.getAllLoaded().get(3).getKeyAt(1));
+        assertEquals("c1", yaml.getAllLoaded().get(5).getKeyAt(1));
     }
 
     @Test

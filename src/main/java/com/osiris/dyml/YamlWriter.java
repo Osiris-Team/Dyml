@@ -78,16 +78,16 @@ class YamlWriter {
                     modulesToSave) {
 
                 logger.log(this, "");
-                logger.log(this, "---> " + loadedModule.getModuleInformationAsString());
+                logger.log(this, "---> " + loadedModule.toPrintString());
                 if (loadedModule.getParentModule() != null)
-                    logger.log(this, "PARENT -> " + loadedModule.getParentModule().getModuleInformationAsString());
+                    logger.log(this, "PARENT -> " + loadedModule.getParentModule().toPrintString());
                 else
                     logger.log(this, "PARENT -> NULL");
 
                 for (YamlSection childModule :
                         loadedModule.getChildModules()) {
                     if (childModule != null)
-                        logger.log(this, "CHILD -> " + childModule.getModuleInformationAsString());
+                        logger.log(this, "CHILD -> " + childModule.toPrintString());
                     else
                         logger.log(this, "CHILD -> NULL");
                 }
@@ -107,13 +107,13 @@ class YamlWriter {
      * Writes an in-memory {@link YamlSection} object to file.
      *
      * @param writer       the writer to use.
-     * @param module       the current module to write.
+     * @param section       the current module to write.
      * @param beforeModule the last already written module.
      */
     private void parseModule(BufferedWriter writer,
-                             YamlSection module,
+                             YamlSection section,
                              YamlSection beforeModule) throws IOException {
-        int keysSize = module.getKeys().size();
+        int keysSize = section.getKeys().size();
         int beforeKeysSize = beforeModule.getKeys().size();
         String currentKey; // The current key of the current module
         String currentBeforeKey; // The current key of the before module
@@ -122,124 +122,122 @@ class YamlWriter {
             // Get current modules key and beforeModules key.
             // It may happen that the beforeModule has less keys, or no keys at all,
             // so deal with that:
-            currentKey = module.getKeyByIndex(i);
+            currentKey = section.getKeyAt(i);
             if (i < beforeKeysSize && !beforeModule.getKeys().isEmpty())
-                currentBeforeKey = beforeModule.getKeyByIndex(i);
+                currentBeforeKey = beforeModule.getKeyAt(i);
             else
                 currentBeforeKey = "";
 
             // Only write this key, if its not equal to the currentBeforeKey
             // or... the other part is hard to explain.
-            if (!currentKey.equals(currentBeforeKey) || (i != 0 && !module.getKeyByIndex(i - 1).equals(beforeModule.getKeyByIndex(i - 1)))) {
+            if (!currentKey.equals(currentBeforeKey) || (i != 0 && !section.getKeyAt(i - 1).equals(beforeModule.getKeyAt(i - 1)))) {
 
                 String spaces = "";
                 for (int j = 0; j < i; j++) { // The current keys index/position in the list defines how much spaces are needed.
                     spaces = spaces + "  ";
                 }
 
-                for (int j = 0; j < module.getCountTopSpaces(); j++) {
-                    writer.newLine();
-                    writer.flush();
-                }
-
-                if (module.getComments() != null && i == (keysSize - 1)) // Only write comments to the last key in the list
-                    if (!module.getComments().isEmpty()) {
-                        for (String comment :
-                                module.getComments()) {
-                            // Adds support for Strings containing \n to split up comments
-                            BufferedReader bufReader = new BufferedReader(new StringReader(comment));
-                            String commentLine;
-                            boolean isMultiline = false;
-                            while ((commentLine = bufReader.readLine()) != null) {
-                                isMultiline = true;
-                                writer.write(spaces + "# " + commentLine);
-                                writer.newLine();
-                                writer.flush();
-                            }
-
-                            if (!isMultiline) {
-                                writer.write(spaces + "# " + comment);
-                                writer.newLine();
-                                writer.flush();
-                            }
-                        }
-                    } else if (yaml.isWriteDefaultCommentsWhenEmptyEnabled) {
-                        for (String comment :
-                                module.getComments()) {
-                            // Adds support for Strings containing \n to split up comments
-                            BufferedReader bufReader = new BufferedReader(new StringReader(comment));
-                            String commentLine;
-                            boolean isMultiline = false;
-                            while ((commentLine = bufReader.readLine()) != null) {
-                                isMultiline = true;
-                                writer.write(spaces + "# " + commentLine);
-                                writer.newLine();
-                                writer.flush();
-                            }
-
-                            if (!isMultiline) {
-                                writer.write(spaces + "# " + comment);
-                                writer.newLine();
-                                writer.flush();
-                            }
-                        }
+                if(i == (keysSize - 1)){ // Only write top line breaks and comments to the last key in the list
+                    for (int j = 0; j < section.getCountTopLineBreaks(); j++) {
+                        writer.newLine();
+                        writer.flush();
                     }
+
+                    if (section.getComments() != null)
+                        if (!section.getComments().isEmpty()) {
+                            for (String comment :
+                                    section.getComments()) {
+                                // Adds support for Strings containing \n to split up comments
+                                BufferedReader bufReader = new BufferedReader(new StringReader(comment));
+                                String commentLine;
+                                boolean isMultiline = false;
+                                while ((commentLine = bufReader.readLine()) != null) {
+                                    isMultiline = true;
+                                    writer.write(spaces + "# " + commentLine);
+                                    writer.newLine();
+                                    writer.flush();
+                                }
+
+                                if (!isMultiline) {
+                                    writer.write(spaces + "# " + comment);
+                                    writer.newLine();
+                                    writer.flush();
+                                }
+                            }
+                        } else if (yaml.isWriteDefaultCommentsWhenEmptyEnabled) {
+                            for (String comment :
+                                    section.getComments()) {
+                                // Adds support for Strings containing \n to split up comments
+                                BufferedReader bufReader = new BufferedReader(new StringReader(comment));
+                                String commentLine;
+                                boolean isMultiline = false;
+                                while ((commentLine = bufReader.readLine()) != null) {
+                                    isMultiline = true;
+                                    writer.write(spaces + "# " + commentLine);
+                                    writer.newLine();
+                                    writer.flush();
+                                }
+
+                                if (!isMultiline) {
+                                    writer.write(spaces + "# " + comment);
+                                    writer.newLine();
+                                    writer.flush();
+                                }
+                            }
+                        }
+                }
 
                 writer.write(spaces + currentKey + ": ");
 
-                if (module.getValues() != null && i == (keysSize - 1)) { // Only write values to the last key in the list
-                    if (!module.getValues().isEmpty() && !isOnlyNullsList(module.getValues())) { // Write values if they exist, else write defaults, else write nothing
-                        if (module.getValues().size() == 1) { // Even if we only got one DYModule, it written as a list
-                            YamlValue value = module.getValue();
+                if (section.getValues() != null && i == (keysSize - 1)) { // Only write values to the last key in the list
+                    if (!section.getValues().isEmpty() && !isOnlyNullsList(section.getValues())) { // Write values if they exist, else write defaults, else write nothing
+                        if (section.getValues().size() == 1) { // Even if we only got one DYModule, it written as a list
+                            SmartString value = section.getValue();
                             if (value != null) { // Only write if its not null
                                 if (value.asString() != null) writer.write(value.asString());
-                                if (value.hasComment())
-                                    writer.write(" # " + value.getComment()); // Append side comment to value
                             }
-
+                            if (hasSideComment(section.getSideComments(), 0))
+                                writer.write(" # " + section.getSideComment()); // Append side comment to value
                             writer.newLine();
                             writer.flush();
                         } else { // This means we got multiple values, aka a list
                             writer.newLine();
-                            for (int j = 0; j < module.getValues().size(); j++) {
-                                YamlValue value = module.getValueByIndex(j);
+                            for (int j = 0; j < section.getValues().size(); j++) {
+                                SmartString value = section.getValueAt(j);
                                 if (value != null) {
                                     writer.write(spaces + "  - ");
                                     if (value.asString() != null)
                                         writer.write(value.asString()); // Append the value
-                                    if (value.hasComment())
-                                        writer.write(" # " + value.getComment()); // Append side comment to value
                                 }
-
+                                if (hasSideComment(section.getSideComments(), j))
+                                    writer.write(" # " + section.getSideCommentAt(j)); // Append side comment to value
                                 writer.newLine();
                                 writer.flush();
                             }
                         }
                     } else if (yaml.isWriteDefaultValuesWhenEmptyEnabled) {
-                        if (module.getDefValues() != null && !module.getDefValues().isEmpty()) {
-                            if (module.getDefValues().size() == 1) {
-                                YamlValue defValue = module.getDefValue();
+                        if (section.getDefValues() != null && !section.getDefValues().isEmpty()) {
+                            if (section.getDefValues().size() == 1) {
+                                SmartString defValue = section.getDefValue();
                                 if (defValue != null) {
                                     if (defValue.asString() != null)
                                         writer.write(defValue.asString());
-                                    if (defValue.hasComment())
-                                        writer.write(" # " + defValue.getComment()); // Append side comment to value
                                 }
-
+                                if (hasSideComment(section.getDefSideComments(), 0))
+                                    writer.write(" # " + section.getDefSideComment()); // Append side comment to value
                                 writer.newLine();
                                 writer.flush();
                             } else {
                                 writer.newLine();
-                                for (int j = 0; j < module.getDefValues().size(); j++) {
-                                    YamlValue value = module.getDefValueByIndex(j);
+                                for (int j = 0; j < section.getDefValues().size(); j++) {
+                                    SmartString value = section.getDefValueAt(j);
                                     if (value != null) {
                                         writer.write(spaces + "  - ");
                                         if (value.asString() != null)
                                             writer.write(value.asString()); // Append the value
-                                        if (value.hasComment())
-                                            writer.write(" # " + value.getComment()); // Append side comment to value
                                     }
-
+                                    if (hasSideComment(section.getDefSideComments(), j))
+                                        writer.write(" # " + section.getDefSideCommentAt(j)); // Append side comment to value
                                     writer.newLine();
                                     writer.flush();
                                 }
@@ -258,11 +256,21 @@ class YamlWriter {
         }
     }
 
-    private boolean isOnlyNullsList(List<YamlValue> values) {
+    private boolean hasSideComment(List<String> comments, int i){
+        try{
+            if(comments.isEmpty()) return false;
+            comments.get(i);
+            return true;
+        } catch (Exception e) {
+        }
+        return false;
+    }
+
+    private boolean isOnlyNullsList(List<SmartString> values) {
         boolean hasValue = false;
-        for (YamlValue val :
+        for (SmartString val :
                 values) {
-            if (val.get() != null) {
+            if (val.asString() != null) {
                 hasValue = true;
                 break;
             }

@@ -91,7 +91,64 @@ public class SmartString {
     }
 
 
-    // CUSTOM GETTERS:
+    // CUSTOM SETTERS/GETTERS:
+
+    /**
+     * String will look like this: <br>
+     * <pre>
+     *     [val1, val2, val2]
+     * </pre>
+     */
+    public SmartString set(String[] values){
+        string = Arrays.toString(values);
+        return this;
+    }
+
+    /**
+     * String must look something like this: <br>
+     * <pre>
+     *     [val1, val2, val2]
+     *     [val1,val2,val3]
+     *     val1, val2, val3
+     *     val1,val2,val3
+     * </pre>
+     * Note that this can be null.
+     */
+    public String[] asArray() {
+        if (string == null) return null;
+        if (string.startsWith("[") && string.endsWith("]")){
+            String s = string.substring(1, string.length() - 1); // To remove first [ and last ]
+            return s.split(",");
+        } else{
+            return asArraySplitByColons();
+        }
+    }
+
+    /**
+     * String will look like this: <br>
+     * <pre>
+     *     [val1, val2, val2]
+     * </pre>
+     */
+    public SmartString set(List<String> values){
+        string = Arrays.toString(values.toArray(new String[0]));
+        return this;
+    }
+
+    /**
+     * String must look something like this: <br>
+     * <pre>
+     *     [val1, val2, val2]
+     *     [val1,val2,val3]
+     *     val1, val2, val3
+     *     val1,val2,val3
+     * </pre>
+     * Note that this can be null.
+     */
+    public List<String> asList() {
+        if (string == null) return null;
+        return Arrays.asList(asArray());
+    }
 
 
     /**

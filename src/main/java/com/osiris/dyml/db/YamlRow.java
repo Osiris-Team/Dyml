@@ -1,6 +1,6 @@
 package com.osiris.dyml.db;
 
-import com.osiris.dyml.YamlValue;
+import com.osiris.dyml.SmartString;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,9 +20,9 @@ import java.util.Objects;
  */
 public class YamlRow {
     private final int rowIndex;
-    private final Map<YamlValue, YamlColumn> valuesAndColumns;
+    private final Map<SmartString, YamlColumn> valuesAndColumns;
 
-    public YamlRow(int rowIndex, Map<YamlValue, YamlColumn> valuesAndColumns) {
+    public YamlRow(int rowIndex, Map<SmartString, YamlColumn> valuesAndColumns) {
         this.rowIndex = rowIndex;
         this.valuesAndColumns = valuesAndColumns;
     }
@@ -34,10 +34,10 @@ public class YamlRow {
      *     =================
      *     rock    | paper
      * </pre>
-     * The examples, returned list has two {@link YamlValue}s. <br>
+     * The examples, returned list has two {@link SmartString}s. <br>
      * The first one contains 'rock' and the second one 'paper'. <br>
      */
-    public List<YamlValue> getValues() {
+    public List<SmartString> getValues() {
         return new ArrayList<>(valuesAndColumns.keySet());
     }
 
@@ -58,24 +58,24 @@ public class YamlRow {
     /**
      * Returns a map with values mapped to their columns.
      */
-    public Map<YamlValue, YamlColumn> getValuesAndColumns() {
+    public Map<SmartString, YamlColumn> getValuesAndColumns() {
         return valuesAndColumns;
     }
 
-    public YamlColumn getColumnFromValue(YamlValue value) {
+    public YamlColumn getColumnFromValue(SmartString value) {
         return valuesAndColumns.get(value);
     }
 
     /**
-     * Returns the linked {@link YamlValue} for the provided {@link YamlColumn}.
+     * Returns the linked {@link SmartString} for the provided {@link YamlColumn}.
      *
      * @throws NullPointerException if the provided column is null, or couldn't be found in the map.
      */
-    public YamlValue getValueFromColumn(YamlColumn column) {
+    public SmartString getValueFromColumn(YamlColumn column) {
         Objects.requireNonNull(column);
-        YamlValue[] values = valuesAndColumns.keySet().toArray(new YamlValue[0]);
+        SmartString[] values = valuesAndColumns.keySet().toArray(new SmartString[0]);
         int index = 0;
-        YamlValue val = null;
+        SmartString val = null;
         for (YamlColumn col :
                 valuesAndColumns.values()) {
             if (col.getName().equals(column.getName()))

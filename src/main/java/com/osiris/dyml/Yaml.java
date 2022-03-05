@@ -100,9 +100,9 @@ public class Yaml {
     public boolean isRemoveLoadedNullValuesEnabled = true;
     /**
      * Enabled by default. Part of post-processing. <br>
-     * Trims the loaded key- and value-comments. Example: <br>
+     * Trims the comments. Example: <br>
      * <pre>
-     * String before: '  hello there  '
+     * String before: '    hello there  '
      * String after: 'hello there'
      * Result: removed 4 spaces.
      * </pre>
@@ -112,7 +112,7 @@ public class Yaml {
     /**
      * Enabled by default. <br>
      * Null values return their default values as fallback.<br>
-     * See {@link YamlSection#getValueByIndex(int)} for details.
+     * See {@link YamlSection#getValueAt(int)} for details.
      */
     public boolean isReturnDefaultWhenValueIsNullEnabled = true;
     /**
@@ -496,7 +496,7 @@ public class Yaml {
      * Creates a new {@link YamlSection}, with the provided keys, adds it and returns it. <br>
      * See {@link #add(YamlSection)} for details.
      */
-    public YamlSection add(List<String> keys, List<YamlValue> defaultValues, List<YamlValue> values, List<String> comments) throws NotLoadedException, IllegalKeyException, DuplicateKeyException {
+    public YamlSection add(List<String> keys, List<SmartString> defaultValues, List<SmartString> values, List<String> comments) throws NotLoadedException, IllegalKeyException, DuplicateKeyException {
         return add(new YamlSection(this, keys, defaultValues, values, comments));
     }
 

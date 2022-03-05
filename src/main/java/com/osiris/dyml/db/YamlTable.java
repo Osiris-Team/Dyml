@@ -1,8 +1,8 @@
 package com.osiris.dyml.db;
 
+import com.osiris.dyml.SmartString;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
-import com.osiris.dyml.YamlValue;
 import com.osiris.dyml.exceptions.*;
 
 import java.io.IOException;
@@ -30,7 +30,7 @@ public class YamlTable {
      * @throws IndexOutOfBoundsException when the row at the provided index does not exist.
      */
     public YamlRow getRow(int index) {
-        Map<YamlValue, YamlColumn> valuesAndColumns = new HashMap<>();
+        Map<SmartString, YamlColumn> valuesAndColumns = new HashMap<>();
         for (YamlColumn col :
                 getColumns()) {
             valuesAndColumns.put(col.get(index), col);
@@ -39,12 +39,12 @@ public class YamlTable {
     }
 
     /**
-     * Returns the {@link YamlRow} at the provided index, as a list of {@link YamlValue}s. <br>
+     * Returns the {@link YamlRow} at the provided index, as a list of {@link SmartString}s. <br>
      *
      * @throws IndexOutOfBoundsException when the row at the provided index does not exist.
      */
-    public List<YamlValue> getRowAsList(int index) {
-        List<YamlValue> row = new ArrayList<>();
+    public List<SmartString> getRowAsList(int index) {
+        List<SmartString> row = new ArrayList<>();
         for (YamlColumn col :
                 getColumns()) {
             row.add(col.get(index));
@@ -136,7 +136,7 @@ public class YamlTable {
      *
      * @throws IndexOutOfBoundsException if the row at the provided index does not exist.
      */
-    public YamlTable setRow(int index, YamlValue... values) {
+    public YamlTable setRow(int index, SmartString... values) {
         List<YamlColumn> columns = getColumns();
         for (YamlColumn col :
                 columns) {
@@ -147,7 +147,7 @@ public class YamlTable {
             }
         }
         for (int i = 0; i < values.length; i++) {
-            columns.get(i).get(index).set(values[i].get());
+            columns.get(i).get(index).set(values[i].asString());
         }
 
         for (int i = values.length - 1; i < columns.size() - values.length; i++) {
@@ -237,11 +237,11 @@ public class YamlTable {
     public List<YamlRow> getValuesEqualTo(YamlColumn column, String value) {
         List<YamlRow> results = new ArrayList<>();
         int index = 0;
-        for (YamlValue v :
+        for (SmartString v :
                 column.getValues()) {
             if (v.asString() != null && v.asString().equals(value)) {
                 // Get the other columns values at the current index position
-                Map<YamlValue, YamlColumn> map = new HashMap<>();
+                Map<SmartString, YamlColumn> map = new HashMap<>();
                 for (YamlColumn col :
                         getColumns()) {
                     map.put(col.get(index), col);
@@ -263,11 +263,11 @@ public class YamlTable {
     public List<YamlRow> getValuesBiggerThan(YamlColumn column, long value) {
         List<YamlRow> results = new ArrayList<>();
         int index = 0;
-        for (YamlValue v :
+        for (SmartString v :
                 column.getValues()) {
             if (v.asLong() > value) {
                 // Get the other columns values at the current index position
-                Map<YamlValue, YamlColumn> map = new HashMap<>();
+                Map<SmartString, YamlColumn> map = new HashMap<>();
                 for (YamlColumn col :
                         getColumns()) {
                     map.put(col.get(index), col);
@@ -289,11 +289,11 @@ public class YamlTable {
     public List<YamlRow> getValuesBiggerThan(YamlColumn column, double value) {
         List<YamlRow> results = new ArrayList<>();
         int index = 0;
-        for (YamlValue v :
+        for (SmartString v :
                 column.getValues()) {
             if (v.asDouble() > value) {
                 // Get the other columns values at the current index position
-                Map<YamlValue, YamlColumn> map = new HashMap<>();
+                Map<SmartString, YamlColumn> map = new HashMap<>();
                 for (YamlColumn col :
                         getColumns()) {
                     map.put(col.get(index), col);
@@ -315,11 +315,11 @@ public class YamlTable {
     public List<YamlRow> getValuesSmallerThan(YamlColumn column, long value) {
         List<YamlRow> results = new ArrayList<>();
         int index = 0;
-        for (YamlValue v :
+        for (SmartString v :
                 column.getValues()) {
             if (v.asLong() < value) {
                 // Get the other columns values at the current index position
-                Map<YamlValue, YamlColumn> map = new HashMap<>();
+                Map<SmartString, YamlColumn> map = new HashMap<>();
                 for (YamlColumn col :
                         getColumns()) {
                     map.put(col.get(index), col);
@@ -341,11 +341,11 @@ public class YamlTable {
     public List<YamlRow> getValuesSmallerThan(YamlColumn column, double value) {
         List<YamlRow> results = new ArrayList<>();
         int index = 0;
-        for (YamlValue v :
+        for (SmartString v :
                 column.getValues()) {
             if (v.asDouble() < value) {
                 // Get the other columns values at the current index position
-                Map<YamlValue, YamlColumn> map = new HashMap<>();
+                Map<SmartString, YamlColumn> map = new HashMap<>();
                 for (YamlColumn col :
                         getColumns()) {
                     map.put(col.get(index), col);

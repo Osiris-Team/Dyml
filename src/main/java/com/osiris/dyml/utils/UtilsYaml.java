@@ -108,7 +108,7 @@ public class UtilsYaml {
         StringBuilder s = new StringBuilder();
         for (YamlSection module :
                 modules) {
-            s.append(module.getModuleInformationAsString()).append(n);
+            s.append(module.toPrintString()).append(n);
         }
         return s.toString();
     }

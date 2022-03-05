@@ -10,7 +10,6 @@ package examples.yaml;
 
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
-import com.osiris.dyml.YamlValue;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -31,7 +30,7 @@ public class CommentsExample {
                 "This is a multiline comment \n" +
                         "separated by javas \n" +
                         "next line character!");
-        YamlSection age = yaml.put("age").setDefValues(new YamlValue(29).setComment("This is a side-comment/value-comment"))
+        YamlSection age = yaml.put("age").setDefValues("29").addDefSideComments("This is a side-comment/value-comment")
                 .setComments("This is a single line comment.");
         YamlSection work = yaml.put("work").setDefValues("Reporter");
         YamlSection parent = yaml.put("p1", "c2", "c3").setComments("Comments in", "a hierarchy.");
@@ -40,7 +39,7 @@ public class CommentsExample {
 
         // How to get comments?
         firstName.getComments(); // Returns this modules key/top-comments
-        age.getValue().getComment(); // Returns this modules, values/side-comment
+        age.getSideComments(); // Returns this sections' side-comment
 
 /*
 # You can insert your

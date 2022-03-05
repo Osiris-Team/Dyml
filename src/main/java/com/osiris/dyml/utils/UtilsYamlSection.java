@@ -8,8 +8,8 @@
 
 package com.osiris.dyml.utils;
 
+import com.osiris.dyml.SmartString;
 import com.osiris.dyml.YamlSection;
-import com.osiris.dyml.YamlValue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -66,22 +66,22 @@ public class UtilsYamlSection {
         return null;
     }
 
-    public List<YamlValue> stringArrayToValuesList(String[] array) {
+    public List<SmartString> stringArrayToValuesList(String[] array) {
         return stringListToValuesList(Arrays.asList(array));
     }
 
-    public List<YamlValue> stringListToValuesList(List<String> list) {
-        List<YamlValue> values = new ArrayList<>();
+    public List<SmartString> stringListToValuesList(List<String> list) {
+        List<SmartString> values = new ArrayList<>();
         for (String s :
                 list) {
-            values.add(new YamlValue(s));
+            values.add(new SmartString(s));
         }
         return values;
     }
 
-    public List<String> valuesListToStringList(List<YamlValue> list) {
+    public List<String> valuesListToStringList(List<SmartString> list) {
         List<String> stringList = new ArrayList<>();
-        for (YamlValue value :
+        for (SmartString value :
                 list) {
             stringList.add(value.asString());
         }
@@ -89,11 +89,11 @@ public class UtilsYamlSection {
     }
 
     /**
-     * We assume that none of the {@link YamlValue}s in the list is null. {@link YamlValue#asString()} however can be null.
+     * We assume that none of the {@link SmartString}s in the list is null. {@link SmartString#asString()} however can be null.
      */
-    public void trimValues(List<YamlValue> values) {
-        List<YamlValue> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
-        for (YamlValue value :
+    public void trimValues(List<SmartString> values) {
+        List<SmartString> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
+        for (SmartString value :
                 copy) {
             String s;
             if ((s = value.asString()) != null) {
@@ -103,33 +103,23 @@ public class UtilsYamlSection {
         }
     }
 
-    public void trimValuesComments(List<YamlValue> values) {
-        List<YamlValue> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
-        for (YamlValue value :
-                copy) {
-            if (value.hasComment())
-                value.setComment(value.getComment().trim());
-        }
-    }
-
     public void trimComments(List<String> comments) {
         List<String> copy = new ArrayList<>(comments); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
-        for (String comment :
-                copy) {
-            if (comment != null) {
-                comment = comment.trim();
-            }
+        for (int i = 0; i < copy.size(); i++) {
+            String c = copy.get(i);
+            if(c!=null)
+                comments.set(i, copy.get(i).trim());
         }
     }
 
     /**
      * Removes "" and '' from those encapsulated values.<br>
      * Its recommended, that each value was trimmed before, to achieve the best results. <br>
-     * We assume that none of the {@link YamlValue}s in the list is null. {@link YamlValue#asString()} however can be null. <br>
+     * We assume that none of the {@link SmartString}s in the list is null. {@link SmartString#asString()} however can be null. <br>
      */
-    public void removeQuotesFromValues(List<YamlValue> values) {
-        List<YamlValue> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
-        for (YamlValue value :
+    public void removeQuotesFromValues(List<SmartString> values) {
+        List<SmartString> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
+        for (SmartString value :
                 copy) {
             String s;
             if ((s = value.asString()) != null && !s.isEmpty()) {
@@ -148,10 +138,10 @@ public class UtilsYamlSection {
     }
 
     /**
-     * We assume that none of the {@link YamlValue}s in the list is null. {@link YamlValue#asString()} however can be null.
+     * We assume that none of the {@link SmartString}s in the list is null. {@link SmartString#asString()} however can be null.
      */
-    public void removeNullValues(List<YamlValue> values) {
-        List<YamlValue> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
+    public void removeNullValues(List<SmartString> values) {
+        List<SmartString> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
         for (int i = 0; i < copy.size(); i++) {
             if (copy.get(i).asString() == null) values.remove(i);
         }

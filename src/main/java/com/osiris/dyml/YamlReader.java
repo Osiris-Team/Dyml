@@ -114,7 +114,7 @@ class YamlReader {
                 for (YamlSection m :
                         yaml.getAllLoaded()) {
                     utils.trimComments(m.getComments());
-                    utils.trimValuesComments(m.getValues());
+                    utils.trimComments(m.getSideComments());
                 }
 
         }
@@ -137,16 +137,16 @@ class YamlReader {
                 yaml.getAllLoaded()) {
 
             debug.log(this, "");
-            debug.log(this, "---> " + loadedModule.getModuleInformationAsString());
+            debug.log(this, "---> " + loadedModule.toPrintString());
             if (loadedModule.getParentModule() != null)
-                debug.log(this, "PARENT -> " + loadedModule.getParentModule().getModuleInformationAsString());
+                debug.log(this, "PARENT -> " + loadedModule.getParentModule().toPrintString());
             else
                 debug.log(this, "PARENT -> NULL");
 
             for (YamlSection childModule :
                     loadedModule.getChildModules()) {
                 if (childModule != null)
-                    debug.log(this, "CHILD -> " + childModule.getModuleInformationAsString());
+                    debug.log(this, "CHILD -> " + childModule.toPrintString());
                 else
                     debug.log(this, "CHILD -> NULL");
             }
@@ -180,14 +180,32 @@ class YamlReader {
                 } catch (Exception ignored) {
                 } // Don't use an if statement to avoid, bc this is more efficient.
                 if (charCodeBefore == 0 || charCodeBefore == 32) {
+                    // Since we support side comments keep this in mind:
+                    // key: value# # Side-Comment
+                    // First # belongs to the value and not the side comment
                     line.setCommentFound(true);
-                    line.setRawComment(line.getFullLine().substring(charCodePos + 1));
-                    // Since we got side comments, also remove this from the value
-                    if (line.getRawValue() != null)
-                        if (line.isKeyFound())
-                            line.setRawValue(line.getFullLine().substring(line.getKeyFoundPos() + 1, charCodePos));
-                        else if (line.isHyphenFound())
-                            line.setRawValue(line.getFullLine().substring(line.getHyphenFoundPos() + 1, charCodePos));
+                    boolean anotherHashtagFound = false;
+                    for (int i = charCodePos + 1; i < line.getFullLine().length(); i++) {
+                        if(line.getFullLine().codePointAt(i) == 35){
+                            anotherHashtagFound = true;
+                            line.setRawComment(line.getFullLine().substring(i + 1));
+                            // Since we got side comments, also remove this from the value
+                            if (line.getRawValue() != null)
+                                if (line.isKeyFound())
+                                    line.setRawValue(line.getFullLine().substring(line.getKeyFoundPos() + 1, i));
+                                else if (line.isHyphenFound())
+                                    line.setRawValue(line.getFullLine().substring(line.getHyphenFoundPos() + 1, i));
+                        }
+                    }
+                    if(!anotherHashtagFound){
+                        line.setRawComment(line.getFullLine().substring(charCodePos + 1));
+                        // Since we got side comments, also remove this from the value
+                        if (line.getRawValue() != null)
+                            if (line.isKeyFound())
+                                line.setRawValue(line.getFullLine().substring(line.getKeyFoundPos() + 1, charCodePos));
+                            else if (line.isHyphenFound())
+                                line.setRawValue(line.getFullLine().substring(line.getHyphenFoundPos() + 1, charCodePos));
+                    }
                 }
                 break;
             }
@@ -210,18 +228,20 @@ class YamlReader {
             case 45: { // -
                 // Hyphen indicates a list object but only if the char before didn't exist or it was a space
                 line.setCharFound(true);
-                int charCodeBefore = 0;
-                try {
-                    charCodeBefore = line.getFullLine().codePointAt(charCodePos - 1); // This may fail if we are at the last/first char.
-                } catch (Exception ignored) {
-                } // Don't use an if statement to avoid, bc this is more efficient.
-                if ((charCodeBefore == 32 || charCodeBefore == 0)
-                        && !line.isKeyFound()) { // To avoid hyphens inside values
-                    line.setHyphenFound(true);
-                    line.setHyphenFoundPos(charCodePos);
-                    line.setRawValue(emptyToNull(line
-                            .getFullLine()
-                            .substring(charCodePos + 1)));
+                if(!line.isHyphenFound()){
+                    int charCodeBefore = 0;
+                    try {
+                        charCodeBefore = line.getFullLine().codePointAt(charCodePos - 1); // This may fail if we are at the last/first char.
+                    } catch (Exception ignored) {
+                    } // Don't use an if statement to avoid, bc this is more efficient.
+                    if ((charCodeBefore == 32 || charCodeBefore == 0)
+                            && !line.isKeyFound()) { // To avoid hyphens inside values
+                        line.setHyphenFound(true);
+                        line.setHyphenFoundPos(charCodePos);
+                        line.setRawValue(emptyToNull(line
+                                .getFullLine()
+                                .substring(charCodePos + 1)));
+                    }
                 }
                 break;
             }
@@ -246,9 +266,10 @@ class YamlReader {
             // In comparison to parseLine we got a lot less stuff to check.
             YamlSection module = new YamlSection(yaml);
             if (currentLine.isCommentFound()) {
-                if (currentLine.isKeyFound()) { // Its a side comment, so we add the comment to the value
+                if (currentLine.isKeyFound()) { // It's a side comment, so we add the comment to the value
                     module.setKeys(currentLine.getRawKey())
-                            .setValues(new YamlValue(currentLine.getRawValue(), currentLine.getRawComment()));
+                            .setValues(new SmartString(currentLine.getRawValue()));
+                    module.addSideComments(currentLine.getRawComment());
                     yaml.getAllLoaded().add(module);
                 } else if (currentLine.isHyphenFound()) { // Its a side comment, so we add of a value in a list
                     throw new IllegalListException((yaml.getInputStream() == null ? yaml.getFile().getName() : "<InputStream>"), currentLine);
@@ -315,7 +336,7 @@ class YamlReader {
                 if (beforeLine.isCommentFound() && !beforeLine.isKeyFound() && !beforeLine.isHyphenFound()) // If the current line is a key, but the last line was a comment, add the key to the last comments module.
                     module = beforeModule;
                 else {
-                    module.setCountTopSpaces(countEmptyBeforeLines);
+                    module.setCountTopLineBreaks(countEmptyBeforeLines);
                     countEmptyBeforeLines = 0;
                 }
 
@@ -335,7 +356,8 @@ class YamlReader {
                 }
 
                 module.addKeys(currentLine.getRawKey());
-                module.setValues(new YamlValue(currentLine.getRawValue(), currentLine.getRawComment()));
+                module.setValues(new SmartString(currentLine.getRawValue()));
+                module.addSideComments(currentLine.getRawComment());
                 allLoaded.add(module);
             } else if (currentLine.isHyphenFound()) { // Comment + Hyphen found without a key
                 // Its a side comment from a value in a list. Also add support for value top comments inside a list. Example:
@@ -368,7 +390,8 @@ class YamlReader {
                     oldModule.getValues().remove(0);
 
                 // Since the allLoaded lists and keyLinesList sizes are the same we can do the below:
-                oldModule.addValues(new YamlValue(currentLine.getRawValue(), currentLine.getRawComment()));
+                oldModule.addValues(new SmartString(currentLine.getRawValue()));
+                oldModule.addSideComments(currentLine.getRawComment());
             } else { // No side-comment, but regular comment
                 // If the current line and the last line are comments, add the current comment to the last comments object/module.
                 // In both cases, don't add the module to the list.
@@ -376,7 +399,7 @@ class YamlReader {
                 if (beforeLine.isCommentFound() && !beforeLine.isKeyFound() && !beforeLine.isHyphenFound()) // To make sure its not a side-comment
                     module = beforeModule;
                 else {
-                    module.setCountTopSpaces(countEmptyBeforeLines);
+                    module.setCountTopLineBreaks(countEmptyBeforeLines);
                     countEmptyBeforeLines = 0;
                 }
                 module.addComments(currentLine.getRawComment());
@@ -390,7 +413,7 @@ class YamlReader {
             if (beforeLine.isCommentFound() && !beforeLine.isKeyFound() && !beforeLine.isHyphenFound()) // If the current line is a key, but the last line was a comment, add the key to the last comments module.
                 module = beforeModule;
             else {
-                module.setCountTopSpaces(countEmptyBeforeLines);
+                module.setCountTopLineBreaks(countEmptyBeforeLines);
                 countEmptyBeforeLines = 0;
             }
 
@@ -444,11 +467,11 @@ class YamlReader {
             // value3 <---
             //      value4 <---
             // All those values are actually part of value1, so we need to append the content of this line to the last modules, last value.
-            YamlValue lastValue = yaml.getLastLoadedModule().getLastValue();
-            if (lastValue.get() == null)
+            SmartString lastValue = yaml.getLastLoadedModule().getLastValue();
+            if (lastValue.asString() == null)
                 lastValue.set(currentLine.getFullLine()); // Note that we don't call currentLine.getRawValue() because that only gets set if there was a ':'
             else
-                lastValue.set(lastValue.get() + "\n" + currentLine.getFullLine());
+                lastValue.set(lastValue.asString() + "\n" + currentLine.getFullLine());
         }
 
         beforeModule = module;

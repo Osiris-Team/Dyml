@@ -8,9 +8,9 @@
 
 package examples.yaml;
 
+import com.osiris.dyml.SmartString;
 import com.osiris.dyml.Yaml;
 import com.osiris.dyml.YamlSection;
-import com.osiris.dyml.YamlValue;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -38,19 +38,19 @@ public class GettingValuesExample {
 
         // Getting module details
         String key = firstName.getFirstKey(); // name // Returns the first key.
-        String keyI = firstName.getKeyByIndex(0); // name // Returns the key by given index. More on this in later examples.
+        String keyI = firstName.getKeyAt(0); // name // Returns the key by given index. More on this in later examples.
         Object value = firstName.getValue(); // John // Returns the 'real' value from the yaml file at the time when load() was called.
-        Object valueI = firstName.getValueByIndex(0); // John // Returns the value by given index.
+        Object valueI = firstName.getValueAt(0); // John // Returns the value by given index.
         Object defaultValue = firstName.getDefValue(); // John // Returns the default value
-        Object defaultValueI = firstName.getDefValueByIndex(0); // John // Returns the default value
+        Object defaultValueI = firstName.getDefValueAt(0); // John // Returns the default value
         String comment = firstName.getComment(); // Everything about... // Returns the first comment.
-        String commentI = firstName.getCommentByIndex(0); // Everything about... // Returns the comment by given index.
+        String commentI = firstName.getCommentAt(0); // Everything about... // Returns the comment by given index.
 
         // All the methods below return the 'real' values at the time when load() was called.
-        YamlValue firstNameValue = firstName.getValue(); // This is never null, and acts as a container for the actual string value
+        SmartString firstNameValue = firstName.getValue(); // This is never null, and acts as a container for the actual string value
         String firstNameAsString = firstName.asString(); // Can be null if there is no actual string value
         int ageAsInt = age.asInt();
-        List<YamlValue> pendingTasksValues = pendingTasks.getValues();
+        List<SmartString> pendingTasksValues = pendingTasks.getValues();
         List<String> pendingTasksStrings = pendingTasks.asStringList();
         // You can also get each value from the list as an independent object
         String listIndex0 = pendingTasks.asString(0);

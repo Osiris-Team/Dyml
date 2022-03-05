@@ -42,10 +42,10 @@ class YamlSectionTest {
         Yaml yaml = new Yaml(System.getProperty("user.dir") + "/src/test/top-space-test.yml");
         yaml.load();
         yaml.reset();
-        yaml.put("i-got-3-spaces").setCountTopSpaces(3);
-        yaml.put("i-got-1-space").setCountTopSpaces(1);
+        yaml.put("i-got-3-spaces").setCountTopLineBreaks(3);
+        yaml.put("i-got-1-space").setCountTopLineBreaks(1);
         yaml.saveAndLoad();
-        assertTrue(yaml.get("i-got-3-spaces").getCountTopSpaces() == 3);
-        assertTrue(yaml.get("i-got-1-space").getCountTopSpaces() == 1);
+        assertTrue(yaml.get("i-got-3-spaces").getCountTopLineBreaks() == 3);
+        assertTrue(yaml.get("i-got-1-space").getCountTopLineBreaks() == 1);
     }
 }

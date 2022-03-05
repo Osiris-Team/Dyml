@@ -11,8 +11,10 @@ package com.osiris.dyml;
 import com.osiris.dyml.exceptions.DuplicateKeyException;
 import com.osiris.dyml.exceptions.IllegalListException;
 import com.osiris.dyml.exceptions.YamlReaderException;
+import com.osiris.dyml.exceptions.YamlWriterException;
 import com.osiris.dyml.utils.UtilsFile;
 import com.osiris.dyml.utils.UtilsTimeStopper;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
@@ -40,4 +42,46 @@ class YamlReaderTest {
 
     }
 
+    @Test
+    void testHyphenInValue() throws YamlReaderException, IOException, DuplicateKeyException, IllegalListException, YamlWriterException {
+        Yaml yaml1 = new Yaml("key: -value", "");
+        yaml1.load();
+        Assertions.assertEquals("-value", yaml1.get("key").asString());
+        yaml1.save();
+        System.out.println(yaml1.outString);
+        Assertions.assertTrue(yaml1.outString.contains("key: -value")); // assertTrue bc of line sperators
+
+
+        Yaml yaml2 = new Yaml("key: - value", "");
+        yaml2.load();
+        Assertions.assertEquals("- value", yaml2.get("key").asString());
+        yaml2.save();
+        System.out.println(yaml2.outString);
+        Assertions.assertTrue(yaml2.outString.contains("key: - value")); // assertTrue bc of line sperators
+    }
+
+    @Test
+    void testDoubleHashtagInValue() throws YamlReaderException, IOException, DuplicateKeyException, IllegalListException, YamlWriterException {
+        Yaml yaml1 = new Yaml("key: #value # comment", "");
+        yaml1.load();
+        Assertions.assertEquals("#value", yaml1.get("key").asString());
+        Assertions.assertEquals("comment", yaml1.get("key").getSideComment());
+        yaml1.save();
+        System.out.println(yaml1.outString);
+        Assertions.assertTrue(yaml1.outString.contains("key: #value # comment")); // assertTrue bc of line sperators
+    }
+
+    @Test
+    void testSideComments() throws YamlReaderException, IOException, DuplicateKeyException, IllegalListException, YamlWriterException {
+        Yaml yaml1 = new Yaml(
+                "key: \n" +
+                "  - #value # comment\n" +
+                "  - value # comment2\n", "");
+        yaml1.load();
+        Assertions.assertEquals("#value", yaml1.get("key").getValue().asString());
+        Assertions.assertEquals("comment", yaml1.get("key").getSideComment());
+        yaml1.save();
+        System.out.println(yaml1.outString);
+        Assertions.assertTrue(yaml1.outString.contains("key: #value # comment")); // assertTrue bc of line sperators
+    }
 }
