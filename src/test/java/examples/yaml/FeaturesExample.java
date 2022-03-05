@@ -17,15 +17,15 @@ public class FeaturesExample {
 
         yaml.put("supports-lists").setCountTopLineBreaks(1).setDefValues("Hello World!", "2nd value").setComments("Comments and", "multiline comments support.");
         yaml.put("supports-hyphen-separation").setDefValues("awesome!");
-        yaml.put("or separation by spaces").setDefValues("great!").setSideComments("side-comments supported!");
+        yaml.put("or separation by spaces").setDefValues("great!").addDefSideComments("side-comments supported!");
         yaml.put("and.dots.like.this").setDefValues("wow!");
 
         yaml.put("g0").setCountTopLineBreaks(1);
         yaml.put("g0", "g1a", "g2a").setDefValues("wow!");
         yaml.put("g0", "g1a", "g2b").setDefValues("<3");
         yaml.put("g0", "g1b")
-                .addDefValues("v1").addSideComments("This is a side-comment in a list")
-                .addDefValues("v2").addSideComments("This is also a side-comment, for the value below");
+                .addDefValues("v1").addDefSideComments("This is a side-comment in a list")
+                .addDefValues("v2").addDefSideComments("This is also a side-comment, for the value below");
 
         yaml.save();
     }
