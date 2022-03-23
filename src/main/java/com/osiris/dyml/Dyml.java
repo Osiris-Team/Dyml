@@ -158,17 +158,19 @@ public class Dyml {
      */
     public Dyml get(String... keys) {
         Dyml foundSection = null;
-        List<Dyml> listToSearch = children;
-        for (int i = 0; i < keys.length; i++) {
-            String key = keys[i];
-            for (Dyml section :
-                    listToSearch) {
-                if (section.key.equals(key)) {
-                    if (i == keys.length - 1)
-                        foundSection = section;
-                    else
-                        listToSearch = section.children;
+        synchronized (children){
+            List<Dyml> listToSearch = children;
+            for (int i = 0; i < keys.length; i++) {
+                String key = keys[i];
+                for (Dyml section :
+                        listToSearch) {
+                    if (section.key.equals(key)) {
+                        if (i == keys.length - 1)
+                            foundSection = section;
+                        else
+                            listToSearch = section.children;
 
+                    }
                 }
             }
         }
@@ -180,14 +182,18 @@ public class Dyml {
      * See {@link Collections#unmodifiableList(List)}. <br>
      */
     public List<Dyml> getChildren() {
-        return Collections.unmodifiableList(children);
+        synchronized (children){
+            return Collections.unmodifiableList(children);
+        }
     }
 
     /**
      * Returns the child {@link Dyml} at the provided index.
      */
     public Dyml get(int index) {
-        return children.get(index);
+        synchronized (children){
+            return children.get(index);
+        }
     }
 
     /**
@@ -195,27 +201,29 @@ public class Dyml {
      */
     public Dyml put(String... keys) {
         Dyml lastParent = this;
-        List<Dyml> listToSearch = this.children;
         Dyml foundSection = null;
-        for (String key : keys) {
+        synchronized (children){
+            List<Dyml> listToSearch = this.children;
+            for (String key : keys) {
 
-            foundSection = null;
+                foundSection = null;
 
-            for (Dyml section :
-                    listToSearch) {
-                if (section.key.equals(key)) {
-                    foundSection = section;
-                    lastParent = section;
-                    listToSearch = section.children;
-                    break;
+                for (Dyml section :
+                        listToSearch) {
+                    if (section.key.equals(key)) {
+                        foundSection = section;
+                        lastParent = section;
+                        listToSearch = section.children;
+                        break;
+                    }
                 }
-            }
 
-            if (foundSection == null) {
-                Dyml newSection = lastParent.add(key);
-                lastParent = newSection;
-                foundSection = newSection;
-                listToSearch = newSection.children;
+                if (foundSection == null) {
+                    Dyml newSection = lastParent.add(key);
+                    lastParent = newSection;
+                    foundSection = newSection;
+                    listToSearch = newSection.children;
+                }
             }
         }
         return foundSection;
@@ -227,8 +235,10 @@ public class Dyml {
      */
     public Dyml add(int index, String key) {
         Dyml child = new Dyml(key, new SmartString(null), new ArrayList<>());
-        children.add(index, child);
-        child.parent = this;
+        synchronized (children){
+            children.add(index, child);
+            child.parent = this;
+        }
         return child;
     }
 
@@ -247,9 +257,33 @@ public class Dyml {
      * Behaves like {@link List#add(Object)}. <br>
      */
     public Dyml add(Dyml child) {
-        children.add(child);
-        child.parent = this;
+        synchronized (children){
+            children.add(child);
+            child.parent = this;
+        }
         return child;
+    }
+
+    /**
+     * Searches the child section by the provided keys.
+     * If null does nothing.
+     */
+    public Dyml remove(String... keys){
+        Dyml child = get(keys);
+        if(child != null) remove(child);
+        return this;
+    }
+
+    /**
+     * Removes the provided child from {@link #children}. <br>
+     * Also sets the {@link #parent} of the child to null. <br>
+     */
+    public Dyml remove(Dyml child){
+        synchronized (children){
+            children.remove(child);
+            child.parent = null;
+        }
+        return this;
     }
 
     /**
@@ -328,6 +362,12 @@ public class Dyml {
         return countParents() * 2 - 2; // -2 because the root parent doesn't count
     }
 
+    public Dyml firstChild(){
+        return children.get(0);
+    }
+    public Dyml lastChild(){
+        return children.get(children.size()-1);
+    }
 
     /**
      * Shortcut for returning the {@link #value}.<br>
