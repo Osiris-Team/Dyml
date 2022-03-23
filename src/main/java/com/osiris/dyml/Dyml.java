@@ -203,27 +203,10 @@ public class Dyml {
         Dyml lastParent = this;
         Dyml foundSection = null;
         synchronized (children){
-            List<Dyml> listToSearch = this.children;
             for (String key : keys) {
-
-                foundSection = null;
-
-                for (Dyml section :
-                        listToSearch) {
-                    if (section.key.equals(key)) {
-                        foundSection = section;
-                        lastParent = section;
-                        listToSearch = section.children;
-                        break;
-                    }
-                }
-
-                if (foundSection == null) {
-                    Dyml newSection = lastParent.add(key);
-                    lastParent = newSection;
-                    foundSection = newSection;
-                    listToSearch = newSection.children;
-                }
+                foundSection = get(key);
+                if (foundSection == null) foundSection = lastParent.add(key);
+                lastParent = foundSection;
             }
         }
         return foundSection;
@@ -247,14 +230,12 @@ public class Dyml {
      * Behaves like {@link List#add(Object)}. <br>
      */
     public Dyml add(String key) {
-        Dyml child = new Dyml(key, new SmartString(null), new ArrayList<>());
-        add(child);
-        return child;
+        return add(new Dyml(key, new SmartString(null), new ArrayList<>()));
     }
 
     /**
      * Adds a new {@link Dyml} with the provided key, to the end of {@link #children}. <br>
-     * Behaves like {@link List#add(Object)}. <br>
+     * Behaves like {@link List#add(Object)}. Also sets {@link #parent} of child to the current section.<br>
      */
     public Dyml add(Dyml child) {
         synchronized (children){
