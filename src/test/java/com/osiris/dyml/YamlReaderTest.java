@@ -82,6 +82,6 @@ class YamlReaderTest {
         Assertions.assertEquals("comment", yaml1.get("key").getSideComment());
         yaml1.save();
         System.out.println(yaml1.outString);
-        Assertions.assertTrue(yaml1.outString.contains("key: #value # comment")); // assertTrue bc of line sperators
+        Assertions.assertTrue(yaml1.outString.contains("#value # comment")); // assertTrue bc of line sperators
     }
 }
