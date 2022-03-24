@@ -186,7 +186,7 @@ class YamlReader {
                     line.setCommentFound(true);
                     boolean anotherHashtagFound = false;
                     for (int i = charCodePos + 1; i < line.getFullLine().length(); i++) {
-                        if(line.getFullLine().codePointAt(i) == 35){
+                        if (line.getFullLine().codePointAt(i) == 35) {
                             anotherHashtagFound = true;
                             line.setRawComment(line.getFullLine().substring(i + 1));
                             // Since we got side comments, also remove this from the value
@@ -197,7 +197,7 @@ class YamlReader {
                                     line.setRawValue(line.getFullLine().substring(line.getHyphenFoundPos() + 1, i));
                         }
                     }
-                    if(!anotherHashtagFound){
+                    if (!anotherHashtagFound) {
                         line.setRawComment(line.getFullLine().substring(charCodePos + 1));
                         // Since we got side comments, also remove this from the value
                         if (line.getRawValue() != null)
@@ -228,7 +228,7 @@ class YamlReader {
             case 45: { // -
                 // Hyphen indicates a list object but only if the char before didn't exist or it was a space
                 line.setCharFound(true);
-                if(!line.isHyphenFound()){
+                if (!line.isHyphenFound()) {
                     int charCodeBefore = 0;
                     try {
                         charCodeBefore = line.getFullLine().codePointAt(charCodePos - 1); // This may fail if we are at the last/first char.

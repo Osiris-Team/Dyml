@@ -77,28 +77,60 @@ public class Dyml {
      * Reads the dyml content from the provided InputStream and returns a new {@link Dyml} object representing it.
      */
     public Dyml(InputStream inputStream) throws IOException, YamlReaderException, IllegalListException {
-        this.children = new DymlReader().parse(null, inputStream, null);
+        new DymlReader().parse(this, null, inputStream, null);
     }
 
     /**
      * Reads the dyml content from the provided String and returns a new {@link Dyml} object representing it.
      */
     public Dyml(String string) throws IOException, YamlReaderException, IllegalListException {
-        this.children = new DymlReader().parse(null, null, string);
+        new DymlReader().parse(this, null, null, string);
     }
 
     /**
      * Reads the dyml content from the provided file and returns a new {@link Dyml} object representing it.
      */
     public Dyml(File file) throws IOException, YamlReaderException, IllegalListException {
-        this.children = new DymlReader().parse((this.file = file), null, null);
+        new DymlReader().parse(this, (this.file = file), null, null);
     }
 
     /**
      * Reads the dyml content from the provided file and returns a new {@link Dyml} object representing it.
      */
     public Dyml(Path filePath) throws IOException, YamlReaderException, IllegalListException {
-        this.children = new DymlReader().parse((this.file = filePath.toFile()), null, null);
+        new DymlReader().parse(this, (this.file = filePath.toFile()), null, null);
+    }
+
+    /**
+     * Reads the dyml content from the provided InputStream and loads it into the current {@link Dyml} object.
+     */
+    public Dyml load(InputStream inputStream) throws IOException, YamlReaderException, IllegalListException {
+        new DymlReader().parse(this, null, inputStream, null);
+        return this;
+    }
+
+    /**
+     * Reads the dyml content from the provided String and loads it into the current {@link Dyml} object.
+     */
+    public Dyml load(String string) throws IOException, YamlReaderException, IllegalListException {
+        new DymlReader().parse(this, null, null, string);
+        return this;
+    }
+
+    /**
+     * Reads the dyml content from the provided file and loads it into the current {@link Dyml} object.
+     */
+    public Dyml load(File file) throws IOException, YamlReaderException, IllegalListException {
+        new DymlReader().parse(this, (this.file = file), null, null);
+        return this;
+    }
+
+    /**
+     * Reads the dyml content from the provided file and loads it into the current {@link Dyml} object.
+     */
+    public Dyml load(Path filePath) throws IOException, YamlReaderException, IllegalListException {
+        new DymlReader().parse(this, (this.file = filePath.toFile()), null, null);
+        return this;
     }
 
 
@@ -158,7 +190,7 @@ public class Dyml {
      */
     public Dyml get(String... keys) {
         Dyml foundSection = null;
-        synchronized (children){
+        synchronized (children) {
             List<Dyml> listToSearch = children;
             for (int i = 0; i < keys.length; i++) {
                 String key = keys[i];
@@ -182,7 +214,7 @@ public class Dyml {
      * See {@link Collections#unmodifiableList(List)}. <br>
      */
     public List<Dyml> getChildren() {
-        synchronized (children){
+        synchronized (children) {
             return Collections.unmodifiableList(children);
         }
     }
@@ -191,7 +223,7 @@ public class Dyml {
      * Returns the child {@link Dyml} at the provided index.
      */
     public Dyml get(int index) {
-        synchronized (children){
+        synchronized (children) {
             return children.get(index);
         }
     }
@@ -202,12 +234,10 @@ public class Dyml {
     public Dyml put(String... keys) {
         Dyml lastParent = this;
         Dyml foundSection = null;
-        synchronized (children){
-            for (String key : keys) {
-                foundSection = get(key);
-                if (foundSection == null) foundSection = lastParent.add(key);
-                lastParent = foundSection;
-            }
+        for (String key : keys) {
+            foundSection = get(key);
+            if (foundSection == null) foundSection = lastParent.add(key);
+            lastParent = foundSection;
         }
         return foundSection;
     }
@@ -218,7 +248,7 @@ public class Dyml {
      */
     public Dyml add(int index, String key) {
         Dyml child = new Dyml(key, new SmartString(null), new ArrayList<>());
-        synchronized (children){
+        synchronized (children) {
             children.add(index, child);
             child.parent = this;
         }
@@ -238,7 +268,7 @@ public class Dyml {
      * Behaves like {@link List#add(Object)}. Also sets {@link #parent} of child to the current section.<br>
      */
     public Dyml add(Dyml child) {
-        synchronized (children){
+        synchronized (children) {
             children.add(child);
             child.parent = this;
         }
@@ -249,9 +279,9 @@ public class Dyml {
      * Searches the child section by the provided keys.
      * If null does nothing.
      */
-    public Dyml remove(String... keys){
+    public Dyml remove(String... keys) {
         Dyml child = get(keys);
-        if(child != null) remove(child);
+        if (child != null) remove(child);
         return this;
     }
 
@@ -259,8 +289,8 @@ public class Dyml {
      * Removes the provided child from {@link #children}. <br>
      * Also sets the {@link #parent} of the child to null. <br>
      */
-    public Dyml remove(Dyml child){
-        synchronized (children){
+    public Dyml remove(Dyml child) {
+        synchronized (children) {
             children.remove(child);
             child.parent = null;
         }
@@ -287,14 +317,15 @@ public class Dyml {
      * Prints the provided sections (and their children) to the provided output with the most info possible.
      */
     public void debugPrint(PrintStream out, List<Dyml> sections) {
-        if (sections.size() == 0) System.err.println("List is empty!");
+        if (sections.size() == 0) System.err.println("Sections list is empty!");
         for (int i = 0; i < sections.size(); i++) {
             Dyml section = sections.get(i);
             String spaces = "";
-            for (int j = 0; j < section.countSpaces(); j++) {
-                spaces += " ";
+            for (int j = 0; j < section.countParents() - 1; j++) { // -1 bc of the root section
+                spaces += "  ";
             }
-            out.println(spaces + "I:" + i + " KEY:'" + section.key + "' VAL:'" + section.value.asString() + "' COM:'" + section.comments + "'");
+            out.println(spaces + "I:" + i + " KEY:'" + section.key + "' VAL:'" + section.value.asString() +
+                    "' COM:'" + section.comments + "' C-COUNT:'" + section.children.size() + "'");
             if (!section.children.isEmpty()) {
                 debugPrint(out, section.children);
             }
@@ -330,24 +361,12 @@ public class Dyml {
         return count;
     }
 
-    /**
-     * Determines the amount of spaces before this sections' key via its parents. <br>
-     * Example: <br>
-     * <pre>
-     *     g0 val
-     *       g1 val
-     * </pre>
-     * Returns 0 for g0 and 2 for g1. <br>
-     */
-    public int countSpaces() {
-        return countParents() * 2 - 2; // -2 because the root parent doesn't count
-    }
-
-    public Dyml firstChild(){
+    public Dyml firstChild() {
         return children.get(0);
     }
-    public Dyml lastChild(){
-        return children.get(children.size()-1);
+
+    public Dyml lastChild() {
+        return children.get(children.size() - 1);
     }
 
     /**

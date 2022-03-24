@@ -26,7 +26,7 @@ class DymlReader {
      * Parses the .dyml content of a file/stream/string into a special list, which only contains the root sections.
      * Those have references to their parent and child sections. <br>
      */
-    public List<Dyml> parse(File file, InputStream inputStream, String inString) throws YamlReaderException, IOException, IllegalListException {
+    public void parse(Dyml root, File file, InputStream inputStream, String inString) throws YamlReaderException, IOException, IllegalListException {
         BufferedReader reader = null; // BufferedReader is faster than the regular Reader by around 0,100 ms
         if (file != null) {
             if (!file.exists()) throw new YamlReaderException("File '" + file + "' doesn't exist!");
@@ -42,6 +42,7 @@ class DymlReader {
             throw new YamlReaderException("File/InputStream/String are all null. Nothing to read/load dyml from!");
         }
 
+        root.children.clear();
         List<Integer> spaces = new ArrayList<>(50);
         List<Dyml> sections = new ArrayList<>(50);
         // Last lines information: (use fields instead of an actual line object bc of performance)
@@ -132,6 +133,9 @@ class DymlReader {
                                         break;
                                     }
                                 }
+                            } else {
+                                section.parent = root;
+                                root.children.add(section);
                             }
                             sections.add(section);
                             spaces.add(countSpaces);
@@ -172,13 +176,6 @@ class DymlReader {
         } catch (Exception e) {
             throw e;
         }
-
-        List<Dyml> rootSections = new ArrayList<>();
-        for (int i = 0; i < spaces.size(); i++) { // spaces and sections lists are same length
-            if (spaces.get(i) == 0)
-                rootSections.add(sections.get(i));
-        }
-        return rootSections;
     }
 
     /**

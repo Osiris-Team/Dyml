@@ -107,7 +107,7 @@ class YamlWriter {
      * Writes an in-memory {@link YamlSection} object to file.
      *
      * @param writer       the writer to use.
-     * @param section       the current module to write.
+     * @param section      the current module to write.
      * @param beforeModule the last already written module.
      */
     private void parseModule(BufferedWriter writer,
@@ -137,7 +137,7 @@ class YamlWriter {
                     spaces = spaces + "  ";
                 }
 
-                if(i == (keysSize - 1)){ // Only write top line breaks and comments to the last key in the list
+                if (i == (keysSize - 1)) { // Only write top line breaks and comments to the last key in the list
                     for (int j = 0; j < section.getCountTopLineBreaks(); j++) {
                         writer.newLine();
                         writer.flush();
@@ -256,9 +256,9 @@ class YamlWriter {
         }
     }
 
-    private boolean hasSideComment(List<String> comments, int i){
-        try{
-            if(comments.isEmpty()) return false;
+    private boolean hasSideComment(List<String> comments, int i) {
+        try {
+            if (comments.isEmpty()) return false;
             comments.get(i);
             return true;
         } catch (Exception e) {

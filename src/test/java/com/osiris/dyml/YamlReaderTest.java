@@ -75,8 +75,8 @@ class YamlReaderTest {
     void testSideComments() throws YamlReaderException, IOException, DuplicateKeyException, IllegalListException, YamlWriterException {
         Yaml yaml1 = new Yaml(
                 "key: \n" +
-                "  - #value # comment\n" +
-                "  - value # comment2\n", "");
+                        "  - #value # comment\n" +
+                        "  - value # comment2\n", "");
         yaml1.load();
         Assertions.assertEquals("#value", yaml1.get("key").getValue().asString());
         Assertions.assertEquals("comment", yaml1.get("key").getSideComment());

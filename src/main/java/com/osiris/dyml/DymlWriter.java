@@ -77,8 +77,8 @@ class DymlWriter {
     public void writeSections(PrintWriter writer, List<Dyml> sections) {
         for (Dyml section : sections) {
             StringBuilder builder = new StringBuilder();
-            for (int j = 0; j < section.countSpaces(); j++) {
-                builder.append(" ");
+            for (int j = 0; j < section.countParents() - 1; j++) { // -1 bc of the root section
+                builder.append("  ");
             }
             String spaces = builder.toString();
             String spacesComments = spaces + " ";

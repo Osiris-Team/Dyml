@@ -22,11 +22,11 @@ public class Benchmarks {
     @Test
     void test() {
         String s = "hi:#-\nhi";
-        try{
+        try {
             StringReader reader = new StringReader(s);
             int c = 0;
-            while((c=reader.read())!=-1){
-                System.out.println("int: "+c+" char: "+(char)c);
+            while ((c = reader.read()) != -1) {
+                System.out.println("int: " + c + " char: " + (char) c);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -52,9 +52,9 @@ public class Benchmarks {
 
     void compareAll(File fileDyml, File fileYml, File fileJson) throws InterruptedException, IOException, InvalidConfigurationException, DuplicateKeyException, YamlReaderException, IllegalListException {
         System.out.println("Performing read speed benchmark on files:");
-        System.out.println("Size in bytes: "+fileDyml.length()+" Path: "+fileDyml);
-        System.out.println("Size in bytes: "+fileYml.length()+" Path: "+fileYml);
-        System.out.println("Size in bytes: "+fileJson.length()+" Path: "+fileJson);
+        System.out.println("Size in bytes: " + fileDyml.length() + " Path: " + fileDyml);
+        System.out.println("Size in bytes: " + fileYml.length() + " Path: " + fileYml);
+        System.out.println("Size in bytes: " + fileJson.length() + " Path: " + fileJson);
 
         System.out.println("Average read speeds in milliseconds without parsing (first run was excluded):");
         List<UtilsTimeStopper> timesReadDyml = new ArrayList<>();
@@ -66,8 +66,8 @@ public class Benchmarks {
             UtilsTimeStopper timeFileDyml = new UtilsTimeStopper();
             timesReadDyml.add(timeFileDyml);
             timeFileDyml.start();
-            try(BufferedReader reader = new BufferedReader(new FileReader(fileDyml))){
-                while ((line = reader.readLine())!=null)
+            try (BufferedReader reader = new BufferedReader(new FileReader(fileDyml))) {
+                while ((line = reader.readLine()) != null)
                     lines++;
             }
             timeFileDyml.stop();
@@ -75,8 +75,8 @@ public class Benchmarks {
             UtilsTimeStopper timeFileYml = new UtilsTimeStopper();
             timesReadYml.add(timeFileYml);
             timeFileYml.start();
-            try(BufferedReader reader = new BufferedReader(new FileReader(fileYml))){
-                while ((line = reader.readLine())!=null)
+            try (BufferedReader reader = new BufferedReader(new FileReader(fileYml))) {
+                while ((line = reader.readLine()) != null)
                     lines++;
             }
             timeFileYml.stop();
@@ -84,8 +84,8 @@ public class Benchmarks {
             UtilsTimeStopper timeFileJson = new UtilsTimeStopper();
             timesReadJson.add(timeFileJson);
             timeFileJson.start();
-            try(BufferedReader reader = new BufferedReader(new FileReader(fileJson))){
-                while ((line = reader.readLine())!=null)
+            try (BufferedReader reader = new BufferedReader(new FileReader(fileJson))) {
+                while ((line = reader.readLine()) != null)
                     lines++;
             }
             timeFileJson.stop();

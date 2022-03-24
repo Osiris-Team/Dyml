@@ -106,7 +106,7 @@ public class YamlSection {
                 " VALUES: " + utils.valuesListToStringList(this.getValues()).toString() +
                 " DEF-VALUES: " + utils.valuesListToStringList(this.getDefValues()).toString() +
                 " COMMENTS: " + this.getComments().toString() +
-                " SIDE-COMMENTS: "+ this.getSideComments().toString();
+                " SIDE-COMMENTS: " + this.getSideComments().toString();
         return s;
     }
 

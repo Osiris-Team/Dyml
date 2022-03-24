@@ -99,7 +99,7 @@ public class SmartString {
      *     [val1, val2, val2]
      * </pre>
      */
-    public SmartString set(String[] values){
+    public SmartString set(String[] values) {
         string = Arrays.toString(values);
         return this;
     }
@@ -116,10 +116,10 @@ public class SmartString {
      */
     public String[] asArray() {
         if (string == null) return null;
-        if (string.startsWith("[") && string.endsWith("]")){
+        if (string.startsWith("[") && string.endsWith("]")) {
             String s = string.substring(1, string.length() - 1); // To remove first [ and last ]
             return s.split(",");
-        } else{
+        } else {
             return asArraySplitByColons();
         }
     }
@@ -130,7 +130,7 @@ public class SmartString {
      *     [val1, val2, val2]
      * </pre>
      */
-    public SmartString set(List<String> values){
+    public SmartString set(List<String> values) {
         string = Arrays.toString(values.toArray(new String[0]));
         return this;
     }

@@ -107,7 +107,7 @@ public class UtilsYamlSection {
         List<String> copy = new ArrayList<>(comments); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
         for (int i = 0; i < copy.size(); i++) {
             String c = copy.get(i);
-            if(c!=null)
+            if (c != null)
                 comments.set(i, copy.get(i).trim());
         }
     }
