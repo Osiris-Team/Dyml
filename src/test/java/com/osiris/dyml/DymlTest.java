@@ -13,6 +13,32 @@ import static com.osiris.dyml.U.N;
 class DymlTest {
 
     @Test
+    void testWindowsPath() throws YamlReaderException, IOException, IllegalListException, YamlWriterException {
+        Assertions.assertEquals("path D:\\Coding\\C\\LJDB"+N, new Dyml("path D:\\Coding\\C\\LJDB").saveToText());
+    }
+
+    @Test
+    void tessss() throws YamlReaderException, IOException, IllegalListException, YamlWriterException {
+        Dyml dyml = new Dyml("projects \n" +
+                "  1 \n" +
+                "    path D:/Coding/C/LJDB\n" +
+                "    name LJDB\n" +
+                "last-fetch-fresh-repos 1648306197307");
+        dyml.put("projects");
+        dyml.put("last-fetch-fresh-repos");
+        dyml.put("projects");
+        dyml.put("last-fetch-fresh-repos");
+        dyml.saveToText();
+        dyml.debugPrint(System.out);
+    }
+
+    @Test
+    void testWindowsSave() throws YamlReaderException, IOException, IllegalListException {
+        Dyml dyml = new Dyml("key value\r\n");
+        Assertions.assertEquals("value", dyml.get("key").asString());
+    }
+
+    @Test
     void testCodeStyle() throws IOException, YamlReaderException, IllegalListException, YamlWriterException {
         Dyml dyml = new Dyml("" +
                 "key val\n" +

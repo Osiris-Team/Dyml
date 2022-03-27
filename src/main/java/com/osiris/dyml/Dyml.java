@@ -6,11 +6,14 @@ import com.osiris.dyml.exceptions.YamlWriterException;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
+import java.math.BigInteger;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Can be parent or child of another {@link Dyml} object. <br>
@@ -307,14 +310,45 @@ public class Dyml {
     }
 
     /**
-     * See {@link #debugPrint(PrintStream, List)}.
+     * See {@link #print(PrintStream, List)}.
      */
-    public void debugPrint(PrintStream out) {
+    public void print(PrintStream out) {
+        if (file != null) out.println("Printing " + file + " " + this);
+        else out.println("Printing " + this);
+        out.println("<key> '<value>' <comments>");
         debugPrint(out, children);
     }
 
     /**
-     * Prints the provided sections (and their children) to the provided output with the most info possible.
+     * Prints the provided sections (and their children) to the provided output. <br>
+     */
+    public void print(PrintStream out, List<Dyml> sections) {
+        if (sections.size() == 0) System.err.println("Sections list is empty!");
+        for (int i = 0; i < sections.size(); i++) {
+            Dyml section = sections.get(i);
+            String spaces = "";
+            for (int j = 0; j < section.countParents() - 1; j++) { // -1 bc of the root section
+                spaces += "  ";
+            }
+            out.println(spaces + section.key + " '" + section.value.asString() + "' " + section.comments);
+            if (!section.children.isEmpty()) {
+                debugPrint(out, section.children);
+            }
+        }
+    }
+
+    /**
+     * See {@link #debugPrint(PrintStream, List)}.
+     */
+    public void debugPrint(PrintStream out) {
+        if (file != null) out.println("Printing " + file + " " + this);
+        else out.println("Printing " + this);
+        out.println("<index> <key> '<value>' <comments> <children-count> <value-hex> <value-binary>");
+        debugPrint(out, children);
+    }
+
+    /**
+     * Prints the provided sections (and their children) to the provided output with the most info possible. <br>
      */
     public void debugPrint(PrintStream out, List<Dyml> sections) {
         if (sections.size() == 0) System.err.println("Sections list is empty!");
@@ -324,12 +358,48 @@ public class Dyml {
             for (int j = 0; j < section.countParents() - 1; j++) { // -1 bc of the root section
                 spaces += "  ";
             }
-            out.println(spaces + "I:" + i + " KEY:'" + section.key + "' VAL:'" + section.value.asString() +
-                    "' COM:'" + section.comments + "' C-COUNT:'" + section.children.size() + "'");
+            out.println(spaces + i + " " + section.key + " '" + section.value.asString() + "' " + section.comments +
+                    " " + section.children.size() + " " + section.asHex() + " " + section.asPrettyBin());
             if (!section.children.isEmpty()) {
                 debugPrint(out, section.children);
             }
         }
+    }
+
+    public String asHex() {
+        return asHex(value.asString());
+    }
+
+    private String asHex(String s) {
+        if (s == null) return null;
+        return String.format("%040x", new BigInteger(1, s.getBytes(StandardCharsets.UTF_8)));
+    }
+
+    public String asPrettyBin() {
+        if (value.asString() == null) return null;
+        return prettyBinary(convertStringToBinary(value.asString()), 8, " ");
+    }
+
+    private String convertStringToBinary(String input) {
+        StringBuilder result = new StringBuilder();
+        char[] chars = input.toCharArray();
+        for (char aChar : chars) {
+            result.append(
+                    String.format("%8s", Integer.toBinaryString(aChar))   // char -> int, auto-cast
+                            .replaceAll(" ", "0")                         // zero pads
+            );
+        }
+        return result.toString();
+    }
+
+    private String prettyBinary(String binary, int blockSize, String separator) {
+        List<String> result = new ArrayList<>();
+        int index = 0;
+        while (index < binary.length()) {
+            result.add(binary.substring(index, Math.min(index + blockSize, binary.length())));
+            index += blockSize;
+        }
+        return result.stream().collect(Collectors.joining(separator));
     }
 
     /**
