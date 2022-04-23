@@ -7,10 +7,11 @@ import com.osiris.dyml.exceptions.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Random;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.function.Consumer;
 
 /**
  * A single DreamYamlDB (DreamYamlDatabase) object, represents a single database. <br>
@@ -39,6 +40,8 @@ import java.util.Random;
  */
 public class YamlDatabase {
     private Yaml yaml;
+    public List<YamlTable> tables = new CopyOnWriteArrayList<>();
+    public Thread threadAutoSave;
 
     /**
      * Creates a new yaml file in the current working directory, with a random, unused name.
@@ -91,6 +94,24 @@ public class YamlDatabase {
         yaml.isRemoveLoadedNullValuesEnabled = false;
     }
 
+    /**
+     * Starts a thread that executes {@link #save()} periodically. <br>
+     * @param msIntervall the amount of time in milliseconds, for the thread to wait until attempting a save operation.
+     */
+    public void initAutoSaveThread(long msIntervall, Consumer<Exception> onException){
+        if(threadAutoSave==null || threadAutoSave.isInterrupted())
+            threadAutoSave = new Thread(() -> {
+               try{
+                   while (true){
+                       Thread.sleep(msIntervall);
+                       save();
+                   }
+               } catch (Exception e) {
+                   onException.accept(e);
+               }
+            });
+    }
+
     public Yaml getYaml() {
         return yaml;
     }
@@ -128,6 +149,7 @@ public class YamlDatabase {
     public YamlTable addTable(String name) throws NotLoadedException, IllegalKeyException, DuplicateKeyException, YamlWriterException, IOException, YamlReaderException, IllegalListException {
         YamlTable table = new YamlTable(yaml.add("tables", name));
         yaml.saveAndLoad();
+        tables.add(table); // Exception is thrown above if already exists.
         return table;
     }
 
@@ -137,9 +159,21 @@ public class YamlDatabase {
      * See {@link Yaml#put(String...)} for details.
      */
     public YamlTable putTable(String name) throws NotLoadedException, IllegalKeyException, YamlWriterException, IOException, DuplicateKeyException, YamlReaderException, IllegalListException {
-        YamlTable table = new YamlTable(yaml.put("tables", name));
         yaml.saveAndLoad();
-        return table;
+        YamlTable tExisting = null;
+        for (YamlTable t : tables) {
+            if(t.getName().equals(name)){
+                tExisting = t;
+                break;
+            }
+        }
+        if(tExisting == null){
+            YamlTable newTable = new YamlTable(yaml.put("tables", name));
+            tables.add(newTable);
+            return newTable;
+        } else{
+            return tExisting;
+        }
     }
 
     /**
@@ -150,6 +184,14 @@ public class YamlDatabase {
     public YamlDatabase removeTable(YamlTable table) {
         Objects.requireNonNull(table);
         yaml.remove("tables", table.getName());
+        YamlTable tRemove = null;
+        for (YamlTable t : tables) {
+            if(table.equals(t) || t.getName().equals(table.getName())){
+                tRemove = t;
+                break;
+            }
+        }
+        if(tRemove != null) tables.remove(tRemove);
         return this;
     }
 
@@ -173,11 +215,6 @@ public class YamlDatabase {
     }
 
     public List<YamlTable> getTables() {
-        List<YamlTable> tables = new ArrayList<>();
-        for (YamlSection tableModule :
-                yaml.get("tables").getChildModules()) {
-            tables.add(new YamlTable(tableModule));
-        }
         return tables;
     }
 

@@ -245,5 +245,17 @@ class YamlTest {
         assertEquals("val", yaml.get("key2").asString());
     }
 
-
+    @Test
+    void removeQuotes() throws YamlReaderException, IOException, DuplicateKeyException, IllegalListException, YamlWriterException {
+        Yaml yaml = new Yaml("key: \"hello there\"\n" +
+                "key2: test\n", "");
+        yaml.load();
+        yaml.save();
+        assertEquals("hello there", yaml.get("key").asString()); // Expect removed quotes
+        yaml = new Yaml("key: \"hello there\" mate!\n" +
+                "key2: test\n", "");
+        yaml.load();
+        yaml.save();
+        assertEquals("\"hello there\" mate!", yaml.get("key").asString()); // Do not remove quotes
+    }
 }
