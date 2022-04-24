@@ -31,75 +31,81 @@ class YamlWriter {
 
         BufferedWriter writer = null;
         StringWriter stringWriter = null;
+        try{
+            if (yaml.outputStream != null) {
+                writer = new BufferedWriter(new OutputStreamWriter(yaml.outputStream), 32768); // TODO compare speed with def buffer
+                logger.log(this, "Started writing yaml to file '" + yaml.file + "' with overwrite: " + overwrite + " and reset: " + reset);
+            } else if (yaml.file != null) {
+                if (!yaml.file.exists()) throw new YamlWriterException("File '" + yaml.file.getName() + "' doesn't exist!");
+                writer = new BufferedWriter(new FileWriter(yaml.file), 32768); // TODO compare speed with def buffer
+                logger.log(this, "Started writing yaml to OutputStream '" + yaml.outputStream + "' with overwrite: " + overwrite + " and reset: " + reset);
+            } else if (yaml.outString != null) {
+                stringWriter = new StringWriter();
+                writer = new BufferedWriter(stringWriter, 32768); // TODO compare speed with def buffer
+                logger.log(this, "Started writing yaml to String '" + yaml.outString + "' with overwrite: " + overwrite + " and reset: " + reset);
+            }
+            if (writer == null) {
+                logger.log(this, "File and OutputStream are both null. Nothing to write yaml to!");
+                return;
+            }
 
-        if (yaml.outputStream != null) {
-            writer = new BufferedWriter(new OutputStreamWriter(yaml.outputStream), 32768); // TODO compare speed with def buffer
-            logger.log(this, "Started writing yaml to file '" + yaml.file + "' with overwrite: " + overwrite + " and reset: " + reset);
-        } else if (yaml.file != null) {
-            if (!yaml.file.exists()) throw new YamlWriterException("File '" + yaml.file.getName() + "' doesn't exist!");
-            writer = new BufferedWriter(new FileWriter(yaml.file), 32768); // TODO compare speed with def buffer
-            logger.log(this, "Started writing yaml to OutputStream '" + yaml.outputStream + "' with overwrite: " + overwrite + " and reset: " + reset);
-        } else if (yaml.outString != null) {
-            stringWriter = new StringWriter();
-            writer = new BufferedWriter(stringWriter, 32768); // TODO compare speed with def buffer
-            logger.log(this, "Started writing yaml to String '" + yaml.outString + "' with overwrite: " + overwrite + " and reset: " + reset);
-        }
-        if (writer == null) {
-            System.out.println("File and OutputStream are both null. Nothing to write yaml to!");
-            return;
-        }
+            writer.write(""); // Clear old content
+            if (reset) return;
 
-        writer.write(""); // Clear old content
-        if (reset) return;
+            List<YamlSection> modulesToSave;
+            if (overwrite) {
+                modulesToSave = yaml.getAllInEdit();
 
-        List<YamlSection> modulesToSave;
-        if (overwrite) {
-            modulesToSave = yaml.getAllInEdit();
+            } else
+                modulesToSave = yaml.createUnifiedList(yaml.getAllInEdit(), yaml.getAllLoaded());
 
-        } else
-            modulesToSave = yaml.createUnifiedList(yaml.getAllInEdit(), yaml.getAllLoaded());
-
-        if (modulesToSave.isEmpty() && isDebug)
-            logger.log(this, "The modules list is empty. Written an empty file.");
+            if (modulesToSave.isEmpty() && isDebug)
+                logger.log(this, "The modules list is empty. Written an empty file.");
 
 
-        YamlSection lastModule = new YamlSection(yaml); // Create an empty module as start point
-        for (YamlSection m :
-                modulesToSave) {
-            parseModule(writer, m, lastModule);
-            lastModule = m;
-        }
-
-        timer.stop();
-        if (isDebug) {
-            logger.log(this, "Finished writing of " + yaml.getFile().getName() + " at " + new Date());
-            logger.log(this, "Written unified modules details:");
-            for (YamlSection loadedModule :
+            YamlSection lastModule = new YamlSection(yaml); // Create an empty module as start point
+            for (YamlSection m :
                     modulesToSave) {
+                parseModule(writer, m, lastModule);
+                lastModule = m;
+            }
 
-                logger.log(this, "");
-                logger.log(this, "---> " + loadedModule.toPrintString());
-                if (loadedModule.getParentModule() != null)
-                    logger.log(this, "PARENT -> " + loadedModule.getParentModule().toPrintString());
-                else
-                    logger.log(this, "PARENT -> NULL");
+            timer.stop();
+            if (isDebug) {
+                logger.log(this, "Finished writing of " + yaml.getFile().getName() + " at " + new Date());
+                logger.log(this, "Written unified modules details:");
+                for (YamlSection loadedModule :
+                        modulesToSave) {
 
-                for (YamlSection childModule :
-                        loadedModule.getChildModules()) {
-                    if (childModule != null)
-                        logger.log(this, "CHILD -> " + childModule.toPrintString());
+                    logger.log(this, "");
+                    logger.log(this, "---> " + loadedModule.toPrintString());
+                    if (loadedModule.getParentModule() != null)
+                        logger.log(this, "PARENT -> " + loadedModule.getParentModule().toPrintString());
                     else
-                        logger.log(this, "CHILD -> NULL");
+                        logger.log(this, "PARENT -> NULL");
+
+                    for (YamlSection childModule :
+                            loadedModule.getChildModules()) {
+                        if (childModule != null)
+                            logger.log(this, "CHILD -> " + childModule.toPrintString());
+                        else
+                            logger.log(this, "CHILD -> NULL");
+                    }
                 }
             }
-        }
-        if (stringWriter != null) {
-            yaml.outString = stringWriter.toString();
-        }
+            if (stringWriter != null) {
+                yaml.outString = stringWriter.toString();
+            }
 
-        if (isDebug) {
-            logger.log(this, "Finished writing, took " + timer.getFormattedMillis() + "ms or " + timer.getFormattedSeconds() + "s");
-            logger.log(this, "");
+            if (isDebug) {
+                logger.log(this, "Finished writing, took " + timer.getFormattedMillis() + "ms or " + timer.getFormattedSeconds() + "s");
+                logger.log(this, "");
+            }
+        } catch (YamlWriterException | IOException e) {
+            if (yaml.file != null || yaml.outString != null) writer.close();
+            throw e;
+        } finally {
+            if (yaml.file != null) writer.close();
         }
     }
 

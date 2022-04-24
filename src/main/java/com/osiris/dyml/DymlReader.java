@@ -115,10 +115,10 @@ class DymlReader {
                 commentFound = false;
             }
         } catch (YamlReaderException | IOException e) {
-            if (reader != null) reader.close();
+            if (file != null || inString != null) reader.close();
             throw e;
         } finally {
-            if (reader != null) reader.close();
+            if (file != null || inString != null) reader.close();
         }
 
     }

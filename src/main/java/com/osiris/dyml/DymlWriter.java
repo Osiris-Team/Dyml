@@ -27,33 +27,40 @@ class DymlWriter {
         if (sections.isEmpty()) throw new YamlWriterException("Sections cannot be empty!");
         PrintWriter writer = null; // Buffered is faster than the regular Reader by around 0,100 ms
         StringWriter stringWriter = null;
-        if (file != null) {
-            if (!file.exists()) throw new YamlWriterException("File '" + file + "' doesn't exist!");
-            writer = new PrintWriter(new FileWriter(file));
-        }
-        if (outputStream != null) {
-            writer = new PrintWriter(new OutputStreamWriter(outputStream));
-        }
-        if (outString != null) {
-            stringWriter = new StringWriter();
-            writer = new PrintWriter(stringWriter);
-        }
-        if (writer == null) {
-            throw new YamlWriterException("File/OutputStream/String are all null. Nothing to write/save dyml to!");
-        }
+        try{
+            if (file != null) {
+                if (!file.exists()) throw new YamlWriterException("File '" + file + "' doesn't exist!");
+                writer = new PrintWriter(new FileWriter(file));
+            }
+            if (outputStream != null) {
+                writer = new PrintWriter(new OutputStreamWriter(outputStream));
+            }
+            if (outString != null) {
+                stringWriter = new StringWriter();
+                writer = new PrintWriter(stringWriter);
+            }
+            if (writer == null) {
+                throw new YamlWriterException("File/OutputStream/String are all null. Nothing to write/save dyml to!");
+            }
 
-        UtilsTimeStopper timer = new UtilsTimeStopper();
-        timer.start();
+            UtilsTimeStopper timer = new UtilsTimeStopper();
+            timer.start();
 
-        writer.write(""); // Clear old content
-        if (reset) return null;
+            writer.write(""); // Clear old content
+            if (reset) return null;
 
-        List<Dyml> copy = new ArrayList<>(sections);
-        writeSections(writer, copy);
+            List<Dyml> copy = new ArrayList<>(sections);
+            writeSections(writer, copy);
 
-        if (stringWriter != null) return stringWriter.toString();
-        writer.flush();
-        writer.close();
+            if (stringWriter != null) return stringWriter.toString();
+            writer.flush();
+            writer.close();
+        } catch (YamlWriterException | IOException e) {
+            if (file != null || outString != null) writer.close();
+            throw e;
+        } finally {
+            if (file != null || outString != null) writer.close();
+        }
         return null;
     }
 

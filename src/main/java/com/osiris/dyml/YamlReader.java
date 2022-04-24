@@ -42,117 +42,123 @@ class YamlReader {
         timer.start();
 
         BufferedReader reader = null;
-        if (yaml.file != null) {
-            if (!yaml.file.exists()) throw new YamlReaderException("File '" + yaml.file + "' doesn't exist!");
-            reader = new BufferedReader(new FileReader(yaml.file));
-            debug.log(this, "Started reading yaml from file '" + yaml.file + "'");
-        }
-        if (yaml.inputStream != null) {
-            reader = new BufferedReader(new InputStreamReader(yaml.inputStream));
-            debug.log(this, "Started reading yaml from InputStream '" + yaml.inputStream + "'");
-        }
-        if (yaml.inString != null) {
-            reader = new BufferedReader(new StringReader(yaml.inString));
-            debug.log(this, "Started reading yaml from String '" + yaml.inString + "'");
-        }
-        if (reader == null) {
-            System.out.println("File and InputStream are both null. Nothing to read/load yaml from!");
-            return;
-        }
-        yaml.getAllLoaded().clear();
+        try{
+            if (yaml.file != null) {
+                if (!yaml.file.exists()) throw new YamlReaderException("File '" + yaml.file + "' doesn't exist!");
+                reader = new BufferedReader(new FileReader(yaml.file));
+                debug.log(this, "Started reading yaml from file '" + yaml.file + "'");
+            }
+            if (yaml.inputStream != null) {
+                reader = new BufferedReader(new InputStreamReader(yaml.inputStream));
+                debug.log(this, "Started reading yaml from InputStream '" + yaml.inputStream + "'");
+            }
+            if (yaml.inString != null) {
+                reader = new BufferedReader(new StringReader(yaml.inString));
+                debug.log(this, "Started reading yaml from String '" + yaml.inString + "'");
+            }
+            if (reader == null) {
+                debug.log(this, "File and InputStream are both null. Nothing to read/load yaml from!");
+                return;
+            }
+            yaml.getAllLoaded().clear();
 
+            int lineNumber = 1; // Start at 1 because it makes more sense. This number is only used to display the line number in exceptions and has no effect on important stuff.
 
-        int lineNumber = 1; // Start at 1 because it makes more sense. This number is only used to display the line number in exceptions and has no effect on important stuff.
-
-        // Parse the first line manually, so that the beforeLine is NOT null, and we don't have to check it every time
-        String firstLine = reader.readLine();
-        if (firstLine == null)
-            firstLine = "";
-        DYLine firstDyLine = new DYLine(firstLine, lineNumber);
-        parseFirstLine(yaml, firstDyLine); // beforeModule gets set here at the end
-        if (firstDyLine.isKeyFound())
-            keyLinesList.add(firstDyLine);
-        beforeLine = firstDyLine;
-        lineNumber++;
-
-        String line;
-        while ((line = reader.readLine()) != null) {
-            String finalLine = line; // Its important, that a new, unique Object is created for each line and number
-            int finalLineNumber = lineNumber; // Its important, that a new, unique Object is created for each line and number
-            DYLine dyLine = new DYLine(finalLine, finalLineNumber);
-            parseLine(yaml, dyLine); // beforeModule gets set here at the end
-            if (dyLine.isKeyFound())
-                // the size of the loadedModules list, and this list, stay the same.
-                keyLinesList.add(dyLine);
-            beforeLine = dyLine;
+            // Parse the first line manually, so that the beforeLine is NOT null, and we don't have to check it every time
+            String firstLine = reader.readLine();
+            if (firstLine == null)
+                firstLine = "";
+            DYLine firstDyLine = new DYLine(firstLine, lineNumber);
+            parseFirstLine(yaml, firstDyLine); // beforeModule gets set here at the end
+            if (firstDyLine.isKeyFound())
+                keyLinesList.add(firstDyLine);
+            beforeLine = firstDyLine;
             lineNumber++;
-        }
 
-        // Do post processing if enabled
-        UtilsYamlSection utils = new UtilsYamlSection();
-        if (yaml.isPostProcessingEnabled) {
-
-            if (yaml.isTrimLoadedValuesEnabled)
-                for (YamlSection m :
-                        yaml.getAllLoaded()) {
-                    utils.trimValues(m.getValues());
-                }
-
-            if (yaml.isRemoveQuotesFromLoadedValuesEnabled)
-                for (YamlSection m :
-                        yaml.getAllLoaded()) {
-                    utils.removeQuotesFromValues(m.getValues());
-                }
-
-            if (yaml.isRemoveLoadedNullValuesEnabled)
-                for (YamlSection m :
-                        yaml.getAllLoaded()) {
-                    utils.removeNullValues(m.getValues());
-                }
-
-            if (yaml.isTrimCommentsEnabled)
-                for (YamlSection m :
-                        yaml.getAllLoaded()) {
-                    utils.trimComments(m.getComments());
-                    utils.trimComments(m.getSideComments());
-                }
-
-        }
-
-        // Update the inEditModules values and their parent/child modules.
-        // This is done, because these modules may have only default values set.
-        if (!yaml.getAllLoaded().isEmpty())
-            for (YamlSection inEditM :
-                    yaml.getAllInEdit()) {
-                YamlSection loadedM = utils.getExisting(inEditM, yaml.getAllLoaded());
-                inEditM.setValues(loadedM.getValues());
-                inEditM.setParentModule(loadedM.getParentModule());
-                inEditM.setChildModules(loadedM.getChildModules());
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String finalLine = line; // Its important, that a new, unique Object is created for each line and number
+                int finalLineNumber = lineNumber; // Its important, that a new, unique Object is created for each line and number
+                DYLine dyLine = new DYLine(finalLine, finalLineNumber);
+                parseLine(yaml, dyLine); // beforeModule gets set here at the end
+                if (dyLine.isKeyFound())
+                    // the size of the loadedModules list, and this list, stay the same.
+                    keyLinesList.add(dyLine);
+                beforeLine = dyLine;
+                lineNumber++;
             }
 
-        timer.stop();
+            // Do post processing if enabled
+            UtilsYamlSection utils = new UtilsYamlSection();
+            if (yaml.isPostProcessingEnabled) {
 
-        debug.log(this, "Loaded modules details:");
-        for (YamlSection loadedModule :
-                yaml.getAllLoaded()) {
+                if (yaml.isTrimLoadedValuesEnabled)
+                    for (YamlSection m :
+                            yaml.getAllLoaded()) {
+                        utils.trimValues(m.getValues());
+                    }
 
-            debug.log(this, "");
-            debug.log(this, "---> " + loadedModule.toPrintString());
-            if (loadedModule.getParentModule() != null)
-                debug.log(this, "PARENT -> " + loadedModule.getParentModule().toPrintString());
-            else
-                debug.log(this, "PARENT -> NULL");
+                if (yaml.isRemoveQuotesFromLoadedValuesEnabled)
+                    for (YamlSection m :
+                            yaml.getAllLoaded()) {
+                        utils.removeQuotesFromValues(m.getValues());
+                    }
 
-            for (YamlSection childModule :
-                    loadedModule.getChildModules()) {
-                if (childModule != null)
-                    debug.log(this, "CHILD -> " + childModule.toPrintString());
+                if (yaml.isRemoveLoadedNullValuesEnabled)
+                    for (YamlSection m :
+                            yaml.getAllLoaded()) {
+                        utils.removeNullValues(m.getValues());
+                    }
+
+                if (yaml.isTrimCommentsEnabled)
+                    for (YamlSection m :
+                            yaml.getAllLoaded()) {
+                        utils.trimComments(m.getComments());
+                        utils.trimComments(m.getSideComments());
+                    }
+
+            }
+
+            // Update the inEditModules values and their parent/child modules.
+            // This is done, because these modules may have only default values set.
+            if (!yaml.getAllLoaded().isEmpty())
+                for (YamlSection inEditM :
+                        yaml.getAllInEdit()) {
+                    YamlSection loadedM = utils.getExisting(inEditM, yaml.getAllLoaded());
+                    inEditM.setValues(loadedM.getValues());
+                    inEditM.setParentModule(loadedM.getParentModule());
+                    inEditM.setChildModules(loadedM.getChildModules());
+                }
+
+            timer.stop();
+
+            debug.log(this, "Loaded modules details:");
+            for (YamlSection loadedModule :
+                    yaml.getAllLoaded()) {
+
+                debug.log(this, "");
+                debug.log(this, "---> " + loadedModule.toPrintString());
+                if (loadedModule.getParentModule() != null)
+                    debug.log(this, "PARENT -> " + loadedModule.getParentModule().toPrintString());
                 else
-                    debug.log(this, "CHILD -> NULL");
+                    debug.log(this, "PARENT -> NULL");
+
+                for (YamlSection childModule :
+                        loadedModule.getChildModules()) {
+                    if (childModule != null)
+                        debug.log(this, "CHILD -> " + childModule.toPrintString());
+                    else
+                        debug.log(this, "CHILD -> NULL");
+                }
             }
+            debug.log(this, "");
+            debug.log(this, "Finished reading, took " + timer.getFormattedMillis() + "ms or " + timer.getFormattedSeconds() + "s");
+        } catch (YamlReaderException | IOException | IllegalListException e) {
+            if(yaml.file != null || yaml.inString != null) reader.close();
+            throw e;
+        } finally {
+            if(yaml.file != null || yaml.inString != null) reader.close();
         }
-        debug.log(this, "");
-        debug.log(this, "Finished reading, took " + timer.getFormattedMillis() + "ms or " + timer.getFormattedSeconds() + "s");
     }
 
     /**
