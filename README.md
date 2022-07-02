@@ -48,7 +48,7 @@ g0
   g1b great!
 ```
 Read more about the `.dyml` file type [here](DYML-SPEC.md). Note
-that the API for these files is in beta and not all features of the `.yaml` API 
+that the API for `.dyml` files is in beta and not all features of the `.yaml` API 
 were ported over yet.
 
 Some extras:
