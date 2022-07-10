@@ -4,6 +4,7 @@ import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
+import java.util.Objects;
 
 public class FileEvent {
     public final WatchedDir parentDirectory;
@@ -16,6 +17,34 @@ public class FileEvent {
         this.watchEvent = watchEvent;
         this.file = new File(parentDirectory + "/" + watchEvent.context());
         this.path = file.toPath();
+    }
+
+    /**
+     * @see StandardWatchEventKinds#ENTRY_MODIFY
+     */
+    public boolean isModifyEvent(){
+        return Objects.equals(StandardWatchEventKinds.ENTRY_MODIFY, getWatchEventKind());
+    }
+
+    /**
+     * @see StandardWatchEventKinds#ENTRY_CREATE
+     */
+    public boolean isCreateEvent(){
+        return Objects.equals(StandardWatchEventKinds.ENTRY_CREATE, getWatchEventKind());
+    }
+
+    /**
+     * @see StandardWatchEventKinds#ENTRY_DELETE
+     */
+    public boolean isDeleteEvent(){
+        return Objects.equals(StandardWatchEventKinds.ENTRY_DELETE, getWatchEventKind());
+    }
+
+    /**
+     * @see StandardWatchEventKinds#OVERFLOW
+     */
+    public boolean isOverflowEvent(){
+        return Objects.equals(StandardWatchEventKinds.ENTRY_DELETE, getWatchEventKind());
     }
 
     /**

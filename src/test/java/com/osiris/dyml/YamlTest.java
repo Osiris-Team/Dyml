@@ -3,13 +3,16 @@ package com.osiris.dyml;
 import com.osiris.dyml.exceptions.*;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.junit.jupiter.api.Assertions.*;
 
 class YamlTest {
+    File file = new File(System.getProperty("user.dir") + "/src/test/tests.yml");
 
     @Test
     void codingStyle() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
@@ -18,19 +21,18 @@ class YamlTest {
 
     @Test
     void threadSafetyTest() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException, InterruptedException {
-
         List<Thread> threads = new ArrayList<>();
-        for (int i = 0; i < 10; i++) { // Don't make this too big, since github actions will take very long and abort the build then
+        new Yaml(file).load().put("thread-safety-val").setValues("0").getYaml().save();
+        for (int i = 0; i < 10; i++) { // Count to 1000 on 10 threads inside the same yaml file
             threads.add(new Thread(() -> {
-                for (int f = 0; f < 10; f++) {
-                    Yaml yaml = new Yaml(System.getProperty("user.dir") + "/src/test/tests.yml");
-                    yaml.lockFile();
+                Yaml yaml = new Yaml(file);
+                for (int f = 0; f < 100; f++) {
                     try {
-                        System.out.println(Thread.currentThread().getName() + " is waiting...");
+                        yaml.lockFile();
                         yaml.load();
-                        System.out.println(Thread.currentThread().getName() + " is WRITE");
-                        yaml.put("m1").setDefValues("hello");
-                        yaml.put("m2").setDefValues("hello");
+                        int val = yaml.put("thread-safety-val").asInt();
+                        val++;
+                        yaml.put("thread-safety-val").setValues(""+val);
                         yaml.save();
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -38,11 +40,6 @@ class YamlTest {
                         yaml.unlockFile();
                     }
 
-                }
-                try {
-
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
             }));
         }
@@ -56,6 +53,7 @@ class YamlTest {
                 threads) {
             t.join();
         }
+        assertEquals(1000, new Yaml(file).load().get("thread-safety-val").asInt());
     }
 
     @Test
@@ -257,5 +255,18 @@ class YamlTest {
         yaml.load();
         yaml.save();
         assertEquals("\"hello there\" mate!", yaml.get("key").asString()); // Do not remove quotes
+    }
+
+    @Test
+    void testYamlFileWatcher() throws YamlReaderException, YamlWriterException, IOException, DuplicateKeyException, IllegalListException, InterruptedException {
+        Yaml yaml = new Yaml(file);
+        AtomicBoolean isChanged = new AtomicBoolean(false);
+        yaml.addFileEventListener(event -> {
+            isChanged.set(true);
+        });
+        yaml.load();
+        yaml.save();
+        Thread.sleep(1000);
+        assertTrue(isChanged.get());
     }
 }

@@ -65,8 +65,7 @@ public class DirWatcher extends Thread implements AutoCloseable {
      * Otherwise creates a new {@link DirWatcher} for the provided path or its parent directory if its a file, and returns it. <br>
      */
     public static synchronized DirWatcher get(Path path, boolean isWatchSubDirs) throws IOException {
-        Path dirPath = path;
-        if (!path.toFile().isDirectory()) dirPath = path.getParent();
+        if (!path.toFile().isDirectory()) path = path.getParent();
         for (DirWatcher watcher :
                 activeWatchers) {
             if (watcher.getRegisteredFile().toPath().equals(path) && watcher.isAlive())
