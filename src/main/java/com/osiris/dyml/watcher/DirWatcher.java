@@ -163,7 +163,7 @@ public class DirWatcher extends Thread implements AutoCloseable {
     }
 
     public DirWatcher addListeners(Consumer<FileEvent>... listeners) throws IOException {
-        if (listeners != null) addListeners(Arrays.asList(listeners));
+        addListeners(Arrays.asList(listeners));
         return this;
     }
 
