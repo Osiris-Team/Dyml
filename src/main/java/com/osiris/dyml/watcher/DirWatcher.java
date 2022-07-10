@@ -32,7 +32,7 @@ import static java.nio.file.StandardWatchEventKinds.*;
 public class DirWatcher extends Thread implements AutoCloseable {
     private static final List<DirWatcher> activeWatchers = new ArrayList<>();
 
-    private WatchedDir registeredFile;
+    private WatchedDir registeredDir;
     private WatchService watchService;
     private boolean isWatchSubDirs = false;
     private WatchKey watchKey;
@@ -68,7 +68,7 @@ public class DirWatcher extends Thread implements AutoCloseable {
         if (!path.toFile().isDirectory()) path = path.getParent();
         for (DirWatcher watcher :
                 activeWatchers) {
-            if (watcher.getRegisteredFile().toPath().equals(path) && watcher.isAlive())
+            if (watcher.getRegisteredDir().toPath().equals(path) && watcher.isAlive())
                 return watcher;
         }
         return new DirWatcher(path, isWatchSubDirs);
@@ -78,7 +78,7 @@ public class DirWatcher extends Thread implements AutoCloseable {
         Objects.requireNonNull(path);
         this.watchService = FileSystems.getDefault().newWatchService();
         this.isWatchSubDirs = isWatchSubDirs();
-        this.registeredFile = new WatchedDir(path.toString(), this);
+        this.registeredDir = new WatchedDir(path.toString(), this);
         if (!path.toFile().isDirectory())
             watchDir(path.getParent(), watchSubdirectories);
         else
@@ -99,7 +99,7 @@ public class DirWatcher extends Thread implements AutoCloseable {
                     if (this.listeners != null && !((Path) event.context()).toFile().isDirectory()) // Sub-directories have their own watchers
                         for (Consumer<FileEvent> listener :
                                 listeners) {
-                            listener.accept(new FileEvent(registeredFile, event));
+                            listener.accept(new FileEvent(registeredDir, event));
                         }
                 }
                 key.reset();
@@ -218,14 +218,14 @@ public class DirWatcher extends Thread implements AutoCloseable {
 
     public void printDetails() {
         System.out.println("Watcher: " + this);
-        if (registeredFile.isDirectory())
-            System.out.println("Registered dir: " + registeredFile);
+        if (registeredDir.isDirectory())
+            System.out.println("Registered dir: " + registeredDir);
         else
-            System.out.println("Registered file: " + registeredFile);
+            System.out.println("Registered file: " + registeredDir);
     }
 
-    public WatchedDir getRegisteredFile() {
-        return registeredFile;
+    public WatchedDir getRegisteredDir() {
+        return registeredDir;
     }
 
     public WatchKey getWatchKey() {
