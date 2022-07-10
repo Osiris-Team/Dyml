@@ -6,9 +6,13 @@ The YAML and DYML processor of your dreams, written in pure Java! <br>
 - Fund this project via [PayPal](https://www.paypal.com/donate?hosted_button_id=JNXQCWF2TF9W4).
 
 ## Features
-- Amazing support for side, multiline and regular comments.
-- Written from scratch with performance, comments and usability in mind.
+- Amazing support for side, multiline, regular comments and line breaks.
+- Written from scratch with performance and usability in mind.
 - Only key-features of YAML implemented, thus very small, blazing fast and easy to use.
+- API design, core ideas: 
+  - Rely on default values
+  - Either null or nothing (no empty values/strings)
+  - Keep it simple but powerful (few objects that can do a lot) 
 
 `example.yml` [code](src/test/java/examples/yaml/FeaturesExample.java)
 ```YAML
