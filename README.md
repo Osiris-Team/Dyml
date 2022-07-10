@@ -12,7 +12,7 @@ The YAML and DYML processor of your dreams, written in pure Java! <br>
 - API design, core ideas: 
   - Rely on default values
   - Either null or nothing (no empty values/strings)
-  - Keep it simple (few objects that can do a lot) 
+  - Keep it simple but powerful (few objects that can do a lot) 
 
 `example.yml` [code](src/test/java/examples/yaml/FeaturesExample.java)
 ```YAML
