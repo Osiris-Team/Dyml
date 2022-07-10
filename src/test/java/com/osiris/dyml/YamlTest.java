@@ -1,10 +1,13 @@
 package com.osiris.dyml;
 
 import com.osiris.dyml.exceptions.*;
+import com.osiris.dyml.watcher.DirWatcher;
 import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -255,6 +258,29 @@ class YamlTest {
         yaml.load();
         yaml.save();
         assertEquals("\"hello there\" mate!", yaml.get("key").asString()); // Do not remove quotes
+    }
+
+    @Test
+    void testDirWatcher() throws YamlReaderException, YamlWriterException, IOException, DuplicateKeyException, IllegalListException, InterruptedException {
+        File testFile = new File(file.getParentFile()+"/dir-watcher-test.txt");
+        testFile.delete();
+        DirWatcher dirWatcher = DirWatcher.get(file.getParentFile(), false);
+        AtomicBoolean hasCreateEvent = new AtomicBoolean(false);
+        AtomicBoolean hasModifyEvent = new AtomicBoolean(false);
+        AtomicBoolean hasDeleteEvent = new AtomicBoolean(false);
+        dirWatcher.setListeners(event -> {
+            if(event.isCreateEvent()) hasCreateEvent.set(true);
+            if(event.isModifyEvent()) hasModifyEvent.set(true);
+            if(event.isDeleteEvent()) hasDeleteEvent.set(true);
+        });
+        testFile.createNewFile(); // executes create event
+        Files.write(testFile.toPath(), "Hello!\n".getBytes(StandardCharsets.UTF_8));// executes modify event
+        testFile.delete(); // executes delete event
+
+        Thread.sleep(1000);
+        assertTrue(hasCreateEvent.get());
+        assertTrue(hasModifyEvent.get());
+        assertTrue(hasDeleteEvent.get());
     }
 
     @Test
