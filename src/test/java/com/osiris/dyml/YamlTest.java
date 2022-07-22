@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import static com.osiris.dyml.U.N;
 import static org.junit.jupiter.api.Assertions.*;
 
 class YamlTest {
@@ -294,5 +295,20 @@ class YamlTest {
         yaml.save();
         Thread.sleep(1000);
         assertTrue(isChanged.get());
+    }
+
+    @Test
+    void testNotSortedKeys() throws YamlReaderException, IOException, DuplicateKeyException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
+        Yaml yaml = new Yaml("", "");
+        yaml.load();
+        yaml.removeAll();
+        yaml.put("key1");
+        yaml.put("key2");
+        yaml.put("key1", "child");
+        yaml.save();
+        assertEquals(
+                "key1: " +N+
+                "  child: " +N+
+                        "key2: "+N, yaml.outString);
     }
 }

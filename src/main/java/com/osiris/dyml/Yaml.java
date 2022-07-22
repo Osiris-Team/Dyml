@@ -461,24 +461,26 @@ public class Yaml {
      *   g1-new:
      * </pre>
      */
-    public YamlSection put(String... keys) throws NotLoadedException, IllegalKeyException {
-        Objects.requireNonNull(keys);
-        debugLogger.log(this, "Executing add(" + keys.toString() + ")");
-        YamlSection module = utilsYamlSection.getExisting(Arrays.asList(keys), inEditModules);
-        if (module == null) {
-            module = utilsYamlSection.getExisting(Arrays.asList(keys), loadedModules);
-            if (module != null) {
-                inEditModules.add(module);
-            } else
-                try {
-                    module = add(keys);
-                } catch (NotLoadedException | IllegalKeyException e) {
-                    throw e;
-                } catch (DuplicateKeyException ignored) {
-                    debugLogger.log(this, "This shouldn't happen! Error while adding " + keys.toString() + " Message: " + ignored.getMessage());
-                }
+    public YamlSection put(String... _keys) throws NotLoadedException, IllegalKeyException {
+        Objects.requireNonNull(_keys);
+        debugLogger.log(this, "Executing add(" + _keys.toString() + ")");
+        List<String> keys = Arrays.asList(_keys);
+        YamlSection section = utilsYamlSection.getExisting(keys, inEditModules);
+        if(section!=null)
+            return section;
+        section = utilsYamlSection.getExisting(keys, loadedModules);
+        if(section!=null){
+            inEditModules.add(section);
+            return section;
         }
-        return module;
+        try {
+            return add(_keys);
+        } catch (NotLoadedException | IllegalKeyException e) {
+            throw e;
+        } catch (DuplicateKeyException ignored) {
+            debugLogger.log(this, "This shouldn't happen! Error while adding " + keys.toString() + " Message: " + ignored.getMessage());
+        }
+        return section;
     }
 
 
@@ -543,6 +545,15 @@ public class Yaml {
         if (utilsYamlSection.getExisting(module, this.loadedModules) != null)
             throw new DuplicateKeyException((inputStream == null ? file.getName() : "<InputStream>"), module.getKeys().toString());
 
+        int closestParentIndex = utilsYamlSection.getClosestParentIndex(module.getKeys(), inEditModules);
+        if(closestParentIndex == -1){
+            this.inEditModules.add(module);
+            return module;
+        }
+        if(closestParentIndex+1<=inEditModules.size()){
+            this.inEditModules.add(closestParentIndex+1, module);
+            return module;
+        }
         this.inEditModules.add(module);
         return module;
     }
@@ -580,6 +591,11 @@ public class Yaml {
         Objects.requireNonNull(keys);
         remove(new YamlSection(this, keys));
         return this;
+    }
+
+    public void removeAll() {
+        inEditModules.clear();
+        loadedModules.clear();
     }
 
     /**
@@ -887,6 +903,5 @@ public class Yaml {
         if (!isLoaded) throw new NotLoadedException();
         return file.getName().replaceFirst("[.][^.]+$", ""); // Removes the file extension
     }
-
 }
 
