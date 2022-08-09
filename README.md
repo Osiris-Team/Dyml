@@ -26,6 +26,7 @@ supports-lists:
 supports-hyphen-separation: awesome! 
 or separation by spaces: great! # side-comments supported!
 and.dots.like.this: wow!
+or:even:colons: puh!
 
 # Complex hierarchies supported.
 g0:

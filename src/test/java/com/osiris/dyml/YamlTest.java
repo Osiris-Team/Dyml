@@ -311,4 +311,11 @@ class YamlTest {
                 "  child: " +N+
                         "key2: "+N, yaml.outString);
     }
+
+    @Test
+    void multipleColonsInKey() throws YamlReaderException, IOException, DuplicateKeyException, IllegalListException {
+        Yaml yaml = new Yaml("hello:there: my : friend:", "");
+        yaml.load();
+        assertNotNull(yaml.get("hello:there: my : friend"));
+    }
 }

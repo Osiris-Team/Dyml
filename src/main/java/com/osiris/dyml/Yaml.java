@@ -540,10 +540,10 @@ public class Yaml {
             throw new IllegalKeyException("The provided keys list contains null key(s)! This is not allowed!");
 
         if (utilsYamlSection.getExisting(module, this.inEditModules) != null)
-            throw new DuplicateKeyException((inputStream == null ? file.getName() : "<InputStream>"), module.getKeys().toString());
+            throw new DuplicateKeyException(getSource().toString(), module.getKeys().toString());
 
         if (utilsYamlSection.getExisting(module, this.loadedModules) != null)
-            throw new DuplicateKeyException((inputStream == null ? file.getName() : "<InputStream>"), module.getKeys().toString());
+            throw new DuplicateKeyException(getSource().toString(), module.getKeys().toString());
 
         int closestParentIndex = utilsYamlSection.getClosestParentIndex(module.getKeys(), inEditModules);
         if(closestParentIndex == -1){
@@ -902,6 +902,13 @@ public class Yaml {
         if (inputStream != null) return "<InputStream>";
         if (!isLoaded) throw new NotLoadedException();
         return file.getName().replaceFirst("[.][^.]+$", ""); // Removes the file extension
+    }
+
+    public Object getSource(){
+        if(file!=null) return file;
+        else if(inString!=null) return inString;
+        else if(inputStream!=null) return inputStream;
+        else return null;
     }
 }
 

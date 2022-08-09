@@ -81,7 +81,8 @@ public class UtilsYaml {
      * formatted as {@link String}.
      */
     public String getLoadedModulesInformationAsString() {
-        return "LOADED modules from '" + yaml.getFile().getName() + "' file:" + n + getModulesInformationFromListAsString(yaml.getAllLoaded());
+        return "LOADED modules from '" + yaml.getSource() +
+                "' file:" + n + getModulesInformationFromListAsString(yaml.getAllLoaded());
     }
 
     /**
@@ -89,7 +90,7 @@ public class UtilsYaml {
      * formatted as {@link String}.
      */
     public String getInEditModulesInformationAsString() {
-        return "ADDED modules from '" + yaml.getFile().getName() + "' file:" + n + getModulesInformationFromListAsString(yaml.getAllInEdit());
+        return "ADDED modules from '" + yaml.getSource() + "':" + n + getModulesInformationFromListAsString(yaml.getAllInEdit());
     }
 
     /**
@@ -97,7 +98,7 @@ public class UtilsYaml {
      * formatted as {@link String}.
      */
     public String getUnifiedModulesInformationAsString() {
-        return "UNIFIED modules from '" + yaml.getFile().getName() + "' file:" + n + getModulesInformationFromListAsString(yaml.createUnifiedList(yaml.getAllInEdit(), yaml.getAllLoaded()));
+        return "UNIFIED modules from '" + yaml.getSource() + "':" + n + getModulesInformationFromListAsString(yaml.createUnifiedList(yaml.getAllInEdit(), yaml.getAllLoaded()));
     }
 
     /**
