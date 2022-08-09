@@ -19,6 +19,7 @@ public class FeaturesExample {
         yaml.put("supports-hyphen-separation").setDefValues("awesome!");
         yaml.put("or separation by spaces").setDefValues("great!").addDefSideComments("side-comments supported!");
         yaml.put("and.dots.like.this").setDefValues("wow!");
+        yaml.put("or:even:colons").setDefValues("puh!");
 
         yaml.put("g0").setCountTopLineBreaks(1);
         yaml.put("g0", "g1a", "g2a").setDefValues("wow!");
