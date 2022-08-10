@@ -35,16 +35,16 @@ public class Yaml {
     public static final Map<String, ReentrantLock> pathsAndLocks = new HashMap<>();
     /**
      * A final list, that contains {@link YamlSection}s that are in editing. <br>
-     * In contrary to the {@link #loadedModules} list, this list doesn't get cleared <br>
+     * In contrary to the {@link #loadedSections} list, this list doesn't get cleared <br>
      * and its {@link YamlSection}s stay the same, no matter how often you call {@link #load()}. <br>
      * {@link YamlSection}s get added to this list, by {@link #get(String...)}, {@link #put(String...)}, {@link #add(String...)} or {@link #replace(YamlSection, YamlSection)}.
      */
-    public final List<YamlSection> inEditModules = new ArrayList<>();
+    public final List<YamlSection> inEditSections = new ArrayList<>();
     /**
      * A final list, that contains loaded {@link YamlSection}s. <br>
      * It gets cleared and refilled with new {@link YamlSection}s in {@link #load()}. <br>
      */
-    public final List<YamlSection> loadedModules = new ArrayList<>();
+    public final List<YamlSection> loadedSections = new ArrayList<>();
     // Utils:
     public final UtilsYaml utilsYaml = new UtilsYaml(this);
     public final UtilsYamlSection utilsYamlSection = new UtilsYamlSection();
@@ -55,76 +55,6 @@ public class Yaml {
     public OutputStream outputStream;
     public String inString;
     public String outString;
-    // General:
-    /**
-     * True if {@link #load()} was called successfully once.
-     */
-    public boolean isLoaded = false;
-    public boolean isIgnoreNotLoadedException = false;
-    // Post-Processing:
-    /**
-     * Enabled by default. Convenience method for toggling post-processing.<br>
-     * When disabled none of the post-processing options gets run, no matter if they are enabled/disabled. <br>
-     * Post-Processing happens inside {@link #load()}. <br>
-     * Some available options are: <br>
-     * {@link #isTrimCommentsEnabled} <br>
-     * {@link #isTrimLoadedValuesEnabled} <br>
-     * {@link #isRemoveQuotesFromLoadedValuesEnabled} <br>
-     * etc...
-     */
-    public boolean isPostProcessingEnabled = true;
-    /**
-     * Enabled by default. Part of post-processing. <br>
-     * Trims the loaded {@link YamlValue}. Example: <br>
-     * <pre>
-     * String before: '  hello there  '
-     * String after: 'hello there'
-     * Result: removed 4 spaces.
-     * </pre>
-     */
-    public boolean isTrimLoadedValuesEnabled = true;
-    /**
-     * Enabled by default. Part of post-processing. <br>
-     * Removes quotation marks ("" or '') from the loaded {@link YamlValue}. Example: <br>
-     * <pre>
-     * String before: "hello there"
-     * String after: hello there
-     * Result: removed 2 quotation-marks.
-     * </pre>
-     */
-    public boolean isRemoveQuotesFromLoadedValuesEnabled = true;
-    /**
-     * Enabled by default. Part of post-processing. <br>
-     * If {@link YamlValue#asString()} returns null, the whole {@link YamlValue} gets removed from the modules values list. <br>
-     */
-    public boolean isRemoveLoadedNullValuesEnabled = true;
-    /**
-     * Enabled by default. Part of post-processing. <br>
-     * Trims the comments. Example: <br>
-     * <pre>
-     * String before: '    hello there  '
-     * String after: 'hello there'
-     * Result: removed 4 spaces.
-     * </pre>
-     */
-    public boolean isTrimCommentsEnabled = true;
-    // Modules:
-    /**
-     * Enabled by default. <br>
-     * Null values return their default values as fallback.<br>
-     * See {@link YamlSection#getValueAt(int)} for details.
-     */
-    public boolean isReturnDefaultWhenValueIsNullEnabled = true;
-    /**
-     * Enabled by default. <br>
-     * If there are no values to write, write the default values.
-     */
-    public boolean isWriteDefaultValuesWhenEmptyEnabled = true;
-    /**
-     * Enabled by default. <br>
-     * If there are no comments to write, write the default comments.
-     */
-    public boolean isWriteDefaultCommentsWhenEmptyEnabled = true;
     // Watcher:
     public DirWatcher watcher = null;
     // Logging:
@@ -270,7 +200,7 @@ public class Yaml {
      * Loads the files' or streams' contents into memory by parsing it into modules({@link YamlSection}). <br>
      * Creates a new file and its parent directories if they didn't exist already. <br>
      * You can return the list of modules with {@link #getAllLoaded()}. <br>
-     * Remember, that this updates your {@link #inEditModules} values and parent/child modules. <br>
+     * Remember, that this updates your {@link #inEditSections} values and parent/child modules. <br>
      * Also note that it post-processes the 'loaded modules'. <br>
      * You can also enable/disable specific post-processing options individually: <br>
      * See {@link #isPostProcessingEnabled()} for details.
@@ -385,14 +315,14 @@ public class Yaml {
      * Note that this method won't reload the file after. Use {@link #saveAndLoad()} instead. <br>
      * It's recommended to keep {@link #load()} and {@link #save()} timely close to each other, so the user  <br>
      * can't change the values in the meantime. <br>
-     * If the yaml file is missing some {@link #inEditModules}, these get created using their values/default values.<br>
+     * If the yaml file is missing some {@link #inEditSections}, these get created using their values/default values.<br>
      * More info on this topic: <br>
      * {@link #isWriteDefaultValuesWhenEmptyEnabled()} <br>
      * {@link #createUnifiedList(List, List)} <br>
      * {@link YamlSection#setDefValues(List)} <br>
      *
      * @param overwrite false by default.
-     *                  If true, the yaml file gets overwritten with only modules from the {@link #inEditModules} list.
+     *                  If true, the yaml file gets overwritten with only modules from the {@link #inEditSections} list.
      *                  That means that everything that wasn't added to that list (loaded modules) will not exist in the file.
      */
     public Yaml save(boolean overwrite) throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, YamlWriterException {
@@ -405,11 +335,11 @@ public class Yaml {
     /**
      * Returns the {@link YamlSection} with matching keys or null. <br>
      * Details: <br>
-     * Searches the {@link #inEditModules} list, and the {@link #loadedModules} list for
+     * Searches the {@link #inEditSections} list, and the {@link #loadedSections} list for
      * the matching {@link YamlSection}
      * and returns it. Null if no matching {@link YamlSection} for the provided keys could be found. <br>
-     * If the {@link YamlSection} was found in the {@link #loadedModules} list, it gets removed from there and
-     * added to the {@link #inEditModules} list. <br>
+     * If the {@link YamlSection} was found in the {@link #loadedSections} list, it gets removed from there and
+     * added to the {@link #inEditSections} list. <br>
      */
     public YamlSection get(String... keys) {
         Objects.requireNonNull(keys);
@@ -419,20 +349,20 @@ public class Yaml {
     /**
      * Returns the {@link YamlSection} with matching keys or null. <br>
      * Details: <br>
-     * Searches the {@link #inEditModules} list, and the {@link #loadedModules} list for
+     * Searches the {@link #inEditSections} list, and the {@link #loadedSections} list for
      * the matching {@link YamlSection}
      * and returns it. Null if no matching {@link YamlSection} for the provided keys could be found. <br>
-     * If the {@link YamlSection} was found in the {@link #loadedModules} list, it gets removed from there and
-     * added to the {@link #inEditModules} list. <br>
+     * If the {@link YamlSection} was found in the {@link #loadedSections} list, it gets removed from there and
+     * added to the {@link #inEditSections} list. <br>
      */
     public YamlSection get(List<String> keys) {
         Objects.requireNonNull(keys);
         debugLogger.log(this, "Executing get(" + keys.toString() + ")");
-        YamlSection module = utilsYamlSection.getExisting(keys, inEditModules);
+        YamlSection module = utilsYamlSection.getExisting(keys, inEditSections);
         if (module == null) {
-            module = utilsYamlSection.getExisting(keys, loadedModules);
+            module = utilsYamlSection.getExisting(keys, loadedSections);
             if (module != null) {
-                inEditModules.add(module);
+                inEditSections.add(module);
             }
         }
         return module;
@@ -441,10 +371,10 @@ public class Yaml {
     /**
      * Returns the existing {@link YamlSection} with matching keys, or adds a new one. <br>
      * Details: <br>
-     * Searches for duplicate in the {@link #inEditModules}, <br>
-     * and the {@link #loadedModules} list and returns it if could find one. <br>
+     * Searches for duplicate in the {@link #inEditSections}, <br>
+     * and the {@link #loadedSections} list and returns it if could find one. <br>
      * Otherwise, it creates a new {@link YamlSection} from the <br>
-     * provided keys, adds it to the {@link #inEditModules} list and returns it. <br>
+     * provided keys, adds it to the {@link #inEditSections} list and returns it. <br>
      * Note: <br>
      * If you have a populated yaml file and add a completely new {@link YamlSection}, it gets added to the bottom of the hierarchy. <br>
      * Example yaml file before adding the new {@link YamlSection} with keys [g0, g1-new]:
@@ -465,12 +395,12 @@ public class Yaml {
         Objects.requireNonNull(_keys);
         debugLogger.log(this, "Executing add(" + _keys.toString() + ")");
         List<String> keys = Arrays.asList(_keys);
-        YamlSection section = utilsYamlSection.getExisting(keys, inEditModules);
+        YamlSection section = utilsYamlSection.getExisting(keys, inEditSections);
         if(section!=null)
             return section;
-        section = utilsYamlSection.getExisting(keys, loadedModules);
+        section = utilsYamlSection.getExisting(keys, loadedSections);
         if(section!=null){
-            inEditModules.add(section);
+            inEditSections.add(section);
             return section;
         }
         try {
@@ -506,9 +436,9 @@ public class Yaml {
      * Adds the provided {@link YamlSection} or throws exception if it already exists. <br>
      * Note that null or duplicate KEYS are not allowed. <br>
      * Details: <br>
-     * Searches for duplicates in the {@link #inEditModules}, and the {@link #loadedModules} list and throws
+     * Searches for duplicates in the {@link #inEditSections}, and the {@link #loadedSections} list and throws
      * {@link DuplicateKeyException} if it could find one. Otherwise, it creates a new {@link YamlSection} from the
-     * provided keys, adds it to the {@link #inEditModules} list and returns it. <br>
+     * provided keys, adds it to the {@link #inEditSections} list and returns it. <br>
      * Note: <br>
      * If you have a populated yaml file and add a completely new {@link YamlSection}, it gets added to the bottom of the hierarchy. <br>
      * Example yaml file before adding the new {@link YamlSection} with keys [g0, g1-new]:
@@ -539,47 +469,47 @@ public class Yaml {
         if (module.getKeys().contains(null))
             throw new IllegalKeyException("The provided keys list contains null key(s)! This is not allowed!");
 
-        if (utilsYamlSection.getExisting(module, this.inEditModules) != null)
+        if (utilsYamlSection.getExisting(module, this.inEditSections) != null)
             throw new DuplicateKeyException(getSource().toString(), module.getKeys().toString());
 
-        if (utilsYamlSection.getExisting(module, this.loadedModules) != null)
+        if (utilsYamlSection.getExisting(module, this.loadedSections) != null)
             throw new DuplicateKeyException(getSource().toString(), module.getKeys().toString());
 
-        int closestParentIndex = utilsYamlSection.getClosestParentIndex(module.getKeys(), inEditModules);
+        int closestParentIndex = utilsYamlSection.getClosestParentIndex(module.getKeys(), inEditSections);
         if(closestParentIndex == -1){
-            this.inEditModules.add(module);
+            this.inEditSections.add(module);
             return module;
         }
-        if(closestParentIndex+1<=inEditModules.size()){
-            this.inEditModules.add(closestParentIndex+1, module);
+        if(closestParentIndex+1<= inEditSections.size()){
+            this.inEditSections.add(closestParentIndex+1, module);
             return module;
         }
-        this.inEditModules.add(module);
+        this.inEditSections.add(module);
         return module;
     }
 
     /**
      * Replaces {@link YamlSection}, with the provided {@link YamlSection}. <br>
      * Details: <br>
-     * Searches the {@link #inEditModules} list, and the {@link #loadedModules} list for the {@link YamlSection} to replace. <br>
+     * Searches the {@link #inEditSections} list, and the {@link #loadedSections} list for the {@link YamlSection} to replace. <br>
      * Replaces it and returns the replacement, or null if {@link YamlSection} to replace couldn't be found. <br>
-     * If the {@link YamlSection} to replace was found in the {@link #loadedModules} list, it gets removed from there and <br>
-     * the replacement gets added to the {@link #inEditModules} list. <br>
+     * If the {@link YamlSection} to replace was found in the {@link #loadedSections} list, it gets removed from there and <br>
+     * the replacement gets added to the {@link #inEditSections} list. <br>
      */
     public YamlSection replace(YamlSection moduleToReplace, YamlSection newModule) {
         debugLogger.log(this, "Executing replace()");
         Objects.requireNonNull(moduleToReplace);
         Objects.requireNonNull(newModule);
-        YamlSection module = utilsYamlSection.getExisting(moduleToReplace, inEditModules);
+        YamlSection module = utilsYamlSection.getExisting(moduleToReplace, inEditSections);
         if (module == null) {
-            module = utilsYamlSection.getExisting(moduleToReplace, loadedModules);
+            module = utilsYamlSection.getExisting(moduleToReplace, loadedSections);
             if (module != null) {
-                inEditModules.add(newModule);
+                inEditSections.add(newModule);
             }
         } else {
-            int i = inEditModules.indexOf(moduleToReplace);
-            inEditModules.remove(moduleToReplace);
-            inEditModules.add(i, newModule);
+            int i = inEditSections.indexOf(moduleToReplace);
+            inEditSections.remove(moduleToReplace);
+            inEditSections.add(i, newModule);
         }
         return module;
     }
@@ -594,8 +524,8 @@ public class Yaml {
     }
 
     public void removeAll() {
-        inEditModules.clear();
-        loadedModules.clear();
+        inEditSections.clear();
+        loadedSections.clear();
     }
 
     /**
@@ -603,12 +533,12 @@ public class Yaml {
      */
     public Yaml remove(YamlSection module) {
         debugLogger.log(this, "Executing remove()");
-        YamlSection addedM = utilsYamlSection.getExisting(module, inEditModules);
+        YamlSection addedM = utilsYamlSection.getExisting(module, inEditSections);
         if (addedM != null)
-            this.inEditModules.remove(addedM);
-        YamlSection loadedM = utilsYamlSection.getExisting(module, loadedModules);
+            this.inEditSections.remove(addedM);
+        YamlSection loadedM = utilsYamlSection.getExisting(module, loadedSections);
         if (loadedM != null)
-            this.loadedModules.remove(loadedM);
+            this.loadedSections.remove(loadedM);
         return this;
     }
 
@@ -635,17 +565,17 @@ public class Yaml {
     }
 
     /**
-     * This method returns a new unified list containing the {@link #loadedModules} and {@link #inEditModules} merged together. <br>
-     * The loaded modules list is used as 'base' and is overwritten/extended by the {@link #inEditModules} list. <br>
+     * This method returns a new unified list containing the {@link #loadedSections} and {@link #inEditSections} merged together. <br>
+     * The loaded modules list is used as 'base' and is overwritten/extended by the {@link #inEditSections} list. <br>
      * This ensures, that the structure(hierarchies) of the loaded file stay the same <br>
      * and that new modules are inserted in the correct position. <br>
      * Logic: <br>
-     * 1. If the loaded modules list is empty, nothing needs to be done! Return {@link #inEditModules}. <br>
-     * 2. Else go through the loaded modules and compare each module with the {@link #inEditModules} list.
+     * 1. If the loaded modules list is empty, nothing needs to be done! Return {@link #inEditSections}. <br>
+     * 2. Else go through the loaded modules and compare each module with the {@link #inEditSections} list.
      * If there is an inEdit module with the same keys, add it to the unified list instead of the loaded module. <br>
-     * 3. If there are NEW modules in the {@link #inEditModules} list, insert them into the right places of unified list. <br>
+     * 3. If there are NEW modules in the {@link #inEditSections} list, insert them into the right places of unified list. <br>
      *
-     * @return a fresh unified list containing loaded modules extended by {@link #inEditModules}.
+     * @return a fresh unified list containing loaded modules extended by {@link #inEditSections}.
      */
     public List<YamlSection> createUnifiedList(List<YamlSection> inEditModules, List<YamlSection> loadedModules) {
         if (loadedModules.isEmpty()) return inEditModules;
@@ -783,14 +713,14 @@ public class Yaml {
 
 
     /**
-     * Returns a fresh unified, ordered list with {@link #loadedModules} and {@link #inEditModules} merged together. <br>
+     * Returns a fresh unified, ordered list with {@link #loadedSections} and {@link #inEditSections} merged together. <br>
      * Note that this is not the original list, but a copy and thus any changes to it, won't have affect and changes to the original
      * won't be reflected in this copy. <br>
      * This list is the one, that gets written to the yaml file. <br>
      * See {@link #createUnifiedList(List, List)} for details.
      */
     public List<YamlSection> getAll() {
-        return createUnifiedList(this.inEditModules, this.loadedModules);
+        return createUnifiedList(this.inEditSections, this.loadedSections);
     }
 
     /**
@@ -800,14 +730,14 @@ public class Yaml {
      * Its modules, do not contain default values.
      */
     public List<YamlSection> getAllLoaded() {
-        return loadedModules;
+        return loadedSections;
     }
 
     /**
-     * Convenience method for returning the last module from the {@link #loadedModules} list.
+     * Convenience method for returning the last module from the {@link #loadedSections} list.
      */
     public YamlSection getLastLoadedModule() {
-        return loadedModules.get(loadedModules.size() - 1);
+        return loadedSections.get(loadedSections.size() - 1);
     }
 
     /**
@@ -818,14 +748,14 @@ public class Yaml {
      * 'loaded modules' list, which can be returned by {@link #getAllLoaded()}.
      */
     public List<YamlSection> getAllInEdit() {
-        return inEditModules;
+        return inEditSections;
     }
 
     /**
-     * Convenience method for returning the last module from the {@link #inEditModules} list.
+     * Convenience method for returning the last module from the {@link #inEditSections} list.
      */
     public YamlSection getLastInEditModule() {
-        return inEditModules.get(inEditModules.size() - 1);
+        return inEditSections.get(inEditSections.size() - 1);
     }
 
     /**

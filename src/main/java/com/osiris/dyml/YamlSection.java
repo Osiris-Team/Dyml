@@ -21,7 +21,7 @@ import java.util.Objects;
  * Contains information about its keys, values and comments.
  */
 @SuppressWarnings("ALL")
-public class YamlSection {
+public class YamlSection extends SmartString{
     private final UtilsYamlSection utils = new UtilsYamlSection();
     private Yaml yaml;
     private List<String> keys;

@@ -7,7 +7,7 @@ import java.util.List;
  * Wraps around a String and provides additional type conversion methods.
  */
 public class SmartString {
-    private String string;
+    protected String string;
 
     public SmartString() {
         this(null);
