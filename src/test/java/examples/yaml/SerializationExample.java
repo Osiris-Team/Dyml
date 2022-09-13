@@ -29,15 +29,17 @@ public class SerializationExample {
 
     @Test
     void test() throws Exception {
+
+        // Java object to YAML like so:
         Yaml yaml = new Yaml("", ""); // You can find every examples yaml file here https://github.com/Osiris-Team/Dream-Yaml/tree/main/src/test
         yaml.load();
-        yaml.put("person").putJavaChildSection(new Person(23, "Peter"));
+        yaml.put("person").putJavaChildSection(new Person(23, "John"));
         yaml.save();
-        // peter:
+        // person:
         //   age: 23
-        //   name: Peter
+        //   name: John
 
-
+        // YAML to Java object like so:
         Person person = yaml.put("person").as(Person.class);
     }
 }
