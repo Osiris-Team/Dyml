@@ -594,6 +594,7 @@ public class YamlSection {
     /**
      * Takes the fields of the provided Java object
      * and converts/adds them to this {@link YamlSection}, as children. <br>
+     * The counterpart to this is the {@link #as(Class, boolean)} method. <br>
      * @param obj expected to be not primitive and not "big" primitive. <br>
      *            So it should not be of type int.class or Integer.class for example.
      */
@@ -627,6 +628,7 @@ public class YamlSection {
     /**
      * Takes the fields of the provided Java object
      * and converts/adds them to this {@link YamlSection}, as children. <br>
+     * The counterpart to this is the {@link #as(Class, boolean)} method. <br>
      * @param obj expected to be not primitive and not "big" primitive. <br>
      *            So it should not be of type int.class or Integer.class for example.
      */
