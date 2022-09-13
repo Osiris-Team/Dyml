@@ -79,13 +79,13 @@ class YamlWriter {
 
                     logger.log(this, "");
                     logger.log(this, "---> " + loadedModule.toPrintString());
-                    if (loadedModule.getParentModule() != null)
-                        logger.log(this, "PARENT -> " + loadedModule.getParentModule().toPrintString());
+                    if (loadedModule.getParentSection() != null)
+                        logger.log(this, "PARENT -> " + loadedModule.getParentSection().toPrintString());
                     else
                         logger.log(this, "PARENT -> NULL");
 
                     for (YamlSection childModule :
-                            loadedModule.getChildModules()) {
+                            loadedModule.getChildSections()) {
                         if (childModule != null)
                             logger.log(this, "CHILD -> " + childModule.toPrintString());
                         else

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.util.ArrayList;
@@ -317,5 +318,28 @@ class YamlTest {
         Yaml yaml = new Yaml("hello:there: my : friend:", "");
         yaml.load();
         assertNotNull(yaml.get("hello:there: my : friend"));
+    }
+
+    @Test
+    void testSerialization() throws YamlReaderException, IOException, DuplicateKeyException, IllegalListException, NotLoadedException, IllegalKeyException, InstantiationException, IllegalAccessException, InvocationTargetException, YamlWriterException {
+        class Person extends Object{
+            public int age;
+            public String name;
+        }
+        Yaml yaml = new Yaml(
+                "person: " +N+
+                        "  age: 44" +N+
+                        "  name: Peter"+N, "");
+        yaml.load();
+        Person p = yaml.get("person").as(Person.class);
+        assertEquals(yaml.get("person", "age").asInt(), p.age);
+        assertEquals(yaml.get("person", "name").asString(), p.name);
+
+        Yaml yaml2 = new Yaml("", "");
+        yaml2.load();
+        yaml2.put("person").objectToYaml(p);
+        yaml2.save();
+
+        assertEquals(yaml.inString, yaml2.outString);
     }
 }

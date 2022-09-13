@@ -9,8 +9,13 @@
 package com.osiris.dyml;
 
 
+import com.osiris.dyml.exceptions.IllegalKeyException;
+import com.osiris.dyml.exceptions.NotLoadedException;
 import com.osiris.dyml.utils.UtilsYamlSection;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -33,8 +38,8 @@ public class YamlSection {
     private List<String> defaultSideComments;
     private int countTopLineBreaks;
 
-    private YamlSection parentModule = null;
-    private List<YamlSection> childModules = new ArrayList<>();
+    private YamlSection parentSection = null;
+    private List<YamlSection> childSections = new ArrayList<>();
 
     /**
      * See {@link #YamlSection(Yaml, List, List, List, List)} for details.
@@ -581,8 +586,98 @@ public class YamlSection {
         return this;
     }
 
+    /**
+     * @param obj expected to be not primitive and not "big" primitive. <br>
+     *            So it should not be of type int.class or Integer.class for example.
+     */
+    public void objectToYaml(Object obj) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
+        Class<?> aClass = obj.getClass();
+        for (Field field : aClass.getDeclaredFields()) {
+            Object rawValue = field.get(obj);
+            if(rawValue != null){
+                String value = "" + rawValue;
+                List<String> keys = new ArrayList<>(this.keys);
+                keys.add(field.getName());
+                YamlSection section = yaml.put(keys);
+                section.setValues(value);
+            }
+            // else the value is null and nothing is added to yaml (not even the key)
+        }
+    }
+
+
+    /**
+     * @param obj expected to be not primitive and not "big" primitive. <br>
+     *            So it should not be of type int.class or Integer.class for example.
+     */
+    public void objectToDefYaml(Object obj) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
+        Class<?> aClass = obj.getClass();
+        for (Field field : aClass.getDeclaredFields()) {
+            Object rawValue = field.get(obj);
+            if(rawValue != null){
+                String value = "" + rawValue;
+                List<String> keys = new ArrayList<>(this.keys);
+                keys.add(field.getName());
+                YamlSection section = yaml.put(keys);
+                section.setDefValues(value);
+            }
+            // else the value is null and nothing is added to yaml (not even the key)
+        }
+    }
+
 
     // AS METHODS:
+
+
+    /**
+     * Deserialises this YAML section
+     * (its children) to a Java object of the provided type. <br>
+     * Uses the Java reflection API. If the class has constructor parameters initialises them with null. <br>
+     *
+     * @param type the type to deserialize to
+     * @param <V> the type to get
+     * @return the value if present and of the proper type, else null
+     */
+    @SuppressWarnings("unchecked") // type is verified by the class parameter
+    public <V> V as(Class<V> type) throws InstantiationException, IllegalAccessException, NotLoadedException, IllegalKeyException, InvocationTargetException {
+
+        // Create an instance/object of the provided type, which then later gets returned:
+        V instance;
+        if(type.getDeclaredConstructors().length == 0){
+            instance = type.newInstance();
+        } else{
+            Constructor<?> constructor = type.getDeclaredConstructors()[0];
+            if(constructor.getParameterCount() > 0){
+                Object[] params = new Object[constructor.getParameterCount()];
+                for (int i = 0; i < constructor.getParameterCount(); i++) {
+                    params[i] = null;
+                }
+                instance = (V) constructor.newInstance(params);
+            } else{
+                instance = (V) constructor.newInstance();
+            }
+        }
+
+        // Fill object with data from this sections' children:
+        for (Field field : type.getDeclaredFields()) {
+            List<String> keys = new ArrayList<>(this.keys);
+            keys.add(field.getName());
+            YamlSection section = yaml.get(keys);
+
+            if(section!=null){
+                if(field.getType().equals(String.class)) field.set(instance, section.asString());
+                else if(field.getType().equals(boolean.class) || field.getType().equals(Boolean.class)) field.set(instance, section.asBoolean());
+                else if(field.getType().equals(byte.class) || field.getType().equals(Byte.class)) field.set(instance, section.asByte());
+                else if(field.getType().equals(short.class) || field.getType().equals(Short.class)) field.set(instance, section.asShort());
+                else if(field.getType().equals(int.class) || field.getType().equals(Integer.class)) field.set(instance, section.asInt());
+                else if(field.getType().equals(long.class) || field.getType().equals(Long.class)) field.set(instance, section.asLong());
+                else if(field.getType().equals(float.class) || field.getType().equals(Float.class)) field.set(instance, section.asFloat());
+                else if(field.getType().equals(double.class) || field.getType().equals(Double.class)) field.set(instance, section.asDouble());
+                //TODO else do nothing, nested objects are not supported yet, only primitives at the moment
+            }
+        }
+        return (V) instance;
+    }
 
     /**
      * Shortcut for retrieving this {@link YamlSection}s first {@link SmartString} as string. <br>
@@ -599,11 +694,11 @@ public class YamlSection {
     /**
      * Shortcut for retrieving this {@link YamlSection}s first {@link SmartString}.
      */
-    public SmartString asDYValue() {
-        return asDYValue(0);
+    public SmartString asSmartString() {
+        return asSmartString(0);
     }
 
-    public SmartString asDYValue(int i) {
+    public SmartString asSmartString(int i) {
         return getValueAt(i);
     }
 
@@ -711,8 +806,8 @@ public class YamlSection {
      * The parent {@link YamlSection} of this {@link YamlSection}, aka the last {@link YamlSection} in the generation before. <br>
      * More about generations here: {@link YamlReader#parseLine(Yaml, DYLine)}.
      */
-    public YamlSection getParentModule() {
-        return parentModule;
+    public YamlSection getParentSection() {
+        return parentSection;
     }
 
     /**
@@ -720,8 +815,8 @@ public class YamlSection {
      * The parent {@link YamlSection} of this {@link YamlSection}, aka the last {@link YamlSection} in the generation before. <br>
      * More about generations here: {@link YamlReader#parseLine(Yaml, DYLine)}.
      */
-    public YamlSection setParentModule(YamlSection parentModule) {
-        this.parentModule = parentModule;
+    public YamlSection setParentSection(YamlSection parentSection) {
+        this.parentSection = parentSection;
         return this;
     }
 
@@ -733,8 +828,8 @@ public class YamlSection {
      * modifying them has also affect to the actual yaml file. <br>
      * More about generations here: {@link YamlReader#parseLine(Yaml, DYLine)}.
      */
-    public List<YamlSection> getChildModules() {
-        return childModules;
+    public List<YamlSection> getChildSections() {
+        return childSections;
     }
 
     /**
@@ -743,14 +838,14 @@ public class YamlSection {
      * Note that this list does NOT contain generations beyond that. <br>
      * More about generations here: {@link YamlReader#parseLine(Yaml, DYLine)}.
      */
-    public YamlSection setChildModules(List<YamlSection> childModules) {
-        this.childModules = childModules;
+    public YamlSection setChildSections(List<YamlSection> childSections) {
+        this.childSections = childSections;
         return this;
     }
 
-    public YamlSection addChildModules(YamlSection... cModules) {
+    public YamlSection addChildSections(YamlSection... cModules) {
         Objects.requireNonNull(cModules);
-        childModules.addAll(Arrays.asList(cModules));
+        childSections.addAll(Arrays.asList(cModules));
         return this;
     }
 

@@ -126,8 +126,8 @@ class YamlReader {
                         yaml.getAllInEdit()) {
                     YamlSection loadedM = utils.getExisting(inEditM, yaml.getAllLoaded());
                     inEditM.setValues(loadedM.getValues());
-                    inEditM.setParentModule(loadedM.getParentModule());
-                    inEditM.setChildModules(loadedM.getChildModules());
+                    inEditM.setParentSection(loadedM.getParentSection());
+                    inEditM.setChildSections(loadedM.getChildSections());
                 }
 
             timer.stop();
@@ -138,13 +138,13 @@ class YamlReader {
 
                 debug.log(this, "");
                 debug.log(this, "---> " + loadedModule.toPrintString());
-                if (loadedModule.getParentModule() != null)
-                    debug.log(this, "PARENT -> " + loadedModule.getParentModule().toPrintString());
+                if (loadedModule.getParentSection() != null)
+                    debug.log(this, "PARENT -> " + loadedModule.getParentSection().toPrintString());
                 else
                     debug.log(this, "PARENT -> NULL");
 
                 for (YamlSection childModule :
-                        loadedModule.getChildModules()) {
+                        loadedModule.getChildSections()) {
                     if (childModule != null)
                         debug.log(this, "CHILD -> " + childModule.toPrintString());
                     else
@@ -354,8 +354,8 @@ class YamlReader {
                         if ((currentLine.getCountSpaces() - oldLine.getCountSpaces()) == 2) {
                             YamlSection oldModule = allLoaded.get(i);
                             module.getKeys().addAll(oldModule.getKeys());
-                            module.setParentModule(oldModule);
-                            oldModule.addChildModules(module);
+                            module.setParentSection(oldModule);
+                            oldModule.addChildSections(module);
                             break;
                         }
                     }
@@ -431,8 +431,8 @@ class YamlReader {
                     if ((currentLine.getCountSpaces() - oldLine.getCountSpaces()) == 2) {
                         YamlSection oldModule = allLoaded.get(i);
                         module.getKeys().addAll(oldModule.getKeys());
-                        module.setParentModule(oldModule);
-                        oldModule.addChildModules(module);
+                        module.setParentSection(oldModule);
+                        oldModule.addChildSections(module);
                         break;
                     }
                 }

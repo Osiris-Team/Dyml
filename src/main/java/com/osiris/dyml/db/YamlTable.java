@@ -208,7 +208,7 @@ public class YamlTable {
         // TODO idk if this is the best way
         List<YamlColumn> columns = new ArrayList<>();
         for (YamlSection columnModule :
-                tableModule.getChildModules()) {
+                tableModule.getChildSections()) {
             // Note that these modules must have been already added to the
             // inEditModules list, that's why we do the below (to ensure that):
             columns.add(new YamlColumn(tableModule.getYaml().get(columnModule.getKeys())));

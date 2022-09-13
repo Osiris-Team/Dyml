@@ -438,6 +438,12 @@ public class Yaml {
         return module;
     }
 
+    public YamlSection put(String... keys) throws NotLoadedException, IllegalKeyException {
+        Objects.requireNonNull(keys);
+        List<String> list = new ArrayList<>(Arrays.asList(keys));
+        return put(list);
+    }
+
     /**
      * Returns the existing {@link YamlSection} with matching keys, or adds a new one. <br>
      * Details: <br>
@@ -461,10 +467,10 @@ public class Yaml {
      *   g1-new:
      * </pre>
      */
-    public YamlSection put(String... _keys) throws NotLoadedException, IllegalKeyException {
-        Objects.requireNonNull(_keys);
-        debugLogger.log(this, "Executing add(" + _keys.toString() + ")");
-        List<String> keys = Arrays.asList(_keys);
+    public YamlSection put(List<String> keys) throws NotLoadedException, IllegalKeyException {
+        Objects.requireNonNull(keys);
+        debugLogger.log(this, "Executing add(" + keys.toString() + ")");
+
         YamlSection section = utilsYamlSection.getExisting(keys, inEditModules);
         if(section!=null)
             return section;
@@ -474,7 +480,7 @@ public class Yaml {
             return section;
         }
         try {
-            return add(_keys);
+            return add(keys);
         } catch (NotLoadedException | IllegalKeyException e) {
             throw e;
         } catch (DuplicateKeyException ignored) {
@@ -483,15 +489,20 @@ public class Yaml {
         return section;
     }
 
+    public YamlSection add(String... keys) throws NotLoadedException, IllegalKeyException, DuplicateKeyException {
+        Objects.requireNonNull(keys);
+        List<String> list = new ArrayList<>(Arrays.asList(keys));
+        return add(list);
+    }
+
 
     /**
      * Creates a new {@link YamlSection}, with the provided keys, adds it to the modules list and returns it. <br>
      * See {@link #add(YamlSection)} for details.
      */
-    public YamlSection add(String... keys) throws NotLoadedException, IllegalKeyException, DuplicateKeyException {
+    public YamlSection add(List<String> keys) throws NotLoadedException, IllegalKeyException, DuplicateKeyException {
         Objects.requireNonNull(keys);
-        List<String> list = new ArrayList<>(Arrays.asList(keys));
-        return add(list, null, null, null);
+        return add(keys, null, null, null);
     }
 
     /**
@@ -745,8 +756,8 @@ public class Yaml {
                         bestMatchIndex++; // So that the new filler module gets added in the right position
                         unifiedList.add(bestMatchIndex, fillerModule);
                         if (beforeFillerModule != null) {
-                            beforeFillerModule.addChildModules(fillerModule);
-                            fillerModule.setParentModule(beforeFillerModule);
+                            beforeFillerModule.addChildSections(fillerModule);
+                            fillerModule.setParentSection(beforeFillerModule);
                         }
                         debugLogger.log(this, "+ Filler at index " + bestMatchIndex + " " + fillerModule.getKeys().toString());
                         beforeFillerModule = fillerModule;
@@ -757,8 +768,8 @@ public class Yaml {
                     YamlSection parent = unifiedList.get(bestMatchIndex);
                     bestMatchIndex++; // +1 because we currently got the index for the parent, before this module.
                     unifiedList.add(bestMatchIndex, newModule);
-                    parent.addChildModules(newModule);
-                    newModule.setParentModule(parent);
+                    parent.addChildSections(newModule);
+                    newModule.setParentSection(parent);
                     debugLogger.log(this, "> Insert at index " + bestMatchIndex + " " + newModule.getKeys().toString());
                 } catch (Exception e) {
                     debugLogger.log(this, "! Failed to find parent for: " + newModule.getKeys().toString() + " Probably a new module.");
