@@ -13,10 +13,7 @@ import com.osiris.dyml.exceptions.IllegalKeyException;
 import com.osiris.dyml.exceptions.NotLoadedException;
 import com.osiris.dyml.utils.UtilsYamlSection;
 
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Parameter;
+import java.lang.reflect.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -587,15 +584,23 @@ public class YamlSection {
         return this;
     }
 
+    public YamlSection setValueObj(Object obj) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
+        return setValueObj(obj, false);
+    }
+
     /**
      * Takes the fields of the provided Java object
      * and converts/adds them to this {@link YamlSection}, as children. <br>
      * @param obj expected to be not primitive and not "big" primitive. <br>
      *            So it should not be of type int.class or Integer.class for example.
      */
-    public YamlSection setValueObj(Object obj) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
+    public YamlSection setValueObj(Object obj, boolean includePrivateFields) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
         Class<?> aClass = obj.getClass();
         for (Field field : aClass.getDeclaredFields()) {
+            if(Modifier.isPrivate(field.getModifiers())) {
+                if(includePrivateFields) field.setAccessible(true);
+                else continue;
+            }
             Object rawValue = field.get(obj);
             if (rawValue != null) {
                 String value = "" + rawValue;
@@ -609,6 +614,9 @@ public class YamlSection {
         return this;
     }
 
+    public YamlSection setDefValueObj(Object obj) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
+        return setDefValueObj(obj, false);
+    }
 
     /**
      * Takes the fields of the provided Java object
@@ -616,9 +624,13 @@ public class YamlSection {
      * @param obj expected to be not primitive and not "big" primitive. <br>
      *            So it should not be of type int.class or Integer.class for example.
      */
-    public YamlSection setDefValueObj(Object obj) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
+    public YamlSection setDefValueObj(Object obj, boolean includePrivateFields) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
         Class<?> aClass = obj.getClass();
         for (Field field : aClass.getDeclaredFields()) {
+            if(Modifier.isPrivate(field.getModifiers())) {
+                if(includePrivateFields) field.setAccessible(true);
+                else continue;
+            }
             Object rawValue = field.get(obj);
             if (rawValue != null) {
                 String value = "" + rawValue;
