@@ -337,7 +337,7 @@ class YamlTest {
 
         Yaml yaml2 = new Yaml("", "");
         yaml2.load();
-        yaml2.put("person").objectToYaml(p);
+        yaml2.put("person").setValueObj(p);
         yaml2.save();
 
         assertEquals(yaml.inString, yaml2.outString);

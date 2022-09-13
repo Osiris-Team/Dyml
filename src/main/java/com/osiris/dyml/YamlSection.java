@@ -16,6 +16,7 @@ import com.osiris.dyml.utils.UtilsYamlSection;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -587,10 +588,12 @@ public class YamlSection {
     }
 
     /**
+     * Takes the fields of the provided Java object
+     * and converts/adds them to this {@link YamlSection}, as children. <br>
      * @param obj expected to be not primitive and not "big" primitive. <br>
      *            So it should not be of type int.class or Integer.class for example.
      */
-    public void objectToYaml(Object obj) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
+    public YamlSection setValueObj(Object obj) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
         Class<?> aClass = obj.getClass();
         for (Field field : aClass.getDeclaredFields()) {
             Object rawValue = field.get(obj);
@@ -603,14 +606,17 @@ public class YamlSection {
             }
             // else the value is null and nothing is added to yaml (not even the key)
         }
+        return this;
     }
 
 
     /**
+     * Takes the fields of the provided Java object
+     * and converts/adds them to this {@link YamlSection}, as children. <br>
      * @param obj expected to be not primitive and not "big" primitive. <br>
      *            So it should not be of type int.class or Integer.class for example.
      */
-    public void objectToDefYaml(Object obj) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
+    public YamlSection setDefValueObj(Object obj) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
         Class<?> aClass = obj.getClass();
         for (Field field : aClass.getDeclaredFields()) {
             Object rawValue = field.get(obj);
@@ -623,6 +629,7 @@ public class YamlSection {
             }
             // else the value is null and nothing is added to yaml (not even the key)
         }
+        return this;
     }
 
 
@@ -647,12 +654,17 @@ public class YamlSection {
             instance = type.newInstance();
         } else {
             Constructor<?> constructor = type.getDeclaredConstructors()[0];
-            if (constructor.getParameterCount() > 0) {
-                Object[] params = new Object[constructor.getParameterCount()];
+            Parameter[] params = constructor.getParameters();
+            if (params.length > 0) {
+                Object[] paramValues = new Object[params.length];
                 for (int i = 0; i < constructor.getParameterCount(); i++) {
-                    params[i] = null;
+                    paramValues[i] = 0;
+                    if(isPrimitive(constructor.getParameters()[i].getType()))
+                        paramValues[i] = 0;
+                    else
+                        paramValues[i] = null;
                 }
-                instance = (V) constructor.newInstance(params);
+                instance = (V) constructor.newInstance(paramValues);
             } else {
                 instance = (V) constructor.newInstance();
             }
@@ -665,7 +677,7 @@ public class YamlSection {
             YamlSection section = yaml.get(keys);
 
             if (section != null) {
-                if (field.getType().equals(String.class)) field.set(instance, section.asString());
+                if (field.getType().equals(String.class) || field.getType().equals(Character.class)) field.set(instance, section.asString());
                 else if (field.getType().equals(boolean.class) || field.getType().equals(Boolean.class))
                     field.set(instance, section.asBoolean());
                 else if (field.getType().equals(byte.class) || field.getType().equals(Byte.class))
@@ -684,6 +696,20 @@ public class YamlSection {
             }
         }
         return (V) instance;
+    }
+
+    /**
+     * Is primitive check that includes big primitives.
+     */
+    private boolean isPrimitive(Class<?> clazz){
+        return clazz.isPrimitive() || clazz.equals(Boolean.class) ||
+                clazz.equals(Byte.class) ||
+                clazz.equals(Short.class) ||
+                clazz.equals(Integer.class) ||
+                clazz.equals(Long.class) ||
+                clazz.equals(Float.class) ||
+                clazz.equals(Double.class) ||
+                clazz.equals(Character.class);
     }
 
     /**
