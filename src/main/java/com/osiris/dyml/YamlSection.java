@@ -594,7 +594,7 @@ public class YamlSection {
         Class<?> aClass = obj.getClass();
         for (Field field : aClass.getDeclaredFields()) {
             Object rawValue = field.get(obj);
-            if(rawValue != null){
+            if (rawValue != null) {
                 String value = "" + rawValue;
                 List<String> keys = new ArrayList<>(this.keys);
                 keys.add(field.getName());
@@ -614,7 +614,7 @@ public class YamlSection {
         Class<?> aClass = obj.getClass();
         for (Field field : aClass.getDeclaredFields()) {
             Object rawValue = field.get(obj);
-            if(rawValue != null){
+            if (rawValue != null) {
                 String value = "" + rawValue;
                 List<String> keys = new ArrayList<>(this.keys);
                 keys.add(field.getName());
@@ -635,7 +635,7 @@ public class YamlSection {
      * Uses the Java reflection API. If the class has constructor parameters initialises them with null. <br>
      *
      * @param type the type to deserialize to
-     * @param <V> the type to get
+     * @param <V>  the type to get
      * @return the value if present and of the proper type, else null
      */
     @SuppressWarnings("unchecked") // type is verified by the class parameter
@@ -643,17 +643,17 @@ public class YamlSection {
 
         // Create an instance/object of the provided type, which then later gets returned:
         V instance;
-        if(type.getDeclaredConstructors().length == 0){
+        if (type.getDeclaredConstructors().length == 0) {
             instance = type.newInstance();
-        } else{
+        } else {
             Constructor<?> constructor = type.getDeclaredConstructors()[0];
-            if(constructor.getParameterCount() > 0){
+            if (constructor.getParameterCount() > 0) {
                 Object[] params = new Object[constructor.getParameterCount()];
                 for (int i = 0; i < constructor.getParameterCount(); i++) {
                     params[i] = null;
                 }
                 instance = (V) constructor.newInstance(params);
-            } else{
+            } else {
                 instance = (V) constructor.newInstance();
             }
         }
@@ -664,15 +664,22 @@ public class YamlSection {
             keys.add(field.getName());
             YamlSection section = yaml.get(keys);
 
-            if(section!=null){
-                if(field.getType().equals(String.class)) field.set(instance, section.asString());
-                else if(field.getType().equals(boolean.class) || field.getType().equals(Boolean.class)) field.set(instance, section.asBoolean());
-                else if(field.getType().equals(byte.class) || field.getType().equals(Byte.class)) field.set(instance, section.asByte());
-                else if(field.getType().equals(short.class) || field.getType().equals(Short.class)) field.set(instance, section.asShort());
-                else if(field.getType().equals(int.class) || field.getType().equals(Integer.class)) field.set(instance, section.asInt());
-                else if(field.getType().equals(long.class) || field.getType().equals(Long.class)) field.set(instance, section.asLong());
-                else if(field.getType().equals(float.class) || field.getType().equals(Float.class)) field.set(instance, section.asFloat());
-                else if(field.getType().equals(double.class) || field.getType().equals(Double.class)) field.set(instance, section.asDouble());
+            if (section != null) {
+                if (field.getType().equals(String.class)) field.set(instance, section.asString());
+                else if (field.getType().equals(boolean.class) || field.getType().equals(Boolean.class))
+                    field.set(instance, section.asBoolean());
+                else if (field.getType().equals(byte.class) || field.getType().equals(Byte.class))
+                    field.set(instance, section.asByte());
+                else if (field.getType().equals(short.class) || field.getType().equals(Short.class))
+                    field.set(instance, section.asShort());
+                else if (field.getType().equals(int.class) || field.getType().equals(Integer.class))
+                    field.set(instance, section.asInt());
+                else if (field.getType().equals(long.class) || field.getType().equals(Long.class))
+                    field.set(instance, section.asLong());
+                else if (field.getType().equals(float.class) || field.getType().equals(Float.class))
+                    field.set(instance, section.asFloat());
+                else if (field.getType().equals(double.class) || field.getType().equals(Double.class))
+                    field.set(instance, section.asDouble());
                 //TODO else do nothing, nested objects are not supported yet, only primitives at the moment
             }
         }

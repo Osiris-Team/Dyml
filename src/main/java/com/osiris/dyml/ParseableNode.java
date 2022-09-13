@@ -8,10 +8,14 @@ import java.util.List;
  */
 public interface ParseableNode {
     String getKey();
+
     List<String> getValues();
+
     ParseableNode getParent();
+
     List<ParseableNode> getChildren();
 
     String toString(List<ParseableNode> nodes);
+
     <T extends ParseableNode> List<T> toNodesList(String s);
 }

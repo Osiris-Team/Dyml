@@ -39,9 +39,9 @@ import java.util.function.Consumer;
  * That's why DreamYamlDB is perfect for working with small to medium amounts of data.
  */
 public class YamlDatabase {
-    private Yaml yaml;
     public List<YamlTable> tables = new CopyOnWriteArrayList<>();
     public Thread threadAutoSave;
+    private Yaml yaml;
 
     /**
      * Creates a new yaml file in the current working directory, with a random, unused name.
@@ -96,19 +96,20 @@ public class YamlDatabase {
 
     /**
      * Starts a thread that executes {@link #save()} periodically. <br>
+     *
      * @param msIntervall the amount of time in milliseconds, for the thread to wait until attempting a save operation.
      */
-    public void initAutoSaveThread(long msIntervall, Consumer<Exception> onException){
-        if(threadAutoSave==null || threadAutoSave.isInterrupted())
+    public void initAutoSaveThread(long msIntervall, Consumer<Exception> onException) {
+        if (threadAutoSave == null || threadAutoSave.isInterrupted())
             threadAutoSave = new Thread(() -> {
-               try{
-                   while (true){
-                       Thread.sleep(msIntervall);
-                       save();
-                   }
-               } catch (Exception e) {
-                   onException.accept(e);
-               }
+                try {
+                    while (true) {
+                        Thread.sleep(msIntervall);
+                        save();
+                    }
+                } catch (Exception e) {
+                    onException.accept(e);
+                }
             });
     }
 
@@ -162,16 +163,16 @@ public class YamlDatabase {
         yaml.saveAndLoad();
         YamlTable tExisting = null;
         for (YamlTable t : tables) {
-            if(t.getName().equals(name)){
+            if (t.getName().equals(name)) {
                 tExisting = t;
                 break;
             }
         }
-        if(tExisting == null){
+        if (tExisting == null) {
             YamlTable newTable = new YamlTable(yaml.put("tables", name));
             tables.add(newTable);
             return newTable;
-        } else{
+        } else {
             return tExisting;
         }
     }
@@ -186,12 +187,12 @@ public class YamlDatabase {
         yaml.remove("tables", table.getName());
         YamlTable tRemove = null;
         for (YamlTable t : tables) {
-            if(table.equals(t) || t.getName().equals(table.getName())){
+            if (table.equals(t) || t.getName().equals(table.getName())) {
                 tRemove = t;
                 break;
             }
         }
-        if(tRemove != null) tables.remove(tRemove);
+        if (tRemove != null) tables.remove(tRemove);
         return this;
     }
 

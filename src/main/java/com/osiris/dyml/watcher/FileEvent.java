@@ -22,28 +22,28 @@ public class FileEvent {
     /**
      * @see StandardWatchEventKinds#ENTRY_MODIFY
      */
-    public boolean isModifyEvent(){
+    public boolean isModifyEvent() {
         return Objects.equals(StandardWatchEventKinds.ENTRY_MODIFY, getWatchEventKind());
     }
 
     /**
      * @see StandardWatchEventKinds#ENTRY_CREATE
      */
-    public boolean isCreateEvent(){
+    public boolean isCreateEvent() {
         return Objects.equals(StandardWatchEventKinds.ENTRY_CREATE, getWatchEventKind());
     }
 
     /**
      * @see StandardWatchEventKinds#ENTRY_DELETE
      */
-    public boolean isDeleteEvent(){
+    public boolean isDeleteEvent() {
         return Objects.equals(StandardWatchEventKinds.ENTRY_DELETE, getWatchEventKind());
     }
 
     /**
      * @see StandardWatchEventKinds#OVERFLOW
      */
-    public boolean isOverflowEvent(){
+    public boolean isOverflowEvent() {
         return Objects.equals(StandardWatchEventKinds.ENTRY_DELETE, getWatchEventKind());
     }
 

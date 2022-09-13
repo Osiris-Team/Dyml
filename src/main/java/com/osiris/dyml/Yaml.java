@@ -472,10 +472,10 @@ public class Yaml {
         debugLogger.log(this, "Executing add(" + keys.toString() + ")");
 
         YamlSection section = utilsYamlSection.getExisting(keys, inEditModules);
-        if(section!=null)
+        if (section != null)
             return section;
         section = utilsYamlSection.getExisting(keys, loadedModules);
-        if(section!=null){
+        if (section != null) {
             inEditModules.add(section);
             return section;
         }
@@ -557,12 +557,12 @@ public class Yaml {
             throw new DuplicateKeyException(getSource().toString(), module.getKeys().toString());
 
         int closestParentIndex = utilsYamlSection.getClosestParentIndex(module.getKeys(), inEditModules);
-        if(closestParentIndex == -1){
+        if (closestParentIndex == -1) {
             this.inEditModules.add(module);
             return module;
         }
-        if(closestParentIndex+1<=inEditModules.size()){
-            this.inEditModules.add(closestParentIndex+1, module);
+        if (closestParentIndex + 1 <= inEditModules.size()) {
+            this.inEditModules.add(closestParentIndex + 1, module);
             return module;
         }
         this.inEditModules.add(module);
@@ -915,10 +915,10 @@ public class Yaml {
         return file.getName().replaceFirst("[.][^.]+$", ""); // Removes the file extension
     }
 
-    public Object getSource(){
-        if(file!=null) return file;
-        else if(inString!=null) return inString;
-        else if(inputStream!=null) return inputStream;
+    public Object getSource() {
+        if (file != null) return file;
+        else if (inString != null) return inString;
+        else if (inputStream != null) return inputStream;
         else return null;
     }
 }

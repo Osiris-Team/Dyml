@@ -69,25 +69,25 @@ public class UtilsYamlSection {
     /**
      * Example:
      * g0:
-     *   g1:
-     *     g2:
-     *  We got the section with keys "g0", "g1", "g2",
-     *  but the modules list doesn't contain it, thus we need to find
-     *  a parent like "g0", "g1".
+     * g1:
+     * g2:
+     * We got the section with keys "g0", "g1", "g2",
+     * but the modules list doesn't contain it, thus we need to find
+     * a parent like "g0", "g1".
      */
     public int getClosestParentIndex(List<String> keys, List<YamlSection> sections) {
         int index = -1;
         int highestCountMatchedKeys = 0;
         int currentIndex = 0;
         for (YamlSection section : sections) {
-            if(section.getKeys().size() <= keys.size()){
+            if (section.getKeys().size() <= keys.size()) {
                 int countMatched = 0;
                 for (int i = 0; i < section.getKeys().size(); i++) {
-                    if(section.getKeys().get(i).equals(keys.get(i))){
+                    if (section.getKeys().get(i).equals(keys.get(i))) {
                         countMatched++;
                     } else break;
                 }
-                if(countMatched != 0 && countMatched >= highestCountMatchedKeys){
+                if (countMatched != 0 && countMatched >= highestCountMatchedKeys) {
                     highestCountMatchedKeys = countMatched;
                     index = currentIndex;
                 }

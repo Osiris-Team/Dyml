@@ -42,7 +42,7 @@ class YamlReader {
         timer.start();
 
         BufferedReader reader = null;
-        try{
+        try {
             if (yaml.file != null) {
                 if (!yaml.file.exists()) throw new YamlReaderException("File '" + yaml.file + "' doesn't exist!");
                 reader = new BufferedReader(new FileReader(yaml.file));
@@ -154,10 +154,10 @@ class YamlReader {
             debug.log(this, "");
             debug.log(this, "Finished reading, took " + timer.getFormattedMillis() + "ms or " + timer.getFormattedSeconds() + "s");
         } catch (YamlReaderException | IOException | IllegalListException e) {
-            if(yaml.file != null || yaml.inString != null) reader.close();
+            if (yaml.file != null || yaml.inString != null) reader.close();
             throw e;
         } finally {
-            if(yaml.file != null || yaml.inString != null) reader.close();
+            if (yaml.file != null || yaml.inString != null) reader.close();
         }
     }
 

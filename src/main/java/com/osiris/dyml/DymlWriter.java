@@ -27,7 +27,7 @@ class DymlWriter {
         if (sections.isEmpty()) throw new YamlWriterException("Sections cannot be empty!");
         PrintWriter writer = null; // Buffered is faster than the regular Reader by around 0,100 ms
         StringWriter stringWriter = null;
-        try{
+        try {
             if (file != null) {
                 if (!file.exists()) throw new YamlWriterException("File '" + file + "' doesn't exist!");
                 writer = new PrintWriter(new FileWriter(file));

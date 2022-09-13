@@ -31,12 +31,13 @@ class YamlWriter {
 
         BufferedWriter writer = null;
         StringWriter stringWriter = null;
-        try{
+        try {
             if (yaml.outputStream != null) {
                 writer = new BufferedWriter(new OutputStreamWriter(yaml.outputStream), 32768); // TODO compare speed with def buffer
                 logger.log(this, "Started writing yaml to file '" + yaml.file + "' with overwrite: " + overwrite + " and reset: " + reset);
             } else if (yaml.file != null) {
-                if (!yaml.file.exists()) throw new YamlWriterException("File '" + yaml.file.getName() + "' doesn't exist!");
+                if (!yaml.file.exists())
+                    throw new YamlWriterException("File '" + yaml.file.getName() + "' doesn't exist!");
                 writer = new BufferedWriter(new FileWriter(yaml.file), 32768); // TODO compare speed with def buffer
                 logger.log(this, "Started writing yaml to OutputStream '" + yaml.outputStream + "' with overwrite: " + overwrite + " and reset: " + reset);
             } else if (yaml.outString != null) {
