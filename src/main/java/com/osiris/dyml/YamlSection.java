@@ -584,8 +584,11 @@ public class YamlSection {
         return this;
     }
 
-    public YamlSection setValueObj(Object obj) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
-        return setValueObj(obj, false);
+    /**
+     * See {@link #putJavaChildSection(Object, boolean)} for details.
+     */
+    public YamlSection putJavaChildSection(Object obj) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
+        return putJavaChildSection(obj, false);
     }
 
     /**
@@ -594,7 +597,7 @@ public class YamlSection {
      * @param obj expected to be not primitive and not "big" primitive. <br>
      *            So it should not be of type int.class or Integer.class for example.
      */
-    public YamlSection setValueObj(Object obj, boolean includePrivateFields) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
+    public YamlSection putJavaChildSection(Object obj, boolean includePrivateFields) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
         Class<?> aClass = obj.getClass();
         for (Field field : aClass.getDeclaredFields()) {
             if(Modifier.isPrivate(field.getModifiers())) {
@@ -614,8 +617,11 @@ public class YamlSection {
         return this;
     }
 
-    public YamlSection setDefValueObj(Object obj) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
-        return setDefValueObj(obj, false);
+    /**
+     * See {@link #putDefJavaChildSection(Object, boolean)} for details.
+     */
+    public YamlSection putDefJavaChildSection(Object obj) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
+        return putDefJavaChildSection(obj, false);
     }
 
     /**
@@ -624,7 +630,7 @@ public class YamlSection {
      * @param obj expected to be not primitive and not "big" primitive. <br>
      *            So it should not be of type int.class or Integer.class for example.
      */
-    public YamlSection setDefValueObj(Object obj, boolean includePrivateFields) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
+    public YamlSection putDefJavaChildSection(Object obj, boolean includePrivateFields) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
         Class<?> aClass = obj.getClass();
         for (Field field : aClass.getDeclaredFields()) {
             if(Modifier.isPrivate(field.getModifiers())) {
@@ -649,6 +655,13 @@ public class YamlSection {
 
 
     /**
+     * See {@link #as(Class, boolean)} for details.
+     */
+    public <V> V as(Class<V> type) throws InstantiationException, IllegalAccessException, NotLoadedException, IllegalKeyException, InvocationTargetException {
+        return as(type, false);
+    }
+
+    /**
      * Deserialises this YAML section
      * (its children) to a Java object of the provided type. <br>
      * Uses the Java reflection API. If the class has constructor parameters initialises them with null. <br>
@@ -658,7 +671,7 @@ public class YamlSection {
      * @return the value if present and of the proper type, else null
      */
     @SuppressWarnings("unchecked") // type is verified by the class parameter
-    public <V> V as(Class<V> type) throws InstantiationException, IllegalAccessException, NotLoadedException, IllegalKeyException, InvocationTargetException {
+    public <V> V as(Class<V> type, boolean includePrivateFields) throws InstantiationException, IllegalAccessException, NotLoadedException, IllegalKeyException, InvocationTargetException {
 
         // Create an instance/object of the provided type, which then later gets returned:
         V instance;
@@ -684,6 +697,11 @@ public class YamlSection {
 
         // Fill object with data from this sections' children:
         for (Field field : type.getDeclaredFields()) {
+            if(Modifier.isPrivate(field.getModifiers())) {
+                if(includePrivateFields) field.setAccessible(true);
+                else continue;
+            }
+
             List<String> keys = new ArrayList<>(this.keys);
             keys.add(field.getName());
             YamlSection section = yaml.get(keys);
