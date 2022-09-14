@@ -667,6 +667,7 @@ public class YamlSection {
      * Deserialises this YAML section
      * (its children) to a Java object of the provided type. <br>
      * Uses the Java reflection API. If the class has constructor parameters initialises them with null. <br>
+     * Doesn't matter if the constructor is private or public. <br>
      *
      * @param type the type to deserialize to
      * @param <V>  the type to get
@@ -691,8 +692,10 @@ public class YamlSection {
                     else
                         paramValues[i] = null;
                 }
+                if(Modifier.isPrivate(constructor.getModifiers())) constructor.setAccessible(true);
                 instance = (V) constructor.newInstance(paramValues);
             } else {
+                if(Modifier.isPrivate(constructor.getModifiers())) constructor.setAccessible(true);
                 instance = (V) constructor.newInstance();
             }
         }
