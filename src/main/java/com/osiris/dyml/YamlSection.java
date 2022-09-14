@@ -601,7 +601,7 @@ public class YamlSection {
     public YamlSection putJavaChildSection(Object obj, boolean includePrivateFields) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
         Class<?> aClass = obj.getClass();
         for (Field field : aClass.getDeclaredFields()) {
-            if(Modifier.isPrivate(field.getModifiers())) {
+            if(!Modifier.isPublic(field.getModifiers())) {
                 if(includePrivateFields) field.setAccessible(true);
                 else continue;
             }
@@ -635,7 +635,7 @@ public class YamlSection {
     public YamlSection putDefJavaChildSection(Object obj, boolean includePrivateFields) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
         Class<?> aClass = obj.getClass();
         for (Field field : aClass.getDeclaredFields()) {
-            if(Modifier.isPrivate(field.getModifiers())) {
+            if(!Modifier.isPublic(field.getModifiers())) {
                 if(includePrivateFields) field.setAccessible(true);
                 else continue;
             }
@@ -692,17 +692,17 @@ public class YamlSection {
                     else
                         paramValues[i] = null;
                 }
-                if(Modifier.isPrivate(constructor.getModifiers())) constructor.setAccessible(true);
+                if(!Modifier.isPublic(constructor.getModifiers())) constructor.setAccessible(true);
                 instance = (V) constructor.newInstance(paramValues);
             } else {
-                if(Modifier.isPrivate(constructor.getModifiers())) constructor.setAccessible(true);
+                if(!Modifier.isPublic(constructor.getModifiers())) constructor.setAccessible(true);
                 instance = (V) constructor.newInstance();
             }
         }
 
         // Fill object with data from this sections' children:
         for (Field field : type.getDeclaredFields()) {
-            if(Modifier.isPrivate(field.getModifiers())) {
+            if(!Modifier.isPublic(field.getModifiers())) {
                 if(includePrivateFields) field.setAccessible(true);
                 else continue;
             }
