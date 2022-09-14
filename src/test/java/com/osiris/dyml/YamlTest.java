@@ -326,25 +326,39 @@ class YamlTest {
 
     @Test
     void testSerialization() throws YamlReaderException, IOException, DuplicateKeyException, IllegalListException, NotLoadedException, IllegalKeyException, InstantiationException, IllegalAccessException, InvocationTargetException, YamlWriterException {
+        class Dog{
+            public String name;
+        }
         class Person extends Object{
             public int age;
             public String name;
+            public Size size;
+            public Dog dog;
         }
+
         Yaml yaml = new Yaml(
                 "person: " +N+
                         "  age: 44" +N+
-                        "  name: Peter"+N, "");
+                        "  name: Peter"+N+
+                        "  size: XL" +N+
+                        "  dog: " +N+
+                        "    name: Rudolf" +N
+                , "");
         yaml.load();
         Person p = yaml.get("person").as(Person.class);
         assertEquals(yaml.get("person", "age").asInt(), p.age);
         assertEquals(yaml.get("person", "name").asString(), p.name);
+        assertEquals("Rudolf", p.dog.name);
+        assertEquals(Size.XL, p.size);
 
-        Yaml yaml2 = new Yaml("", "");
-        yaml2.load();
-        yaml2.put("person").putJavaChildSection(p);
-        yaml2.save();
-
-        assertEquals(yaml.inString, yaml2.outString);
+        p.age = 20;
+        p.size = Size.S;
+        p.dog.name = "Rudolf The Second";
+        yaml.put("person").putJavaChildSection(p);
+        yaml.save();
+        assertEquals(p.age, yaml.get("person", "age").asInt());
+        assertEquals(p.size, yaml.get("person", "size").as(Size.class));
+        assertEquals(p.dog.name, yaml.get("person", "dog").as(Dog.class).name);
 
         // TEST SIMPLE ENUM
         Yaml yaml3 = new Yaml("size: XL", "");

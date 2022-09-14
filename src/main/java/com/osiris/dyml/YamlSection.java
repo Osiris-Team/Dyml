@@ -588,7 +588,14 @@ public class YamlSection {
      * See {@link #putJavaChildSection(Object, boolean)} for details.
      */
     public YamlSection putJavaChildSection(Object obj) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
-        return putJavaChildSection(obj, false);
+        return putJavaChildSection(this, obj, false);
+    }
+
+    /**
+     * See {@link #putJavaChildSection(Object, boolean)} for details.
+     */
+    public YamlSection putJavaChildSection(Object obj, boolean includePrivateFields) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
+        return putJavaChildSection(this, obj, includePrivateFields);
     }
 
     /**
@@ -601,19 +608,20 @@ public class YamlSection {
      * - Public and private constructors. <br>
      * - Constructors with parameters (inits them with null or 0). <br>
      * - Public and private fields (set includePrivateFields to true). <br>
+     * - Fields that are primitives. <br>
+     * - Fields that are objects. <br>
      * Limited support: <br>
      * - Fields that are enum (enum must have no constructors/fields). <br>
      * Not supported: <br>
-     * - Fields that are objects, aka not primitives (except "big" primitives). <br>
-     * - Fields that are interface. <br>
+     * - Fields that are interfaces. <br>
      * @param obj expected to be not primitive and not "big" primitive. <br>
      *            So it should not be of type int.class or Integer.class for example.
      */
-    public YamlSection putJavaChildSection(Object obj, boolean includePrivateFields) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
+    public YamlSection putJavaChildSection(YamlSection section, Object obj, boolean includePrivateFields) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
         Class<?> aClass = obj.getClass();
         if(aClass.isEnum()){
             // CLASS IS ENUM
-            this.setValues(((Enum)obj).name());
+            section.setValues(((Enum)obj).name());
         } else{
             // CLASS IS NOT ENUM
             for (Field field : aClass.getDeclaredFields()) {
@@ -623,11 +631,15 @@ public class YamlSection {
                 }
                 Object rawValue = field.get(obj);
                 if (rawValue != null) {
-                    String value = "" + rawValue;
-                    List<String> keys = new ArrayList<>(this.keys);
+                    List<String> keys = new ArrayList<>(section.keys);
                     keys.add(field.getName());
-                    YamlSection section = yaml.put(keys);
-                    section.setValues(value);
+                    YamlSection childSection = yaml.put(keys);
+                    if(isPrimitive(rawValue.getClass())){
+                        String value = "" + rawValue;
+                        childSection.setValues(value);
+                    } else{
+                        putJavaChildSection(childSection, rawValue, includePrivateFields);
+                    }
                 }
                 // else the value is null and nothing is added to yaml (not even the key)
             }
@@ -639,14 +651,21 @@ public class YamlSection {
      * See {@link #putDefJavaChildSection(Object, boolean)} for details.
      */
     public YamlSection putDefJavaChildSection(Object obj) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
-        return putDefJavaChildSection(obj, false);
+        return putDefJavaChildSection(this, obj, false);
+    }
+
+    /**
+     * See {@link #putDefJavaChildSection(Object, boolean)} for details.
+     */
+    public YamlSection putDefJavaChildSection(Object obj, boolean includePrivateFields) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
+        return putDefJavaChildSection(this, obj, includePrivateFields);
     }
 
     /**
      * Same as {@link #putJavaChildSection(Object, boolean)}, but instead of setting
      * the values it sets the default values.
      */
-    public YamlSection putDefJavaChildSection(Object obj, boolean includePrivateFields) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
+    public YamlSection putDefJavaChildSection(YamlSection section, Object obj, boolean includePrivateFields) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
         Class<?> aClass = obj.getClass();
         if(aClass.isEnum()){
             // CLASS IS ENUM
@@ -660,11 +679,15 @@ public class YamlSection {
                 }
                 Object rawValue = field.get(obj);
                 if (rawValue != null) {
-                    String value = "" + rawValue;
-                    List<String> keys = new ArrayList<>(this.keys);
+                    List<String> keys = new ArrayList<>(section.keys);
                     keys.add(field.getName());
-                    YamlSection section = yaml.put(keys);
-                    section.setDefValues(value);
+                    YamlSection childSection = yaml.put(keys);
+                    if(isPrimitive(rawValue.getClass())){
+                        String value = "" + rawValue;
+                        childSection.setDefValues(value);
+                    } else{
+                        putDefJavaChildSection(childSection, rawValue, includePrivateFields);
+                    }
                 }
                 // else the value is null and nothing is added to yaml (not even the key)
             }
@@ -680,7 +703,14 @@ public class YamlSection {
      * See {@link #as(Class, boolean)} for details.
      */
     public <V> V as(Class<V> type) throws InstantiationException, IllegalAccessException, NotLoadedException, IllegalKeyException, InvocationTargetException {
-        return as(type, false);
+        return as(this, type, false);
+    }
+
+    /**
+     * See {@link #as(Class, boolean)} for details.
+     */
+    public <V> V as(Class<V> type, boolean includePrivateFields) throws InstantiationException, IllegalAccessException, NotLoadedException, IllegalKeyException, InvocationTargetException {
+        return as(this, type, includePrivateFields);
     }
 
     /**
@@ -692,22 +722,23 @@ public class YamlSection {
      * - Public and private constructors. <br>
      * - Constructors with parameters (inits them with null or 0). <br>
      * - Public and private fields (set includePrivateFields to true). <br>
+     * - Fields that are primitives. <br>
+     * - Fields that are objects. <br>
      * Limited support: <br>
      * - Fields that are enum (enum must have no constructors/fields). <br>
      * Not supported: <br>
-     * - Fields that are objects, aka not primitives (except "big" primitives). <br>
-     * - Fields that are interface. <br>
+     * - Fields that are interfaces. <br>
      *
      * @param type the type to deserialize to
      * @param <V>  the type to get
      * @return the value if present and of the proper type, else null
      */
     @SuppressWarnings("unchecked") // type is verified by the class parameter
-    public <V> V as(Class<V> type, boolean includePrivateFields) throws InstantiationException, IllegalAccessException, NotLoadedException, IllegalKeyException, InvocationTargetException {
+    public <V> V as(YamlSection section, Class<V> type, boolean includePrivateFields) throws InstantiationException, IllegalAccessException, NotLoadedException, IllegalKeyException, InvocationTargetException {
         if(type.isEnum()){
             // CLASS IS ENUM
-            if(this.asString() == null) return null;
-            else return (V) Enum.valueOf(((Class<Enum>) type), this.asString());
+            if(section.asString() == null) return null;
+            else return (V) Enum.valueOf(((Class<Enum>) type), section.asString());
         } else{
             // CLASS IS NOT ENUM
             // Create an instance/object of the provided type, which then later gets returned:
@@ -740,28 +771,33 @@ public class YamlSection {
                     if(includePrivateFields) field.setAccessible(true);
                     else continue;
                 }
+                YamlSection childSection = null;
+                for (YamlSection cs : section.getChildSections()) {
+                    if(cs.getLastKey().equals(field.getName())){
+                        childSection = cs;
+                        break;
+                    }
+                }
 
-                List<String> keys = new ArrayList<>(this.keys);
-                keys.add(field.getName());
-                YamlSection section = yaml.get(keys);
-
-                if (section != null) {
-                    if (field.getType().equals(String.class) || field.getType().equals(Character.class)) field.set(instance, section.asString());
+                if (childSection != null) {
+                    if (field.getType().equals(String.class) || field.getType().equals(Character.class))
+                        field.set(instance, childSection.asString());
                     else if (field.getType().equals(boolean.class) || field.getType().equals(Boolean.class))
-                        field.set(instance, section.asBoolean());
+                        field.set(instance, childSection.asBoolean());
                     else if (field.getType().equals(byte.class) || field.getType().equals(Byte.class))
-                        field.set(instance, section.asByte());
+                        field.set(instance, childSection.asByte());
                     else if (field.getType().equals(short.class) || field.getType().equals(Short.class))
-                        field.set(instance, section.asShort());
+                        field.set(instance, childSection.asShort());
                     else if (field.getType().equals(int.class) || field.getType().equals(Integer.class))
-                        field.set(instance, section.asInt());
+                        field.set(instance, childSection.asInt());
                     else if (field.getType().equals(long.class) || field.getType().equals(Long.class))
-                        field.set(instance, section.asLong());
+                        field.set(instance, childSection.asLong());
                     else if (field.getType().equals(float.class) || field.getType().equals(Float.class))
-                        field.set(instance, section.asFloat());
+                        field.set(instance, childSection.asFloat());
                     else if (field.getType().equals(double.class) || field.getType().equals(Double.class))
-                        field.set(instance, section.asDouble());
-                    //TODO else do nothing, nested objects are not supported yet, only primitives at the moment
+                        field.set(instance, childSection.asDouble());
+                    else
+                        field.set(instance, as(childSection, field.getType(), includePrivateFields));
                 }
             }
             return (V) instance;
@@ -769,10 +805,12 @@ public class YamlSection {
     }
 
     /**
-     * Is primitive check that includes big primitives.
+     * Is primitive check that includes big primitives (also String.class and Character.class)
      */
     private boolean isPrimitive(Class<?> clazz){
-        return clazz.isPrimitive() || clazz.equals(Boolean.class) ||
+        return clazz.isPrimitive() ||
+                clazz.equals(String.class) ||
+                clazz.equals(Boolean.class) ||
                 clazz.equals(Byte.class) ||
                 clazz.equals(Short.class) ||
                 clazz.equals(Integer.class) ||
