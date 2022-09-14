@@ -595,6 +595,13 @@ public class YamlSection {
      * Takes the fields of the provided Java object
      * and converts/adds them to this {@link YamlSection}, as children. <br>
      * The counterpart to this is the {@link #as(Class, boolean)} method. <br>
+     * Supports: <br>
+     * - Public and private constructors. <br>
+     * - Constructors with parameters (inits them with null or 0). <br>
+     * - Public and private fields (set includePrivateFields to true). <br>
+     * Not supported: <br>
+     * - Fields that are objects, aka not primitives (except "big" primitives). <br>
+     * - Fields that are enum or interface. <br>
      * @param obj expected to be not primitive and not "big" primitive. <br>
      *            So it should not be of type int.class or Integer.class for example.
      */
@@ -626,18 +633,8 @@ public class YamlSection {
     }
 
     /**
-     * Takes the fields of the provided Java object
-     * and converts/adds them to this {@link YamlSection}, as children. <br>
-     * The counterpart to this is the {@link #as(Class, boolean)} method. <br>
-     * Supports: <br>
-     * - Public and private constructors. <br>
-     * - Constructors with parameters (inits them with null or 0). <br>
-     * - Public and private fields (set includePrivateFields to true). <br>
-     * Not supported: <br>
-     * - Fields that are objects, aka not primitives (except "big" primitives). <br>
-     * - Fields that are enum or interface. <br>
-     * @param obj expected to be not primitive and not "big" primitive. <br>
-     *            So it should not be of type int.class or Integer.class for example.
+     * Same as {@link #putJavaChildSection(Object, boolean)}, but instead of setting
+     * the values it sets the default values.
      */
     public YamlSection putDefJavaChildSection(Object obj, boolean includePrivateFields) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
         Class<?> aClass = obj.getClass();
@@ -673,6 +670,7 @@ public class YamlSection {
     /**
      * Deserialises this YAML section
      * (its children) to a Java object of the provided type. <br>
+     * Its counterpart is the {@link #putJavaChildSection(Object, boolean)} method. <br>
      * Supports: <br>
      * - Public and private constructors. <br>
      * - Constructors with parameters (inits them with null or 0). <br>
