@@ -585,14 +585,14 @@ public class YamlSection {
     }
 
     /**
-     * See {@link #putJavaChildSection(Object, boolean)} for details.
+     * See {@link #putJavaChildSection(YamlSection, Object, boolean)} for details.
      */
     public YamlSection putJavaChildSection(Object obj) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
         return putJavaChildSection(this, obj, false);
     }
 
     /**
-     * See {@link #putJavaChildSection(Object, boolean)} for details.
+     * See {@link #putJavaChildSection(YamlSection, Object, boolean)} for details.
      */
     public YamlSection putJavaChildSection(Object obj, boolean includePrivateFields) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
         return putJavaChildSection(this, obj, includePrivateFields);
@@ -614,19 +614,20 @@ public class YamlSection {
      * - Fields that are enum (enum must have no constructors/fields). <br>
      * Not supported: <br>
      * - Fields that are interfaces. <br>
+     *
      * @param obj expected to be not primitive and not "big" primitive. <br>
      *            So it should not be of type int.class or Integer.class for example.
      */
     public YamlSection putJavaChildSection(YamlSection section, Object obj, boolean includePrivateFields) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
         Class<?> aClass = obj.getClass();
-        if(aClass.isEnum()){
+        if (aClass.isEnum()) {
             // CLASS IS ENUM
-            section.setValues(((Enum)obj).name());
-        } else{
+            section.setValues(((Enum) obj).name());
+        } else {
             // CLASS IS NOT ENUM
             for (Field field : aClass.getDeclaredFields()) {
-                if(!Modifier.isPublic(field.getModifiers())) {
-                    if(includePrivateFields) field.setAccessible(true);
+                if (!Modifier.isPublic(field.getModifiers())) {
+                    if (includePrivateFields) field.setAccessible(true);
                     else continue;
                 }
                 Object rawValue = field.get(obj);
@@ -634,10 +635,10 @@ public class YamlSection {
                     List<String> keys = new ArrayList<>(section.keys);
                     keys.add(field.getName());
                     YamlSection childSection = yaml.put(keys);
-                    if(isPrimitive(rawValue.getClass())){
+                    if (isPrimitive(rawValue.getClass())) {
                         String value = "" + rawValue;
                         childSection.setValues(value);
-                    } else{
+                    } else {
                         putJavaChildSection(childSection, rawValue, includePrivateFields);
                     }
                 }
@@ -648,14 +649,14 @@ public class YamlSection {
     }
 
     /**
-     * See {@link #putDefJavaChildSection(Object, boolean)} for details.
+     * See {@link #putDefJavaChildSection(YamlSection, Object, boolean)} for details.
      */
     public YamlSection putDefJavaChildSection(Object obj) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
         return putDefJavaChildSection(this, obj, false);
     }
 
     /**
-     * See {@link #putDefJavaChildSection(Object, boolean)} for details.
+     * See {@link #putDefJavaChildSection(YamlSection, Object, boolean)} for details.
      */
     public YamlSection putDefJavaChildSection(Object obj, boolean includePrivateFields) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
         return putDefJavaChildSection(this, obj, includePrivateFields);
@@ -667,14 +668,14 @@ public class YamlSection {
      */
     public YamlSection putDefJavaChildSection(YamlSection section, Object obj, boolean includePrivateFields) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
         Class<?> aClass = obj.getClass();
-        if(aClass.isEnum()){
+        if (aClass.isEnum()) {
             // CLASS IS ENUM
-            this.setDefValues(((Enum)obj).name());
-        } else{
+            this.setDefValues(((Enum) obj).name());
+        } else {
             // CLASS IS NOT ENUM
             for (Field field : aClass.getDeclaredFields()) {
-                if(!Modifier.isPublic(field.getModifiers())) {
-                    if(includePrivateFields) field.setAccessible(true);
+                if (!Modifier.isPublic(field.getModifiers())) {
+                    if (includePrivateFields) field.setAccessible(true);
                     else continue;
                 }
                 Object rawValue = field.get(obj);
@@ -682,10 +683,10 @@ public class YamlSection {
                     List<String> keys = new ArrayList<>(section.keys);
                     keys.add(field.getName());
                     YamlSection childSection = yaml.put(keys);
-                    if(isPrimitive(rawValue.getClass())){
+                    if (isPrimitive(rawValue.getClass())) {
                         String value = "" + rawValue;
                         childSection.setDefValues(value);
-                    } else{
+                    } else {
                         putDefJavaChildSection(childSection, rawValue, includePrivateFields);
                     }
                 }
@@ -735,11 +736,11 @@ public class YamlSection {
      */
     @SuppressWarnings("unchecked") // type is verified by the class parameter
     public <V> V as(YamlSection section, Class<V> type, boolean includePrivateFields) throws InstantiationException, IllegalAccessException, NotLoadedException, IllegalKeyException, InvocationTargetException {
-        if(type.isEnum()){
+        if (type.isEnum()) {
             // CLASS IS ENUM
-            if(section.asString() == null) return null;
+            if (section.asString() == null) return null;
             else return (V) Enum.valueOf(((Class<Enum>) type), section.asString());
-        } else{
+        } else {
             // CLASS IS NOT ENUM
             // Create an instance/object of the provided type, which then later gets returned:
             V instance;
@@ -752,28 +753,28 @@ public class YamlSection {
                     Object[] paramValues = new Object[params.length];
                     for (int i = 0; i < constructor.getParameterCount(); i++) {
                         paramValues[i] = 0;
-                        if(isPrimitive(constructor.getParameters()[i].getType()))
+                        if (isPrimitive(constructor.getParameters()[i].getType()))
                             paramValues[i] = 0;
                         else
                             paramValues[i] = null;
                     }
-                    if(!Modifier.isPublic(constructor.getModifiers())) constructor.setAccessible(true);
+                    if (!Modifier.isPublic(constructor.getModifiers())) constructor.setAccessible(true);
                     instance = (V) constructor.newInstance(paramValues);
                 } else {
-                    if(!Modifier.isPublic(constructor.getModifiers())) constructor.setAccessible(true);
+                    if (!Modifier.isPublic(constructor.getModifiers())) constructor.setAccessible(true);
                     instance = (V) constructor.newInstance();
                 }
             }
 
             // Fill object with data from this sections' children:
             for (Field field : type.getDeclaredFields()) {
-                if(!Modifier.isPublic(field.getModifiers())) {
-                    if(includePrivateFields) field.setAccessible(true);
+                if (!Modifier.isPublic(field.getModifiers())) {
+                    if (includePrivateFields) field.setAccessible(true);
                     else continue;
                 }
                 YamlSection childSection = null;
                 for (YamlSection cs : section.getChildSections()) {
-                    if(cs.getLastKey().equals(field.getName())){
+                    if (cs.getLastKey().equals(field.getName())) {
                         childSection = cs;
                         break;
                     }
@@ -807,7 +808,7 @@ public class YamlSection {
     /**
      * Is primitive check that includes big primitives (also String.class and Character.class)
      */
-    private boolean isPrimitive(Class<?> clazz){
+    private boolean isPrimitive(Class<?> clazz) {
         return clazz.isPrimitive() ||
                 clazz.equals(String.class) ||
                 clazz.equals(Boolean.class) ||

@@ -147,6 +147,7 @@ public class UtilsYamlSection {
      * Removes "" and '' and `` from those encapsulated values.<br>
      * Its recommended, that each value was trimmed before, to achieve the best results. <br>
      * We assume that none of the {@link SmartString}s in the list is null. {@link SmartString#asString()} however can be null. <br>
+     *
      * @return true if quotes were removed, otherwise false.
      */
     public void removeQuotesFromValues(List<SmartString> values) {
@@ -154,7 +155,7 @@ public class UtilsYamlSection {
         for (SmartString value :
                 copy) {
             String s = value.asString();
-            if(isEncapsulatedInQuotes(s)){
+            if (isEncapsulatedInQuotes(s)) {
                 s = s.substring(1, s.length() - 1); // Remove the first and last chars
                 value.set(s);
             }
@@ -164,10 +165,10 @@ public class UtilsYamlSection {
     /**
      * Trims and checks the provided string for "", '' and ``.
      */
-    public boolean isEncapsulatedInQuotes(String s){
+    public boolean isEncapsulatedInQuotes(String s) {
         if (s != null) {
             s = s.trim();
-            if(s.isEmpty()) return false;
+            if (s.isEmpty()) return false;
             // This string must be an already optimized/trimmed string without spaces at the start/end
             char firstChar = s.charAt(0);
             char lastChar = s.charAt(s.length() - 1);

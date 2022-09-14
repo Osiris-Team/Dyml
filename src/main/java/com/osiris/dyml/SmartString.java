@@ -39,8 +39,8 @@ public class SmartString {
      * String representation of value in final YAML file/output.
      */
     public String asOutputString() {
-        if(string == null) return null;
-        if(isInsideQuotes) return "\""+string+"\"";
+        if (string == null) return null;
+        if (isInsideQuotes) return "\"" + string + "\"";
         else return string;
     }
 
