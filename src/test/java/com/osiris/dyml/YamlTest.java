@@ -320,6 +320,10 @@ class YamlTest {
         assertNotNull(yaml.get("hello:there"));
     }
 
+    enum Size{
+        S, M, L, XL;
+    }
+
     @Test
     void testSerialization() throws YamlReaderException, IOException, DuplicateKeyException, IllegalListException, NotLoadedException, IllegalKeyException, InstantiationException, IllegalAccessException, InvocationTargetException, YamlWriterException {
         class Person extends Object{
@@ -341,6 +345,15 @@ class YamlTest {
         yaml2.save();
 
         assertEquals(yaml.inString, yaml2.outString);
+
+        // TEST SIMPLE ENUM
+        Yaml yaml3 = new Yaml("size: XL", "");
+        yaml3.load();
+        Size size = yaml3.get("size").as(Size.class);
+        assertEquals(Size.XL, size);
+        yaml3.get("size").putJavaChildSection(Size.S);
+        yaml3.save();
+        assertEquals("size: S"+N, yaml3.outString);
     }
 
     @Test

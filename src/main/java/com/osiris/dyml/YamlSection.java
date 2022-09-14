@@ -594,33 +594,43 @@ public class YamlSection {
     /**
      * Takes the fields of the provided Java object
      * and adds them to this {@link YamlSection}, as children. <br>
+     * Note that if the provided object is enum, this sections value gets set
+     * instead of its children. <br>
      * The counterpart to this is the {@link #as(Class, boolean)} method. <br>
      * Supports: <br>
      * - Public and private constructors. <br>
      * - Constructors with parameters (inits them with null or 0). <br>
      * - Public and private fields (set includePrivateFields to true). <br>
+     * Limited support: <br>
+     * - Fields that are enum (enum must have no constructors/fields). <br>
      * Not supported: <br>
      * - Fields that are objects, aka not primitives (except "big" primitives). <br>
-     * - Fields that are enum or interface. <br>
+     * - Fields that are interface. <br>
      * @param obj expected to be not primitive and not "big" primitive. <br>
      *            So it should not be of type int.class or Integer.class for example.
      */
     public YamlSection putJavaChildSection(Object obj, boolean includePrivateFields) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
         Class<?> aClass = obj.getClass();
-        for (Field field : aClass.getDeclaredFields()) {
-            if(!Modifier.isPublic(field.getModifiers())) {
-                if(includePrivateFields) field.setAccessible(true);
-                else continue;
+        if(aClass.isEnum()){
+            // CLASS IS ENUM
+            this.setValues(((Enum)obj).name());
+        } else{
+            // CLASS IS NOT ENUM
+            for (Field field : aClass.getDeclaredFields()) {
+                if(!Modifier.isPublic(field.getModifiers())) {
+                    if(includePrivateFields) field.setAccessible(true);
+                    else continue;
+                }
+                Object rawValue = field.get(obj);
+                if (rawValue != null) {
+                    String value = "" + rawValue;
+                    List<String> keys = new ArrayList<>(this.keys);
+                    keys.add(field.getName());
+                    YamlSection section = yaml.put(keys);
+                    section.setValues(value);
+                }
+                // else the value is null and nothing is added to yaml (not even the key)
             }
-            Object rawValue = field.get(obj);
-            if (rawValue != null) {
-                String value = "" + rawValue;
-                List<String> keys = new ArrayList<>(this.keys);
-                keys.add(field.getName());
-                YamlSection section = yaml.put(keys);
-                section.setValues(value);
-            }
-            // else the value is null and nothing is added to yaml (not even the key)
         }
         return this;
     }
@@ -638,20 +648,26 @@ public class YamlSection {
      */
     public YamlSection putDefJavaChildSection(Object obj, boolean includePrivateFields) throws NotLoadedException, IllegalKeyException, IllegalAccessException {
         Class<?> aClass = obj.getClass();
-        for (Field field : aClass.getDeclaredFields()) {
-            if(!Modifier.isPublic(field.getModifiers())) {
-                if(includePrivateFields) field.setAccessible(true);
-                else continue;
+        if(aClass.isEnum()){
+            // CLASS IS ENUM
+            this.setDefValues(((Enum)obj).name());
+        } else{
+            // CLASS IS NOT ENUM
+            for (Field field : aClass.getDeclaredFields()) {
+                if(!Modifier.isPublic(field.getModifiers())) {
+                    if(includePrivateFields) field.setAccessible(true);
+                    else continue;
+                }
+                Object rawValue = field.get(obj);
+                if (rawValue != null) {
+                    String value = "" + rawValue;
+                    List<String> keys = new ArrayList<>(this.keys);
+                    keys.add(field.getName());
+                    YamlSection section = yaml.put(keys);
+                    section.setDefValues(value);
+                }
+                // else the value is null and nothing is added to yaml (not even the key)
             }
-            Object rawValue = field.get(obj);
-            if (rawValue != null) {
-                String value = "" + rawValue;
-                List<String> keys = new ArrayList<>(this.keys);
-                keys.add(field.getName());
-                YamlSection section = yaml.put(keys);
-                section.setDefValues(value);
-            }
-            // else the value is null and nothing is added to yaml (not even the key)
         }
         return this;
     }
@@ -670,14 +686,17 @@ public class YamlSection {
     /**
      * Deserialises this YAML section
      * (its children) to a Java object of the provided type. <br>
+     * Note that if the provided object is enum, this sections value is read instead of its children. <br>
      * Its counterpart is the {@link #putJavaChildSection(Object, boolean)} method. <br>
      * Supports: <br>
      * - Public and private constructors. <br>
      * - Constructors with parameters (inits them with null or 0). <br>
      * - Public and private fields (set includePrivateFields to true). <br>
+     * Limited support: <br>
+     * - Fields that are enum (enum must have no constructors/fields). <br>
      * Not supported: <br>
      * - Fields that are objects, aka not primitives (except "big" primitives). <br>
-     * - Fields that are enum or interface. <br>
+     * - Fields that are interface. <br>
      *
      * @param type the type to deserialize to
      * @param <V>  the type to get
@@ -685,62 +704,68 @@ public class YamlSection {
      */
     @SuppressWarnings("unchecked") // type is verified by the class parameter
     public <V> V as(Class<V> type, boolean includePrivateFields) throws InstantiationException, IllegalAccessException, NotLoadedException, IllegalKeyException, InvocationTargetException {
-
-        // Create an instance/object of the provided type, which then later gets returned:
-        V instance;
-        if (type.getDeclaredConstructors().length == 0) {
-            instance = type.newInstance();
-        } else {
-            Constructor<?> constructor = type.getDeclaredConstructors()[0];
-            Parameter[] params = constructor.getParameters();
-            if (params.length > 0) {
-                Object[] paramValues = new Object[params.length];
-                for (int i = 0; i < constructor.getParameterCount(); i++) {
-                    paramValues[i] = 0;
-                    if(isPrimitive(constructor.getParameters()[i].getType()))
-                        paramValues[i] = 0;
-                    else
-                        paramValues[i] = null;
-                }
-                if(!Modifier.isPublic(constructor.getModifiers())) constructor.setAccessible(true);
-                instance = (V) constructor.newInstance(paramValues);
+        if(type.isEnum()){
+            // CLASS IS ENUM
+            if(this.asString() == null) return null;
+            else return (V) Enum.valueOf(((Class<Enum>) type), this.asString());
+        } else{
+            // CLASS IS NOT ENUM
+            // Create an instance/object of the provided type, which then later gets returned:
+            V instance;
+            if (type.getDeclaredConstructors().length == 0) {
+                instance = type.newInstance();
             } else {
-                if(!Modifier.isPublic(constructor.getModifiers())) constructor.setAccessible(true);
-                instance = (V) constructor.newInstance();
+                Constructor<?> constructor = type.getDeclaredConstructors()[0];
+                Parameter[] params = constructor.getParameters();
+                if (params.length > 0) {
+                    Object[] paramValues = new Object[params.length];
+                    for (int i = 0; i < constructor.getParameterCount(); i++) {
+                        paramValues[i] = 0;
+                        if(isPrimitive(constructor.getParameters()[i].getType()))
+                            paramValues[i] = 0;
+                        else
+                            paramValues[i] = null;
+                    }
+                    if(!Modifier.isPublic(constructor.getModifiers())) constructor.setAccessible(true);
+                    instance = (V) constructor.newInstance(paramValues);
+                } else {
+                    if(!Modifier.isPublic(constructor.getModifiers())) constructor.setAccessible(true);
+                    instance = (V) constructor.newInstance();
+                }
             }
+
+            // Fill object with data from this sections' children:
+            for (Field field : type.getDeclaredFields()) {
+                if(!Modifier.isPublic(field.getModifiers())) {
+                    if(includePrivateFields) field.setAccessible(true);
+                    else continue;
+                }
+
+                List<String> keys = new ArrayList<>(this.keys);
+                keys.add(field.getName());
+                YamlSection section = yaml.get(keys);
+
+                if (section != null) {
+                    if (field.getType().equals(String.class) || field.getType().equals(Character.class)) field.set(instance, section.asString());
+                    else if (field.getType().equals(boolean.class) || field.getType().equals(Boolean.class))
+                        field.set(instance, section.asBoolean());
+                    else if (field.getType().equals(byte.class) || field.getType().equals(Byte.class))
+                        field.set(instance, section.asByte());
+                    else if (field.getType().equals(short.class) || field.getType().equals(Short.class))
+                        field.set(instance, section.asShort());
+                    else if (field.getType().equals(int.class) || field.getType().equals(Integer.class))
+                        field.set(instance, section.asInt());
+                    else if (field.getType().equals(long.class) || field.getType().equals(Long.class))
+                        field.set(instance, section.asLong());
+                    else if (field.getType().equals(float.class) || field.getType().equals(Float.class))
+                        field.set(instance, section.asFloat());
+                    else if (field.getType().equals(double.class) || field.getType().equals(Double.class))
+                        field.set(instance, section.asDouble());
+                    //TODO else do nothing, nested objects are not supported yet, only primitives at the moment
+                }
+            }
+            return (V) instance;
         }
-
-        // Fill object with data from this sections' children:
-        for (Field field : type.getDeclaredFields()) {
-            if(!Modifier.isPublic(field.getModifiers())) {
-                if(includePrivateFields) field.setAccessible(true);
-                else continue;
-            }
-
-            List<String> keys = new ArrayList<>(this.keys);
-            keys.add(field.getName());
-            YamlSection section = yaml.get(keys);
-
-            if (section != null) {
-                if (field.getType().equals(String.class) || field.getType().equals(Character.class)) field.set(instance, section.asString());
-                else if (field.getType().equals(boolean.class) || field.getType().equals(Boolean.class))
-                    field.set(instance, section.asBoolean());
-                else if (field.getType().equals(byte.class) || field.getType().equals(Byte.class))
-                    field.set(instance, section.asByte());
-                else if (field.getType().equals(short.class) || field.getType().equals(Short.class))
-                    field.set(instance, section.asShort());
-                else if (field.getType().equals(int.class) || field.getType().equals(Integer.class))
-                    field.set(instance, section.asInt());
-                else if (field.getType().equals(long.class) || field.getType().equals(Long.class))
-                    field.set(instance, section.asLong());
-                else if (field.getType().equals(float.class) || field.getType().equals(Float.class))
-                    field.set(instance, section.asFloat());
-                else if (field.getType().equals(double.class) || field.getType().equals(Double.class))
-                    field.set(instance, section.asDouble());
-                //TODO else do nothing, nested objects are not supported yet, only primitives at the moment
-            }
-        }
-        return (V) instance;
     }
 
     /**
