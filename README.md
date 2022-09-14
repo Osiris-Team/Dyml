@@ -71,6 +71,7 @@ Here is a small quiz, determine the key and value for the following yaml section
 hello:there: my : friend: !
 ```
 Answer: The key is `hello:there` and the value `my : friend: !`.
+</details>
 
 ## Benchmarks
 Dream-Yaml seems to be about 9x faster than [SnakeYAML](https://bitbucket.org/asomov/snakeyaml/src/master/)
