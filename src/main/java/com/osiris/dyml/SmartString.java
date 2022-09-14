@@ -7,6 +7,14 @@ import java.util.List;
  * Wraps around a String and provides additional type conversion methods.
  */
 public class SmartString {
+    /**
+     * Gets set to true by the {@link YamlReader} when the value is
+     * encapsulated in " or ' or `, otherwise it's false. <br>
+     * By setting this to true the {@link YamlWriter} will encapsulate the written
+     * value inside ", if it wasn't yet.
+     */
+    public boolean isInsideQuotes = false;
+
     private String string;
 
     public SmartString() {
@@ -24,6 +32,16 @@ public class SmartString {
      */
     public String asString() {
         return string;
+    }
+
+    /**
+     * Note that this can be null. <br>
+     * String representation of value in final YAML file/output.
+     */
+    public String asOutputString() {
+        if(string == null) return null;
+        if(isInsideQuotes) return "\""+string+"\"";
+        else return string;
     }
 
     /**

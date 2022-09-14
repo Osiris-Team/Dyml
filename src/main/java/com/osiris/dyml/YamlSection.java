@@ -593,7 +593,7 @@ public class YamlSection {
 
     /**
      * Takes the fields of the provided Java object
-     * and converts/adds them to this {@link YamlSection}, as children. <br>
+     * and adds them to this {@link YamlSection}, as children. <br>
      * The counterpart to this is the {@link #as(Class, boolean)} method. <br>
      * Supports: <br>
      * - Public and private constructors. <br>

@@ -317,7 +317,7 @@ class YamlTest {
     void multipleColonsInKey() throws YamlReaderException, IOException, DuplicateKeyException, IllegalListException {
         Yaml yaml = new Yaml("hello:there: my : friend:", "");
         yaml.load();
-        assertNotNull(yaml.get("hello:there: my : friend"));
+        assertNotNull(yaml.get("hello:there"));
     }
 
     @Test
@@ -341,5 +341,21 @@ class YamlTest {
         yaml2.save();
 
         assertEquals(yaml.inString, yaml2.outString);
+    }
+
+    @Test
+    void testQuotesHandling() throws YamlReaderException, IOException, DuplicateKeyException, IllegalListException, YamlWriterException {
+        Yaml yaml = new Yaml("key: \"val\"", "");
+        yaml.load();
+        YamlSection key = yaml.get("key");
+        assertTrue(key.getValue().isInsideQuotes);
+        assertEquals("val", key.asString());
+        assertEquals("\"val\"", key.getValue().asOutputString());
+        key.getValue().isInsideQuotes = false;
+        yaml.save();
+        assertEquals("key: val"+N, yaml.outString);
+        key.getValue().isInsideQuotes = true;
+        yaml.save();
+        assertEquals("key: \"val\""+N, yaml.outString);
     }
 }

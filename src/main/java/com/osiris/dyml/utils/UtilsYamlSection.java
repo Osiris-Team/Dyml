@@ -144,28 +144,38 @@ public class UtilsYamlSection {
     }
 
     /**
-     * Removes "" and '' from those encapsulated values.<br>
+     * Removes "" and '' and `` from those encapsulated values.<br>
      * Its recommended, that each value was trimmed before, to achieve the best results. <br>
      * We assume that none of the {@link SmartString}s in the list is null. {@link SmartString#asString()} however can be null. <br>
+     * @return true if quotes were removed, otherwise false.
      */
     public void removeQuotesFromValues(List<SmartString> values) {
         List<SmartString> copy = new ArrayList<>(values); // Iterate thorough a copy, but do changes to the original and avoid ConcurrentModificationException.
         for (SmartString value :
                 copy) {
-            String s;
-            if ((s = value.asString()) != null && !s.isEmpty()) {
-                // This string must be an already optimized/trimmed string without spaces at the start/end
-                char firstChar = s.charAt(0);
-                char lastChar = s.charAt(s.length() - 1);
-                if (firstChar == lastChar) { // Check if the value is encapsulated
-                    int firstPoint = s.codePointAt(0); // Since first and last are the same we only need one of them
-                    if (firstPoint == 34 || firstPoint == 39) { // " is 34 and ' is 39
-                        s = s.substring(1, s.length() - 1); // Remove the first and last chars
-                        value.set(s);
-                    }
-                }
+            String s = value.asString();
+            if(isEncapsulatedInQuotes(s)){
+                s = s.substring(1, s.length() - 1); // Remove the first and last chars
+                value.set(s);
             }
         }
+    }
+
+    /**
+     * Trims and checks the provided string for "", '' and ``.
+     */
+    public boolean isEncapsulatedInQuotes(String s){
+        if (s != null) {
+            s = s.trim();
+            if(s.isEmpty()) return false;
+            // This string must be an already optimized/trimmed string without spaces at the start/end
+            char firstChar = s.charAt(0);
+            char lastChar = s.charAt(s.length() - 1);
+            if (firstChar == lastChar) { // Check if the value is encapsulated
+                return firstChar == '\"' || firstChar == '\'' || firstChar == '`';
+            }
+        }
+        return false;
     }
 
     /**

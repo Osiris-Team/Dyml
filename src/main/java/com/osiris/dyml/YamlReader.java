@@ -88,8 +88,16 @@ class YamlReader {
                 lineNumber++;
             }
 
-            // Do post processing if enabled
             UtilsYamlSection utils = new UtilsYamlSection();
+            // Set isInsideQuotes for values
+            for (YamlSection m :
+                    yaml.getAllLoaded()) {
+                for (SmartString value : m.getValues()) {
+                    value.isInsideQuotes = utils.isEncapsulatedInQuotes(value.asString());
+                }
+            }
+
+            // Do post processing if enabled
             if (yaml.isPostProcessingEnabled) {
 
                 if (yaml.isTrimLoadedValuesEnabled)
@@ -219,6 +227,7 @@ class YamlReader {
                 // Colon enables us to define a key and a value.
                 // Note that the next char must be a space for this to be a key.
                 line.setCharFound(true);
+                if(line.isKeyFound()) break; // Skip if the key was already found.
                 int charCodeNext = 0;
                 try {
                     charCodeNext = line.getFullLine().codePointAt(charCodePos + 1); // This may fail if we are at the last/first char.

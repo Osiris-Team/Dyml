@@ -53,42 +53,42 @@ class YamlWriter {
             writer.write(""); // Clear old content
             if (reset) return;
 
-            List<YamlSection> modulesToSave;
+            List<YamlSection> sectionsToSave;
             if (overwrite) {
-                modulesToSave = yaml.getAllInEdit();
+                sectionsToSave = yaml.getAllInEdit();
 
             } else
-                modulesToSave = yaml.createUnifiedList(yaml.getAllInEdit(), yaml.getAllLoaded());
+                sectionsToSave = yaml.createUnifiedList(yaml.getAllInEdit(), yaml.getAllLoaded());
 
-            if (modulesToSave.isEmpty() && isDebug)
+            if (sectionsToSave.isEmpty() && isDebug)
                 logger.log(this, "The modules list is empty. Written an empty file.");
 
 
-            YamlSection lastModule = new YamlSection(yaml); // Create an empty module as start point
+            YamlSection lastSection = new YamlSection(yaml); // Create an empty module as start point
             for (YamlSection m :
-                    modulesToSave) {
-                parseModule(writer, m, lastModule);
-                lastModule = m;
+                    sectionsToSave) {
+                parseSection(writer, m, lastSection);
+                lastSection = m;
             }
 
             timer.stop();
             if (isDebug) {
                 logger.log(this, "Finished writing of " + yaml.getFile().getName() + " at " + new Date());
                 logger.log(this, "Written unified modules details:");
-                for (YamlSection loadedModule :
-                        modulesToSave) {
+                for (YamlSection loadedSection :
+                        sectionsToSave) {
 
                     logger.log(this, "");
-                    logger.log(this, "---> " + loadedModule.toPrintString());
-                    if (loadedModule.getParentSection() != null)
-                        logger.log(this, "PARENT -> " + loadedModule.getParentSection().toPrintString());
+                    logger.log(this, "---> " + loadedSection.toPrintString());
+                    if (loadedSection.getParentSection() != null)
+                        logger.log(this, "PARENT -> " + loadedSection.getParentSection().toPrintString());
                     else
                         logger.log(this, "PARENT -> NULL");
 
-                    for (YamlSection childModule :
-                            loadedModule.getChildSections()) {
-                        if (childModule != null)
-                            logger.log(this, "CHILD -> " + childModule.toPrintString());
+                    for (YamlSection childSection :
+                            loadedSection.getChildSections()) {
+                        if (childSection != null)
+                            logger.log(this, "CHILD -> " + childSection.toPrintString());
                         else
                             logger.log(this, "CHILD -> NULL");
                     }
@@ -117,9 +117,9 @@ class YamlWriter {
      * @param section      the current module to write.
      * @param beforeModule the last already written module.
      */
-    private void parseModule(BufferedWriter writer,
-                             YamlSection section,
-                             YamlSection beforeModule) throws IOException {
+    private void parseSection(BufferedWriter writer,
+                              YamlSection section,
+                              YamlSection beforeModule) throws IOException {
         int keysSize = section.getKeys().size();
         int beforeKeysSize = beforeModule.getKeys().size();
         String currentKey; // The current key of the current module
@@ -201,7 +201,7 @@ class YamlWriter {
                         if (section.getValues().size() == 1) { // Even if we only got one DYModule, it written as a list
                             SmartString value = section.getValue();
                             if (value != null) { // Only write if its not null
-                                if (value.asString() != null) writer.write(value.asString());
+                                if (value.asString() != null) writer.write(value.asOutputString());
                             }
                             if (hasSideComment(section.getSideComments(), 0))
                                 writer.write(" # " + section.getSideComment()); // Append side comment to value
@@ -214,7 +214,7 @@ class YamlWriter {
                                 if (value != null) {
                                     writer.write(spaces + "  - ");
                                     if (value.asString() != null)
-                                        writer.write(value.asString()); // Append the value
+                                        writer.write(value.asOutputString()); // Append the value
                                 }
                                 if (hasSideComment(section.getSideComments(), j))
                                     writer.write(" # " + section.getSideCommentAt(j)); // Append side comment to value
@@ -228,7 +228,7 @@ class YamlWriter {
                                 SmartString defValue = section.getDefValue();
                                 if (defValue != null) {
                                     if (defValue.asString() != null)
-                                        writer.write(defValue.asString());
+                                        writer.write(defValue.asOutputString());
                                 }
                                 if (hasSideComment(section.getDefSideComments(), 0))
                                     writer.write(" # " + section.getDefSideComment()); // Append side comment to value
@@ -241,7 +241,7 @@ class YamlWriter {
                                     if (value != null) {
                                         writer.write(spaces + "  - ");
                                         if (value.asString() != null)
-                                            writer.write(value.asString()); // Append the value
+                                            writer.write(value.asOutputString()); // Append the value
                                     }
                                     if (hasSideComment(section.getDefSideComments(), j))
                                         writer.write(" # " + section.getDefSideCommentAt(j)); // Append side comment to value

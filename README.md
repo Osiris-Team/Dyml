@@ -62,6 +62,15 @@ Some extras:
 
 ## Examples
 All examples can be found as tests [here](src/test/java/examples).
+<details>
+<summary>Show frequent YAML mistakes</summary>
+
+It's fine to have colons in keys, as long as there is no space after it.
+Here is a small quiz, determine the key and value for the following yaml section:
+```yaml
+hello:there: my : friend: !
+```
+Answer: The key is `hello:there` and the value `my : friend: !`.
 
 ## Benchmarks
 Dream-Yaml seems to be about 9x faster than [SnakeYAML](https://bitbucket.org/asomov/snakeyaml/src/master/)
