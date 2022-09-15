@@ -747,7 +747,7 @@ public class YamlSection {
             if (type.getDeclaredConstructors().length == 0) {
                 instance = type.newInstance();
             } else {
-                Constructor<?> constructor = type.getDeclaredConstructors()[0];
+                Constructor<?> constructor = getTopConstructor(type);
                 Parameter[] params = constructor.getParameters();
                 if (params.length > 0) {
                     Object[] paramValues = new Object[params.length];
@@ -803,6 +803,18 @@ public class YamlSection {
             }
             return (V) instance;
         }
+    }
+
+    /**
+     * Returns the declared constructor with least parameters.
+     */
+    private Constructor getTopConstructor(Class<?> clazz){
+        Constructor<?> result = null;
+        for (Constructor<?> c :clazz.getDeclaredConstructors()){
+            if(result == null) result = c;
+            else if(c.getParameterCount() < result.getParameterCount()) result = c;
+        }
+        return result;
     }
 
     /**
