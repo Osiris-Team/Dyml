@@ -635,7 +635,7 @@ public class YamlSection {
                     List<String> keys = new ArrayList<>(section.keys);
                     keys.add(field.getName());
                     YamlSection childSection = yaml.put(keys);
-                    if (isPrimitive(rawValue.getClass())) {
+                    if (isPrimitive(rawValue.getClass()) || isText(rawValue.getClass())) {
                         String value = "" + rawValue;
                         childSection.setValues(value);
                     } else {
@@ -683,7 +683,7 @@ public class YamlSection {
                     List<String> keys = new ArrayList<>(section.keys);
                     keys.add(field.getName());
                     YamlSection childSection = yaml.put(keys);
-                    if (isPrimitive(rawValue.getClass())) {
+                    if (isPrimitive(rawValue.getClass()) || isText(rawValue.getClass())) {
                         String value = "" + rawValue;
                         childSection.setDefValues(value);
                     } else {
@@ -751,9 +751,9 @@ public class YamlSection {
                 Parameter[] params = constructor.getParameters();
                 if (params.length > 0) {
                     Object[] paramValues = new Object[params.length];
-                    for (int i = 0; i < constructor.getParameterCount(); i++) {
+                    for (int i = 0; i < params.length; i++) {
                         paramValues[i] = 0;
-                        if (isPrimitive(constructor.getParameters()[i].getType()))
+                        if (isPrimitive(params[i].getType()))
                             paramValues[i] = 0;
                         else
                             paramValues[i] = null;
@@ -806,11 +806,10 @@ public class YamlSection {
     }
 
     /**
-     * Is primitive check that includes big primitives (also String.class and Character.class)
+     * Is primitive check that includes big primitives.
      */
     private boolean isPrimitive(Class<?> clazz) {
         return clazz.isPrimitive() ||
-                clazz.equals(String.class) ||
                 clazz.equals(Boolean.class) ||
                 clazz.equals(Byte.class) ||
                 clazz.equals(Short.class) ||
@@ -819,6 +818,12 @@ public class YamlSection {
                 clazz.equals(Float.class) ||
                 clazz.equals(Double.class) ||
                 clazz.equals(Character.class);
+    }
+
+    private boolean isText(Class<?> clazz) {
+        return
+                clazz.equals(String.class) ||
+                clazz.equals(CharSequence.class);
     }
 
     /**

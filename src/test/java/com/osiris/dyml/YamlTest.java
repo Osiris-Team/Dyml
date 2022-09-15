@@ -334,6 +334,13 @@ class YamlTest {
             public String name;
             public Size size;
             public Dog dog;
+
+            public Person(int age, String name, Size size, Dog dog) {
+                this.age = age;
+                this.name = name;
+                this.size = size;
+                this.dog = dog;
+            }
         }
 
         Yaml yaml = new Yaml(
