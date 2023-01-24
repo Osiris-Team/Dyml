@@ -27,22 +27,22 @@ class DymlWriter {
         if (sections.isEmpty()) throw new YamlWriterException("Sections cannot be empty!");
         PrintWriter writer = null; // Buffered is faster than the regular Reader by around 0,100 ms
         StringWriter stringWriter = null;
-        try {
-            if (file != null) {
-                if (!file.exists()) throw new YamlWriterException("File '" + file + "' doesn't exist!");
-                writer = new PrintWriter(new FileWriter(file));
-            }
-            if (outputStream != null) {
-                writer = new PrintWriter(new OutputStreamWriter(outputStream));
-            }
-            if (outString != null) {
-                stringWriter = new StringWriter();
-                writer = new PrintWriter(stringWriter);
-            }
-            if (writer == null) {
-                throw new YamlWriterException("File/OutputStream/String are all null. Nothing to write/save dyml to!");
-            }
+        if (file != null) {
+            if (!file.exists()) throw new YamlWriterException("File '" + file + "' doesn't exist!");
+            writer = new PrintWriter(new FileWriter(file));
+        }
+        if (outputStream != null) {
+            writer = new PrintWriter(new OutputStreamWriter(outputStream));
+        }
+        if (outString != null) {
+            stringWriter = new StringWriter();
+            writer = new PrintWriter(stringWriter);
+        }
+        if (writer == null) {
+            throw new YamlWriterException("File/OutputStream/String are all null. Nothing to write/save dyml to!");
+        }
 
+        try {
             UtilsTimeStopper timer = new UtilsTimeStopper();
             timer.start();
 
@@ -55,10 +55,9 @@ class DymlWriter {
             if (stringWriter != null) return stringWriter.toString();
             writer.flush();
             writer.close();
-        } catch (YamlWriterException | IOException e) {
-            if (file != null || outString != null) writer.close();
-            throw e;
         } finally {
+            // Close only writers we created, which means the writer for the provided
+            // outputstream stays open.
             if (file != null || outString != null) writer.close();
         }
         return null;
