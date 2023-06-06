@@ -11,6 +11,7 @@ public class FeaturesExample {
     @Test
     void test() throws IOException, DuplicateKeyException, YamlReaderException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
         Yaml yaml = new Yaml(System.getProperty("user.dir") + "/src/test/features.yml", true);
+        yaml.file.delete(); // Don't do this. Its only done here for testing
         yaml.load(); // Also supports InputStreams and Strings as input
 
         yaml.put("important").setDefValues("Everything else that is not explicitly mentioned in this file is not supported");

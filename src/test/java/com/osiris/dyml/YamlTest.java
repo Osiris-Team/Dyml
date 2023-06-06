@@ -302,15 +302,21 @@ class YamlTest {
     void testNotSortedKeys() throws YamlReaderException, IOException, DuplicateKeyException, IllegalListException, NotLoadedException, IllegalKeyException, YamlWriterException {
         Yaml yaml = new Yaml("", "");
         yaml.load();
-        yaml.removeAll();
-        yaml.put("key1");
-        yaml.put("key2");
-        yaml.put("key1", "child");
+        yaml.put("1");
+        yaml.put("2");
+        yaml.put("1", "1");
+        yaml.put("1", "2");
+        yaml.put("1", "3");
+        yaml.put("1", "2", "1");
         yaml.save();
-        assertEquals(
-                "key1: " +N+
-                "  child: " +N+
-                        "key2: "+N, yaml.outString);
+        assertEquals(""+
+                "1: " +N+
+                "  1: " +N+
+                "  2: " +N+
+                "    1: " +N+
+                "  3: " +N+
+                "2: "+N,
+                yaml.outString);
     }
 
     @Test

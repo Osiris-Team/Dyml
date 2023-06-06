@@ -68,9 +68,11 @@ public class UtilsYamlSection {
 
     /**
      * Example:
+     * <pre>
      * g0:
-     * g1:
-     * g2:
+     *   g1:
+     *     g2:
+     * </pre>
      * We got the section with keys "g0", "g1", "g2",
      * but the modules list doesn't contain it, thus we need to find
      * a parent like "g0", "g1".
@@ -80,17 +82,16 @@ public class UtilsYamlSection {
         int highestCountMatchedKeys = 0;
         int currentIndex = 0;
         for (YamlSection section : sections) {
-            if (section.getKeys().size() <= keys.size()) {
-                int countMatched = 0;
-                for (int i = 0; i < section.getKeys().size(); i++) {
-                    if (section.getKeys().get(i).equals(keys.get(i))) {
-                        countMatched++;
-                    } else break;
-                }
-                if (countMatched != 0 && countMatched >= highestCountMatchedKeys) {
-                    highestCountMatchedKeys = countMatched;
-                    index = currentIndex;
-                }
+            int countMatched = 0;
+            int size = Math.min(section.getKeys().size(), keys.size());
+            for (int i = 0; i < size; i++) {
+                if (section.getKeys().get(i).equals(keys.get(i))) {
+                    countMatched++;
+                } else break;
+            }
+            if (countMatched != 0 && countMatched >= highestCountMatchedKeys) {
+                highestCountMatchedKeys = countMatched;
+                index = currentIndex;
             }
             currentIndex++;
         }
