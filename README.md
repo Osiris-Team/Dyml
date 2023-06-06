@@ -1,5 +1,5 @@
 # Dyml [![](https://jitpack.io/v/Osiris-Team/Dyml.svg)](https://jitpack.io/#Osiris-Team/Dyml)
-The YAML and DYML processor of your dreams, written in pure Java! <br>
+The YAML and DYML processor of your dreams, with ultimate comment support, written from scratch in Java! <br>
 - Java 8 or higher required.
 [Maven/gradle/sbt/leinigen instructions](https://jitpack.io/#Osiris-Team/Dyml/LATEST).
 - Support and chat over at [Discord](https://discord.com/invite/GGNmtCC).
