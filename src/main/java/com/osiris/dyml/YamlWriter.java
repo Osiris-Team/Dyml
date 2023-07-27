@@ -13,6 +13,7 @@ import com.osiris.dyml.utils.BufferedSBWriter;
 import com.osiris.dyml.utils.UtilsTimeStopper;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.Date;
 import java.util.List;
 
@@ -32,19 +33,20 @@ class YamlWriter {
 
         BufferedWriter writer = null;
         if (yaml.outputStream != null) {
-            writer = new BufferedWriter(new OutputStreamWriter(yaml.outputStream), 32768); // TODO compare speed with def buffer
+            writer = new BufferedWriter(new OutputStreamWriter(yaml.outputStream, Yaml.charset), 32768); // TODO compare speed with def buffer
             logger.log(this, "Started writing yaml to OutputStream '" + yaml.outputStream + "' with overwrite: " + overwrite + " and reset: " + reset);
 
         } else if (yaml.file != null) {
             if (!yaml.file.exists())
                 throw new YamlWriterException("File '" + yaml.file.getName() + "' doesn't exist!");
-            writer = new BufferedWriter(new FileWriter(yaml.file), 32768); // TODO compare speed with def buffer
+            writer = new BufferedWriter(new OutputStreamWriter(Files.newOutputStream(yaml.file.toPath()), Yaml.charset), 32768); // TODO compare speed with def buffer
             logger.log(this, "Started writing yaml to file '" + yaml.file + "' with overwrite: " + overwrite + " and reset: " + reset);
 
         } else if (yaml.outString != null) {
             writer = new BufferedSBWriter();
             logger.log(this, "Started writing yaml to String '" + yaml.outString + "' with overwrite: " + overwrite + " and reset: " + reset);
         }
+
         if (writer == null) {
             logger.log(this, "File and OutputStream are both null. Nothing to write yaml to!");
             return;

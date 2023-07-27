@@ -29,10 +29,10 @@ class DymlWriter {
         StringWriter stringWriter = null;
         if (file != null) {
             if (!file.exists()) throw new YamlWriterException("File '" + file + "' doesn't exist!");
-            writer = new PrintWriter(new FileWriter(file));
+            writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), Dyml.charset)));
         }
         if (outputStream != null) {
-            writer = new PrintWriter(new OutputStreamWriter(outputStream));
+            writer = new PrintWriter(new BufferedWriter(new OutputStreamWriter(outputStream, Dyml.charset)));
         }
         if (outString != null) {
             stringWriter = new StringWriter();

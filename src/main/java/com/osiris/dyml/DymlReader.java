@@ -12,6 +12,7 @@ package com.osiris.dyml;
 import com.osiris.dyml.exceptions.YamlReaderException;
 
 import java.io.*;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -29,10 +30,10 @@ class DymlReader {
         try {
             if (file != null) {
                 if (!file.exists()) throw new YamlReaderException("File '" + file + "' doesn't exist!");
-                reader = new BufferedReader(new FileReader(file));
+                reader = new BufferedReader(new InputStreamReader(Files.newInputStream(file.toPath()), Dyml.charset));
             }
             if (inputStream != null) {
-                reader = new BufferedReader(new InputStreamReader(inputStream));
+                reader = new BufferedReader(new InputStreamReader(inputStream, Dyml.charset));
             }
             if (inString != null) {
                 reader = new BufferedReader(new StringReader(inString));

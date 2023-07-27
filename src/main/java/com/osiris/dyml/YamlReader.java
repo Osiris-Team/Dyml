@@ -14,7 +14,11 @@ import com.osiris.dyml.exceptions.YamlReaderException;
 import com.osiris.dyml.utils.UtilsTimeStopper;
 import com.osiris.dyml.utils.UtilsYamlSection;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.StringReader;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -45,11 +49,11 @@ class YamlReader {
         try {
             if (yaml.file != null) {
                 if (!yaml.file.exists()) throw new YamlReaderException("File '" + yaml.file + "' doesn't exist!");
-                reader = new BufferedReader(new FileReader(yaml.file));
+                reader = new BufferedReader(new InputStreamReader(Files.newInputStream(yaml.file.toPath()), Yaml.charset));
                 debug.log(this, "Started reading yaml from file '" + yaml.file + "'");
             }
             if (yaml.inputStream != null) {
-                reader = new BufferedReader(new InputStreamReader(yaml.inputStream));
+                reader = new BufferedReader(new InputStreamReader(yaml.inputStream, Yaml.charset));
                 debug.log(this, "Started reading yaml from InputStream '" + yaml.inputStream + "'");
             }
             if (yaml.inString != null) {

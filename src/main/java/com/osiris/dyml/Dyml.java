@@ -7,6 +7,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.math.BigInteger;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
  * to work with the other sections. <br>
  */
 public class Dyml {
+    public static Charset charset = StandardCharsets.UTF_8;
     public File file;
     /**
      * Null string if this is the root section.

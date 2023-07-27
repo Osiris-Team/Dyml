@@ -16,6 +16,8 @@ import com.osiris.dyml.watcher.DirWatcher;
 import com.osiris.dyml.watcher.FileEvent;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.locks.ReentrantLock;
@@ -27,6 +29,7 @@ import java.util.function.Consumer;
  */
 @SuppressWarnings("ALL")
 public class Yaml {
+    public static Charset charset = StandardCharsets.UTF_8;
 
     // Thread safety:
     /**
