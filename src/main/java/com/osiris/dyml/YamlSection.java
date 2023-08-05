@@ -871,7 +871,7 @@ public class YamlSection {
      * Note that this is a copy and not the original list.
      */
     public List<String> asStringList() {
-        return utils.valuesListToStringList(this.values);
+        return utils.valuesListToStringList(getValues());
     }
 
     /**
