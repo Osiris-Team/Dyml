@@ -115,7 +115,8 @@ public class Yaml {
     /**
      * Enabled by default. <br>
      * Null values return their default values as fallback.<br>
-     * See {@link YamlSection#getValueAt(int)} for details.
+     * See {@link YamlSection#getValueAt(int)} for details. <br>
+     * Note that this also relevant when returning all values via {@link YamlSection#getValues()}.
      */
     public boolean isReturnDefaultWhenValueIsNullEnabled = true;
     /**

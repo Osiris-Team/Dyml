@@ -360,7 +360,13 @@ public class YamlSection {
         return v;
     }
 
+    /**
+     * Returns the values or
+     * default values, if values is empty and {@link Yaml#isReturnDefaultWhenValueIsNullEnabled()} is set to true.
+     */
     public List<SmartString> getValues() {
+        if (values.isEmpty() && yaml.isReturnDefaultWhenValueIsNullEnabled)
+            return getDefValues();
         return values;
     }
 
