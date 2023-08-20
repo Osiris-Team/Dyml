@@ -12,7 +12,6 @@ package com.osiris.dyml;
 import com.osiris.dyml.exceptions.IllegalKeyException;
 import com.osiris.dyml.exceptions.NotLoadedException;
 import com.osiris.dyml.utils.UtilsYamlSection;
-import jdk.nashorn.internal.ir.annotations.Ignore;
 
 import java.lang.reflect.*;
 import java.util.ArrayList;
