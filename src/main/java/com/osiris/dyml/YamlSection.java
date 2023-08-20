@@ -373,6 +373,14 @@ public class YamlSection {
     /**
      * See {@link #setValues(List)} for details.
      */
+    public <T> YamlSection setValues(T... v) {
+        setValues(utils.arrayToValuesList(v));
+        return this;
+    }
+
+    /**
+     * See {@link #setValues(List)} for details.
+     */
     public YamlSection setValues(String... v) {
         setValues(utils.stringArrayToValuesList(v));
         return this;
