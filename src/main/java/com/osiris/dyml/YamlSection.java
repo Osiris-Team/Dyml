@@ -12,6 +12,7 @@ package com.osiris.dyml;
 import com.osiris.dyml.exceptions.IllegalKeyException;
 import com.osiris.dyml.exceptions.NotLoadedException;
 import com.osiris.dyml.utils.UtilsYamlSection;
+import jdk.nashorn.internal.ir.annotations.Ignore;
 
 import java.lang.reflect.*;
 import java.util.ArrayList;
@@ -169,6 +170,17 @@ public class YamlSection {
     /**
      * See {@link #addValues(List)} for details.
      */
+    public <T> YamlSection addValues(T... v) {
+        if (v != null)
+            addValues(utils.arrayToValuesList(v));
+        else
+            addValues((List<SmartString>) null);
+        return this;
+    }
+
+    /**
+     * See {@link #addValues(List)} for details.
+     */
     public YamlSection addValues(String... v) {
         if (v != null)
             addValues(utils.stringArrayToValuesList(v));
@@ -190,14 +202,19 @@ public class YamlSection {
 
     /**
      * Adds new values to the list. <br>
+     *
+     * Removed SmartString addValues function, because "both methods have same erasure"
      */
-    public YamlSection addValues(List<SmartString> v) {
+    public <T> YamlSection addValues(List<T> v) {
         if (v != null) {
-            for (SmartString value :
+            List<SmartString> smartStrings = new ArrayList<>();
+            for (T value :
                     v) {
                 Objects.requireNonNull(value);
+                if (value instanceof SmartString) smartStrings.add((SmartString) value);
+                else smartStrings.add(new SmartString(value.toString()));
             }
-            this.values.addAll(v);
+            this.values.addAll(smartStrings);
         } else
             this.values.add(new SmartString((String) null));
 
@@ -244,14 +261,19 @@ public class YamlSection {
      * Note that the list cannot contain null {@link SmartString}s, thus <br>
      * if null is passed as parameter a new {@link SmartString} gets created with a null value. <br>
      * That means that {@link SmartString#asString()} will return null.
+     *
+     * Removed SmartString addDefValues function, because "both methods have same erasure"
      */
-    public YamlSection addDefValues(List<SmartString> v) {
+    public <T> YamlSection addDefValues(List<T> v) {
         if (v != null) {
-            for (SmartString value :
+            List<SmartString> smartStrings = new ArrayList<>();
+            for (T value :
                     v) {
                 Objects.requireNonNull(value);
+                if (v instanceof SmartString) smartStrings.add((SmartString) value);
+                else smartStrings.add(new SmartString(value.toString()));
             }
-            defaultValues.addAll(v);
+            defaultValues.addAll(smartStrings);
         } else
             defaultValues.add(new SmartString((String) null));
         return this;
@@ -401,7 +423,7 @@ public class YamlSection {
      * {@link SmartString#asString()} may return null though. <br>
      * If you want to remove values, use {@link #removeAllValues()} instead.
      */
-    public YamlSection setValues(List<SmartString> v) {
+    public <T> YamlSection setValues(List<T> v) {
         this.values.clear();
         addValues(v);
         return this;
@@ -442,7 +464,7 @@ public class YamlSection {
      * See {@link #setDefValues(List)} for details.
      */
     public YamlSection setDefValues(String... v) {
-        setDefValues(utils.stringArrayToValuesList(v));
+        setDefValues(v);
         return this;
     }
 
@@ -450,7 +472,7 @@ public class YamlSection {
      * See {@link #setDefValues(List)} for details.
      */
     public YamlSection setDefValues(SmartString... v) {
-        setDefValues(Arrays.asList(v));
+        setDefValues(v);
         return this;
     }
 
@@ -460,7 +482,7 @@ public class YamlSection {
      * {@link Yaml#isWriteDefaultValuesWhenEmptyEnabled()} <br>
      * {@link Yaml#isReturnDefaultWhenValueIsNullEnabled()} <br>
      */
-    public YamlSection setDefValues(List<SmartString> v) {
+    public <T> YamlSection setDefValues(List<T> v) {
         this.defaultValues.clear();
         addDefValues(v);
         return this;
