@@ -98,6 +98,10 @@ public class UtilsYamlSection {
         return index;
     }
 
+    public <T> List<SmartString> arrayToValuesList(T[] array) {
+        return stringListToValuesList(Arrays.stream(array).map(T::toString).toList());
+    }
+
     public List<SmartString> stringArrayToValuesList(String[] array) {
         return stringListToValuesList(Arrays.asList(array));
     }
