@@ -216,7 +216,7 @@ public class YamlSection {
         } else this.values.add(new SmartString((String) null));
         return this;
     }
-    public YamlSection addSSValues(List<SmartString> v) {
+    public YamlSection addSValues(List<SmartString> v) {
         if (v != null) {
             for (SmartString value :
                     v) {
@@ -285,7 +285,7 @@ public class YamlSection {
         return this;
     }
 
-    public YamlSection addDefSSValues(List<SmartString> v) {
+    public YamlSection addDefSValues(List<SmartString> v) {
         if (v != null) {
             for (SmartString value :
                     v)
@@ -452,9 +452,9 @@ public class YamlSection {
      * {@link SmartString#asString()} may return null though. <br>
      * If you want to remove values, use {@link #removeAllValues()} instead.
      */
-    public YamlSection setSSValues(List<SmartString> v) {
+    public YamlSection setSValues(List<SmartString> v) {
         this.values.clear();
-        addSSValues(v);
+        addSValues(v);
         return this;
     }
 
@@ -516,9 +516,9 @@ public class YamlSection {
         addDefValues(v);
         return this;
     }
-    public YamlSection setDefSSValues(List<SmartString> v) {
+    public YamlSection setDefSValues(List<SmartString> v) {
         this.defaultValues.clear();
-        addDefSSValues(v);
+        addDefSValues(v);
         return this;
     }
 
