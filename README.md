@@ -5,6 +5,35 @@ The YAML and DYML processor of your dreams, with ultimate comment support, writt
 - Support and chat over at [Discord](https://discord.com/invite/GGNmtCC).
 - Fund this project via [PayPal](https://www.paypal.com/donate?hosted_button_id=JNXQCWF2TF9W4).
 
+<details>
+   <summary>Disclaimer</summary>
+The listed functions were added by [NelminDev](https://github.com/NelminDev) and some functions were renamed.
+Those functions are only valid for YAML!
+
+| name                                | new name                              | author |
+|-------------------------------------|---------------------------------------|--------|
+| `addDefValues(List<T> v)`           | `addDefValues(List<T> v)`             | nelmin |
+| `addDefValues(List<SmartString> v)` | `addDefSSValues(List<SmartString> v)` | osiris |
+| `addValues(T... v)`                 | `addValues(T... v)`                   | nelmin |
+| `addValues(SmartString... v)`       | `addSSValues(SmartString... v)`       | osiris | 
+| `setValues(T... v)`                 | `setValues(T... v)`                   | nelmin |
+| `setValues(List<T> v)`              | `setValues(List<T> v)`                | nelmin |
+| `setValues(List<SmartString> v)`    | `setSSValues(List<SmartString> v)`    | osiris |
+| `setDefValues(T... v)`              | `setDefValues(T... v)`                | nelmin |
+| `setDefValues(List<T> v)`           | `setDefValues(List<T> v)`             | nelmin |
+| `setDefValues(List<SmartString> v)` | `setDefSSValues(List<SmartString> v)` | osiris |
+
+<details>
+    <summary>Why did I change the old Names of methods by Osiris-Team</summary>
+    I changed the names of the methods because the generic methods got there old name.
+</details>
+<details>
+    <summary>What does SS mean?</summary>
+    SS stands for SmartString by Osiris-Team
+</details>
+Date: 08/20/2023, 8:37 PM
+</details>
+
 ## Features
 - Amazing support for side, multiline, regular comments and line breaks.
 - Written from scratch with performance and usability in mind.
