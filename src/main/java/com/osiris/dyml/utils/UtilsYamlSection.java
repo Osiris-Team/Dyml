@@ -14,13 +14,14 @@ import com.osiris.dyml.YamlSection;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class UtilsYamlSection {
 
     /**
      * Searches for a module with the same keys and returns it if it finds it, else null.
      *
-     * @param queryModule use this modules keys to search for a matching module.
+     * @param queryModule use these modules keys to search for a matching module.
      * @param modules     the list in which to search for the module.
      * @return a module containing exactly the same keys or null if it doesn't.
      */
@@ -99,7 +100,7 @@ public class UtilsYamlSection {
     }
 
     public <T> List<SmartString> arrayToValuesList(T[] array) {
-        return stringListToValuesList(Arrays.stream(array).map(T::toString).toList());
+        return stringListToValuesList(Arrays.stream(array).map(T::toString).collect(Collectors.toList()));
     }
 
     public List<SmartString> stringArrayToValuesList(String[] array) {
