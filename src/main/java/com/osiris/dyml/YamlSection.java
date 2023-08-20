@@ -210,13 +210,20 @@ public class YamlSection {
             for (T value :
                     v) {
                 Objects.requireNonNull(value);
-                if (value instanceof SmartString) smartStrings.add((SmartString) value);
-                else smartStrings.add(new SmartString(value.toString()));
+                smartStrings.add(new SmartString(value.toString()));
             }
             this.values.addAll(smartStrings);
-        } else
-            this.values.add(new SmartString((String) null));
-
+        } else this.values.add(new SmartString((String) null));
+        return this;
+    }
+    public YamlSection addSSValues(List<SmartString> v) {
+        if (v != null) {
+            for (SmartString value :
+                    v) {
+                Objects.requireNonNull(value);
+            }
+            this.values.addAll(v);
+        } else this.values.add(new SmartString((String) null));
         return this;
     }
 
@@ -273,6 +280,17 @@ public class YamlSection {
                 else smartStrings.add(new SmartString(value.toString()));
             }
             defaultValues.addAll(smartStrings);
+        } else
+            defaultValues.add(new SmartString((String) null));
+        return this;
+    }
+
+    public YamlSection addDefSSValues(List<SmartString> v) {
+        if (v != null) {
+            for (SmartString value :
+                    v)
+                Objects.requireNonNull(value);
+            defaultValues.addAll(v);
         } else
             defaultValues.add(new SmartString((String) null));
         return this;
@@ -429,6 +447,18 @@ public class YamlSection {
     }
 
     /**
+     * Clears the values list and adds the values from the provided list. <br>
+     * Note that the list can NOT contain null {@link SmartString}s. <br>
+     * {@link SmartString#asString()} may return null though. <br>
+     * If you want to remove values, use {@link #removeAllValues()} instead.
+     */
+    public YamlSection setSSValues(List<SmartString> v) {
+        this.values.clear();
+        addSSValues(v);
+        return this;
+    }
+
+    /**
      * Returns the first {@link SmartString} in the default values list.
      */
     public SmartString getDefValue() {
@@ -484,6 +514,11 @@ public class YamlSection {
     public <T> YamlSection setDefValues(List<T> v) {
         this.defaultValues.clear();
         addDefValues(v);
+        return this;
+    }
+    public YamlSection setDefSSValues(List<SmartString> v) {
+        this.defaultValues.clear();
+        addDefSSValues(v);
         return this;
     }
 
