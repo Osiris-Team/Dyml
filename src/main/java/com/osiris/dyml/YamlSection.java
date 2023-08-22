@@ -206,13 +206,11 @@ public class YamlSection {
      */
     public <T> YamlSection addValues(List<T> v) {
         if (v != null) {
-            List<SmartString> smartStrings = new ArrayList<>();
             for (T value :
                     v) {
                 Objects.requireNonNull(value);
-                smartStrings.add(new SmartString(value.toString()));
             }
-            this.values.addAll(smartStrings);
+            this.values.addAll(utils.listToValuesList(v));
         } else this.values.add(new SmartString((String) null));
         return this;
     }
@@ -276,8 +274,7 @@ public class YamlSection {
             for (T value :
                     v) {
                 Objects.requireNonNull(value);
-                if (v instanceof SmartString) smartStrings.add((SmartString) value);
-                else smartStrings.add(new SmartString(value.toString()));
+                smartStrings.add(new SmartString(value.toString()));
             }
             defaultValues.addAll(smartStrings);
         } else
