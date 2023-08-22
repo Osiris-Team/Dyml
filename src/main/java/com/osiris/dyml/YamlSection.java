@@ -413,16 +413,14 @@ public class YamlSection {
      * See {@link #setValues(List)} for details.
      */
     public <T> YamlSection setValues(T... v) {
-        setValues(utils.arrayToValuesList(v));
-        return this;
+        return setValues(utils.arrayToValuesList(v));
     }
 
     /**
      * See {@link #setValues(List)} for details.
      */
     public YamlSection setValues(String... v) {
-        setValues(utils.stringArrayToValuesList(v));
-        return this;
+        return setValues(utils.stringArrayToValuesList(v));
     }
 
     /**
@@ -430,8 +428,7 @@ public class YamlSection {
      * See {@link #setValues(List)} for details.
      */
     public YamlSection setValues(SmartString... v) {
-        setValues(Arrays.asList(v));
-        return this;
+        return setValues(Arrays.asList(v));
     }
 
     /**
@@ -441,9 +438,7 @@ public class YamlSection {
      * If you want to remove values, use {@link #removeAllValues()} instead.
      */
     public <T> YamlSection setValues(List<T> v) {
-        this.values.clear();
-        addValues(v);
-        return this;
+        return setSValues(utils.listToValuesList(v));
     }
 
     /**
@@ -485,24 +480,21 @@ public class YamlSection {
      * See {@link #setDefValues(List)} for details.
      */
     public <T> YamlSection setDefValues(T... v) {
-        setDefValues(utils.arrayToValuesList(v));
-        return this;
+        return setDefValues(utils.arrayToValuesList(v));
     }
     
     /**
      * See {@link #setDefValues(List)} for details.
      */
     public YamlSection setDefValues(String... v) {
-        setDefValues(v);
-        return this;
+        return setDefValues(v);
     }
 
     /**
      * See {@link #setDefValues(List)} for details.
      */
     public YamlSection setDefValues(SmartString... v) {
-        setDefValues(v);
-        return this;
+        return setDefValues(v);
     }
 
     /**
@@ -512,9 +504,7 @@ public class YamlSection {
      * {@link Yaml#isReturnDefaultWhenValueIsNullEnabled()} <br>
      */
     public <T> YamlSection setDefValues(List<T> v) {
-        this.defaultValues.clear();
-        addDefValues(v);
-        return this;
+        return setDefSValues(utils.listToValuesList(v));
     }
     public YamlSection setDefSValues(List<SmartString> v) {
         this.defaultValues.clear();
