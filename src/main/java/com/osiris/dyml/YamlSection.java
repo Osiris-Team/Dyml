@@ -171,10 +171,9 @@ public class YamlSection {
      */
     public <T> YamlSection addValues(T... v) {
         if (v != null)
-            addValues(utils.arrayToValuesList(v));
+            return addValues(utils.arrayToValuesList(v));
         else
-            addValues((List<SmartString>) null);
-        return this;
+            return addValues((List<SmartString>) null);
     }
 
     /**
@@ -182,10 +181,9 @@ public class YamlSection {
      */
     public YamlSection addValues(String... v) {
         if (v != null)
-            addValues(utils.stringArrayToValuesList(v));
+            return addValues(utils.stringArrayToValuesList(v));
         else
-            addValues((List<SmartString>) null);
-        return this;
+            return addValues((List<SmartString>) null);
     }
 
     /**
@@ -193,10 +191,9 @@ public class YamlSection {
      */
     public YamlSection addValues(SmartString... v) {
         if (v != null)
-            addValues(Arrays.asList(v));
+            return addValues(Arrays.asList(v));
         else
-            addValues((List<SmartString>) null);
-        return this;
+            return addValues((List<SmartString>) null);
     }
 
     /**
@@ -205,14 +202,7 @@ public class YamlSection {
      * Removed SmartString addValues function, because "both methods have same erasure"
      */
     public <T> YamlSection addValues(List<T> v) {
-        if (v != null) {
-            for (T value :
-                    v) {
-                Objects.requireNonNull(value);
-            }
-            this.values.addAll(utils.listToValuesList(v));
-        } else this.values.add(new SmartString((String) null));
-        return this;
+        return addSValues(utils.listToValuesList(v));
     }
     public YamlSection addSValues(List<SmartString> v) {
         if (v != null) {
@@ -243,10 +233,9 @@ public class YamlSection {
      */
     public YamlSection addDefValues(String... v) {
         if (v != null)
-            addDefValues(utils.stringArrayToValuesList(v));
+            return addDefSValues(utils.stringArrayToValuesList(v));
         else
-            addDefValues((List<SmartString>) null);
-        return this;
+            return addDefSValues((List<SmartString>) null);
     }
 
     /**
@@ -254,10 +243,9 @@ public class YamlSection {
      */
     public YamlSection addDefValues(SmartString... v) {
         if (v != null)
-            addDefValues(Arrays.asList(v));
+            return addDefValues(Arrays.asList(v));
         else
-            addDefValues((List<SmartString>) null);
-        return this;
+            return addDefValues((List<SmartString>) null);
     }
 
     /**
@@ -269,17 +257,7 @@ public class YamlSection {
      * Removed SmartString addDefValues function, because "both methods have same erasure"
      */
     public <T> YamlSection addDefValues(List<T> v) {
-        if (v != null) {
-            List<SmartString> smartStrings = new ArrayList<>();
-            for (T value :
-                    v) {
-                Objects.requireNonNull(value);
-                smartStrings.add(new SmartString(value.toString()));
-            }
-            defaultValues.addAll(smartStrings);
-        } else
-            defaultValues.add(new SmartString((String) null));
-        return this;
+        return addDefSValues(utils.listToValuesList(v));
     }
 
     public YamlSection addDefSValues(List<SmartString> v) {
@@ -505,8 +483,7 @@ public class YamlSection {
     }
     public YamlSection setDefSValues(List<SmartString> v) {
         this.defaultValues.clear();
-        addDefSValues(v);
-        return this;
+        return addDefSValues(v);
     }
 
     /**
