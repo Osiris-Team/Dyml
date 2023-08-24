@@ -224,7 +224,7 @@ public class YamlSection {
      * Converts the provided string array, into a {@link SmartString}s list. <br>
      * See {@link #addDefValues(List)} for details.
      */
-    public YamlSection addDefValues(String... v) {
+    public <T> YamlSection addDefValues(T... v) {
         if (v != null)
             addDefSValues(utils.stringArrayToValuesList(v));
         else
