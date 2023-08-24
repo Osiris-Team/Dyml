@@ -458,14 +458,6 @@ public class YamlSection {
         setDefSValues(utils.arrayToValuesList(v));
         return this;
     }
-    
-    /**
-     * See {@link #setDefValues(List)} for details.
-     */
-    public YamlSection setDefValues(String... v) {
-        setDefSValues(utils.stringArrayToValuesList(v));
-        return this;
-    }
 
     /**
      * See {@link #setDefValues(List)} for details.
