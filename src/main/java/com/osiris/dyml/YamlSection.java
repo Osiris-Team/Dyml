@@ -471,7 +471,7 @@ public class YamlSection {
      * See {@link #setDefValues(List)} for details.
      */
     public YamlSection setDefValues(SmartString... v) {
-        setDefValues(v);
+        setDefSValues(Arrays.asList(v));
         return this;
     }
 
