@@ -178,7 +178,7 @@ public class YamlSection {
     }
 
     /**
-     * See {@link #addValues(List)} for details.
+     * Similar to {@link #addDefSValues(List)}.
      */
     public YamlSection addValues(SmartString... v) {
         if (v != null)
@@ -189,20 +189,21 @@ public class YamlSection {
     }
 
     /**
-     * Adds new values to the list. <br>
-     *
-     * Removed SmartString addValues function, because "both methods have same erasure"
+     * Similar to {@link #addDefSValues(List)}.
      */
     public <T> YamlSection addValues(List<T> v) {
         addSValues(utils.listToValuesList(v));
         return this;
     }
+
+    /**
+     * Similar to {@link #addDefSValues(List)}.
+     */
     public YamlSection addSValues(List<SmartString> v) {
         if (v != null) {
             for (SmartString value :
-                    v) {
+                    v)
                 Objects.requireNonNull(value);
-            }
             this.values.addAll(v);
         } else this.values.add(new SmartString((String) null));
         return this;
@@ -221,8 +222,9 @@ public class YamlSection {
     }
 
     /**
-     * Converts the provided string array, into a {@link SmartString}s list. <br>
-     * See {@link #addDefValues(List)} for details.
+     * Converts the provided array, into a {@link SmartString}s list. <br>
+     *
+     * @see #addDefSValues(List)
      */
     public <T> YamlSection addDefValues(T... v) {
         if (v != null)
@@ -233,7 +235,7 @@ public class YamlSection {
     }
 
     /**
-     * {@link #addDefValues(List)}
+     * @see #addDefSValues(List)
      */
     public YamlSection addDefValues(SmartString... v) {
         if (v != null)
@@ -244,23 +246,22 @@ public class YamlSection {
     }
 
     /**
-     * Adds new default {@link SmartString}s to the list. <br>
-     * Note that the list cannot contain null {@link SmartString}s, thus <br>
-     * if null is passed as parameter a new {@link SmartString} gets created with a null value. <br>
-     * That means that {@link SmartString#asString()} will return null.
-     *
-     * Removed SmartString addDefValues function, because "both methods have same erasure"
+     * @see #addDefSValues(List)
      */
     public <T> YamlSection addDefValues(List<T> v) {
         addDefSValues(utils.listToValuesList(v));
         return this;
     }
 
+    /**
+     * Adds new default {@link SmartString}s to the list. <br>
+     * Note that the list cannot contain null {@link SmartString}s, thus <br>
+     * if null is passed as parameter a new {@link SmartString} gets created with a null value. <br>
+     * That means that {@link SmartString#asString()} will return null.
+     */
     public YamlSection addDefSValues(List<SmartString> v) {
         if (v != null) {
-            for (SmartString value :
-                    v)
-                Objects.requireNonNull(value);
+            for (SmartString value : v) Objects.requireNonNull(value);
             defaultValues.addAll(v);
         } else
             defaultValues.add(new SmartString((String) null));
@@ -452,7 +453,7 @@ public class YamlSection {
     }
 
     /**
-     * See {@link #setDefValues(List)} for details.
+     * @see #setDefSValues(List)
      */
     public <T> YamlSection setDefValues(T... v) {
         setDefSValues(utils.arrayToValuesList(v));
@@ -460,11 +461,19 @@ public class YamlSection {
     }
 
     /**
-     * See {@link #setDefValues(List)} for details.
+     * @see #setDefSValues(List)
      */
     public YamlSection setDefValues(SmartString... v) {
         setDefSValues(Arrays.asList(v));
         return this;
+    }
+
+
+    /**
+     * @see #setDefSValues(List)
+     */
+    public <T> YamlSection setDefValues(List<T> v) {
+        return setDefSValues(utils.listToValuesList(v));
     }
 
     /**
@@ -473,9 +482,6 @@ public class YamlSection {
      * {@link Yaml#isWriteDefaultValuesWhenEmptyEnabled()} <br>
      * {@link Yaml#isReturnDefaultWhenValueIsNullEnabled()} <br>
      */
-    public <T> YamlSection setDefValues(List<T> v) {
-        return setDefSValues(utils.listToValuesList(v));
-    }
     public YamlSection setDefSValues(List<SmartString> v) {
         this.defaultValues.clear();
         return addDefSValues(v);
@@ -845,11 +851,11 @@ public class YamlSection {
     /**
      * Returns the declared constructor with least parameters.
      */
-    private Constructor getTopConstructor(Class<?> clazz){
+    private Constructor getTopConstructor(Class<?> clazz) {
         Constructor<?> result = null;
-        for (Constructor<?> c :clazz.getDeclaredConstructors()){
-            if(result == null) result = c;
-            else if(c.getParameterCount() < result.getParameterCount()) result = c;
+        for (Constructor<?> c : clazz.getDeclaredConstructors()) {
+            if (result == null) result = c;
+            else if (c.getParameterCount() < result.getParameterCount()) result = c;
         }
         return result;
     }
@@ -872,7 +878,7 @@ public class YamlSection {
     private boolean isText(Class<?> clazz) {
         return
                 clazz.equals(String.class) ||
-                clazz.equals(CharSequence.class);
+                        clazz.equals(CharSequence.class);
     }
 
     /**

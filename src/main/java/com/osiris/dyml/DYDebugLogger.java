@@ -39,20 +39,18 @@ public class DYDebugLogger {
         // Print and write to file
         try {
             if (printOut != null) {
-                StringBuilder builder = new StringBuilder();
                 //builder.append("[").append(new Date().toString()).append("]");
-                builder.append("[").append(object.getClass().getSimpleName()).append("]");
-                builder.append(" ").append(message);
-                builder.append(System.lineSeparator());
+                String builder = "[" + object.getClass().getSimpleName() + "]" +
+                        " " + message +
+                        System.lineSeparator();
                 printOut.print(builder);
             }
             if (fileOut != null) {
-                StringBuilder builder = new StringBuilder();
                 //builder.append("[").append(new Date().toString()).append("]");
-                builder.append("[").append(object.getClass().getSimpleName()).append("]");
-                builder.append(" ").append(message);
-                builder.append(System.lineSeparator());
-                fileOut.write(builder.toString().getBytes(StandardCharsets.UTF_8));
+                String builder = "[" + object.getClass().getSimpleName() + "]" +
+                        " " + message +
+                        System.lineSeparator();
+                fileOut.write(builder.getBytes(StandardCharsets.UTF_8));
             }
         } catch (Exception e) {
             e.printStackTrace();

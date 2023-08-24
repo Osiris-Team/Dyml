@@ -29,13 +29,13 @@ import java.util.function.Consumer;
  */
 @SuppressWarnings("ALL")
 public class Yaml {
-    public static Charset charset = StandardCharsets.UTF_8;
-
-    // Thread safety:
     /**
      * See {@link #lockFile()} and {@link #unlockFile()} for details.
      */
     public static final Map<String, ReentrantLock> pathsAndLocks = new HashMap<>();
+
+    // Thread safety:
+    public static Charset charset = StandardCharsets.UTF_8;
     /**
      * A final list, that contains {@link YamlSection}s that are in editing. <br>
      * In contrary to the {@link #loadedModules} list, this list doesn't get cleared <br>

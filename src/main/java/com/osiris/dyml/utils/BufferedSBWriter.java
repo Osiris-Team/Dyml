@@ -14,7 +14,7 @@ import java.util.Arrays;
 public class BufferedSBWriter extends BufferedWriter {
     public StringBuilder builder;
 
-    public BufferedSBWriter(){
+    public BufferedSBWriter() {
         this(new StringBuilder());
     }
 
