@@ -137,7 +137,7 @@ class YamlReader {
                 for (YamlSection inEditM :
                         yaml.getAllInEdit()) {
                     YamlSection loadedM = utils.getExisting(inEditM, yaml.getAllLoaded());
-                    inEditM.setValues(loadedM.getValues());
+                    inEditM.setSValues(loadedM.getValues());
                     inEditM.setParentSection(loadedM.getParentSection());
                     inEditM.setChildSections(loadedM.getChildSections());
                 }
@@ -232,6 +232,7 @@ class YamlReader {
                 // Note that the next char must be a space for this to be a key.
                 line.setCharFound(true);
                 if (line.isKeyFound()) break; // Skip if the key was already found.
+                if (line.isHyphenFound()) break; // Skip if inside a list.
                 int charCodeNext = 0;
                 try {
                     charCodeNext = line.getFullLine().codePointAt(charCodePos + 1); // This may fail if we are at the last/first char.
@@ -287,7 +288,7 @@ class YamlReader {
             if (currentLine.isCommentFound()) {
                 if (currentLine.isKeyFound()) { // It's a side comment, so we add the comment to the value
                     module.setKeys(currentLine.getRawKey())
-                            .setValues(new SmartString(currentLine.getRawValue()));
+                            .setSValues(new SmartString(currentLine.getRawValue()));
                     module.addSideComments(currentLine.getRawComment());
                     yaml.getAllLoaded().add(module);
                 } else if (currentLine.isHyphenFound()) { // Its a side comment, so we add of a value in a list
@@ -375,7 +376,7 @@ class YamlReader {
                 }
 
                 module.addKeys(currentLine.getRawKey());
-                module.setValues(new SmartString(currentLine.getRawValue()));
+                module.setSValues(new SmartString(currentLine.getRawValue()));
                 module.addSideComments(currentLine.getRawComment());
                 allLoaded.add(module);
             } else if (currentLine.isHyphenFound()) { // Comment + Hyphen found without a key

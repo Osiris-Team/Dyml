@@ -34,6 +34,16 @@ public class SmartString {
         return string;
     }
 
+    @Override
+    public String toString() {
+        new Exception().printStackTrace();
+        return string;
+    }
+
+    public String _toString(){
+        return getClass().getName() + "@" + Integer.toHexString(hashCode());
+    }
+
     /**
      * Note that this can be null. <br>
      * String representation of value in final YAML file/output.

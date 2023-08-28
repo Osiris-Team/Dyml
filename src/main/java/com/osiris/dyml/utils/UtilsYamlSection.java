@@ -100,23 +100,17 @@ public class UtilsYamlSection {
     public <T> List<SmartString> arrayToValuesList(T[] array) {
         List<SmartString> values = new ArrayList<>();
         for (T t : array) {
-            values.add(new SmartString(t.toString()));
+            if(t==null) values.add(new SmartString(null));
+            else values.add(new SmartString(t.toString()));
         }
         return values;
-    }
-
-    public List<SmartString> stringArrayToValuesList(String[] array) {
-        return arrayToValuesList(array);
-    }
-
-    public List<SmartString> stringListToValuesList(List<String> list) {
-        return listToValuesList(list);
     }
 
     public <T> List<SmartString> listToValuesList(List<T> list) {
         List<SmartString> values = new ArrayList<>();
         for (T t : list) {
-            values.add(new SmartString(t.toString()));
+            if(t==null) values.add(new SmartString(null));
+            else values.add(new SmartString(t.toString()));
         }
         return values;
     }

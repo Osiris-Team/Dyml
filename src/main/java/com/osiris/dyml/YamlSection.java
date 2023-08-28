@@ -201,9 +201,7 @@ public class YamlSection {
      */
     public YamlSection addSValues(List<SmartString> v) {
         if (v != null) {
-            for (SmartString value :
-                    v)
-                Objects.requireNonNull(value);
+            for (SmartString value : v) Objects.requireNonNull(value);
             this.values.addAll(v);
         } else this.values.add(new SmartString((String) null));
         return this;
@@ -390,23 +388,6 @@ public class YamlSection {
     }
 
     /**
-     * See {@link #setValues(List)} for details.
-     */
-    public YamlSection setValues(String... v) {
-        setSValues(utils.stringArrayToValuesList(v));
-        return this;
-    }
-
-    /**
-     * Not allowed to contain null {@link SmartString}s. <br>
-     * See {@link #setValues(List)} for details.
-     */
-    public YamlSection setValues(SmartString... v) {
-        setSValues(Arrays.asList(v));
-        return this;
-    }
-
-    /**
      * Clears the values list and adds the values from the provided list. <br>
      * Note that the list can NOT contain null {@link SmartString}s. <br>
      * {@link SmartString#asString()} may return null though. <br>
@@ -414,6 +395,15 @@ public class YamlSection {
      */
     public <T> YamlSection setValues(List<T> v) {
         setSValues(utils.listToValuesList(v));
+        return this;
+    }
+
+    /**
+     * Not allowed to contain null {@link SmartString}s. <br>
+     * See {@link #setValues(List)} for details.
+     */
+    public YamlSection setSValues(SmartString... v) {
+        setSValues(Arrays.asList(v));
         return this;
     }
 
@@ -460,20 +450,21 @@ public class YamlSection {
         return this;
     }
 
-    /**
-     * @see #setDefSValues(List)
-     */
-    public YamlSection setDefValues(SmartString... v) {
-        setDefSValues(Arrays.asList(v));
-        return this;
-    }
-
 
     /**
      * @see #setDefSValues(List)
      */
     public <T> YamlSection setDefValues(List<T> v) {
-        return setDefSValues(utils.listToValuesList(v));
+        setDefSValues(utils.listToValuesList(v));
+        return this;
+    }
+
+    /**
+     * @see #setDefSValues(List)
+     */
+    public YamlSection setDefSmartValues(SmartString... v) {
+        setDefSValues(Arrays.asList(v));
+        return this;
     }
 
     /**
