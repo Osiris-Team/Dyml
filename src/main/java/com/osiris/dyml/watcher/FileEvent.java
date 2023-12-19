@@ -11,12 +11,14 @@ public class FileEvent {
     public final WatchEvent watchEvent;
     public final File file;
     public final Path path;
+    public final long id;
 
-    public FileEvent(WatchedDir parentDirectory, WatchEvent<?> watchEvent) {
+    public FileEvent(WatchedDir parentDirectory, WatchEvent<?> watchEvent, long id) {
         this.parentDirectory = parentDirectory;
         this.watchEvent = watchEvent;
         this.file = new File(parentDirectory + "/" + watchEvent.context());
         this.path = file.toPath();
+        this.id = id;
     }
 
     /**

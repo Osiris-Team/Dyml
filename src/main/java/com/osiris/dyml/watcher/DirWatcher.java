@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 import static java.nio.file.StandardWatchEventKinds.*;
@@ -38,6 +40,7 @@ public class DirWatcher extends Thread implements AutoCloseable {
     private WatchKey watchKey;
     private List<Consumer<FileEvent>> listeners;
     private List<DirWatcher> subDirectoriesWatchers = new ArrayList<>();
+    private static ExecutorService listenerExecutor = Executors.newCachedThreadPool();
 
     /**
      * <p style="color:red">Its recommended to use the static method {@link DirWatcher#get(File, boolean)} to get a instance of this class instead!</p>
@@ -92,15 +95,27 @@ public class DirWatcher extends Thread implements AutoCloseable {
         super.run();
         try {
             WatchKey key;
+            long eventId = 0;
             while ((key = watchService.take()) != null) {
                 watchKey = key;
+
+                // Prevent receiving two separate ENTRY_MODIFY events: file modified
+                // and timestamp updated. Instead, receive one ENTRY_MODIFY event
+                // with two counts.
+                Thread.sleep(50);
+
                 for (WatchEvent<?> event :
                         key.pollEvents()) {
-                    if (this.listeners != null && !((Path) event.context()).toFile().isDirectory()) // Sub-directories have their own watchers
+                    if (this.listeners != null && !((Path) event.context()).toFile().isDirectory()){ // Sub-directories have their own watchers
+                        long finalEventId = eventId;
                         for (Consumer<FileEvent> listener :
                                 listeners) {
-                            listener.accept(new FileEvent(registeredDir, event));
+                            listenerExecutor.execute(() -> {
+                                listener.accept(new FileEvent(registeredDir, event, finalEventId));
+                            });
                         }
+                        eventId++;
+                    }
                 }
                 key.reset();
             }
