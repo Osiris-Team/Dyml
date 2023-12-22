@@ -32,15 +32,15 @@ import static java.nio.file.StandardWatchEventKinds.*;
  */
 @SuppressWarnings("ALL")
 public class DirWatcher extends Thread implements AutoCloseable {
-    private static final List<DirWatcher> activeWatchers = new ArrayList<>();
+    public static final List<DirWatcher> activeWatchers = new ArrayList<>();
 
-    private WatchedDir registeredDir;
-    private WatchService watchService;
-    private boolean isWatchSubDirs = false;
-    private WatchKey watchKey;
-    private List<Consumer<FileEvent>> listeners;
-    private List<DirWatcher> subDirectoriesWatchers = new ArrayList<>();
-    private static ExecutorService listenerExecutor = Executors.newCachedThreadPool();
+    public WatchedDir registeredDir;
+    public WatchService watchService;
+    public boolean isWatchSubDirs = false;
+    public WatchKey watchKey;
+    public List<Consumer<FileEvent>> listeners;
+    public List<DirWatcher> subDirectoriesWatchers = new ArrayList<>();
+    public static ExecutorService listenerExecutor = Executors.newCachedThreadPool();
 
     /**
      * <p style="color:red">Its recommended to use the static method {@link DirWatcher#get(File, boolean)} to get a instance of this class instead!</p>
@@ -69,10 +69,12 @@ public class DirWatcher extends Thread implements AutoCloseable {
      */
     public static synchronized DirWatcher get(Path path, boolean isWatchSubDirs) throws IOException {
         if (!path.toFile().isDirectory()) path = path.getParent();
-        for (DirWatcher watcher :
-                activeWatchers) {
-            if (watcher.getRegisteredDir().toPath().equals(path) && watcher.isAlive())
-                return watcher;
+        synchronized (activeWatchers){
+            for (DirWatcher watcher :
+                    activeWatchers) {
+                if (watcher.getRegisteredDir().toPath().equals(path) && watcher.isAlive())
+                    return watcher;
+            }
         }
         return new DirWatcher(path, isWatchSubDirs);
     }
@@ -125,11 +127,28 @@ public class DirWatcher extends Thread implements AutoCloseable {
         }
     }
 
+    /**
+     * Closes this and all sub-directory listeners.
+     * @throws Exception
+     */
     @Override
     public void close() throws Exception {
-        if (watchKey != null) watchKey.cancel();
-        watchService.close();
-        activeWatchers.remove(this);
+        close(true);
+    }
+
+    public void close(boolean closeSubdirectories) throws IOException {
+        synchronized (activeWatchers){
+            if (watchKey != null) watchKey.cancel();
+            watchService.close();
+            activeWatchers.remove(this);
+
+            if(closeSubdirectories){
+                for (DirWatcher subDirWatcher : subDirectoriesWatchers) {
+                    subDirWatcher.close(true);
+                }
+                subDirectoriesWatchers.clear();
+            }
+        }
     }
 
     private void watchDir(Path path, boolean watchSubdirectories) throws IOException {
